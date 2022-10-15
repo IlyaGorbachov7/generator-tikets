@@ -1,7 +1,7 @@
 package panels.impl;
 
 
-import frames.impl.MainWindowFrame;
+import frames.FrameDialogFactory;
 import panels.BasePanel;
 import panels.PanelType;
 
@@ -80,7 +80,7 @@ public class SplashScreenPanel extends BasePanel {
     public SplashScreenPanel(Window frame) {
         super(frame);
         this.frame = frame;
-        mainWindow = new MainWindowFrame(PanelType.MAIN_WINDOW);
+        mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
         this.initPanel();
         this.setComponentsListeners();
         thread.start();
