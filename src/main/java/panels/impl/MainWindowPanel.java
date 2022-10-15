@@ -7,7 +7,7 @@ import com.github.lgooddatepicker.components.DatePicker;
 import entity.Ticket;
 import entity.TicketGenerator;
 import exceptions.NumberQuestionsRequireException;
-import frames.BaseDialog;
+import frames.FrameDialogFactory;
 import frames.impl.AboutAuthor;
 import frames.impl.AboutProgram;
 import frames.impl.FileViewer;
@@ -136,9 +136,12 @@ public class MainWindowPanel extends BasePanel {
     public MainWindowPanel(Window frame) {
         super(frame);
         frameRoot = getFrame();
-        aboutAuthorDialog = new AboutAuthor(frame, PanelType.ABOUT_AUTHOR);
-        aboutProgramDialog = new AboutProgram(frame, PanelType.ABOUT_PROGRAM);
-        viewFileDialog = new frames.impl.FileViewer(frame);
+        aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
+                .createJDialog(frame, PanelType.ABOUT_AUTHOR);
+        aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
+                .createJDialog(frame, PanelType.ABOUT_PROGRAM);
+        viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
+                .createJDialog(frame, PanelType.FILE_VIEWER);
 
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
@@ -719,7 +722,6 @@ public class MainWindowPanel extends BasePanel {
 
             try {
                 ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, true);
-
             } catch (NumberQuestionsRequireException e) {
                 int selected = JOptionPane.showInternalConfirmDialog(null,
                         e.getMessage() +
@@ -736,6 +738,9 @@ public class MainWindowPanel extends BasePanel {
                                 "Warning", JOptionPane.ERROR_MESSAGE);
 
                         this.setEnabledComponents(true, false);
+                    } catch (InterruptedException e2) {
+                        System.out.println(Thread.currentThread() + " is interrupted: Reason " +
+                                           ": interrupted generate tickets by close program during ticket generation");
                     }
 
                 } else {
@@ -747,29 +752,44 @@ public class MainWindowPanel extends BasePanel {
                         "Warning !", JOptionPane.ERROR_MESSAGE);
 
                 this.setEnabledComponents(true, false);
+            } catch (InterruptedException e) {
+                System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
+                                   "close program during ticket generation");
             }
 
             // if docx file is generated, then ...
             // save generate file docx inside project for further conversion to pdf file
             if (ticketGenerator.getDocxDec() != null) {
+                InputStream inputStream = null;
+                OutputStream outputStream = null;
+                IConverter converter = null;
                 try {
-                    File tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
-                    tmpFileDocx.deleteOnExit();
-                    File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
-                    tmpFilePdf.deleteOnExit();
-                    viewFileDialog.setFile(tmpFilePdf);
+                    try {
+                        File tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
+                        tmpFileDocx.deleteOnExit();
+                        File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
+                        tmpFilePdf.deleteOnExit();
+                        viewFileDialog.setFile(tmpFilePdf);
 
-                    ticketGenerator.writeOutputFile(tmpFileDocx);
+                        ticketGenerator.writeOutputFile(tmpFileDocx);
 
-                    // convert saved file to pdf file
-                    InputStream inputStream = new FileInputStream(tmpFileDocx);
-                    OutputStream outputStream = new FileOutputStream(tmpFilePdf);
-                    IConverter converter = LocalConverter.builder().build();
-                    converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
-                    outputStream.close();
-                    inputStream.close();
-                    converter.shutDown();
-                    System.out.println("convert docx => pdf is : success");
+                        // convert saved file to pdf file
+                        inputStream = new FileInputStream(tmpFileDocx);
+                        outputStream = new FileOutputStream(tmpFilePdf);
+                        converter = LocalConverter.builder().build();
+                        converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
+                        System.out.println("convert docx => pdf is : success");
+                    } finally {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                        if (converter != null) {
+                            converter.shutDown();
+                        }
+                    }
                 } catch (Exception e) {
                     // ConverterException in case if program has been close
                     // for a reason: InterruptedException inside method .execute();
@@ -844,8 +864,7 @@ public class MainWindowPanel extends BasePanel {
          */
         @Override
         public void focusLost(FocusEvent e) {
-            if (e.getSource() instanceof JTextField) {
-                JTextField textField = (JTextField) e.getSource();
+            if (e.getSource() instanceof JTextField textField) {
                 String msg = "";
                 if ((textField == tfTeacher || textField == tfHeadDepartment) &&
                     !TextPatterns.PERSON_NAME_PATTERN.matches(textField.getText())) {

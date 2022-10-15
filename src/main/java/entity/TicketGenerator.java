@@ -97,17 +97,12 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
                 }
 
             } catch (ExecutionException e) {
-                for (var future : futures) {
-                    future.cancel(true);
-                }
                 throw new IllegalArgumentException(e.getCause().getMessage());
-            } catch (InterruptedException e) {
-                for (var future : futures) {
-                    future.cancel(true);
-                }
+            } catch (InterruptedException ignored) {
             } finally {
-                executor.shutdown();
-                for (var thread : inputTreads) {
+                // closing pool threads and cancel all executing tasks and tasks in the queue
+                executor.shutdownNow();
+                for (var thread : inputTreads) { // closing files
                     if (thread != null) {
                         thread.close();
                     }
@@ -128,7 +123,8 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
      * @throws ExecutionException              in case any trouble inside flow
      */
     public void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
-            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException {
+            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException,
+            InterruptedException {
         // Throw Exception if incorrect entered parameters method
         if (quantityTickets <= 0) {
             throw new IllegalArgumentException("Incorrect quality entered tickets");
@@ -142,7 +138,7 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
             mapQuestions = futureTaskExtractContent.get(); // await answer
         } catch (InterruptedException e) { // in case interrupted thread
             futureTaskExtractContent.cancel(true); // then also interrupt extract-thread
-            return;
+            throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
         // throw exception if insufficient quantity questions
@@ -165,6 +161,7 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
             docxDec = futureTaskOutputContent.get(); // await answer
         } catch (InterruptedException e) {
             futureTaskOutputContent.cancel(true);
+            throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
     }
 
