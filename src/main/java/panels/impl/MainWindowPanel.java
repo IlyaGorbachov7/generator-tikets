@@ -4,6 +4,7 @@ import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import entity.Ticket;
 import entity.TicketGenerator;
 import exceptions.NumberQuestionsRequireException;
@@ -22,6 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
@@ -99,7 +101,6 @@ public class MainWindowPanel extends BasePanel {
                 new Ticket.SessionType[]{Ticket.SessionType.WINTER, Ticket.SessionType.SUMMER
                 });
         datePicDecision = new DatePicker();
-
         //**********************
 
         modelListFilesRsc = new DefaultListModel<>();
@@ -225,6 +226,14 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
         tfHeadDepartment.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
 
+        DatePickerSettings datePickerSettings = new DatePickerSettings(new Locale("ru"));
+        datePickerSettings.setFormatForDatesCommonEra("dd.MM.uuuu");
+        datePicDecision.setSettings(datePickerSettings);
+        datePicDecision.getComponentDateTextField().setFont(
+                new Font("Serif", Font.PLAIN, 17));
+        datePicDecision.getComponentDateTextField().setEnabled(false);
+        datePicDecision.setDateToToday();
+        datePicDecision.setFocusable(false);
         boxTypeSession.setFocusable(false);
 
         // createPanelMainActionPanel
@@ -575,7 +584,7 @@ public class MainWindowPanel extends BasePanel {
         gbc17.weightx = 0;
         gbc17.weighty = 0.5;
         gbc17.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(new JLabel("Дата"), gbc17);
+        panelLEFT.add(datePicDecision, gbc17);
 
         GridBagConstraints gbc18 = new GridBagConstraints();
         gbc18.gridx = 0;
