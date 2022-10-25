@@ -49,6 +49,16 @@ public class Question {
         this.listParagraphs.remove(p);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+        if (this == obj) return true;
+        if (obj instanceof Question q) {
+            return Objects.equals(this.listParagraphs, q.listParagraphs);
+        }
+        return false;
+    }
+
     /**
      * @return hash code of the object
      */

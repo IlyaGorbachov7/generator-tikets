@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
+package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools;
 
 import com.microsoft.schemas.office.word.STWrapType;
 import org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.STWrapText;
