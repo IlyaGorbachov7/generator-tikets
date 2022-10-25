@@ -73,12 +73,6 @@ public class ContentExtractThread
                 curP = paragraphs.get(i); // start tag
                 nextP = (i < paragraphs.size() - 1) ? paragraphs.get(i + 1) : curP;
 
-                // Если tag <S> в конце параграфа и за ним ничего не идет
-                if (nextP == curP) {
-                    throw new ContentExtractException(urlDocxFile +
-                                                      "\nNext paragraph achieved end file. " +
-                                                      "\nStart tag is last paragraph in file");
-                }
                 if (!isNumbering(nextP)) { // если за тегом <S> нет нумерованного списка
                     throw new ContentExtractException(urlDocxFile +
                                                       "\nNext paragraph is not numeration list");
@@ -88,27 +82,26 @@ public class ContentExtractThread
                 // Then...
                 topic = extractValFromStartTag(curP);
                 if (topic == null) {   // don't must null
-                    throw new NullPointerException(urlDocxFile +
-                                                   "\nProgrammist you made a mistake");
+                    throw new NullPointerException(urlDocxFile + "\nProgrammist you made a mistake");
                 }
                 topic = (topic.equals("")) ? "topic_" + i : topic;
 
-                listQ = new ArrayList<>();
+                listQ = new ArrayList<>(); // list questions into topic
                 i++;
-                while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) {
-                    Question ques = new Question();
+                while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
+                    Question ques = new Question();// 1 question - can contain picture or math-expressions
                     ques.add(curP);
-                    int j = i + 1;
-                    while (j < paragraphs.size() &&
-                           (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) {
 
-                        if (isStartTag(curP)) {
+                    int j = i + 1;
+                    while (j < paragraphs.size() && (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) { // running by one questions
+                        if (isStartTag(curP)) { // required condition
                             throw new ContentExtractException(urlDocxFile +
-                                                              "\nBy reading numbering list no find  " + "end tag : <S/>");
+                                                              "\nBy reading content of the question no found end tag : <S/>");
                         }
                         ques.add(curP);
                         ++j;
                     }
+
                     i = j; // then update index, point on the
                     listQ.add(ques);
                 }
@@ -120,26 +113,42 @@ public class ContentExtractThread
                     }
                 } else {
                     throw new ContentExtractException(urlDocxFile + "\nBy reading numbering" +
-                                                      " list no find  end tag : <S/> the end file");
+                                                      " list no find  end tag : <S/>");
                 }
             }
         }
         return mapQ;
     }
 
+    /**
+     * This method validate order determine start and end tags.
+     * <p>
+     * If case success, this method return {@code true}
+     * <p>
+     * else in case failure return {@code false} - if start and end tags no exist (that is indexStart and indexEnd < 0)
+     * <b>or</b> in case failure throw exception {@link ContentExtractException}
+     * <p>
+     * <b>Success this method: </b> <i>If indexStartTag > indexEndTag</i>
+     *
+     * @param i       index start tag
+     * @param iEndTag index end tag
+     * @return true, in case success, otherwise false
+     * @throws ContentExtractException
+     */
     private boolean isEndTagAfterStartTag(int i, int iEndTag) throws ContentExtractException {
         if ((i < 0 && iEndTag < 0) || (iEndTag > 0 && i > iEndTag) || (i > 0 && iEndTag < 0) || (i < 0 && iEndTag > 0)) {
-            if (i < 0 && iEndTag < 0) {
+
+            if (i < 0 && iEndTag < 0) { // i < 0 && iEndTag < 0
                 return false; // if no searched start and end tags
 
                 // in other case throw exceptions
-            } else if (iEndTag > 0 && i > iEndTag) {
+            } else if (iEndTag > 0 && i > iEndTag) {  // iEndTag > 0 && i > iEndTag
                 throw new ContentExtractException(urlDocxFile +
                                                   "\n No specified start tag, although exist end tag");
-            } else if (i > 0) {
+            } else if (i > 0) { // i > 0 && iEndTag < 0
                 throw new ContentExtractException(urlDocxFile +
-                                                  "\n No find  end tag : <S/> the end file ");
-            } else {
+                                                  "\n No find  end tag : <S/>");
+            } else { // i < 0 && iEndTag > 0
                 throw new ContentExtractException(urlDocxFile +
                                                   "\n Not exist start tag, although exist end tag");
             }
