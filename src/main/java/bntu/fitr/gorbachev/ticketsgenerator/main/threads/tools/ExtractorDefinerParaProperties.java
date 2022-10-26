@@ -124,7 +124,7 @@ public class ExtractorDefinerParaProperties {
      * @param p paragraph
      * @return true if paragraph meet the requirements
      */
-    public static boolean checkTagCondition(XWPFParagraph p) {
+    private static boolean checkTagCondition(XWPFParagraph p) {
         // paragraph necessary must be center alignment
         if (p.getAlignment() != ParagraphAlignment.CENTER) return false;
 
