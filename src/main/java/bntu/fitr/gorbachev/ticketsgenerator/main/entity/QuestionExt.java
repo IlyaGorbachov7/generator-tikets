@@ -2,13 +2,31 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
 import java.util.Objects;
 
-public class QuestionExt extends Question {
-
+public class QuestionExt extends Question{
     private String section;
     private int level;
     private boolean repeat;
 
     public QuestionExt() {
+    }
+
+    public QuestionExt(String section) {
+        this.section = section;
+    }
+
+    public QuestionExt(String section, int level) {
+        this.section = section;
+        this.level = level;
+    }
+
+    public QuestionExt(String section, int level, boolean repeat) {
+        this.section = section;
+        this.level = level;
+        this.repeat = repeat;
+    }
+
+    public String getSection() {
+        return section;
     }
 
     public int getLevel() {
@@ -17,6 +35,10 @@ public class QuestionExt extends Question {
 
     public boolean isRepeat() {
         return repeat;
+    }
+
+    public void setSection(String section) {
+        this.section = section;
     }
 
     public void setLevel(int level) {
@@ -39,5 +61,14 @@ public class QuestionExt extends Question {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), level, repeat, section);
+    }
+
+    @Override
+    public String toString() {
+        return "QuestionExt{" +
+               "section='" + section + '\'' +
+               ", level=" + level +
+               ", repeat=" + repeat +
+               '}';
     }
 }

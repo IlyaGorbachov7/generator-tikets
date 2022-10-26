@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import org.apache.poi.xwpf.usermodel.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.ContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.OutputContentFormationThread;
 
 import java.io.File;
@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 
 /**
  * Class is a representation of ticket generator.
@@ -22,21 +23,21 @@ import java.util.concurrent.*;
  * @author Gorbachev I. D.
  * @version 12.03.2022
  */
-public class TicketGenerator implements Callable<Map<String, List<Question>>> {
+public abstract class AbstractTicketGenerator<T extends QuestionExt> implements Callable<List<T>> {
 
-    private final Future<Map<String, List<Question>>> futureTaskExtractContent;
+    protected final Future<List<T>> futureTaskExtractContent;
 
-    private final File[] filesRsc;
-    private final Ticket templateTicket;
+    protected final File[] filesRsc;
+    protected final Ticket templateTicket;
 
     private XWPFDocument docxDec;
 
-    private List<Ticket> listTicket;
+    protected List<Ticket> listTicket;
 
     /**
      * @param filesRsc array paths of files resources
      */
-    public TicketGenerator(File[] filesRsc, Ticket templateTicket) {
+    public AbstractTicketGenerator(File[] filesRsc, Ticket templateTicket) {
         this.filesRsc = filesRsc;
         this.templateTicket = templateTicket;
         // launch external thread
@@ -69,13 +70,13 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
      * @throws Exception general exception in case any troubles inside thread
      */
     @Override
-    public Map<String, List<Question>> call() throws Exception {
+    public List<T> call() throws Exception {
         {
-            Map<String, List<Question>> mapQuestions = new LinkedHashMap<>();
+            List<T> generalList = new ArrayList<>();
             FileInputStream[] inputTreads = new FileInputStream[filesRsc.length];
             XWPFDocument[] docxRsc = new XWPFDocument[filesRsc.length];
             ExecutorService executor = Executors.newFixedThreadPool(filesRsc.length);
-            List<Future<Map<String, List<Question>>>> futures = new ArrayList<>(filesRsc.length);
+            List<Future<List<T>>> futures = new ArrayList<>(filesRsc.length);
 
             try {
                 for (int i = 0; i < inputTreads.length; ++i) {
@@ -83,17 +84,13 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
                     docxRsc[i] = new XWPFDocument(inputTreads[i]);
 
                     // thread launch
-                    futures.add(executor.submit(new ContentExtractThread(docxRsc[i], filesRsc[i].getPath())));
+                    AbstractContentExtractThread<T> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName());
+                    futures.add(executor.submit(extractor));
+
                 }
 
-                for (var futureTask : futures) {
-                    var map = futureTask.get();
-                    for (var entry : map.entrySet()) {
-                        var listQ = mapQuestions.putIfAbsent(entry.getKey(), entry.getValue());
-                        if (listQ != null) {
-                            listQ.addAll(entry.getValue());
-                        }
-                    }
+                for (Future<List<T>> futureTask : futures) {
+                    generalList.addAll(futureTask.get());
                 }
 
             } catch (ExecutionException e) {
@@ -108,9 +105,11 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
                     }
                 }
             }
-            return mapQuestions;
+            return generalList;
         }
     }
+
+    protected abstract AbstractContentExtractThread<T> factoryExtractor(XWPFDocument p, String url);
 
     /**
      * Generate file docx where containing tickets
@@ -123,8 +122,7 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
      * @throws ExecutionException              in case any trouble inside flow
      */
     public void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
-            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException,
-            InterruptedException {
+            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException, InterruptedException {
         // Throw Exception if incorrect entered parameters method
         if (quantityTickets <= 0) {
             throw new IllegalArgumentException("Incorrect quality entered tickets");
@@ -133,23 +131,34 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
                                                "\nthat questions are not repeated in stupid tickets.");
         }
 
-        Map<String, List<Question>> mapQuestions;
+        List<T> listQuestions;
         try {
-            mapQuestions = futureTaskExtractContent.get(); // await answer
+            listQuestions = futureTaskExtractContent.get(); // await answer
         } catch (InterruptedException e) { // in case interrupted thread
             futureTaskExtractContent.cancel(true); // then also interrupt extract-thread
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
         // throw exception if insufficient quantity questions
-        int quantityQuestions = Toolkit.amountQuestions(mapQuestions);
+        int quantityQuestions = listQuestions.size();
         if (uniqueQTickets && quantityTickets * quantityQTickets > (quantityQuestions)) {
             throw new NumberQuestionsRequireException("Insufficient number of questions ("
                                                       + quantityQuestions + ") to " +
                                                       "\nensure no repetition of questions in tickets");
         }
 
-        listTicket = Toolkit.createListTickets(templateTicket, mapQuestions,
+        Map<String, List<T>> mapBySection = listQuestions.stream()
+                .collect(Collectors.groupingBy(T::getSection,
+                        Collectors.toCollection(ArrayList::new)));
+
+        mapBySection.forEach((k, v) -> {
+            System.out.println("=========== k: " + k + " : ====================");
+            for (T e : v) {
+                System.out.println(e);
+            }
+        });
+
+        listTicket = createListTickets(templateTicket, mapBySection,
                 quantityTickets, quantityQTickets);
 
         // lunch output content formation thread
@@ -177,86 +186,16 @@ public class TicketGenerator implements Callable<Map<String, List<Question>>> {
         }
     }
 
+
     /**
-     * Class content necessary tools for {@link TicketGenerator}
+     * Create list tickets
      *
-     * @author Gorbachev I. D.
-     * @version 12.03.2022
+     * @param mapQuestions            map questions
+     * @param quantityTickets         quantity tickets
+     * @param quantityQuestionsTicket quantity questions into one Ticket
+     * @return a list of tickets
      */
-    private static final class Toolkit {
-
-        /**
-         * Create list tickets
-         *
-         * @param mapQuestions            map questions
-         * @param quantityTickets         quantity tickets
-         * @param quantityQuestionsTicket quantity questions into one Ticket
-         * @return a list of tickets
-         */
-        private static List<Ticket> createListTickets(Ticket tempTicket, Map<String, List<Question>> mapQuestions,
-                                                      final int quantityTickets, final int quantityQuestionsTicket) {
-            List<Ticket> listTickets = new ArrayList<>(quantityTickets);
-            List<List<Question>> listsQ = new ArrayList<>(mapQuestions.values());
-            if (mapQuestions.isEmpty()) {
-                return listTickets;
-            }
-            int[] arrCurPosList = new int[listsQ.size()]; // current positions of each list
-            for (int indexTicket = 0; indexTicket < quantityTickets; ++indexTicket) {
-                Ticket ticket = new Ticket(tempTicket.getInstitute(), tempTicket.getFaculty(), tempTicket.getDepartment(),
-                        tempTicket.getSpecialization(), tempTicket.getDiscipline(), tempTicket.getTeacher(),
-                        tempTicket.getHeadDepartment(), tempTicket.getType(), tempTicket.getDate(),
-                        tempTicket.getProtocolNumber(), quantityQuestionsTicket);
-                int curIdListQ = 0;
-
-                for (int indexQuestion = 0; indexQuestion < quantityQuestionsTicket; ++indexQuestion) {
-                    //------------------------
-                    if (curIdListQ == listsQ.size()) {
-                        curIdListQ = 0;
-                    }
-
-                    int countFilledList = 0;
-                    while (curIdListQ < listsQ.size()) {
-                        if ((arrCurPosList[curIdListQ] < listsQ.get(curIdListQ).size())) {
-                            countFilledList = 0;
-                            break;
-                        } else {
-                            ++curIdListQ;
-                            if (curIdListQ == listsQ.size()) {
-                                curIdListQ = 0;
-                                // But if also each lists is filled, then start from the beginning
-                                if (countFilledList >= listsQ.size()) {
-                                    arrCurPosList = new int[listsQ.size()];
-                                    countFilledList = 0;
-                                }
-                            }
-                            ++countFilledList;
-                        }
-                    }
-                    //------------------------
-
-                    List<Question> listQ = listsQ.get(curIdListQ);
-                    ticket.add(listQ.get(arrCurPosList[curIdListQ]));
-                    arrCurPosList[curIdListQ]++;
-                    curIdListQ++;
-                }
-                listTickets.add(ticket);
-            }
-
-            return listTickets;
-        }
-
-        /**
-         * Count amount all questions
-         *
-         * @param mapQuestions map questions
-         * @return amount all questions in map questions
-         */
-        private static int amountQuestions(Map<String, List<Question>> mapQuestions) {
-            int count = 0;
-            for (var list : mapQuestions.values()) {
-                count += list.size();
-            }
-            return count;
-        }
-    }
+    protected abstract List<Ticket> createListTickets(Ticket tempTicket, Map<String, List<T>> mapQuestions,
+                                                      final int quantityTickets,
+                                                      final int quantityQuestionsTicket);
 }

@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
+package bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
@@ -18,6 +18,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.ExtractorD
  * @author Gorbachev I. D.
  * @version 13.03.2022
  */
+@Deprecated(forRemoval = true)
 public class ContentExtractThread
         implements Callable<Map<String, List<Question>>> {
 
@@ -135,7 +136,7 @@ public class ContentExtractThread
      * @return true, in case success, otherwise false
      * @throws ContentExtractException
      */
-    private boolean isEndTagAfterStartTag(int i, int iEndTag) throws ContentExtractException {
+    protected boolean isEndTagAfterStartTag(int i, int iEndTag) throws ContentExtractException {
         if ((i < 0 && iEndTag < 0) || (iEndTag > 0 && i > iEndTag) || (i > 0 && iEndTag < 0) || (i < 0 && iEndTag > 0)) {
 
             if (i < 0 && iEndTag < 0) { // i < 0 && iEndTag < 0

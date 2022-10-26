@@ -1,13 +1,14 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.TicketGenerator;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutAuthor;
@@ -696,7 +697,7 @@ public class MainWindowPanel extends BasePanel {
         return pnlRes;
     }
 
-    private TicketGenerator<Question2> ticketGenerator;
+    private AbstractTicketGenerator<Question2> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
 
     /**
@@ -728,7 +729,7 @@ public class MainWindowPanel extends BasePanel {
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
                     datePicDecision.getText(), tfProtocol.getText());
 
-            ticketGenerator = new TicketGenerator<>(filesRes, tempTicket, Question2::new);
+            ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
 
             try {
                 ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, true);
