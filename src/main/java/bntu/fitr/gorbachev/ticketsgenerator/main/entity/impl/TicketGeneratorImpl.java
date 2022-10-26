@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2> {
     /**
-     * @param filesRsc         array paths of files resources
+     * @param filesRsc       array paths of files resources
      * @param templateTicket
      */
     public TicketGeneratorImpl(File[] filesRsc, Ticket templateTicket) {
@@ -23,8 +23,8 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2> {
     }
 
     @Override
-    protected AbstractContentExtractThread<Question2> factoryExtractor(XWPFDocument p, String url) {
-        return new ContentExtractor(p,url);
+    protected Supplier<AbstractContentExtractThread<Question2>> factoryExtractor(XWPFDocument p, String url) {
+        return () -> new ContentExtractor(p, url);
     }
 
 

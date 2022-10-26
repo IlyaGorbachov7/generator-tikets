@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -84,7 +85,8 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
                     docxRsc[i] = new XWPFDocument(inputTreads[i]);
 
                     // thread launch
-                    AbstractContentExtractThread<T> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName());
+                    AbstractContentExtractThread<T> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName())
+                            .get();
                     futures.add(executor.submit(extractor));
 
                 }
@@ -109,7 +111,7 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
         }
     }
 
-    protected abstract AbstractContentExtractThread<T> factoryExtractor(XWPFDocument p, String url);
+    protected abstract Supplier<AbstractContentExtractThread<T>> factoryExtractor(XWPFDocument p, String url);
 
     /**
      * Generate file docx where containing tickets
@@ -148,7 +150,7 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
         }
 
         Map<String, List<T>> mapBySection = listQuestions.stream()
-                .collect(Collectors.groupingBy(T::getSection,
+                .collect(Collectors.groupingBy(T::getSection, LinkedHashMap::new,
                         Collectors.toCollection(ArrayList::new)));
 
         mapBySection.forEach((k, v) -> {
