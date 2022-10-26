@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -695,7 +696,7 @@ public class MainWindowPanel extends BasePanel {
         return pnlRes;
     }
 
-    private TicketGenerator ticketGenerator;
+    private TicketGenerator<Question2> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
 
     /**
@@ -727,7 +728,7 @@ public class MainWindowPanel extends BasePanel {
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
                     datePicDecision.getText(), tfProtocol.getText());
 
-            ticketGenerator = new TicketGenerator(filesRes, tempTicket);
+            ticketGenerator = new TicketGenerator<>(filesRes, tempTicket, Question2::new);
 
             try {
                 ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, true);
@@ -778,7 +779,6 @@ public class MainWindowPanel extends BasePanel {
                         tmpFileDocx.deleteOnExit();
                         File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
                         tmpFilePdf.deleteOnExit();
-                        viewFileDialog.setFile(tmpFilePdf);
 
                         ticketGenerator.writeOutputFile(tmpFileDocx);
 
@@ -788,6 +788,14 @@ public class MainWindowPanel extends BasePanel {
                         converter = LocalConverter.builder().build();
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
                         System.out.println("convert docx => pdf is : success");
+                        // if convert docx is success, then load file for open viewFilePanel
+                        viewFileDialog.setFile(tmpFilePdf);
+                        try {
+                            viewFileDialog.openDocument();
+                        } catch (Exception ex) {
+                            JOptionPane.showConfirmDialog(frameRoot,
+                                    "No such file");
+                        }
                     } finally {
                         if (inputStream != null) {
                             inputStream.close();
@@ -985,12 +993,6 @@ public class MainWindowPanel extends BasePanel {
                 }
             } else if (e.getSource() == btnViewFile) {
                 new Thread(() -> {
-                    try {
-                        viewFileDialog.openDocument();
-                    } catch (Exception ex) {
-                        JOptionPane.showConfirmDialog(frameRoot,
-                                "No such file");
-                    }
                     viewFileDialog.setVisible(true);
                 }).start();
             }
