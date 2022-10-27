@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.OutputContentException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.WrapXml;
 import com.microsoft.schemas.office.word.STWrapType;
 import org.apache.poi.util.Units;
@@ -65,7 +66,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @throws Exception in case general troubles
      */
     @Override
-    public XWPFDocument call() throws Exception {
+    public XWPFDocument call() throws OutputContentException {
         XWPFDocument docxDes = new XWPFDocument();
         // there must be a styles document, even if it is empty
         docxDes.createStyles();
@@ -149,7 +150,11 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                 int indexParagraph = 0;
                 for (var resP : question.getListParagraphs()) {
                     var desP = docxDes.createParagraph();
-                    setParagraphProperties(desP);
+                    try {
+                        setParagraphProperties(desP);
+                    } catch (XmlException e) {
+                        throw new OutputContentException("", e);
+                    }
                     if (resP.getNumID() != null) {
                         desP.setNumID(newNumID);
                         // отступ слева
@@ -184,7 +189,11 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                                 desR.setFontFamily("Times New Roman");
                                 desR.setFontSize(14);
 
-                                clonePictureRun(resR, desR);
+                                try {
+                                    clonePictureRun(resR, desR);
+                                } catch (Exception e) {
+                                    throw new OutputContentException("", e);
+                                }
                             }
                             // else if prefix - <w:oMath> - is math function
                             else if (xmlcursor.getName().getLocalPart().equalsIgnoreCase("oMath")) {

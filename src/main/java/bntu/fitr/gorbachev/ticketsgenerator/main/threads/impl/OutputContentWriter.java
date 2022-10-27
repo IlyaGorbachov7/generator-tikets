@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.OutputContentException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -27,7 +28,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
     }
 
     @Override
-    public XWPFDocument call() throws Exception {
+    public XWPFDocument call() throws OutputContentException {
         return super.call();
     }
 }
