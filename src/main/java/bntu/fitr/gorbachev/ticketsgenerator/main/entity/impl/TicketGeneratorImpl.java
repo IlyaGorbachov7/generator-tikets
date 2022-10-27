@@ -4,22 +4,38 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.OutputContentWriter;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
-public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2> {
+public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Ticket<Question2>> {
+
+    public TicketGeneratorImpl() {
+    }
+
     /**
+     * This constructor will be start this thread designed for extract contents from documents
+     *
      * @param filesRsc       array paths of files resources
      * @param templateTicket
+     * @see #call()
      */
-    public TicketGeneratorImpl(File[] filesRsc, Ticket templateTicket) {
+    public TicketGeneratorImpl(File[] filesRsc, Ticket<Question2> templateTicket) {
         super(filesRsc, templateTicket);
+    }
+
+    public TicketGeneratorImpl(boolean isLazyStartExtractor, File[] filesRsc, Ticket<Question2> templateTicket) {
+        super(isLazyStartExtractor, filesRsc, templateTicket);
     }
 
     @Override
@@ -27,18 +43,35 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2> {
         return () -> new ContentExtractor(p, url);
     }
 
+    @Override
+    protected Supplier<AbstractOutputContentThread<Ticket<Question2>>> factoryOutputContent(List<Ticket<Question2>> listTickets) {
+        return () -> new OutputContentWriter(listTickets);
+    }
 
     @Override
-    protected List<Ticket> createListTickets(Ticket tempTicket, Map<String, List<Question2>> mapQuestions,
-                                             int quantityTickets, int quantityQuestionsTicket) {
-        List<Ticket> listTickets = new ArrayList<>(quantityTickets);
+    protected List<Ticket<Question2>> createListTickets(Ticket<Question2> tempTicket, List<Question2> listQuestions,
+                                                        int quantityTickets, int quantityQuestionsTicket) {
+
+        Map<String, List<Question2>> mapQuestions = listQuestions.stream()
+                .collect(Collectors.groupingBy(Question2::getSection, LinkedHashMap::new,
+                        Collectors.toCollection(ArrayList::new)));
+
+        mapQuestions.forEach((k, v) -> {
+            System.out.println("=========== k: " + k + " : ====================");
+            for (var e : v) {
+                System.out.println(e);
+            }
+        });
+
+        // убрать жосткую привязку
+        List<Ticket<Question2>> listTickets = new ArrayList<>(quantityTickets);
         List<List<Question2>> listsQ = new ArrayList<>(mapQuestions.values());
         if (mapQuestions.isEmpty()) {
             return listTickets;
         }
         int[] arrCurPosList = new int[listsQ.size()]; // current positions of each list
         for (int indexTicket = 0; indexTicket < quantityTickets; ++indexTicket) {
-            Ticket ticket = new Ticket(tempTicket.getInstitute(), tempTicket.getFaculty(), tempTicket.getDepartment(),
+            Ticket<Question2> ticket = new Ticket<>(tempTicket.getInstitute(), tempTicket.getFaculty(), tempTicket.getDepartment(),
                     tempTicket.getSpecialization(), tempTicket.getDiscipline(), tempTicket.getTeacher(),
                     tempTicket.getHeadDepartment(), tempTicket.getType(), tempTicket.getDate(),
                     tempTicket.getProtocolNumber(), quantityQuestionsTicket);

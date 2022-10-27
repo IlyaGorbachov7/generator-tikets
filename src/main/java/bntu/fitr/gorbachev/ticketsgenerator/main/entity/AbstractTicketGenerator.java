@@ -3,7 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import org.apache.poi.xwpf.usermodel.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.OutputContentFormationThread;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,7 +13,6 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Class is a representation of ticket generator.
@@ -24,27 +23,59 @@ import java.util.stream.Collectors;
  * @author Gorbachev I. D.
  * @version 12.03.2022
  */
-public abstract class AbstractTicketGenerator<T extends QuestionExt> implements Callable<List<T>> {
+public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends Ticket<Q>>
+        implements Callable<List<Q>> {
 
-    protected final Future<List<T>> futureTaskExtractContent;
+    private Future<List<Q>> futureTaskExtractContent;
 
-    protected final File[] filesRsc;
-    protected final Ticket templateTicket;
+    protected File[] filesRsc;
+    protected T templateTicket;
 
     private XWPFDocument docxDec;
 
-    protected List<Ticket> listTicket;
+    protected List<T> listTicket;
+
+    public AbstractTicketGenerator() {
+    }
 
     /**
+     * This constructor will be start this thread designed for extract contents from documents
+     *
      * @param filesRsc array paths of files resources
+     * @see #call()
      */
-    public AbstractTicketGenerator(File[] filesRsc, Ticket templateTicket) {
+    public AbstractTicketGenerator(File[] filesRsc, T templateTicket) {
+        if (filesRsc == null || templateTicket == null) {
+            throw new NullPointerException("Initialization attributes is needed condition");
+        }
         this.filesRsc = filesRsc;
         this.templateTicket = templateTicket;
-        // launch external thread
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        this.futureTaskExtractContent = executorService.submit(this);
-        executorService.shutdown();
+        // by default run start extracting threads
+        this.runStartExtractorThreads();
+    }
+
+    /**
+     * @param isLazyStartExtractor This attribute is indicator for lazy starting extraction-threads.
+     *                             <p>
+     *                             <I>{@code Lazy}</I> is means, that execution doesn't happen instantly, but only if necessary this system API
+     *                             that means, that this method will be invoked in anything case, when this will be needed <b>{@code even if
+     *                             value == false}</b>
+     *                             <p>
+     *                             <b>By default</b> value this attribute is {@code false}, then running starting this thread inside constructor.
+     *                             <p>
+     *                             <b>Otherwise provided constructor with this attribute. where may specify value</b>
+     * @param filesRsc             - array paths of files resources
+     * @param templateTicket
+     * @see #call()  call() - is thread, that starting ALL extraction threads
+     */
+    public AbstractTicketGenerator(boolean isLazyStartExtractor, File[] filesRsc, T templateTicket) {
+        if (filesRsc == null || templateTicket == null) {
+            throw new NullPointerException("Initialization attributes is needed condition");
+        }
+        this.filesRsc = filesRsc;
+        this.templateTicket = templateTicket;
+        // run start extraction threadS if is false, else
+        if (!isLazyStartExtractor) this.runStartExtractorThreads();
     }
 
     /**
@@ -57,27 +88,50 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
     /**
      * @return tickets list or {@code null} if you don't invoke {@link #startGenerate(int, int, boolean)}
      */
-    public List<Ticket> getListTicket() {
+    public List<T> getListTicket() {
         return listTicket;
     }
 
+    public AbstractTicketGenerator<Q, T> setFilesRsc(File[] filesRsc) {
+        this.filesRsc = filesRsc;
+        return this;
+    }
+
+    public AbstractTicketGenerator<Q, T> setTemplateTicket(T templateTicket) {
+        this.templateTicket = templateTicket;
+        return this;
+    }
+
+
     /**
-     * Method for extracted contents from files-resources
+     * This method execute starting <b>this thread</b>, which in further will be starting
+     * <i>Extraction Threads</i>
      * <p>
-     * 23.04.2022
-     * I had to think carefully about the question: If a thread is interrupted, are all resources and bntu.fitr.gorbachev.ticketsgenerator.main.threads closed correctly?
-     * As a result, everything closes well, in the case of elsi, the stream was interrupted from
+     * The instant invocation of this method is controlled by attribute isLazyStartExtractor in constructor
+     * <p>
+     * Method will be invoked or inside one the once constructors, otherwise {@link #startGenerate(int, int, boolean)}
+     */
+    private void runStartExtractorThreads() {
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        this.futureTaskExtractContent = executorService.submit(this);
+        executorService.shutdown();
+    }
+
+    /**
+     * This method will be used class implementing {@link AbstractContentExtractThread} <b>for extracting content from files-resources</b>
+     * <p>
+     * Such class supply from factory method: {@link #factoryExtractor(XWPFDocument, String)}
      *
      * @throws Exception general exception in case any troubles inside thread
      */
     @Override
-    public List<T> call() throws Exception {
+    public List<Q> call() throws Exception {
         {
-            List<T> generalList = new ArrayList<>();
+            List<Q> generalList = new ArrayList<>();
             FileInputStream[] inputTreads = new FileInputStream[filesRsc.length];
             XWPFDocument[] docxRsc = new XWPFDocument[filesRsc.length];
             ExecutorService executor = Executors.newFixedThreadPool(filesRsc.length);
-            List<Future<List<T>>> futures = new ArrayList<>(filesRsc.length);
+            List<Future<List<Q>>> futures = new ArrayList<>(filesRsc.length);
 
             try {
                 for (int i = 0; i < inputTreads.length; ++i) {
@@ -85,13 +139,13 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
                     docxRsc[i] = new XWPFDocument(inputTreads[i]);
 
                     // thread launch
-                    AbstractContentExtractThread<T> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName())
+                    AbstractContentExtractThread<Q> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName())
                             .get();
                     futures.add(executor.submit(extractor));
 
                 }
 
-                for (Future<List<T>> futureTask : futures) {
+                for (Future<List<Q>> futureTask : futures) {
                     generalList.addAll(futureTask.get());
                 }
 
@@ -111,10 +165,14 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
         }
     }
 
-    protected abstract Supplier<AbstractContentExtractThread<T>> factoryExtractor(XWPFDocument p, String url);
-
     /**
      * Generate file docx where containing tickets
+     * <p>
+     * This method will be entered in  mode block waiting answer from classes {@link #futureTaskExtractContent}
+     * (it is this class with method {@link #call()}) and
+     * {@link #factoryOutputContent(List)}
+     * <p>
+     * {@code This method is finaly, that is means, that his cannot  inherit}
      *
      * @param quantityTickets  quantity tickets
      * @param quantityQTickets quantity questions inside ticket
@@ -123,7 +181,7 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
      * @throws IllegalArgumentException        in case if value argument is illegal
      * @throws ExecutionException              in case any trouble inside flow
      */
-    public void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
+    public final void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
             throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException, InterruptedException {
         // Throw Exception if incorrect entered parameters method
         if (quantityTickets <= 0) {
@@ -131,9 +189,16 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
         } else if (quantityQTickets <= 0) {
             throw new IllegalArgumentException("insufficient number of questions to ensure " +
                                                "\nthat questions are not repeated in stupid tickets.");
+        } else if (filesRsc == null || templateTicket == null) {
+            throw new IllegalArgumentException("Was invoked constructor without parameters." +
+                                               "You need to initialize attributes: filesRsc, templateTicket " +
+                                               "through methods setter");
         }
 
-        List<T> listQuestions;
+        // run staring thread for extract content from docx file
+        if (futureTaskExtractContent == null) this.runStartExtractorThreads();
+
+        List<Q> listQuestions;
         try {
             listQuestions = futureTaskExtractContent.get(); // await answer
         } catch (InterruptedException e) { // in case interrupted thread
@@ -149,22 +214,11 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
                                                       "\nensure no repetition of questions in tickets");
         }
 
-        Map<String, List<T>> mapBySection = listQuestions.stream()
-                .collect(Collectors.groupingBy(T::getSection, LinkedHashMap::new,
-                        Collectors.toCollection(ArrayList::new)));
-
-        mapBySection.forEach((k, v) -> {
-            System.out.println("=========== k: " + k + " : ====================");
-            for (T e : v) {
-                System.out.println(e);
-            }
-        });
-
-        listTicket = createListTickets(templateTicket, mapBySection,
+        listTicket = createListTickets(templateTicket, listQuestions,
                 quantityTickets, quantityQTickets);
 
         // lunch output content formation thread
-        OutputContentFormationThread threadWriteTickets = new OutputContentFormationThread(listTicket);
+        AbstractOutputContentThread<T> threadWriteTickets = factoryOutputContent(listTicket).get();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Future<XWPFDocument> futureTaskOutputContent = executorService.submit(threadWriteTickets);
         executorService.shutdown();
@@ -188,16 +242,34 @@ public abstract class AbstractTicketGenerator<T extends QuestionExt> implements 
         }
     }
 
+    /**
+     * This method represented yourself as <i>factory </i> to implementation {@code AbstractContentExtractorThread}
+     *
+     * @param p   document
+     * @param url path to document
+     * @return supplier class, that supply a class realization abstract {@link AbstractContentExtractThread}
+     */
+    protected abstract Supplier<AbstractContentExtractThread<Q>> factoryExtractor(XWPFDocument p, String url);
 
     /**
-     * Create list tickets
+     * This method is <i>abstract</i> with goals allow consumer opportunity yourself realize this method for creation
+     * list tickets.
      *
-     * @param mapQuestions            map questions
+     * @param tempTicket              template ticket
+     * @param listQuestions           list questions
      * @param quantityTickets         quantity tickets
      * @param quantityQuestionsTicket quantity questions into one Ticket
      * @return a list of tickets
      */
-    protected abstract List<Ticket> createListTickets(Ticket tempTicket, Map<String, List<T>> mapQuestions,
-                                                      final int quantityTickets,
-                                                      final int quantityQuestionsTicket);
+    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions,
+                                                 final int quantityTickets,
+                                                 final int quantityQuestionsTicket);
+
+    /**
+     * This method represented yourself as <i>factory</i> to implementation {@code AbstractOutputContentThread}
+     *
+     * @param listTickets list tickets
+     * @return supplier class, that supply a class realization abstract {@link AbstractOutputContentThread}
+     */
+    protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
 }

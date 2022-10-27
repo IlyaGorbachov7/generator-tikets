@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
@@ -697,7 +698,7 @@ public class MainWindowPanel extends BasePanel {
         return pnlRes;
     }
 
-    private AbstractTicketGenerator<Question2> ticketGenerator;
+    private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
 
     /**
@@ -720,7 +721,7 @@ public class MainWindowPanel extends BasePanel {
             int quantityQuestionInTicket = Integer.parseInt(val);
 
             File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());
-            Ticket tempTicket = new Ticket(
+            Ticket<Question2> tempTicket = new Ticket<>(
                     tfInstitute.getText(),
                     tfFaculty.getText(),
                     tfDepartment.getText(), tfSpecialization.getText(),
