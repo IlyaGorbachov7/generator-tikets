@@ -8,7 +8,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentTh
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.OutputContentWriter;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -113,4 +112,5 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
 
         return listTickets;
     }
+
 }
