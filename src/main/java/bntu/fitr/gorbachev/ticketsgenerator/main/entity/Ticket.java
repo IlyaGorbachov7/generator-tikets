@@ -9,7 +9,7 @@ import java.util.List;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
-public class Ticket {
+public class Ticket<T extends QuestionExt> {
     private String institute;
     private String faculty;
     private String department;
@@ -21,7 +21,7 @@ public class Ticket {
     private SessionType type;
     private String date;
     private String protocolNumber;
-    private List<Question> questions;
+    private List<T> questions;
 
     /**
      * Constructor without parameters
@@ -241,7 +241,7 @@ public class Ticket {
      *
      * @param q question
      */
-    public void add(Question q) {
+    public void add(T q) {
         questions.add(q);
     }
 
@@ -250,7 +250,7 @@ public class Ticket {
      *
      * @param q question
      */
-    public boolean remove(Question q) {
+    public boolean remove(T q) {
         return questions.remove(q);
     }
 
@@ -264,15 +264,32 @@ public class Ticket {
     /**
      * @param q questions list
      */
-    public void setQuestions(List<Question> q) {
+    public void setQuestions(List<T> q) {
         this.questions = q;
     }
 
     /**
      * @return questions list
      */
-    public List<Question> getQuestions() {
+    public List<T> getQuestions() {
         return questions;
+    }
+
+    @Override
+    public String toString() {
+        return "Ticket{" +
+               "institute='" + institute + '\'' +
+               ", faculty='" + faculty + '\'' +
+               ", department='" + department + '\'' +
+               ", specialization='" + specialization + '\'' +
+               ", discipline='" + discipline + '\'' +
+               ", teacher='" + teacher + '\'' +
+               ", headDepartment='" + headDepartment + '\'' +
+               ", type=" + type +
+               ", date='" + date + '\'' +
+               ", protocolNumber='" + protocolNumber + '\'' +
+               ", questions=" + questions +
+               '}';
     }
 
     /**
