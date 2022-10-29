@@ -9,7 +9,7 @@ import java.util.List;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
-public class Ticket<T extends QuestionExt> {
+public class Ticket {
     private String institute;
     private String faculty;
     private String department;
@@ -21,7 +21,7 @@ public class Ticket<T extends QuestionExt> {
     private SessionType type;
     private String date;
     private String protocolNumber;
-    private List<T> questions;
+    private List<Question> questions;
 
     /**
      * Constructor without parameters
@@ -241,7 +241,7 @@ public class Ticket<T extends QuestionExt> {
      *
      * @param q question
      */
-    public void add(T q) {
+    public void add(Question q) {
         questions.add(q);
     }
 
@@ -250,7 +250,7 @@ public class Ticket<T extends QuestionExt> {
      *
      * @param q question
      */
-    public boolean remove(T q) {
+    public boolean remove(Question q) {
         return questions.remove(q);
     }
 
@@ -264,32 +264,15 @@ public class Ticket<T extends QuestionExt> {
     /**
      * @param q questions list
      */
-    public void setQuestions(List<T> q) {
+    public void setQuestions(List<Question> q) {
         this.questions = q;
     }
 
     /**
      * @return questions list
      */
-    public List<T> getQuestions() {
+    public List<Question> getQuestions() {
         return questions;
-    }
-
-    @Override
-    public String toString() {
-        return "Ticket{" +
-               "institute='" + institute + '\'' +
-               ", faculty='" + faculty + '\'' +
-               ", department='" + department + '\'' +
-               ", specialization='" + specialization + '\'' +
-               ", discipline='" + discipline + '\'' +
-               ", teacher='" + teacher + '\'' +
-               ", headDepartment='" + headDepartment + '\'' +
-               ", type=" + type +
-               ", date='" + date + '\'' +
-               ", protocolNumber='" + protocolNumber + '\'' +
-               ", questions=" + questions +
-               '}';
     }
 
     /**
