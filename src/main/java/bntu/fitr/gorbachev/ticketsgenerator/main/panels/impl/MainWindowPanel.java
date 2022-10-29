@@ -17,7 +17,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutProgram;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.FileViewer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -732,10 +731,9 @@ public class MainWindowPanel extends BasePanel {
                     datePicDecision.getText(), tfProtocol.getText());
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
-            XWPFDocument document = null;
+
             try {
                 ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, true);
-                document = ticketGenerator.getDocxDec();
             } catch (NumberQuestionsRequireException e) {
                 int selected = JOptionPane.showInternalConfirmDialog(null,
                         e.getMessage() +
@@ -745,7 +743,7 @@ public class MainWindowPanel extends BasePanel {
 
                 if (selected == JOptionPane.OK_OPTION) {
                     try {
-                        document = ticketGenerator.getDocxDec();
+                        ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, false);
                     } catch (NumberQuestionsRequireException | ExecutionException e1) {
                         JOptionPane.showInternalMessageDialog(null,
                                 e1.getMessage(),
@@ -773,7 +771,7 @@ public class MainWindowPanel extends BasePanel {
 
             // if docx file is generated, then ...
             // save generate file docx inside project for further conversion to pdf file
-            if (document != null) {
+            if (ticketGenerator.getDocxDec() != null) {
                 InputStream inputStream = null;
                 OutputStream outputStream = null;
                 IConverter converter = null;
@@ -959,7 +957,7 @@ public class MainWindowPanel extends BasePanel {
                             }
                             try {
                                 ticketGenerator.writeOutputFile(saveFile);
-                            } catch (Exception ex) {
+                            } catch (IOException ex) {
                                 ex.printStackTrace();
                             }
                         }

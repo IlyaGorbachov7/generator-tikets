@@ -26,21 +26,14 @@ import java.util.function.Supplier;
 public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends Ticket<Q>>
         implements Callable<List<Q>> {
 
-    private ExecutorService poolThreads;
-
     private Future<List<Q>> futureTaskExtractContent;
-    private Future<XWPFDocument> futureTaskManagerThread;
 
-    private File[] filesRsc;
-    private T templateTicket;
+    protected File[] filesRsc;
+    protected T templateTicket;
 
     private XWPFDocument docxDec;
 
     protected List<T> listTicket;
-
-    {
-        poolThreads = Executors.newFixedThreadPool(3);
-    }
 
     public AbstractTicketGenerator() {
     }
@@ -53,7 +46,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     public AbstractTicketGenerator(File[] filesRsc, T templateTicket) {
         if (filesRsc == null || templateTicket == null) {
-            poolThreads.shutdownNow();
             throw new NullPointerException("Initialization attributes is needed condition");
         }
         this.filesRsc = filesRsc;
@@ -78,7 +70,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     public AbstractTicketGenerator(boolean isLazyStartExtractor, File[] filesRsc, T templateTicket) {
         if (filesRsc == null || templateTicket == null) {
-            poolThreads.shutdownNow();
             throw new NullPointerException("Initialization attributes is needed condition");
         }
         this.filesRsc = filesRsc;
@@ -90,18 +81,14 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
     /**
      * @return class object {@link XWPFDocument} or {@code null} if you don't invoke {@link #startGenerate(int, int, boolean)}
      */
-    public XWPFDocument getDocxDec() throws IllegalArgumentException, NumberQuestionsRequireException,
-            ExecutionException, InterruptedException {
-        docxDec = futureTaskManagerThread.get();
+    public XWPFDocument getDocxDec() {
         return docxDec;
     }
 
     /**
      * @return tickets list or {@code null} if you don't invoke {@link #startGenerate(int, int, boolean)}
      */
-    public List<T> getListTicket() throws IllegalArgumentException, NumberQuestionsRequireException,
-            ExecutionException, InterruptedException {
-        futureTaskManagerThread.get();
+    public List<T> getListTicket() {
         return listTicket;
     }
 
@@ -125,8 +112,9 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * Method will be invoked or inside one the once constructors, otherwise {@link #startGenerate(int, int, boolean)}
      */
     private void runStartExtractorThreads() {
-        System.out.println("submint EXTRACT contnet");
-        this.futureTaskExtractContent = poolThreads.submit(this);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        this.futureTaskExtractContent = executorService.submit(this);
+        executorService.shutdown();
     }
 
     /**
@@ -150,8 +138,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                     inputTreads[i] = new FileInputStream(filesRsc[i]);
                     docxRsc[i] = new XWPFDocument(inputTreads[i]);
 
-                    System.out.println(filesRsc[i].getName() + "------------------------");
-
                     // thread launch
                     AbstractContentExtractThread<Q> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName())
                             .get();
@@ -164,10 +150,8 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                 }
 
             } catch (ExecutionException e) {
-                poolThreads.shutdownNow();
                 throw new IllegalArgumentException(e.getCause().getMessage());
             } catch (InterruptedException ignored) {
-                poolThreads.shutdownNow();
             } finally {
                 // closing pool bntu.fitr.gorbachev.ticketsgenerator.main.threads and cancel all executing tasks and tasks in the queue
                 executor.shutdownNow();
@@ -197,24 +181,53 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * @throws IllegalArgumentException        in case if value argument is illegal
      * @throws ExecutionException              in case any trouble inside flow
      */
-    public final void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets) throws ExecutionException {
+    public final void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
+            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException, InterruptedException {
+        // Throw Exception if incorrect entered parameters method
+        if (quantityTickets <= 0) {
+            throw new IllegalArgumentException("Incorrect quality entered tickets");
+        } else if (quantityQTickets <= 0) {
+            throw new IllegalArgumentException("insufficient number of questions to ensure " +
+                                               "\nthat questions are not repeated in stupid tickets.");
+        } else if (filesRsc == null || templateTicket == null) {
+            throw new IllegalArgumentException("Was invoked constructor without parameters." +
+                                               "You need to initialize attributes: filesRsc, templateTicket " +
+                                               "through methods setter");
+        }
+
+        // run staring thread for extract content from docx file
+        if (futureTaskExtractContent == null) this.runStartExtractorThreads();
+
+        List<Q> listQuestions;
         try {
-            System.out.println("Main sleep");
-            Thread.sleep(20000);
-            System.out.println("Main exit from sleep");
+            listQuestions = futureTaskExtractContent.get(); // await answer
+        } catch (InterruptedException e) { // in case interrupted thread
+            futureTaskExtractContent.cancel(true); // then also interrupt extract-thread
+            throw new InterruptedException(e.getMessage()); // throw this exception one level higher
+        }
+
+        // throw exception if insufficient quantity questions
+        int quantityQuestions = listQuestions.size();
+        if (uniqueQTickets && quantityTickets * quantityQTickets > (quantityQuestions)) {
+            throw new NumberQuestionsRequireException("Insufficient number of questions ("
+                                                      + quantityQuestions + ") to " +
+                                                      "\nensure no repetition of questions in tickets");
+        }
+
+        listTicket = createListTickets(templateTicket, listQuestions,
+                quantityTickets, quantityQTickets);
+
+        // lunch output content formation thread
+        AbstractOutputContentThread<T> threadWriteTickets = factoryOutputContent(listTicket).get();
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<XWPFDocument> futureTaskOutputContent = executorService.submit(threadWriteTickets);
+        executorService.shutdown();
+        try {
+            docxDec = futureTaskOutputContent.get(); // await answer
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            futureTaskOutputContent.cancel(true);
+            throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
-        if (poolThreads.isShutdown()) {
-            try {
-                futureTaskManagerThread.get();
-            } catch (Exception e) {
-                throw new ExecutionException("Generation tickets was stopped!", e.getCause());
-            }
-        }
-        this.futureTaskManagerThread = poolThreads.submit(
-                this.new ManagerFlowsTicketGenerator(quantityTickets, quantityQTickets, uniqueQTickets));
-        System.out.println("submit ManagerFlows");
     }
 
     /**
@@ -222,9 +235,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      *
      * @throws IOException in case reading files
      */
-    public void writeOutputFile(File fileDes) throws IOException, IllegalArgumentException,
-            NumberQuestionsRequireException, ExecutionException, InterruptedException {
-        docxDec = futureTaskManagerThread.get();
+    public void writeOutputFile(File fileDes) throws IOException {
         if (docxDec == null) return;
         try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
             docxDec.write(outputThread);
@@ -261,69 +272,4 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * @return supplier class, that supply a class realization abstract {@link AbstractOutputContentThread}
      */
     protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
-
-    private final class ManagerFlowsTicketGenerator implements Callable<XWPFDocument> {
-        private final int quantityTickets;
-        private final int quantityQTickets;
-        private final boolean uniqueQTickets;
-
-        public ManagerFlowsTicketGenerator(int quantityTickets, int quantityQTickets, boolean uniqueQTickets) {
-            this.quantityTickets = quantityTickets;
-            this.quantityQTickets = quantityQTickets;
-            this.uniqueQTickets = uniqueQTickets;
-        }
-
-        @Override
-        public XWPFDocument call()
-                throws IllegalArgumentException, NumberQuestionsRequireException,
-                ExecutionException, InterruptedException {
-            // Throw Exception if incorrect entered parameters method
-            if (quantityTickets <= 0) {
-                throw new IllegalArgumentException("Incorrect quality entered tickets");
-            } else if (quantityQTickets <= 0) {
-                throw new IllegalArgumentException("insufficient number of questions to ensure " +
-                                                   "\nthat questions are not repeated in stupid tickets.");
-            } else if (filesRsc == null || templateTicket == null) {
-                throw new IllegalArgumentException("Was invoked constructor without parameters." +
-                                                   "You need to initialize attributes: filesRsc, templateTicket " +
-                                                   "through methods setter");
-            }
-
-            // run staring thread for extract content from docx file
-            if (futureTaskExtractContent == null) AbstractTicketGenerator.this.runStartExtractorThreads();
-
-            List<Q> listQuestions;
-            try {
-                listQuestions = futureTaskExtractContent.get(); // await answer
-            } catch (InterruptedException e) { // in case interrupted thread
-//                futureTaskExtractContent.cancel(true); // then also interrupt extract-thread
-                poolThreads.shutdownNow();
-                throw new InterruptedException(e.getMessage()); // throw this exception one level higher
-            }
-
-            // throw exception if insufficient quantity questions
-            int quantityQuestions = listQuestions.size();
-            if (uniqueQTickets && quantityTickets * quantityQTickets > (quantityQuestions)) {
-                poolThreads.shutdownNow();
-                throw new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                          + quantityQuestions + ") to " +
-                                                          "\nensure no repetition of questions in tickets");
-            }
-
-            listTicket = createListTickets(templateTicket, listQuestions,
-                    quantityTickets, quantityQTickets);
-
-            // lunch output content formation thread
-            AbstractOutputContentThread<T> threadWriteTickets = factoryOutputContent(listTicket).get();
-            Future<XWPFDocument> futureTaskOutputContent = poolThreads.submit(threadWriteTickets);
-            poolThreads.shutdown();
-            try {
-                docxDec = futureTaskOutputContent.get(); // await answer
-            } catch (InterruptedException e) {
-                futureTaskOutputContent.cancel(true);
-                throw new InterruptedException(e.getMessage()); // throw this exception one level higher
-            }
-            return docxDec;
-        }
-    }
 }

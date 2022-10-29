@@ -19,7 +19,6 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
 
     @Override
     public List<Question2> call() throws ContentExtractException {
-        if (true) throw new ContentExtractException("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         return super.call();
     }
 
