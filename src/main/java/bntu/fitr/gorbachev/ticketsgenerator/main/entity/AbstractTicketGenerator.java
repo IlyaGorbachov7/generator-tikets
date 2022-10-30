@@ -121,6 +121,18 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         return futureTaskExtractContent.get();
     }
 
+    /**
+     * Writes contents to a file
+     *
+     * @throws IOException in case reading files
+     */
+    public void writeOutputFile(File fileDes) throws IOException {
+        if (docxDec == null) return;
+        try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
+            docxDec.write(outputThread);
+        }
+    }
+
 
     /**
      * This method execute starting <b>this thread</b>, which in further will be starting
@@ -231,6 +243,34 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         }
     }
 
+    /**
+     * This method represented yourself as <i>factory </i> to implementation {@code AbstractContentExtractorThread}
+     *
+     * @param p   document
+     * @param url path to document
+     * @return supplier class, that supply a class realization abstract {@link AbstractContentExtractThread}
+     */
+    protected abstract Supplier<AbstractContentExtractThread<Q>> factoryExtractor(XWPFDocument p, String url);
+
+    /**
+     * This method is <i>abstract</i> with goals allow consumer opportunity yourself realize this method for creation
+     * list tickets.
+     *
+     * @param tempTicket    template ticket
+     * @param listQuestions list questions
+     * @param property
+     * @return a list of tickets
+     */
+    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions, GenerationProperty property);
+
+    /**
+     * This method represented yourself as <i>factory</i> to implementation {@code AbstractOutputContentThread}
+     *
+     * @param listTickets list tickets
+     * @return supplier class, that supply a class realization abstract {@link AbstractOutputContentThread}
+     */
+    protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
+
     private void checkedNecessarilyConditions() throws IllegalArgumentException {
         // Throw Exception if incorrect entered parameters method
         if (generationProperty == null) {
@@ -261,43 +301,4 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
 
     }
 
-    /**
-     * This method represented yourself as <i>factory </i> to implementation {@code AbstractContentExtractorThread}
-     *
-     * @param p   document
-     * @param url path to document
-     * @return supplier class, that supply a class realization abstract {@link AbstractContentExtractThread}
-     */
-    protected abstract Supplier<AbstractContentExtractThread<Q>> factoryExtractor(XWPFDocument p, String url);
-
-    /**
-     * This method is <i>abstract</i> with goals allow consumer opportunity yourself realize this method for creation
-     * list tickets.
-     *
-     * @param tempTicket    template ticket
-     * @param listQuestions list questions
-     * @param property
-     * @return a list of tickets
-     */
-    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions, GenerationProperty property);
-
-    /**
-     * This method represented yourself as <i>factory</i> to implementation {@code AbstractOutputContentThread}
-     *
-     * @param listTickets list tickets
-     * @return supplier class, that supply a class realization abstract {@link AbstractOutputContentThread}
-     */
-    protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
-
-    /**
-     * Writes contents to a file
-     *
-     * @throws IOException in case reading files
-     */
-    public void writeOutputFile(File fileDes) throws IOException {
-        if (docxDec == null) return;
-        try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
-            docxDec.write(outputThread);
-        }
-    }
 }
