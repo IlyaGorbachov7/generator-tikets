@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -720,6 +720,7 @@ public class MainWindowPanel extends BasePanel {
             val = tfQuantityQuestionTickets.getText();
             int quantityQuestionInTicket = Integer.parseInt(val);
 
+
             File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());
             Ticket<Question2> tempTicket = new Ticket<>(
                     tfInstitute.getText(),
@@ -731,9 +732,9 @@ public class MainWindowPanel extends BasePanel {
                     datePicDecision.getText(), tfProtocol.getText());
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
-
+            GenerationProperty property = new GenerationProperty(quantityTickets, quantityQuestionInTicket, true);
             try {
-                ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, true);
+                ticketGenerator.startGenerate(property);
             } catch (NumberQuestionsRequireException e) {
                 int selected = JOptionPane.showInternalConfirmDialog(null,
                         e.getMessage() +
@@ -743,7 +744,8 @@ public class MainWindowPanel extends BasePanel {
 
                 if (selected == JOptionPane.OK_OPTION) {
                     try {
-                        ticketGenerator.startGenerate(quantityTickets, quantityQuestionInTicket, false);
+                        property.setUnique(false);
+                        ticketGenerator.startGenerate(property);
                     } catch (NumberQuestionsRequireException | ExecutionException e1) {
                         JOptionPane.showInternalMessageDialog(null,
                                 e1.getMessage(),

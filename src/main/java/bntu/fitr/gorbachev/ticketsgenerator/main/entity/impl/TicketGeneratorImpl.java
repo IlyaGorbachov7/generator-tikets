@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
@@ -8,7 +9,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentTh
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.OutputContentWriter;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
 
     @Override
     protected List<Ticket<Question2>> createListTickets(Ticket<Question2> tempTicket, List<Question2> listQuestions,
-                                                        int quantityTickets, int quantityQuestionsTicket) {
+                                                        GenerationProperty property) {
 
         Map<String, List<Question2>> mapQuestions = listQuestions.stream()
                 .collect(Collectors.groupingBy(Question2::getSection, LinkedHashMap::new,
@@ -64,6 +64,8 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
         });
 
         // убрать жосткую привязку
+        int quantityTickets = property.getQuantityTickets();
+        int quantityQuestionsTicket = property.getQuantityQTickets();
         List<Ticket<Question2>> listTickets = new ArrayList<>(quantityTickets);
         List<List<Question2>> listsQ = new ArrayList<>(mapQuestions.values());
         if (mapQuestions.isEmpty()) {

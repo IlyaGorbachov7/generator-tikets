@@ -29,11 +29,14 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
     private Future<List<Q>> futureTaskExtractContent;
 
     protected File[] filesRsc;
-    protected T templateTicket;
-
     private XWPFDocument docxDec;
 
+    protected T templateTicket;
     protected List<T> listTicket;
+    /**
+     * Generation property
+     */
+    GenerationProperty generationProperty;
 
     public AbstractTicketGenerator() {
     }
@@ -79,14 +82,14 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
     }
 
     /**
-     * @return class object {@link XWPFDocument} or {@code null} if you don't invoke {@link #startGenerate(int, int, boolean)}
+     * @return class object {@link XWPFDocument} or {@code null} if you don't invoke {@link #startGenerate(GenerationProperty)}
      */
     public XWPFDocument getDocxDec() {
         return docxDec;
     }
 
     /**
-     * @return tickets list or {@code null} if you don't invoke {@link #startGenerate(int, int, boolean)}
+     * @return tickets list or {@code null} if you don't invoke {@link #startGenerate(GenerationProperty)}
      */
     public List<T> getListTicket() {
         return listTicket;
@@ -102,6 +105,22 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         return this;
     }
 
+    /**
+     * Getter return list questions, which was extracted from files
+     *
+     * @return list questions
+     * @throws ExecutionException
+     * @throws InterruptedException
+     */
+    public List<Q> getListQuestions() throws ExecutionException, InterruptedException {
+        if (futureTaskExtractContent == null) { // this notifies will be is as reason futureTask == null
+            throw new ExecutionException("Apparently, the ticket generator was been created with parameter:" +
+                                         "isLazyStartExtractor == true",
+                    new NullPointerException("futureTaskExtractorContent == null"));
+        }
+        return futureTaskExtractContent.get();
+    }
+
 
     /**
      * This method execute starting <b>this thread</b>, which in further will be starting
@@ -109,7 +128,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * <p>
      * The instant invocation of this method is controlled by attribute isLazyStartExtractor in constructor
      * <p>
-     * Method will be invoked or inside one the once constructors, otherwise {@link #startGenerate(int, int, boolean)}
+     * Method will be invoked or inside one the once constructors, otherwise {@link #startGenerate(GenerationProperty)}
      */
     private void runStartExtractorThreads() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -174,26 +193,15 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * <p>
      * {@code This method is finaly, that is means, that his cannot  inherit}
      *
-     * @param quantityTickets  quantity tickets
-     * @param quantityQTickets quantity questions inside ticket
-     * @param uniqueQTickets   provide unique questions into each ticket
-     * @throws NumberQuestionsRequireException in case if current questions not enough
-     * @throws IllegalArgumentException        in case if value argument is illegal
-     * @throws ExecutionException              in case any trouble inside flow
+     * @param generationProperty@throws NumberQuestionsRequireException in case if current questions not enough
+     * @throws IllegalArgumentException in case if value argument is illegal
+     * @throws ExecutionException       in case any trouble inside flow
      */
-    public final void startGenerate(int quantityTickets, int quantityQTickets, boolean uniqueQTickets)
+    public final void startGenerate(GenerationProperty generationProperty)
             throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException, InterruptedException {
-        // Throw Exception if incorrect entered parameters method
-        if (quantityTickets <= 0) {
-            throw new IllegalArgumentException("Incorrect quality entered tickets");
-        } else if (quantityQTickets <= 0) {
-            throw new IllegalArgumentException("insufficient number of questions to ensure " +
-                                               "\nthat questions are not repeated in stupid tickets.");
-        } else if (filesRsc == null || templateTicket == null) {
-            throw new IllegalArgumentException("Was invoked constructor without parameters." +
-                                               "You need to initialize attributes: filesRsc, templateTicket " +
-                                               "through methods setter");
-        }
+
+        this.generationProperty = generationProperty;
+        checkedNecessarilyConditions();
 
         // run staring thread for extract content from docx file
         if (futureTaskExtractContent == null) this.runStartExtractorThreads();
@@ -206,16 +214,9 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
-        // throw exception if insufficient quantity questions
-        int quantityQuestions = listQuestions.size();
-        if (uniqueQTickets && quantityTickets * quantityQTickets > (quantityQuestions)) {
-            throw new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                      + quantityQuestions + ") to " +
-                                                      "\nensure no repetition of questions in tickets");
-        }
+        checkGenerationConditions(listQuestions, generationProperty);
 
-        listTicket = createListTickets(templateTicket, listQuestions,
-                quantityTickets, quantityQTickets);
+        listTicket = createListTickets(templateTicket, listQuestions, this.generationProperty);
 
         // lunch output content formation thread
         AbstractOutputContentThread<T> threadWriteTickets = factoryOutputContent(listTicket).get();
@@ -230,16 +231,34 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         }
     }
 
-    /**
-     * Writes contents to a file
-     *
-     * @throws IOException in case reading files
-     */
-    public void writeOutputFile(File fileDes) throws IOException {
-        if (docxDec == null) return;
-        try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
-            docxDec.write(outputThread);
+    private void checkedNecessarilyConditions() throws IllegalArgumentException {
+        // Throw Exception if incorrect entered parameters method
+        if (generationProperty == null) {
+            throw new IllegalArgumentException("Your need initialize generation property");
+        } else if (generationProperty.getQuantityTickets() <= 0) {
+            throw new IllegalArgumentException("Incorrect quality entered tickets");
+        } else if (generationProperty.getQuantityQTickets() <= 0) {
+            throw new IllegalArgumentException("insufficient number of questions to ensure " +
+                                               "\nthat questions are not repeated in stupid tickets.");
+        } else if (filesRsc == null || templateTicket == null) {
+            throw new IllegalArgumentException("Was invoked constructor without parameters." +
+                                               "You need to initialize attributes: filesRsc, templateTicket " +
+                                               "through methods setter");
         }
+
+    }
+
+    protected void checkGenerationConditions(List<Q> qList, GenerationProperty generationProperty)
+            throws NumberQuestionsRequireException, IllegalArgumentException {
+
+        // throw exception if insufficient quantity questions
+        int quantityQuestions = qList.size();
+        if (generationProperty.getUnique() && generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
+            throw new NumberQuestionsRequireException("Insufficient number of questions ("
+                                                      + quantityQuestions + ") to " +
+                                                      "\nensure no repetition of questions in tickets");
+        }
+
     }
 
     /**
@@ -255,15 +274,12 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * This method is <i>abstract</i> with goals allow consumer opportunity yourself realize this method for creation
      * list tickets.
      *
-     * @param tempTicket              template ticket
-     * @param listQuestions           list questions
-     * @param quantityTickets         quantity tickets
-     * @param quantityQuestionsTicket quantity questions into one Ticket
+     * @param tempTicket    template ticket
+     * @param listQuestions list questions
+     * @param property
      * @return a list of tickets
      */
-    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions,
-                                                 final int quantityTickets,
-                                                 final int quantityQuestionsTicket);
+    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions, GenerationProperty property);
 
     /**
      * This method represented yourself as <i>factory</i> to implementation {@code AbstractOutputContentThread}
@@ -272,4 +288,16 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * @return supplier class, that supply a class realization abstract {@link AbstractOutputContentThread}
      */
     protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
+
+    /**
+     * Writes contents to a file
+     *
+     * @throws IOException in case reading files
+     */
+    public void writeOutputFile(File fileDes) throws IOException {
+        if (docxDec == null) return;
+        try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
+            docxDec.write(outputThread);
+        }
+    }
 }
