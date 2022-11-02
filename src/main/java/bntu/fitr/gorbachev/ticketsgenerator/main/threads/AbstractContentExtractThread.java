@@ -10,6 +10,7 @@ import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
+import javax.management.Attribute;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -57,7 +58,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
     public Supplier<T> getSupplierQuestion() {
         return supplierQuestion;
-    }
+     }
 
     public void setDocxFile(XWPFDocument docxFile) {
         this.docxFile = docxFile;
@@ -106,18 +107,16 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 try {
                     attributeTegS = extractValFromStartTag(curP);
                 } catch (InvalidLexicalException e) {
-                    throw new ContentExtractException("", e);
+                    throw new ContentExtractException(e);
                 }
                 if (attributeTegS == null) {   // don't must null
                     throw new NullPointerException(urlDocxFile + "\nProgrammist you made a mistake");
                 }
-                topic = "";
-                topic = (topic.equals("")) ? "topic_" + i : topic;
 
                 i++;
                 while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
                     T ques = supplierQuestion.get();// 1 question - can contain picture or math-expressions
-                    ques.setSection(topic);
+                    ques.setSection(attributeTegS.getN());
                     ques.add(curP);
 
                     int j = i + 1;
@@ -262,12 +261,12 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         return extractAttributes(attributes);
     }
 
-    protected AttributeTegS extractAttributes(String strAttributes) {
+    protected AttributeTegS extractAttributes(String strAttributes) throws InvalidLexicalException {
 
         AttributeTegS attributeTegS = new AttributeTegS();
 
         // list awaited attributes
-        String[] attributes = {"n=", "l=", "r="};
+        String[] attributes = {"n", "l", "r"};
 
         for (String attribute : attributes) {
             int index;
@@ -306,7 +305,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                             break;
                         }
                         if (value == null) {
-                            throw new InvalidLexicalValueException(someAttrib);
+                            throw new InvalidLexicalException(someAttrib);
                         }
                         attributeTegS.setN(value);
                     }
@@ -319,7 +318,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                             break;
                         }
                         if (value == null) {
-                            throw new InvalidLexicalValueException(someAttrib);
+                            throw new InvalidLexicalException(someAttrib);
                         }
                         attributeTegS.setL(Integer.parseInt(value));
                     }
@@ -333,7 +332,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                         }
                         if (value == null) {
-                            throw new InvalidLexicalValueException(someAttrib);
+                            throw new InvalidLexicalException(someAttrib);
                         }
                         attributeTegS.setR(Integer.parseInt(value));
                     }
