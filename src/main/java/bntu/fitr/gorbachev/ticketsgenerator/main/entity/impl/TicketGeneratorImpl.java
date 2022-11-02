@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
@@ -36,6 +37,12 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
 
     public TicketGeneratorImpl(boolean isLazyStartExtractor, File[] filesRsc, Ticket<Question2> templateTicket) {
         super(isLazyStartExtractor, filesRsc, templateTicket);
+    }
+
+    @Override
+    protected void conditionsStartGeneration(List<Question2> question2s, GenerationProperty generationProperty)
+            throws GenerationConditionException {
+        super.conditionsStartGeneration(question2s, generationProperty);
     }
 
     @Override

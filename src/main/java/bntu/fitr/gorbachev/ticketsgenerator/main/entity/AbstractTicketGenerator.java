@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import org.apache.poi.xwpf.usermodel.*;
@@ -95,13 +96,15 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         return listTicket;
     }
 
-    public AbstractTicketGenerator<Q, T> setFilesRsc(File[] filesRsc) {
-        this.filesRsc = filesRsc;
-        return this;
-    }
-
-    public AbstractTicketGenerator<Q, T> setTemplateTicket(T templateTicket) {
+    /**
+     * This setter can be called if ticket generator was created through <i> constructor without parameters</i>
+     */
+    public AbstractTicketGenerator<Q, T> setConstParam(File[] filesRsc, T templateTicket) {
+        if (filesRsc == null || templateTicket == null) {
+            throw new NullPointerException("Initialization attributes is needed condition");
+        }
         this.templateTicket = templateTicket;
+        this.filesRsc = filesRsc;
         return this;
     }
 
@@ -210,7 +213,8 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * @throws ExecutionException       in case any trouble inside flow
      */
     public final void startGenerate(GenerationProperty generationProperty)
-            throws NumberQuestionsRequireException, IllegalArgumentException, ExecutionException, InterruptedException {
+            throws GenerationConditionException
+            , ExecutionException, InterruptedException {
 
         this.generationProperty = generationProperty;
         checkedNecessarilyConditions();
@@ -226,7 +230,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
-        checkGenerationConditions(listQuestions, generationProperty);
+        conditionsStartGeneration(listQuestions, generationProperty);
 
         listTicket = createListTickets(templateTicket, listQuestions, this.generationProperty);
 
@@ -271,32 +275,42 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
 
-    private void checkedNecessarilyConditions() throws IllegalArgumentException {
+    private void checkedNecessarilyConditions() throws GenerationConditionException {
         // Throw Exception if incorrect entered parameters method
         if (generationProperty == null) {
-            throw new IllegalArgumentException("Your need initialize generation property");
+            throw new NullPointerException("Your need initialize generation property");
         } else if (generationProperty.getQuantityTickets() <= 0) {
-            throw new IllegalArgumentException("Incorrect quality entered tickets");
+            throw new GenerationConditionException("Incorrect quality entered tickets");
         } else if (generationProperty.getQuantityQTickets() <= 0) {
-            throw new IllegalArgumentException("insufficient number of questions to ensure " +
-                                               "\nthat questions are not repeated in stupid tickets.");
+            throw new GenerationConditionException("insufficient number of questions to ensure " +
+                                                   "\nthat questions are not repeated in stupid tickets.");
         } else if (filesRsc == null || templateTicket == null) {
-            throw new IllegalArgumentException("Was invoked constructor without parameters." +
-                                               "You need to initialize attributes: filesRsc, templateTicket " +
-                                               "through methods setter");
+            throw new GenerationConditionException("Was invoked constructor without parameters." +
+                                                   "You need to initialize attributes: filesRsc, templateTicket " +
+                                                   "through methods setter");
         }
-
     }
 
-    protected void checkGenerationConditions(List<Q> qList, GenerationProperty generationProperty)
-            throws NumberQuestionsRequireException, IllegalArgumentException {
+    /**
+     * This method is place, where should be checked all conditions generation before her starting.
+     *
+     * @param qList              list questions
+     * @param generationProperty generation property, which contains defined data needed for generation
+     * @throws NumberQuestionsRequireException
+     * @throws IllegalArgumentException
+     * @apiNote In case any fail in conditions generate tickets, you should throw exception, that will be describing
+     * the reason of the exception.
+     */
+    protected void conditionsStartGeneration(List<Q> qList, GenerationProperty generationProperty)
+            throws GenerationConditionException {
 
         // throw exception if insufficient quantity questions
         int quantityQuestions = qList.size();
-        if (generationProperty.getUnique() && generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
-            throw new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                      + quantityQuestions + ") to " +
-                                                      "\nensure no repetition of questions in tickets");
+        if (generationProperty.getUnique() &&
+            generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
+            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
+                                                                                       + quantityQuestions + ") to " +
+                                                                                       "\nensure no repetition of questions in tickets"));
         }
 
     }
