@@ -213,8 +213,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * @throws ExecutionException       in case any trouble inside flow
      */
     public final void startGenerate(GenerationProperty generationProperty)
-            throws GenerationConditionException
-            , ExecutionException, InterruptedException {
+            throws GenerationConditionException, ExecutionException, InterruptedException {
 
         this.generationProperty = generationProperty;
         checkedNecessarilyConditions();
@@ -230,7 +229,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
-        conditionsStartGeneration(listQuestions, generationProperty);
+        conditionsStartGeneration(listQuestions, this.generationProperty);
 
         listTicket = createListTickets(templateTicket, listQuestions, this.generationProperty);
 
@@ -275,10 +274,25 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     protected abstract Supplier<AbstractOutputContentThread<T>> factoryOutputContent(List<T> listTickets);
 
+    /**
+     * This method is place, where checked necessarily basic conditions for further generation tickets
+     * <p>
+     * The following points relate to the basic check:
+     * <p>
+     * 1) quantity tickets > 0;
+     * <p>
+     * 2) quantity questions inside ticket > 0;
+     * <p>
+     * 3) generation property != null;
+     * <p>
+     * 4) fileRsc and templateTicket != null
+     *
+     * @throws GenerationConditionException in case failure
+     */
     private void checkedNecessarilyConditions() throws GenerationConditionException {
         // Throw Exception if incorrect entered parameters method
         if (generationProperty == null) {
-            throw new NullPointerException("Your need initialize generation property");
+            throw new GenerationConditionException(new NullPointerException("Your need initialize generation property"));
         } else if (generationProperty.getQuantityTickets() <= 0) {
             throw new GenerationConditionException("Incorrect quality entered tickets");
         } else if (generationProperty.getQuantityQTickets() <= 0) {
@@ -296,8 +310,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      *
      * @param qList              list questions
      * @param generationProperty generation property, which contains defined data needed for generation
-     * @throws NumberQuestionsRequireException
-     * @throws IllegalArgumentException
+     * @throws GenerationConditionException in case failure
      * @apiNote In case any fail in conditions generate tickets, you should throw exception, that will be describing
      * the reason of the exception.
      */
