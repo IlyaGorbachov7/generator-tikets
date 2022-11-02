@@ -1,16 +1,22 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributePatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTegS;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public abstract class AbstractContentExtractThread<T extends QuestionExt>
@@ -96,10 +102,16 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // if all required check is fulfilled
                 // Then...
-                topic = extractValFromStartTag(curP);
-                if (topic == null) {   // don't must null
+                AttributeTegS attributeTegS = null;
+                try {
+                    attributeTegS = extractValFromStartTag(curP);
+                } catch (InvalidLexicalException e) {
+                    throw new ContentExtractException("", e);
+                }
+                if (attributeTegS == null) {   // don't must null
                     throw new NullPointerException(urlDocxFile + "\nProgrammist you made a mistake");
                 }
+                topic = "";
                 topic = (topic.equals("")) ? "topic_" + i : topic;
 
                 i++;
@@ -184,7 +196,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param p class object {@link XWPFParagraph}
      * @return true is numbering else false
      */
-    protected static boolean isNumbering(XWPFParagraph p) {
+    protected boolean isNumbering(XWPFParagraph p) {
         return !Objects.isNull(p.getNumID());
     }
 
@@ -202,7 +214,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param p class object {@link XWPFParagraph}
      * @return true is startTag else false
      */
-    protected static boolean isStartTag(XWPFParagraph p) {
+    protected boolean isStartTag(XWPFParagraph p) {
         if (!checkTagCondition(p)) return false;
         String s = p.getText().trim();
         return s.equals("<S>") ||
@@ -217,25 +229,119 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param p class object {@link XWPFParagraph}
      * @return true is end tag else false
      */
-    protected static boolean isEndTag(XWPFParagraph p) {
+    protected boolean isEndTag(XWPFParagraph p) {
         if (!checkTagCondition(p)) return false;
         String s = p.getText().trim();
         return s.equals("<S/>");
     }
 
     /**
-     * Exist 3 case used tag :
-     * <b>If paragraph is not a tag, then return value {@code null}</b>
+     * <b>If paragraph is not a start tag, then throw Exception: InvalidLexicalException</b>
+     * <p>
+     * if paragraph is start tag, then this method extract attributes if they exist inside tag
+     * and packaging their into object a class {@link AttributeTegS}
      *
-     * @return string value
+     * @return object a class AttributeTegS, else {@code null} - if StartTag not contains attributes
+     * @throws InvalidLexicalException  a lexical error was made when reading attributes
+     * @throws IllegalArgumentException if paragraph is not start tag. <b>This method await, that
+     *                                  paragraph contain start teg</b>
      */
-    protected static String extractValFromStartTag(XWPFParagraph p) {
-        if (!isStartTag(p)) return null;
+    protected AttributeTegS extractValFromStartTag(XWPFParagraph p) throws InvalidLexicalException {
+        if (!isStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
         String s = p.getText();
+        String attributes = "";
+
         int indexStart = s.indexOf('>');
         int indexEnd = s.lastIndexOf('>');
-        if (indexStart == indexEnd) return "";
-        return s.substring(++indexStart, indexEnd);
+
+        if (indexStart == indexEnd) { // <S>
+            attributes = "";
+        } else {
+            attributes = s.substring(++indexStart, indexEnd);
+        }
+        return extractAttributes(attributes);
+    }
+
+    protected AttributeTegS extractAttributes(String strAttributes) {
+
+        AttributeTegS attributeTegS = new AttributeTegS();
+
+        // list awaited attributes
+        String[] attributes = {"n=", "l=", "r="};
+
+        for (String attribute : attributes) {
+            int index;
+            String str = strAttributes;
+            while (!((index = str.indexOf(attribute)) < 0)) {
+                boolean cutStr = false;
+                int j = index;
+                while (++j < str.length() && str.charAt(j) != '=') {
+                    if (str.charAt(j) != ' ') {
+                        cutStr = true;
+                        str = str.substring(j);
+                        break;
+                    }
+                }
+                if (j < str.length() &&
+                    !cutStr && str.charAt(j) == '=') {
+                    break;
+                } else if (j == str.length()) {
+                    // if any attribute is at then end of the string, then make: str = "";
+                    str = str.substring(j);
+                }
+            }
+
+
+            if (index >= 0) {
+                String someAttrib;
+                Matcher matcher;
+                String value;
+                switch (attribute) {
+                    case "n" -> {
+                        someAttrib = str.substring(index);
+                        matcher = AttributePatterns.N.getMatcher(someAttrib);
+                        value = null;
+                        while (matcher.find()) {
+                            value = matcher.group(2);
+                            break;
+                        }
+                        if (value == null) {
+                            throw new InvalidLexicalValueException(someAttrib);
+                        }
+                        attributeTegS.setN(value);
+                    }
+                    case "l" -> {
+                        someAttrib = str.substring(index);
+                        matcher = AttributePatterns.L.getMatcher(someAttrib);
+                        value = null;
+                        while (matcher.find()) {
+                            value = matcher.group(2);
+                            break;
+                        }
+                        if (value == null) {
+                            throw new InvalidLexicalValueException(someAttrib);
+                        }
+                        attributeTegS.setL(Integer.parseInt(value));
+                    }
+                    case "r" -> {
+                        someAttrib = str.substring(index);
+                        matcher = AttributePatterns.R.getMatcher(someAttrib);
+                        value = null;
+                        while (matcher.find()) {
+                            value = matcher.group(2);
+                            break;
+
+                        }
+                        if (value == null) {
+                            throw new InvalidLexicalValueException(someAttrib);
+                        }
+                        attributeTegS.setR(Integer.parseInt(value));
+                    }
+                }
+            }
+        }
+
+        return attributeTegS;
     }
 
     /**
@@ -244,7 +350,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param curPara current paragraph is beginning search
      * @return index paragraph containing the end tag or -1 if search is failed
      */
-    protected static int searchParaEndTag(XWPFParagraph curPara) {
+    protected int searchParaEndTag(XWPFParagraph curPara) {
         XWPFDocument docx = curPara.getDocument();
         int curPosPara = docx.getPosOfParagraph(curPara);
         curPosPara = docx.getParagraphPos(curPosPara);
@@ -263,7 +369,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param curPara current paragraph is beginning search
      * @return index paragraph containing the start tag or -1 if search is failed
      */
-    protected static int searchParaStartTag(XWPFParagraph curPara) {
+    protected int searchParaStartTag(XWPFParagraph curPara) {
         XWPFDocument docx = curPara.getDocument();
         int curPosPara = docx.getPosOfParagraph(curPara);
         /* if in file is table, then current position paragraph may be
@@ -293,7 +399,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param p paragraph
      * @return true if paragraph meet the requirements
      */
-    protected static boolean checkTagCondition(XWPFParagraph p) {
+    protected boolean checkTagCondition(XWPFParagraph p) {
         // paragraph necessary must be center alignment
         if (p.getAlignment() != ParagraphAlignment.CENTER) return false;
 
