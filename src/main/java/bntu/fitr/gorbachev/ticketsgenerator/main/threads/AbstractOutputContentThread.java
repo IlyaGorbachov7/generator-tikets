@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.OutputContentException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.WrapXml;
 import com.microsoft.schemas.office.word.STWrapType;
 import org.apache.poi.util.Units;
@@ -126,10 +127,8 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                     false, false);
 
 
-            String strForm = ""; // regex : 03.09.2022 or 03/09/2022 or 03-09-2022
-            Pattern pattern = Pattern.compile("^(0[1-9]|3[01]|[1-2][\\d])" +
-                                              "[\\.\\/-](0[1-9]|1[0-2])[\\.\\/-](\\d{4})$");
-            Matcher matcher = pattern.matcher(ticket.getDate());
+            String strForm = "";
+            Matcher matcher = TextPatterns.DATE_PATTERN.getMatcher(ticket.getDate());
             if (matcher.find()) {
                 strForm = matcher.group(3);
                 strForm += (ticket.getType() == Ticket.SessionType.WINTER) ?
@@ -245,10 +244,9 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
             cell = row.getCell(1);
             p = cell.getParagraphs().get(0);
             p.setVerticalAlignment(TextAlignment.CENTER);
+
             strForm = "";
-            pattern = Pattern.compile("(^([А-ЯЁ][а-яё]+)\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))" +
-                                      "\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))\\s*)");
-            matcher = pattern.matcher(ticket.getHeadDepartment());
+            matcher = TextPatterns.PERSON_NAME_PATTERN.getMatcher(ticket.getHeadDepartment());
             if (matcher.find()) {
                 strForm += matcher.group(2) + " " + matcher.group(3).charAt(0)
                            + ". " + matcher.group(6).charAt(0) + ".";
@@ -266,7 +264,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
             p = cell.getParagraphs().get(0);
             p.setVerticalAlignment(TextAlignment.CENTER);
             strForm = "";
-            matcher = pattern.matcher(ticket.getTeacher());
+            matcher = TextPatterns.PERSON_NAME_PATTERN.getMatcher(ticket.getTeacher());
             if (matcher.find()) {
                 strForm += matcher.group(2) + " " + matcher.group(3).charAt(0) +
                            ". " + matcher.group(6).charAt(0) + ".";

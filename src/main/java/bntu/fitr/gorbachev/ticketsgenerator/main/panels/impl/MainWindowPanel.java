@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -1000,71 +1001,6 @@ public class MainWindowPanel extends BasePanel {
                     viewFileDialog.setVisible(true);
                 }).start();
             }
-        }
-    }
-
-    /**
-     * This enum contains constants define text patterns
-     * for correctly input data
-     *
-     * @author Gorbachev I. D.
-     * @version 06.05.2022
-     */
-    private enum TextPatterns {
-        COMMON_PATTERN("[\\wА-Яа-я\\-\"«»\\sЁё&&[^_]]*"),
-        PERSON_NAME_PATTERN("(^([А-ЯЁ][а-яё]+)\\s+(([А-ЯЁ][а-яё]+)|" +
-                            "([А-ЯЁ]\\.?))\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))\\s*)?"),
-        PROTOCOL_PATTERN("((^[0-9]+)((\\.)([0-9]+))*)?\\s*"),
-        NUMBER_PATTERN("[0-9]+");
-
-        private final Pattern pattern;
-
-        /**
-         * This private constructor with parameters
-         *
-         * @param regex regex expression
-         */
-        TextPatterns(String regex) {
-            this.pattern = Pattern.compile(regex);
-        }
-
-        /**
-         * This method return template
-         *
-         * @return is class object {@link Pattern} represent template string
-         */
-        public Pattern getPattern() {
-            return pattern;
-        }
-
-        /**
-         * This method return class object {@link Matcher}
-         *
-         * @param input matchers string
-         * @return is class object {@link Matcher} represent result matches
-         */
-        public Matcher getMatcher(String input) {
-            return pattern.matcher(input);
-        }
-
-        /**
-         * This method matches input string with pattern
-         *
-         * @param input match string
-         * @return true if input string match pattern else false
-         */
-        public boolean matches(String input) {
-            return getMatcher(input).matches();
-        }
-
-        /**
-         * Object represent string
-         *
-         * @return string
-         */
-        @Override
-        public String toString() {
-            return pattern.pattern();
         }
     }
 }
