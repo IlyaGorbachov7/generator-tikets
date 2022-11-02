@@ -11,4 +11,12 @@ public class ContentExtractException extends Exception{
     public ContentExtractException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public ContentExtractException(Throwable cause) {
+        super(cause);
+    }
+
+    public ContentExtractException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

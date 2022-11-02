@@ -12,8 +12,10 @@ import java.util.regex.Pattern;
  */
 public enum TextPatterns {
     COMMON_PATTERN("[\\wА-Яа-я\\-\"«»\\sЁё&&[^_]]*"),
-    PERSON_NAME_PATTERN("(^([А-ЯЁ][а-яё]+)\\s+(([А-ЯЁ][а-яё]+)|" +
-                        "([А-ЯЁ]\\.?))\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))\\s*)?"),
+    PERSON_NAME_PATTERN_V1("(^([А-ЯЁ][а-яё]+)\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))" +
+                           "\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))\\s*)?"),
+    PERSON_NAME_PATTERN_V2("(^([А-ЯЁ][а-яё]+)\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))" +
+                           "\\s+(([А-ЯЁ][а-яё]+)|([А-ЯЁ]\\.?))\\s*)"),
     PROTOCOL_PATTERN("((^[0-9]+)((\\.)([0-9]+))*)?\\s*"),
     NUMBER_PATTERN("[0-9]+"),
     DATE_PATTERN("^(0[1-9]|3[01]|[1-2][\\d])[\\.\\/\\-](0[1-9]|1[0-2])[\\.\\/\\-](\\d{4})$");
@@ -67,4 +69,4 @@ public enum TextPatterns {
     public String toString() {
         return pattern.pattern();
     }
-    }
+}
