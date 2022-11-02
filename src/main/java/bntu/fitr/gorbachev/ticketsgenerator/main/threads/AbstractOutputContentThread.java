@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * This class writes a list of tickets to the class object XWPFDocument.
@@ -246,7 +245,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
             p.setVerticalAlignment(TextAlignment.CENTER);
 
             strForm = "";
-            matcher = TextPatterns.PERSON_NAME_PATTERN.getMatcher(ticket.getHeadDepartment());
+            matcher = TextPatterns.PERSON_NAME_PATTERN_V2.getMatcher(ticket.getHeadDepartment());
             if (matcher.find()) {
                 strForm += matcher.group(2) + " " + matcher.group(3).charAt(0)
                            + ". " + matcher.group(6).charAt(0) + ".";
@@ -264,7 +263,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
             p = cell.getParagraphs().get(0);
             p.setVerticalAlignment(TextAlignment.CENTER);
             strForm = "";
-            matcher = TextPatterns.PERSON_NAME_PATTERN.getMatcher(ticket.getTeacher());
+            matcher = TextPatterns.PERSON_NAME_PATTERN_V2.getMatcher(ticket.getTeacher());
             if (matcher.find()) {
                 strForm += matcher.group(2) + " " + matcher.group(3).charAt(0) +
                            ". " + matcher.group(6).charAt(0) + ".";

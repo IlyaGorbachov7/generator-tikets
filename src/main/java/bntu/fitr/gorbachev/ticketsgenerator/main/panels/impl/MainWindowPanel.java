@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
@@ -30,8 +31,6 @@ import java.io.*;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The class represent main window panel
@@ -377,8 +376,8 @@ public class MainWindowPanel extends BasePanel {
         boolean bolDist = TextPatterns.COMMON_PATTERN.matches(tfDiscipline.getText());
         if (!bolInst || !bolFac || !bolDep || !bolSpec || !bolDist) return false;
 
-        boolean bolTeach = TextPatterns.PERSON_NAME_PATTERN.matches(tfTeacher.getText());
-        boolean bolHeadDest = TextPatterns.PERSON_NAME_PATTERN.matches(tfHeadDepartment.getText());
+        boolean bolTeach = TextPatterns.PERSON_NAME_PATTERN_V1.matches(tfTeacher.getText());
+        boolean bolHeadDest = TextPatterns.PERSON_NAME_PATTERN_V1.matches(tfHeadDepartment.getText());
         if (!bolTeach || !bolHeadDest) return false;
 
         boolean bolProtocol = TextPatterns.PROTOCOL_PATTERN.matches(tfProtocol.getText());
@@ -736,37 +735,37 @@ public class MainWindowPanel extends BasePanel {
             GenerationProperty property = new GenerationProperty(quantityTickets, quantityQuestionInTicket, true);
             try {
                 ticketGenerator.startGenerate(property);
-            } catch (NumberQuestionsRequireException e) {
-                int selected = JOptionPane.showInternalConfirmDialog(null,
-                        e.getMessage() +
-                        "\n\nDo you want to do a repeat of the questions ?",
-                        "Message", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+            } catch (ExecutionException | GenerationConditionException e) {
+                if (e.getCause().getClass() == NumberQuestionsRequireException.class) {
+                    int selected = JOptionPane.showInternalConfirmDialog(null,
+                            e.getCause().getMessage() +
+                            "\n\nDo you want to do a repeat of the questions ?",
+                            "Message", JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE);
 
-                if (selected == JOptionPane.OK_OPTION) {
-                    try {
-                        property.setUnique(false);
-                        ticketGenerator.startGenerate(property);
-                    } catch (NumberQuestionsRequireException | ExecutionException e1) {
-                        JOptionPane.showInternalMessageDialog(null,
-                                e1.getMessage(),
-                                "Warning", JOptionPane.ERROR_MESSAGE);
+                    if (selected == JOptionPane.OK_OPTION) {
+                        try {
+                            property.setUnique(false);
+                            ticketGenerator.startGenerate(property);
+                        } catch (GenerationConditionException | ExecutionException e1) {
+                            JOptionPane.showInternalMessageDialog(null,
+                                    e1.getMessage(),
+                                    "Warning", JOptionPane.ERROR_MESSAGE);
 
+                            this.setEnabledComponents(true, false);
+                        } catch (InterruptedException e2) {
+                            System.out.println(Thread.currentThread() + " is interrupted: Reason " +
+                                               ": interrupted generate tickets by close program during ticket generation");
+                        }
+
+                    } else {
                         this.setEnabledComponents(true, false);
-                    } catch (InterruptedException e2) {
-                        System.out.println(Thread.currentThread() + " is interrupted: Reason " +
-                                           ": interrupted generate tickets by close program during ticket generation");
                     }
-
                 } else {
+                    JOptionPane.showMessageDialog(null, e.getMessage(),
+                            "Warning !", JOptionPane.ERROR_MESSAGE);
                     this.setEnabledComponents(true, false);
                 }
-
-            } catch (ExecutionException | IllegalArgumentException e) {
-                JOptionPane.showMessageDialog(null, e.getMessage(),
-                        "Warning !", JOptionPane.ERROR_MESSAGE);
-
-                this.setEnabledComponents(true, false);
             } catch (InterruptedException e) {
                 System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
                                    "close program during ticket generation");
@@ -889,7 +888,7 @@ public class MainWindowPanel extends BasePanel {
             if (e.getSource() instanceof JTextField textField) {
                 String msg = "";
                 if ((textField == tfTeacher || textField == tfHeadDepartment) &&
-                    !TextPatterns.PERSON_NAME_PATTERN.matches(textField.getText())) {
+                    !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
                     msg = "Пример:\n" +
                           " Фамилия Имя Отчество (или Фамилия И. О.)";
                 } else if (textField == tfProtocol &&
