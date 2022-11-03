@@ -736,6 +736,7 @@ public class MainWindowPanel extends BasePanel {
             try {
                 ticketGenerator.startGenerate(property);
             } catch (ExecutionException | GenerationConditionException e) {
+
                 if (e.getCause().getClass() == NumberQuestionsRequireException.class) {
                     int selected = JOptionPane.showInternalConfirmDialog(null,
                             e.getCause().getMessage() +
@@ -749,7 +750,8 @@ public class MainWindowPanel extends BasePanel {
                             ticketGenerator.startGenerate(property);
                         } catch (GenerationConditionException | ExecutionException e1) {
                             JOptionPane.showInternalMessageDialog(null,
-                                    e1.getMessage(),
+                                    (e1.getCause() != null) ? e.getCause().getMessage()
+                                            : e1.getMessage(),
                                     "Warning", JOptionPane.ERROR_MESSAGE);
 
                             this.setEnabledComponents(true, false);
@@ -762,7 +764,8 @@ public class MainWindowPanel extends BasePanel {
                         this.setEnabledComponents(true, false);
                     }
                 } else {
-                    JOptionPane.showMessageDialog(null, e.getMessage(),
+                    JOptionPane.showMessageDialog(null, (e.getCause() != null) ? e.getCause().getMessage() // handle InterruptedException
+                                    : e.getMessage(),// handle ConditionGenerationException
                             "Warning !", JOptionPane.ERROR_MESSAGE);
                     this.setEnabledComponents(true, false);
                 }

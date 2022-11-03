@@ -184,7 +184,9 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                 }
 
             } catch (ExecutionException e) {
-                throw new IllegalArgumentException(e.getCause().getMessage());
+                Throwable cause = e.getCause();
+                System.out.println(cause.getMessage());
+                throw new ExecutionException(cause.getMessage(), null);
             } catch (InterruptedException ignored) {
             } finally {
                 // closing pool bntu.fitr.gorbachev.ticketsgenerator.main.threads and cancel all executing tasks and tasks in the queue
