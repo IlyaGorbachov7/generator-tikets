@@ -3,11 +3,14 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum AttributePatterns {
+public enum AttributeTagsPatterns {
+    // attributes
     N("(n)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё]+)[\\s&&[^\\n]]*;"),
     R("(r)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
-    L("(l)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;");
+    L("(l)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
 
+    // tags
+    TAG_QUESTION("^\\{(.*?)}");
     private final Pattern pattern;
 
     /**
@@ -15,7 +18,7 @@ public enum AttributePatterns {
      *
      * @param regex regex expression
      */
-    AttributePatterns(String regex) {
+    AttributeTagsPatterns(String regex) {
         this.pattern = Pattern.compile(regex);
     }
 
