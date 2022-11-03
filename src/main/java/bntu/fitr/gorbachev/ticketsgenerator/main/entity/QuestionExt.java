@@ -5,7 +5,7 @@ import java.util.Objects;
 public class QuestionExt extends Question{
     private String section;
     private int level;
-    private boolean repeat;
+    private int repeat;
 
     public QuestionExt() {
     }
@@ -19,7 +19,7 @@ public class QuestionExt extends Question{
         this.level = level;
     }
 
-    public QuestionExt(String section, int level, boolean repeat) {
+    public QuestionExt(String section, int level, int repeat) {
         this.section = section;
         this.level = level;
         this.repeat = repeat;
@@ -29,23 +29,23 @@ public class QuestionExt extends Question{
         return section;
     }
 
-    public int getLevel() {
-        return level;
-    }
-
-    public boolean isRepeat() {
-        return repeat;
-    }
-
     public void setSection(String section) {
         this.section = section;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public void setLevel(int level) {
         this.level = level;
     }
 
-    public void setRepeat(boolean repeat) {
+    public int getRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(int repeat) {
         this.repeat = repeat;
     }
 
@@ -60,7 +60,7 @@ public class QuestionExt extends Question{
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), level, repeat, section);
+        return Objects.hash(super.hashCode(), section, level, repeat);
     }
 
     @Override
