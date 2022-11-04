@@ -9,8 +9,12 @@ public enum AttributeTagsPatterns {
     R("(r)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
     L("(l)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
 
+    STRING_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё]+)[\\s&&[^\\n]]*;"),
+    NUMBER_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2}.?\\d{1,2})[\\s&&[^\\n]]*;"),
+
     // tags
     TAG_QUESTION("^\\{(.*?)}");
+
     private final Pattern pattern;
 
     /**

@@ -9,16 +9,16 @@ import java.util.regex.Pattern;
  *
  * @version 01.11.2022
  */
-public class AttributeTegS {
+public class AttributeTag {
     private String n;
     private int l;
     private int r;
 
-    public AttributeTegS() {
+    public AttributeTag() {
         n = "";
     }
 
-    public AttributeTegS(String name, int l, int r) {
+    public AttributeTag(String name, int l, int r) {
         this.n = name;
         this.l = l;
         this.r = r;
@@ -50,7 +50,7 @@ public class AttributeTegS {
 
     @Override
     public String toString() {
-        return "AttributeTegS{" +
+        return "AttributeTag{" +
                "n='" + n + '\'' +
                ", l=" + l +
                ", r=" + r +

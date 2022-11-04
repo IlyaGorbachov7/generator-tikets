@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTag;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTagsPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTegS;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
@@ -100,9 +100,9 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // if all required check is fulfilled
                 // Then...
-                AttributeTegS attributeTegS = null;
+                AttributeTag attributeTag;
                 try {
-                    attributeTegS = extractValFromStartTag(curP);
+                    attributeTag = extractValFromStartTag(curP);
                 } catch (InvalidLexicalException e) {
                     throw new ContentExtractException(e.getMessage());
                 }
@@ -110,7 +110,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 i++;
                 while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
                     T ques = supplierQuestion.get();// 1 question - can contain picture or math-expressions
-                    ques.setSection(attributeTegS.getN());
+                    fullQuestionFields(ques, attributeTag);
                     ques.add(curP);
 
                     int j = i + 1;
@@ -126,13 +126,6 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     i = j; // then update index, point on the
                     listQuestions.add(ques);
                 }
-//
-//                if (isEndTag(curP)) {
-//                    // so far nothing. I will delete soon
-//                } else {
-//                    throw new ContentExtractException(urlDocxFile + "\nBy reading numbering" +
-//                                                      " list no find  end tag : <S/>");
-//                }
             }
         }
         return listQuestions;
@@ -146,6 +139,12 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
     protected abstract Supplier<T> factoryQuestion();
 
     // -------------------- Static context ------------------
+
+    protected void fullQuestionFields(T quest, AttributeTag attrTag) {
+//        quest.setSection(attrTag.getN());
+        quest.setLevel(attrTag.getL());
+        quest.setRepeat(attrTag.getR());
+    }
 
     /**
      * This method validate order determine start and end tags.
@@ -218,14 +217,14 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * <b>If paragraph is not a start tag, then throw Exception: InvalidLexicalException</b>
      * <p>
      * if paragraph is start tag, then this method extract attributes if they exist inside tag
-     * and packaging their into object a class {@link AttributeTegS}
+     * and packaging their into object a class {@link AttributeTag}
      *
-     * @return object a class AttributeTegS
+     * @return object a class AttributeTag
      * @throws InvalidLexicalException  a lexical error was made when reading attributes
      * @throws IllegalArgumentException if paragraph is not start tag. <b>This method await, that
      *                                  paragraph contain start teg</b>
      */
-    protected AttributeTegS extractValFromStartTag(XWPFParagraph p) throws InvalidLexicalException {
+    protected AttributeTag extractValFromStartTag(XWPFParagraph p) throws InvalidLexicalException {
         if (!isStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
         String s = p.getText();
         String attributes;
@@ -242,12 +241,11 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
     }
 
     /**
-     *
      * @param p
      * @return
      * @throws InvalidLexicalException
      */
-    protected AttributeTegS extractValFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
+    protected AttributeTag extractValFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
         if (!isExistQuestTag(p)) throw new IllegalArgumentException("paragraph is not Numbering as question");
 
         String s = p.getText().trim();
@@ -261,10 +259,10 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         return extractAttributes(attribute);
     }
 
-    protected AttributeTegS extractAttributes(String strAttributes)
+    protected AttributeTag extractAttributes(String strAttributes)
             throws InvalidLexicalException {
 
-        AttributeTegS attributeTegS = new AttributeTegS();
+        AttributeTag attributeTag = new AttributeTag();
 
         // list awaited attributes
         String[] attributes = {"n", "l", "r"};
@@ -298,16 +296,18 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 switch (attribute) {
                     case "n" -> {
                         someAttrib = str.substring(index);
-                        matcher = AttributeTagsPatterns.N.getMatcher(someAttrib);
+                        matcher = AttributeTagsPatterns.N.getMatcher("Invalid lexical value :"
+                                                                     + someAttrib);
                         value = null;
                         while (matcher.find()) {
                             value = matcher.group(2);
                             break;
                         }
                         if (value == null) {
-                            throw new InvalidLexicalException(someAttrib);
+                            throw new InvalidLexicalException("Invalid lexical value :"
+                                                              + someAttrib);
                         }
-                        attributeTegS.setN(value);
+//                        attributeTag.setN(value);
                     }
                     case "l" -> {
                         someAttrib = str.substring(index);
@@ -318,9 +318,10 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                             break;
                         }
                         if (value == null) {
-                            throw new InvalidLexicalException(someAttrib);
+                            throw new InvalidLexicalException("Invalid Lexical value :"
+                                                              + someAttrib);
                         }
-                        attributeTegS.setL(Integer.parseInt(value));
+                        attributeTag.setL(Integer.parseInt(value));
                     }
                     case "r" -> {
                         someAttrib = str.substring(index);
@@ -332,17 +333,21 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                         }
                         if (value == null) {
-                            throw new InvalidLexicalException(someAttrib);
+                            throw new InvalidLexicalException("Invalid Lexical value :"
+                                                              + someAttrib);
                         }
-                        attributeTegS.setR(Integer.parseInt(value));
+                        attributeTag.setR(Integer.parseInt(value));
                     }
                 }
             }
         }
 
-        return attributeTegS;
+        return attributeTag;
     }
 
+    private AttributeTag extract(){
+        return null;
+    }
 
     /**
      * The method checks whether the paragraph is a end tag
