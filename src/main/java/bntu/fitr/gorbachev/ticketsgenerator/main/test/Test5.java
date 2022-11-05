@@ -18,7 +18,6 @@ public class Test5 {
 //        test1();
     }
 
-
     static void test1() throws InvalidLexicalException {
         Object attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("k", "l", "n"), BeanObj.class);
 
@@ -30,7 +29,9 @@ public class Test5 {
     }
 
     static void test2() throws InvalidLexicalException {
-        Object attrib = extractAndFullingDTO("name = Илья_Дмитриевич; age= 20; avarage=17.32;", Arrays.asList("name", "age", "avarage"), AttributeAny.class);
+        Object attrib = extractAndFullingDTO("avarage=23; a= 11;age=12;",
+                Arrays.asList("name", "age", "avarage"),
+                AttributeAny.class);
         System.out.println(attrib);
     }
 
@@ -83,14 +84,21 @@ public class Test5 {
         return object;
     }
 
-    static void execute(String strAttributes, Map<String, Method> setterMethods, Object obj) throws InvalidLexicalException {
+    static void execute(String strAttributes, Map<String, Method> setterMethods, Object obj)
+            throws InvalidLexicalException {
         for (var entry : setterMethods.entrySet()) {
             String attribute = entry.getKey();
-
             int index;
             String str = strAttributes;
             while (!((index = str.indexOf(attribute)) < 0)) {
                 boolean cutStr = false;
+                if (index > 0) { // if: ->avarage=23; a= 11; age=12; || ->avarage=23; a= 11;age=12;
+                    // avarage и age имеют корень age
+                    if (str.charAt(index - 1) != ' ' && str.charAt(index - 1) != ';') {
+                        str = str.substring(++index);
+                        continue;
+                    }
+                }
                 int j = index + attribute.length();
                 while (j < str.length() && str.charAt(j) != '=') {
                     if (str.charAt(j) != ' ') {
@@ -110,7 +118,7 @@ public class Test5 {
             }
 
             if (index >= 0) {
-                String someAttrib = str.substring(index+attribute.length()); // starting with: =  233
+                String someAttrib = str.substring(index + attribute.length()); // starting with: =  233
                 Matcher matcher = definerMatcher(entry.getValue()).getMatcher(someAttrib);
                 String value = null;
                 while (matcher.find()) {
@@ -118,7 +126,8 @@ public class Test5 {
                     break;
                 }
                 if (value == null) {
-                    throw new InvalidLexicalException("Lexical mistake attribute: " + someAttrib);
+                    throw new InvalidLexicalException("Lexical mistake attribute: " + someAttrib + ". Awaiting: " +
+                                                      entry.getValue().getParameterTypes()[0].getSimpleName());
                 }
                 Class<?> clazzParam = entry.getValue()
                         .getParameterTypes()[0];
@@ -151,7 +160,8 @@ public class Test5 {
         throw new RuntimeException("setter with such parameter : " + clazzParam + " does not support");
     }
 
-    static Object convertStringToPrimitiveType(String value, Class<?> convertType) throws InvalidLexicalException {
+    static Object convertStringToPrimitiveType(String value, Class<?> convertType)
+            throws InvalidLexicalException {
         try {
             if (convertType == int.class || convertType == Integer.class) {
                 return Integer.parseInt(value);
@@ -167,7 +177,7 @@ public class Test5 {
                 return value;
             }
         } catch (NumberFormatException e) {// это должен знать только программист!
-            throw new RuntimeException("value:" + value + " is not " + convertType.getSimpleName());
+            throw new InvalidLexicalException("value:" + value + " is not " + convertType.getSimpleName());
         }
         // об это должен знать только программист
         throw new RuntimeException("clazz : " + convertType + " does not support");
