@@ -1,21 +1,19 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main;
+package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributePatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTegS;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTag;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTagsPatterns;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
-import java.util.List;
 import java.util.regex.Matcher;
 
 public class Test4 {
     // extract attribute from string
     public static void main(String[] args) {
-        String strAttributes = "  n = fsdDfrfdfs; r l=2; r";
+        String strAttributes = "n=HTML;r = 34; l = 26;";
 
-        AttributeTegS attributeTegS = new AttributeTegS();
+        AttributeTag attributeTag = new AttributeTag();
 
-        String[] attributes = {"n", "l", "r"};
+        String[] attributes = {"n", "l.regexp", "r"};
 
         for (String attribute : attributes) {
 
@@ -48,7 +46,7 @@ public class Test4 {
                 switch (attribute) {
                     case "n" -> {
                         someAttrib = str.substring(index);
-                        matcher = AttributePatterns.N.getMatcher(someAttrib);
+                        matcher = AttributeTagsPatterns.N.getMatcher(someAttrib);
                         value = null;
                         while (matcher.find()) {
                             value = matcher.group(2);
@@ -57,11 +55,11 @@ public class Test4 {
                         if (value == null) {
                             throw new InvalidLexicalValueException(someAttrib);
                         }
-                        attributeTegS.setN(value);
+                        attributeTag.setN(value);
                     }
                     case "l" -> {
                         someAttrib = str.substring(index);
-                        matcher = AttributePatterns.L.getMatcher(someAttrib);
+                        matcher = AttributeTagsPatterns.L.getMatcher(someAttrib);
                         value = null;
                         while (matcher.find()) {
                             value = matcher.group(2);
@@ -70,11 +68,11 @@ public class Test4 {
                         if (value == null) {
                             throw new InvalidLexicalValueException(someAttrib);
                         }
-                        attributeTegS.setL(Integer.parseInt(value));
+                        attributeTag.setL(Integer.parseInt(value));
                     }
                     case "r" -> {
                         someAttrib = str.substring(index);
-                        matcher = AttributePatterns.R.getMatcher(someAttrib);
+                        matcher = AttributeTagsPatterns.R.getMatcher(someAttrib);
                         value = null;
                         while (matcher.find()) {
                             value = matcher.group(2);
@@ -84,13 +82,13 @@ public class Test4 {
                         if (value == null) {
                             throw new InvalidLexicalValueException(someAttrib);
                         }
-                        attributeTegS.setR(Integer.parseInt(value));
+                        attributeTag.setR(Integer.parseInt(value));
                     }
                 }
             }
         }
 
-        System.out.println(attributeTegS);
+        System.out.println(attributeTag);
 
     }
 }

@@ -1,9 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeAny;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTag;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTagsPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.PatternsResourceBundle;
 
 import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
@@ -14,16 +14,28 @@ import java.util.regex.Matcher;
 
 public class Test5 {
     public static void main(String[] args) throws InvalidLexicalException {
-        Object attributTagObject = test3("k=23; r=11;n=Bkmz;", Arrays.asList("k", "l", "n"), BeanObj.class);
+        test2();
+//        test1();
+    }
+
+
+    static void test1() throws InvalidLexicalException {
+        Object attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("k", "l", "n"), BeanObj.class);
 
         System.out.println(attributTagObject);
 
-        attributTagObject = test3("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), AttributeTag.class);
+        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), AttributeTag.class);
 
         System.out.println(attributTagObject);
     }
 
-    static Object test3(String strAttributes, List<String> attributes, Class<? extends AttributeTag> clazz) throws InvalidLexicalException {
+    static void test2() throws InvalidLexicalException {
+        Object attrib = extractAndFullingDTO("name = Илья_Дмитриевич; age= 20; avarage=17.32;", Arrays.asList("name", "age", "avarage"), AttributeAny.class);
+        System.out.println(attrib);
+    }
+
+
+    static Object extractAndFullingDTO(String strAttributes, List<String> attributes, Class<?> clazz) throws InvalidLexicalException {
         Object object;
         try {
             object = clazz.getDeclaredConstructor().newInstance();
@@ -79,13 +91,14 @@ public class Test5 {
             String str = strAttributes;
             while (!((index = str.indexOf(attribute)) < 0)) {
                 boolean cutStr = false;
-                int j = index;
-                while (++j < str.length() && str.charAt(j) != '=') {
+                int j = index + attribute.length();
+                while (j < str.length() && str.charAt(j) != '=') {
                     if (str.charAt(j) != ' ') {
                         cutStr = true;
                         str = str.substring(j);
                         break;
                     }
+                    ++j;
                 }
                 if (j < str.length() &&
                     !cutStr && str.charAt(j) == '=') {
@@ -97,7 +110,7 @@ public class Test5 {
             }
 
             if (index >= 0) {
-                String someAttrib = str.substring(++index); // starting with: =  233
+                String someAttrib = str.substring(index+attribute.length()); // starting with: =  233
                 Matcher matcher = definerMatcher(entry.getValue()).getMatcher(someAttrib);
                 String value = null;
                 while (matcher.find()) {
