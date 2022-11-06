@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.PreparerPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.TagPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
@@ -491,7 +492,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
     }
 
-    private static LexicalPatterns definerMatcher(Method method) {
+    private static PreparerPatterns definerMatcher(Method method) {
         Parameter[] parameters = method.getParameters();
         if (parameters.length == 0) throw new RuntimeException("setter: " + method + " without parameters !");
         if (parameters.length > 1)
