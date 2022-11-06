@@ -4,7 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;

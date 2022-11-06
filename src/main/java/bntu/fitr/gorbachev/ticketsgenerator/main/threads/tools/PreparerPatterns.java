@@ -1,16 +1,30 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags;
+package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * This class was created for convenient working by patterns initialization
+ *
+ * @version 06.11.2022
+ */
 public class PreparerPatterns {
     private final Pattern pattern;
 
+    /**
+     * @param regex regex expression
+     */
     private PreparerPatterns(String regex) {
         pattern = Pattern.compile(regex);
     }
 
-    protected static PreparerPatterns newInstance(String regex) {
+    /**
+     * Factory method for the creation new instance this a class
+     *
+     * @param regex regex expression
+     * @return new instance
+     */
+    public static PreparerPatterns newInstance(String regex) {
         return new PreparerPatterns(regex);
     }
 

@@ -4,9 +4,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.TagPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.AttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.impl.ListTagAttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TagPatterns;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
@@ -58,7 +58,7 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
      * @return
      * @throws InvalidLexicalException
      */
-    protected SomeAttributes extractValFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
+    protected AttributeService extractValFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
         if (!isExistQuestTag(p)) throw new IllegalArgumentException("paragraph is not Numbering as question");
 
         String s = p.getText().trim();
@@ -69,6 +69,6 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
             attribute = (attribute == null) ? "" : attribute;
         }
 
-        return extractAndFill(attribute, AttributesListStartTag.class);
+        return extractAndFill(attribute, ListTagAttributeService.class);
     }
 }

@@ -2,7 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.OutputContentException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.WrapXml;
 import com.microsoft.schemas.office.word.STWrapType;
 import org.apache.poi.util.Units;

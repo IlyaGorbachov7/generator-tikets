@@ -1,13 +1,13 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.PreparerPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.TagPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.PreparerPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.AttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.impl.ListTagAttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TagPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.LexicalPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -89,7 +89,6 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         List<T> listQuestions = new ArrayList<>();
 
         var paragraphs = docxFile.getParagraphs();
-        String topic;
         for (int i = 0; i < paragraphs.size(); i++) {
             XWPFParagraph curP = paragraphs.get(i);
             XWPFParagraph nextP;
@@ -109,7 +108,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // if all required check is fulfilled
                 // Then...
-                SomeAttributes attributeTag;
+                AttributeService attributeTag;
                 try {
                     attributeTag = extractAttributesFromListStartTag(curP);
                 } catch (InvalidLexicalException e) {
@@ -126,7 +125,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     while (j < paragraphs.size() && (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) { // running by one questions
                         if (isListStartTag(curP)) { // required condition
                             throw new ContentExtractException(urlDocxFile +
-                                                              "\nBy reading content of the question no found end tag : <S/>");
+                                                              "\nBy reading content of the question no found end tag : <\\S>");
                         }
                         ques.add(curP);
                         ++j;
@@ -176,7 +175,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                                                   "\n No specified start tag, although exist end tag");
             } else if (i > 0) { // i > 0 && iEndTag < 0
                 throw new ContentExtractException(urlDocxFile +
-                                                  "\n No find  end tag : <S/>");
+                                                  "\n No find  end tag : <\\S>");
             } else { // i < 0 && iEndTag > 0
                 throw new ContentExtractException(urlDocxFile +
                                                   "\n Not exist start tag, although exist end tag");
@@ -219,14 +218,14 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * <b>If paragraph is not a start tag, then throw Exception: InvalidLexicalException</b>
      * <p>
      * if paragraph is start tag, then this method extract attributes if they exist inside tag
-     * and packaging their into object a class {@link AttributesListStartTag}
+     * and packaging their into object a class {@link ListTagAttributeService}
      *
-     * @return object a class AttributesListStartTag
+     * @return object a class ListTagAttributeService
      * @throws InvalidLexicalException  a lexical error was made when reading attributes
      * @throws IllegalArgumentException if paragraph is not start tag. <b>This method await, that
      *                                  paragraph contain start teg</b>
      */
-    protected SomeAttributes extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
+    protected AttributeService extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
         if (!isListStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
 
         String attributes = null;
@@ -237,7 +236,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         if (attributes == null) { // if <S>
             attributes = "";
         }
-        return extractAndFill(attributes, AttributesListStartTag.class);
+        return extractAndFill(attributes, ListTagAttributeService.class);
     }
 
     /**
@@ -250,7 +249,8 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      */
     protected boolean isEndTag(XWPFParagraph p) {
         if (!checkTagSCondition(p)) return false;
-        return TagPatterns.LIST_END_TAG.matches(p.getText());
+        String s = p.getText();
+        return TagPatterns.LIST_END_TAG.matches(s);
     }
 
     /**
@@ -329,15 +329,15 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
 
     /**
-     * This method full question fields of values, which are supplied by the object implementing {@link SomeAttributes}
+     * This method full question fields of values, which are supplied by the object implementing {@link AttributeService}
      *
-     * @param quest      object question
-     * @param someAttrib object implements interface {@link SomeAttributes}. <b>This object belong to class,
-     *                   that was wrote inside {@code method}: {@link #extractAttributesFromListStartTag(XWPFParagraph)}</b>
-     * @apiNote To receive the fields from some object implementing SomeAttributes, you need explicit converting type
+     * @param quest   object question
+     * @param service object implements interface {@link AttributeService}. <b>This object belong to class,
+     *                that was wrote inside {@code method}: {@link #extractAttributesFromListStartTag(XWPFParagraph)}</b>
+     * @apiNote To receive the fields from some object implementing SomeServiceAttributes, you need explicit converting type
      */
-    protected void fillerQuestionFields(T quest, SomeAttributes someAttrib) {
-        if (someAttrib instanceof AttributesListStartTag attributesListStartTag) {
+    protected void fillerQuestionFields(T quest, AttributeService service) {
+        if (service instanceof ListTagAttributeService attributesListStartTag) {
             quest.setSection(attributesListStartTag.getN());
             quest.setLevel(attributesListStartTag.getL());
             quest.setRepeat(attributesListStartTag.getR());
@@ -348,12 +348,12 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * This method will be extract string attributes from  string, names which describes in the specified <i>clazz</i>
      *
      * @param strAttributes string, which content value with given attributes
-     * @param clazz         should implement interface {@link SomeAttributes}
-     * @return filled object SomeAttributes
+     * @param clazz         should implement interface {@link AttributeService}
+     * @return filled object SomeServiceAttributes
      * @throws InvalidLexicalException
      * @apiNote Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
      */
-    public static SomeAttributes extractAndFill(String strAttributes, Class<? extends SomeAttributes> clazz)
+    public static AttributeService extractAndFill(String strAttributes, Class<? extends AttributeService> clazz)
             throws InvalidLexicalException {
         BeanInfo beanInfo;
         try {
@@ -375,17 +375,17 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      *
      * @param attributes    list of attributes names, which you are want extract from string
      * @param strAttributes string, which content value with given attributes
-     * @param clazz         should implement interface {@link SomeAttributes}
-     * @return filled object SomeAttributes
+     * @param clazz         should implement interface {@link AttributeService}
+     * @return filled object SomeServiceAttributes
      * @throws InvalidLexicalException
      * @apiNote 1) Name attributes, which specified in the list of attributes, must have names matched with field names
      * given <i>clazz</i>, where will be written values mapped with attributes.
      * <p>
      * 2) Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
      */
-    public static SomeAttributes extractAndFill(String strAttributes, List<String> attributes, Class<? extends SomeAttributes> clazz)
+    public static AttributeService extractAndFill(String strAttributes, List<String> attributes, Class<? extends AttributeService> clazz)
             throws InvalidLexicalException {
-        SomeAttributes object;
+        AttributeService object;
         try {
             object = clazz.getDeclaredConstructor().newInstance();
             System.out.println(object.getClass());
@@ -474,8 +474,14 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     break;
                 }
                 if (value == null) {
-                    throw new InvalidLexicalException("Lexical mistake attribute: " + someAttrib + ". Awaiting: " +
-                                                      entry.getValue().getParameterTypes()[0].getSimpleName());
+                    throw new InvalidLexicalException("Lexical mistake attribute: " + strAttributes + "\n" +
+                                                      "Awaiting:\n" +
+                                                      "    or symbol ';'\n" +
+                                                      "    or data type: " + entry.getValue()
+                                                              .getParameterTypes()[0].getSimpleName() + "\n" +
+                                                      "    or if data type is number,\n" +
+                                                      "      then it value should be no more than 99.99\n" +
+                                                      "Make sure that the attribute was entered correctly");
                 }
                 Class<?> clazzParam = entry.getValue()
                         .getParameterTypes()[0];
@@ -487,9 +493,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 }
 
             }
-
         }
-
     }
 
     private static PreparerPatterns definerMatcher(Method method) {
