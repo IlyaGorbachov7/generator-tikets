@@ -1,6 +1,6 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools;
+package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl;
 
-import java.util.regex.Pattern;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
 
 /**
  * This class represents as data transfer object between string and really data, which this string contains.
@@ -9,16 +9,16 @@ import java.util.regex.Pattern;
  *
  * @version 01.11.2022
  */
-public class AttributeTag {
+public class AttributesListStartTag implements SomeAttributes {
     private String n;
     private int l;
     private int r;
 
-    public AttributeTag() {
+    public AttributesListStartTag() {
         n = "";
     }
 
-    public AttributeTag(String name, int l, int r) {
+    public AttributesListStartTag(String name, int l, int r) {
         this.n = name;
         this.l = l;
         this.r = r;
@@ -50,7 +50,7 @@ public class AttributeTag {
 
     @Override
     public String toString() {
-        return "AttributeTag{" +
+        return "AttributesListStartTag{" +
                "n='" + n + '\'' +
                ", l=" + l +
                ", r=" + r +

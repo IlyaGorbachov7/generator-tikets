@@ -1,9 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeAny;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTag;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTagsPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
 
 import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 public class Test5 {
     public static void main(String[] args) throws InvalidLexicalException {
@@ -23,20 +24,42 @@ public class Test5 {
 
         System.out.println(attributTagObject);
 
-        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), AttributeTag.class);
+        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), AttributesListStartTag.class);
 
         System.out.println(attributTagObject);
     }
 
     static void test2() throws InvalidLexicalException {
-        Object attrib = extractAndFullingDTO("avarage=23; a= 11;age=12;",
-                Arrays.asList("name", "age", "avarage"),
-                AttributeAny.class);
+        Object attrib = extractAndFullingDTO("avarage=23; a= 11;age=  -12.20;", SomeAttributes.class);
         System.out.println(attrib);
     }
 
+    /**
+     * Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
+     *
+     * @param strAttributes
+     * @param clazz
+     * @return
+     * @throws InvalidLexicalException
+     */
+    static Object extractAndFullingDTO(String strAttributes, Class<?> clazz) throws InvalidLexicalException {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); // all property a class
+        Arrays.stream(pds).map(PropertyDescriptor::getName).filter(attribute -> !attribute.equals("class")).forEach(System.out::println);
+        System.out.println("Attributes was generation from class: " + clazz);
+        List<String> attributes = Arrays.stream(pds).map(PropertyDescriptor::getName)
+                .filter(attribute -> !attribute.equals("class"))
+                .collect(Collectors.toList());
+        return extractAndFullingDTO(strAttributes, attributes, clazz);
+    }
 
-    static Object extractAndFullingDTO(String strAttributes, List<String> attributes, Class<?> clazz) throws InvalidLexicalException {
+    static Object extractAndFullingDTO(String strAttributes, List<String> attributes, Class<?> clazz) throws
+            InvalidLexicalException {
         Object object;
         try {
             object = clazz.getDeclaredConstructor().newInstance();
@@ -144,7 +167,7 @@ public class Test5 {
 
     }
 
-    private static AttributeTagsPatterns definerMatcher(Method method) {
+    private static LexicalPatterns definerMatcher(Method method) {
         Parameter[] parameters = method.getParameters();
         if (parameters.length == 0) throw new RuntimeException("setter: " + method + " without parameters !");
         if (parameters.length > 1)
@@ -153,9 +176,9 @@ public class Test5 {
         Class<?> clazzParam = parameters[0].getType();
         if (clazzParam.getSuperclass() == Number.class || clazzParam == int.class || clazzParam == double.class
             || clazzParam == float.class || clazzParam == short.class) {
-            return AttributeTagsPatterns.NUMBER_REGEX;
+            return LexicalPatterns.NUMBER_REGEX;
         } else if (clazzParam == String.class || clazzParam == boolean.class || clazzParam == Boolean.class) {
-            return AttributeTagsPatterns.STRING_REGEX;
+            return LexicalPatterns.STRING_REGEX;
         }
         throw new RuntimeException("setter with such parameter : " + clazzParam + " does not support");
     }

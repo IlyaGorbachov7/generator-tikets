@@ -1,19 +1,11 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools;
+package bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public enum AttributeTagsPatterns {
-    // attributes
-    N("(n)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё]+)[\\s&&[^\\n]]*;"),
-    R("(r)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
-    L("(l)[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2})[\\s&&[^\\n]]*;"),
-
-    STRING_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё.]+)[\\s&&[^\\n]]*;"),
-    NUMBER_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(\\d{1,2}.?\\d{1,2})[\\s&&[^\\n]]*;"),
-
-    // tags
-    TAG_QUESTION("^\\{(.*?)}");
+public enum LexicalPatterns {
+    STRING_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё.\\-]+)[\\s&&[^\\n]]*;"),
+    NUMBER_REGEX("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*(-?\\d{1,2}([.]\\d{1,2})?)[\\s&&[^\\n]]*;");
 
     private final Pattern pattern;
 
@@ -22,7 +14,7 @@ public enum AttributeTagsPatterns {
      *
      * @param regex regex expression
      */
-    AttributeTagsPatterns(String regex) {
+    LexicalPatterns(String regex) {
         this.pattern = Pattern.compile(regex);
     }
 

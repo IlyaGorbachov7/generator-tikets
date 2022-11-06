@@ -1,20 +1,28 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTag;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.AttributeTagsPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.TagPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.ContentExtractException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 
 public abstract class AbstractContentExtractThread<T extends QuestionExt>
@@ -100,9 +108,9 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // if all required check is fulfilled
                 // Then...
-                AttributeTag attributeTag;
+                SomeAttributes attributeTag;
                 try {
-                    attributeTag = extractValFromStartTag(curP);
+                    attributeTag = extractAttributesFromListStartTag(curP);
                 } catch (InvalidLexicalException e) {
                     throw new ContentExtractException(e.getMessage());
                 }
@@ -110,12 +118,12 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 i++;
                 while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
                     T ques = supplierQuestion.get();// 1 question - can contain picture or math-expressions
-                    fullQuestionFields(ques, attributeTag);
+                    fillerQuestionFields(ques, attributeTag);
                     ques.add(curP);
 
                     int j = i + 1;
                     while (j < paragraphs.size() && (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) { // running by one questions
-                        if (isStartTag(curP)) { // required condition
+                        if (isListStartTag(curP)) { // required condition
                             throw new ContentExtractException(urlDocxFile +
                                                               "\nBy reading content of the question no found end tag : <S/>");
                         }
@@ -139,12 +147,6 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
     protected abstract Supplier<T> factoryQuestion();
 
     // -------------------- Static context ------------------
-
-    protected void fullQuestionFields(T quest, AttributeTag attrTag) {
-//        quest.setSection(attrTag.getN());
-        quest.setLevel(attrTag.getL());
-        quest.setRepeat(attrTag.getR());
-    }
 
     /**
      * This method validate order determine start and end tags.
@@ -206,182 +208,48 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param p class object {@link XWPFParagraph}
      * @return true is startTag else false
      */
-    protected boolean isStartTag(XWPFParagraph p) {
+    protected boolean isListStartTag(XWPFParagraph p) {
         if (!checkTagSCondition(p)) return false;
-        String s = p.getText().trim();
-        return s.equals("<S>") ||
-               ((s.startsWith("<S>")) && s.endsWith(">"));
+        String s = p.getText();
+        return TagPatterns.LIST_START_TAG.matches(s);
     }
 
     /**
      * <b>If paragraph is not a start tag, then throw Exception: InvalidLexicalException</b>
      * <p>
      * if paragraph is start tag, then this method extract attributes if they exist inside tag
-     * and packaging their into object a class {@link AttributeTag}
+     * and packaging their into object a class {@link AttributesListStartTag}
      *
-     * @return object a class AttributeTag
+     * @return object a class AttributesListStartTag
      * @throws InvalidLexicalException  a lexical error was made when reading attributes
      * @throws IllegalArgumentException if paragraph is not start tag. <b>This method await, that
      *                                  paragraph contain start teg</b>
      */
-    protected AttributeTag extractValFromStartTag(XWPFParagraph p) throws InvalidLexicalException {
-        if (!isStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
-        String s = p.getText();
-        String attributes;
+    protected SomeAttributes extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
+        if (!isListStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
 
-        int indexStart = s.indexOf('>');
-        int indexEnd = s.lastIndexOf('>');
-
-        if (indexStart == indexEnd) { // <S>
-            attributes = "";
-        } else {
-            attributes = s.substring(++indexStart, indexEnd);
-        }
-        return extractAttributes(attributes);
-    }
-
-    /**
-     * @param p
-     * @return
-     * @throws InvalidLexicalException
-     */
-    protected AttributeTag extractValFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
-        if (!isExistQuestTag(p)) throw new IllegalArgumentException("paragraph is not Numbering as question");
-
-        String s = p.getText().trim();
-        String attribute = "";
-        Matcher matcher = AttributeTagsPatterns.TAG_QUESTION.getMatcher(s);
+        String attributes = null;
+        Matcher matcher = TagPatterns.LIST_START_TAG.getMatcher(p.getText());
         while (matcher.find()) {
-            attribute = matcher.group(1);
-            attribute = (attribute == null) ? "" : attribute;
+            attributes = matcher.group(2);
         }
-
-        return extractAttributes(attribute);
-    }
-
-    protected AttributeTag extractAttributes(String strAttributes)
-            throws InvalidLexicalException {
-
-        AttributeTag attributeTag = new AttributeTag();
-
-        // list awaited attributes
-        String[] attributes = {"n", "l", "r"};
-
-        for (String attribute : attributes) {
-            int index;
-            String str = strAttributes;
-            while (!((index = str.indexOf(attribute)) < 0)) {
-                boolean cutStr = false;
-                int j = index;
-                while (++j < str.length() && str.charAt(j) != '=') {
-                    if (str.charAt(j) != ' ') {
-                        cutStr = true;
-                        str = str.substring(j);
-                        break;
-                    }
-                }
-                if (j < str.length() &&
-                    !cutStr && str.charAt(j) == '=') {
-                    break;
-                } else if (j == str.length()) {
-                    // if any attribute is at then end of the string, then make: str = "";
-                    str = str.substring(j);
-                }
-            }
-
-            if (index >= 0) {
-                String someAttrib;
-                Matcher matcher;
-                String value;
-                switch (attribute) {
-                    case "n" -> {
-                        someAttrib = str.substring(index);
-                        matcher = AttributeTagsPatterns.N.getMatcher("Invalid lexical value :"
-                                                                     + someAttrib);
-                        value = null;
-                        while (matcher.find()) {
-                            value = matcher.group(2);
-                            break;
-                        }
-                        if (value == null) {
-                            throw new InvalidLexicalException("Invalid lexical value :"
-                                                              + someAttrib);
-                        }
-//                        attributeTag.setN(value);
-                    }
-                    case "l" -> {
-                        someAttrib = str.substring(index);
-                        matcher = AttributeTagsPatterns.L.getMatcher(someAttrib);
-                        value = null;
-                        while (matcher.find()) {
-                            value = matcher.group(2);
-                            break;
-                        }
-                        if (value == null) {
-                            throw new InvalidLexicalException("Invalid Lexical value :"
-                                                              + someAttrib);
-                        }
-                        attributeTag.setL(Integer.parseInt(value));
-                    }
-                    case "r" -> {
-                        someAttrib = str.substring(index);
-                        matcher = AttributeTagsPatterns.R.getMatcher(someAttrib);
-                        value = null;
-                        while (matcher.find()) {
-                            value = matcher.group(2);
-                            break;
-
-                        }
-                        if (value == null) {
-                            throw new InvalidLexicalException("Invalid Lexical value :"
-                                                              + someAttrib);
-                        }
-                        attributeTag.setR(Integer.parseInt(value));
-                    }
-                }
-            }
+        if (attributes == null) { // if <S>
+            attributes = "";
         }
-
-        return attributeTag;
-    }
-
-    private AttributeTag extract(){
-        return null;
+        return extractAndFill(attributes, AttributesListStartTag.class);
     }
 
     /**
      * The method checks whether the paragraph is a end tag
      * <p>
-     * End tag : <b>{@code <S/>}</b>
+     * End tag : <b>{@code <\S>}</b>
      *
      * @param p class object {@link XWPFParagraph}
      * @return true is end tag else false
      */
     protected boolean isEndTag(XWPFParagraph p) {
         if (!checkTagSCondition(p)) return false;
-        String s = p.getText().trim();
-        return s.equals("<S/>");
-    }
-
-
-    /**
-     * This method check the paragraph, which is question, on the contains tag-question.
-     * <p>
-     * Tag: {@code {...}}
-     * <p>
-     * <b>Condition tag:</b>
-     * <p>
-     * 1) This tag should be in beginning question.
-     * <p>
-     * 2) This paragraph, should be numbering
-     *
-     * @param p paragraph contains questions
-     * @return true if success, else false
-     */
-    protected boolean isExistQuestTag(XWPFParagraph p) {
-        if (!isNumbering(p)) return false;
-        String s = p.getText().trim();
-        return AttributeTagsPatterns.TAG_QUESTION.matches(s);
+        return TagPatterns.LIST_END_TAG.matches(p.getText());
     }
 
     /**
@@ -427,7 +295,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         curPosPara = docx.getParagraphPos(curPosPara); // it very needed. It is very helped in find correct pos
         List<XWPFParagraph> listP = docx.getParagraphs();
         while (curPosPara < listP.size()) {
-            if (isStartTag(listP.get(curPosPara))) return curPosPara;
+            if (isListStartTag(listP.get(curPosPara))) return curPosPara;
             ++curPosPara;
         }
         return -1;
@@ -456,5 +324,209 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
             if (!run.getEmbeddedPictures().isEmpty()) return false;
         }
         return true;
+    }
+
+
+    /**
+     * This method full question fields of values, which are supplied by the object implementing {@link SomeAttributes}
+     *
+     * @param quest      object question
+     * @param someAttrib object implements interface {@link SomeAttributes}. <b>This object belong to class,
+     *                   that was wrote inside {@code method}: {@link #extractAttributesFromListStartTag(XWPFParagraph)}</b>
+     * @apiNote To receive the fields from some object implementing SomeAttributes, you need explicit converting type
+     */
+    protected void fillerQuestionFields(T quest, SomeAttributes someAttrib) {
+        if (someAttrib instanceof AttributesListStartTag attributesListStartTag) {
+            quest.setSection(attributesListStartTag.getN());
+            quest.setLevel(attributesListStartTag.getL());
+            quest.setRepeat(attributesListStartTag.getR());
+        }
+    }
+
+    /**
+     * This method will be extract string attributes from  string, names which describes in the specified <i>clazz</i>
+     *
+     * @param strAttributes string, which content value with given attributes
+     * @param clazz         should implement interface {@link SomeAttributes}
+     * @return filled object SomeAttributes
+     * @throws InvalidLexicalException
+     * @apiNote Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
+     */
+    public static SomeAttributes extractAndFill(String strAttributes, Class<? extends SomeAttributes> clazz)
+            throws InvalidLexicalException {
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException e) {
+            throw new RuntimeException(e);
+        }
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); // all property a class
+        Arrays.stream(pds).map(PropertyDescriptor::getName).filter(attribute -> !attribute.equals("class")).forEach(System.out::println);
+        System.out.println("--Attributes was generation from class: " + clazz);
+        List<String> attributes = Arrays.stream(pds).map(PropertyDescriptor::getName)
+                .filter(attribute -> !attribute.equals("class"))
+                .collect(Collectors.toList());
+        return extractAndFill(strAttributes, attributes, clazz);
+    }
+
+    /**
+     * This method will be extract attributes from string, names which describes in the specified <i>clazz</i>
+     *
+     * @param attributes    list of attributes names, which you are want extract from string
+     * @param strAttributes string, which content value with given attributes
+     * @param clazz         should implement interface {@link SomeAttributes}
+     * @return filled object SomeAttributes
+     * @throws InvalidLexicalException
+     * @apiNote 1) Name attributes, which specified in the list of attributes, must have names matched with field names
+     * given <i>clazz</i>, where will be written values mapped with attributes.
+     * <p>
+     * 2) Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
+     */
+    public static SomeAttributes extractAndFill(String strAttributes, List<String> attributes, Class<? extends SomeAttributes> clazz)
+            throws InvalidLexicalException {
+        SomeAttributes object;
+        try {
+            object = clazz.getDeclaredConstructor().newInstance();
+            System.out.println(object.getClass());
+        } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        BeanInfo beanInfo;
+        try {
+            beanInfo = Introspector.getBeanInfo(clazz);
+        } catch (IntrospectionException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); // all property a class
+        List<String> nameFields = Arrays.stream(pds).map(PropertyDescriptor::getName).toList(); // names field from methods
+        System.out.println("field: " + nameFields);
+        System.out.println("attribute: " + attributes);
+        if (!nameFields.containsAll(attributes)) { // checking contain needed whether fields inside specified class
+            throw new RuntimeException("Some specified attributes: " + attributes
+                                       + " absent, in given class: " + clazz.getName() + " as field name");
+        }
+
+        // if success, then continue work
+        HashMap<String, Method> setterMethods = new HashMap<>();
+        for (PropertyDescriptor pd : pds) {
+            if (attributes.contains(pd.getName())) { // take only methods, which have named specified given attributes
+                System.out.println(pd.getName());
+                Method mw = pd.getWriteMethod();
+                if (mw != null) { // if exist setter for attribute bean object
+                    setterMethods.put(pd.getName(), mw);
+                } else {
+                    throw new RuntimeException("attribute : " +
+                                               pd.getName() + " no have setter");
+                }
+            }
+        }
+
+        setterMethods.forEach((k, m) -> System.out.println("name: " + k + " method: " + m));
+
+        executeExtracting(strAttributes, setterMethods, object);
+        return object;
+    }
+
+    private static void executeExtracting(String strAttributes, Map<String, Method> setterMethods, Object obj)
+            throws InvalidLexicalException {
+        for (var entry : setterMethods.entrySet()) {
+            String attribute = entry.getKey();
+            int index;
+            String str = strAttributes;
+            while (!((index = str.indexOf(attribute)) < 0)) {
+                boolean cutStr = false;
+                if (index > 0) { // if: ->avarage=23; a= 11; age=12; || ->avarage=23; a= 11;age=12;
+                    // avarage и age имеют корень age
+                    if (str.charAt(index - 1) != ' ' && str.charAt(index - 1) != ';') {
+                        str = str.substring(++index);
+                        continue;
+                    }
+                }
+                int j = index + attribute.length();
+                while (j < str.length() && str.charAt(j) != '=') {
+                    if (str.charAt(j) != ' ') {
+                        cutStr = true;
+                        str = str.substring(j);
+                        break;
+                    }
+                    ++j;
+                }
+                if (j < str.length() &&
+                    !cutStr && str.charAt(j) == '=') {
+                    break;
+                } else if (j == str.length()) {
+                    // if any attribute is at then end of the string, then make: str = "";
+                    str = str.substring(j);
+                }
+            }
+
+            if (index >= 0) {
+                String someAttrib = str.substring(index + attribute.length()); // starting with: =  233
+                Matcher matcher = definerMatcher(entry.getValue()).getMatcher(someAttrib);
+                String value = null;
+                while (matcher.find()) {
+                    value = matcher.group(1);
+                    break;
+                }
+                if (value == null) {
+                    throw new InvalidLexicalException("Lexical mistake attribute: " + someAttrib + ". Awaiting: " +
+                                                      entry.getValue().getParameterTypes()[0].getSimpleName());
+                }
+                Class<?> clazzParam = entry.getValue()
+                        .getParameterTypes()[0];
+                Object objParam = converterStringToPrimitiveType(value, clazzParam);
+                try {
+                    entry.getValue().invoke(obj, objParam);
+                } catch (IllegalAccessException | InvocationTargetException e) { // инфа для программиста
+                    e.printStackTrace();
+                }
+
+            }
+
+        }
+
+    }
+
+    private static LexicalPatterns definerMatcher(Method method) {
+        Parameter[] parameters = method.getParameters();
+        if (parameters.length == 0) throw new RuntimeException("setter: " + method + " without parameters !");
+        if (parameters.length > 1)
+            throw new RuntimeException("setter" + method + " having more, then one parameters !");
+
+        Class<?> clazzParam = parameters[0].getType();
+        if (clazzParam.getSuperclass() == Number.class || clazzParam == int.class || clazzParam == double.class
+            || clazzParam == float.class || clazzParam == short.class) {
+            return LexicalPatterns.NUMBER_REGEX;
+        } else if (clazzParam == String.class || clazzParam == boolean.class || clazzParam == Boolean.class) {
+            return LexicalPatterns.STRING_REGEX;
+        }
+        throw new RuntimeException("setter with such parameter : " + clazzParam + " does not support");
+    }
+
+    private static Object converterStringToPrimitiveType(String value, Class<?> convertType)
+            throws InvalidLexicalException {
+        try {
+            if (convertType == int.class || convertType == Integer.class) {
+                return Integer.parseInt(value);
+            } else if (convertType == double.class || convertType == Double.class) {
+                return Double.parseDouble(value);
+            } else if (convertType == float.class || convertType == Float.class) {
+                return Float.parseFloat(value);
+            } else if (convertType == short.class || convertType == Short.class) {
+                return Short.parseShort(value);
+            } else if (convertType == boolean.class || convertType == Boolean.class) {
+                return Boolean.parseBoolean(value);
+            } else if (convertType == String.class) {
+                return value;
+            }
+        } catch (NumberFormatException e) {// это должен знать только программист!
+            throw new InvalidLexicalException("value:" + value + " is not " + convertType.getSimpleName());
+        }
+        // об это должен знать только программист
+        throw new RuntimeException("clazz : " + convertType + " does not support");
     }
 }
