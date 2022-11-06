@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.PreparerPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
@@ -160,14 +161,12 @@ public class Test5 {
                 } catch (IllegalAccessException | InvocationTargetException e) { // инфа для программиста
                     e.printStackTrace();
                 }
-
             }
-
         }
 
     }
 
-    private static LexicalPatterns definerMatcher(Method method) {
+    private static PreparerPatterns definerMatcher(Method method) {
         Parameter[] parameters = method.getParameters();
         if (parameters.length == 0) throw new RuntimeException("setter: " + method + " without parameters !");
         if (parameters.length > 1)
