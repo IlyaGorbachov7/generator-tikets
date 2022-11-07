@@ -349,9 +349,10 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      *
      * @param strAttributes string, which content value with given attributes
      * @param clazz         should implement interface {@link AttributeService}
-     * @return filled object SomeServiceAttributes
-     * @throws InvalidLexicalException
+     * @return Filled class object, class which given into the method parameter
+     * @throws InvalidLexicalException in case lexical mistake
      * @apiNote Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
+     * @see LexicalPatterns
      */
     public static AttributeService extractAndFill(String strAttributes, Class<? extends AttributeService> clazz)
             throws InvalidLexicalException {
@@ -376,12 +377,13 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @param attributes    list of attributes names, which you are want extract from string
      * @param strAttributes string, which content value with given attributes
      * @param clazz         should implement interface {@link AttributeService}
-     * @return filled object SomeServiceAttributes
-     * @throws InvalidLexicalException
+     * @return Filled class object, class which given into the method parameter
+     * @throws InvalidLexicalException in case lexical mistake
      * @apiNote 1) Name attributes, which specified in the list of attributes, must have names matched with field names
      * given <i>clazz</i>, where will be written values mapped with attributes.
      * <p>
      * 2) Attribute with name: <b>class</b>  is reserved. Java already contains hidden field with name : <b>class</b>
+     * @see LexicalPatterns
      */
     public static AttributeService extractAndFill(String strAttributes, List<String> attributes, Class<? extends AttributeService> clazz)
             throws InvalidLexicalException {
