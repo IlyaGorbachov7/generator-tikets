@@ -1,9 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
@@ -41,20 +38,6 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     }
 
     @Override
-    protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty generationProperty)
-            throws GenerationConditionException {
-
-        // throw exception if insufficient quantity questions
-        int quantityQuestions = questions.size();
-        if (generationProperty.getUnique() &&
-            generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
-            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                                                       + quantityQuestions + ") to " +
-                                                                                       "\nensure no repetition of questions in tickets"));
-        }
-    }
-
-    @Override
     protected Supplier<AbstractContentExtractThread<Question2>> factoryExtractor(XWPFDocument p, String url) {
         return () -> new ContentExtractor(p, url);
     }
@@ -65,9 +48,57 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     }
 
     @Override
+    protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty property)
+            throws GenerationConditionException {
+        GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
+
+        if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_1) {
+            conditionsMode_1(questions, property);
+        } else if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_2) {
+            conditionsMode_2(questions, property);
+        }
+    }
+
+    @Override
     protected List<Ticket<Question2>> createListTickets(Ticket<Question2> templateTicket, List<Question2> questions,
                                                         GenerationProperty property) {
+        GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
 
+        if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_1) {
+            return generationMode_1(templateTicket, questions, property);
+        } else if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_2) {
+            return generationMode_2(templateTicket, questions, property);
+        }
+        return null;
+    }
+
+    private void conditionsMode_2(List<Question2> questions, GenerationProperty property)
+            throws GenerationConditionException {
+
+    }
+
+    private List<Ticket<Question2>> generationMode_2(Ticket<Question2> templateTicket, List<Question2> questions,
+                                                     GenerationProperty property) {
+
+
+        return null;
+    }
+
+    private void conditionsMode_1(List<Question2> questions, GenerationProperty property)
+            throws GenerationConditionException {
+        // throw exception if insufficient quantity questions
+        int quantityQuestions = questions.size();
+        if (property.getUnique() &&
+            property.getQuantityTickets() * property.getQuantityQTickets() > (quantityQuestions)) {
+            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
+                                                                                       + quantityQuestions + ") to " +
+                                                                                       "\nensure no repetition of questions in tickets"));
+        }
+    }
+
+
+    private List<Ticket<Question2>> generationMode_1(Ticket<Question2> templateTicket, List<Question2> questions,
+                                                     GenerationProperty property) {
         Map<String, List<Question2>> mapQuestions = questions.stream()
                 .collect(Collectors.groupingBy(Question2::getSection, LinkedHashMap::new,
                         Collectors.toCollection(ArrayList::new)));
