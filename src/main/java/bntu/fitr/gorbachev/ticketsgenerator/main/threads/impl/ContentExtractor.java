@@ -96,8 +96,10 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
     @Override
     protected void fillerQuestionFields(Question2 quest, AttributeService service) {
         if (service instanceof QuestTagAttributeService questTagAttributeService) {
-            quest.setRepeat(questTagAttributeService.getR());
-            quest.setLevel(questTagAttributeService.getL());
+            quest.setRepeat((questTagAttributeService.getR() <= 0 ? quest.getRepeat() :
+                    questTagAttributeService.getR()));
+            quest.setLevel((questTagAttributeService.getL()) <= 0 ? quest.getLevel() :
+                    questTagAttributeService.getL());
         } else super.fillerQuestionFields(quest, service);
     }
 
