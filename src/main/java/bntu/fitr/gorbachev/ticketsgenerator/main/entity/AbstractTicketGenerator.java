@@ -196,11 +196,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                         thread.close();
                     }
                 }
-                for (var document : docxRsc) {
-                    if (document != null) {
-                        document.close();
-                    }
-                }
             }
             return generalList;
         }

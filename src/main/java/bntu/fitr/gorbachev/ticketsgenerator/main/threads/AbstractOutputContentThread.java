@@ -151,7 +151,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                     try {
                         setParagraphProperties(desP);
                     } catch (XmlException e) {
-                        throw new OutputContentException("", e);
+                        throw new OutputContentException("setParagraphProperty", e);
                     }
                     if (resP.getNumID() != null) {
                         desP.setNumID(newNumID);
@@ -190,7 +190,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                                 try {
                                     clonePictureRun(resR, desR);
                                 } catch (Exception e) {
-                                    throw new OutputContentException("", e);
+                                    throw new OutputContentException("clonePictureRun", e);
                                 }
                             }
                             // else if prefix - <w:oMath> - is math function
@@ -308,10 +308,13 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
 
             XWPFPictureData pictureData = picture.getPictureData();
             // add picture in early created run
-            desR.addPicture(pictureData.getPackagePart().getInputStream(),
-                    pictureData.getPictureType(), pictureData.getFileName(),
+            var inputStream = pictureData.getPackagePart().getInputStream();
+            var pictureType = pictureData.getPictureType();
+            var fileName = pictureData.getFileName();
+            desR.addPicture(inputStream, pictureType, fileName,
                     Units.toEMU(picture.getWidth()), Units.toEMU(picture.getDepth()));
 
+            inputStream.close();
             /*
             However also need replace layout added-picture on the same layout resource-picture
             So taken defined drawing from rscRun by index and check anchor-layout
