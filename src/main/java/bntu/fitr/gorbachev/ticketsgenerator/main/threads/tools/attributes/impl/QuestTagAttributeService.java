@@ -10,15 +10,15 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.Attrib
  * @version 06.11.2022
  */
 public class QuestTagAttributeService implements AttributeService {
-    private int n;
+    private int l;
     private int r;
 
-    public int getN() {
-        return n;
+    public int getL() {
+        return l;
     }
 
-    public void setN(int n) {
-        this.n = n;
+    public void setL(int l) {
+        this.l = l;
     }
 
     public int getR() {
@@ -32,7 +32,7 @@ public class QuestTagAttributeService implements AttributeService {
     @Override
     public String toString() {
         return "QuestTagAttributeService{" +
-               "n=" + n +
+               "l=" + l +
                ", r=" + r +
                '}';
     }
