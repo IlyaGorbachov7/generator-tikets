@@ -363,8 +363,8 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
             throw new RuntimeException(e);
         }
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); // all property a class
-        Arrays.stream(pds).map(PropertyDescriptor::getName).filter(attribute -> !attribute.equals("class")).forEach(System.out::println);
-        System.out.println("--Attributes was generation from class: " + clazz);
+//        Arrays.stream(pds).map(PropertyDescriptor::getName).filter(attribute -> !attribute.equals("class")).forEach(System.out::println);
+//        System.out.println("--Attributes was generation from class: " + clazz);
         List<String> attributes = Arrays.stream(pds).map(PropertyDescriptor::getName)
                 .filter(attribute -> !attribute.equals("class"))
                 .collect(Collectors.toList());
@@ -390,7 +390,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         AttributeService object;
         try {
             object = clazz.getDeclaredConstructor().newInstance();
-            System.out.println(object.getClass());
+//            System.out.println(object.getClass());
         } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -406,8 +406,8 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
         PropertyDescriptor[] pds = beanInfo.getPropertyDescriptors(); // all property a class
         List<String> nameFields = Arrays.stream(pds).map(PropertyDescriptor::getName).toList(); // names field from methods
-        System.out.println("field: " + nameFields);
-        System.out.println("attribute: " + attributes);
+//        System.out.println("field: " + nameFields);
+//        System.out.println("attribute: " + attributes);
         if (!nameFields.containsAll(attributes)) { // checking contain needed whether fields inside specified class
             throw new RuntimeException("Some specified attributes: " + attributes
                                        + " absent, in given class: " + clazz.getName() + " as field name");
@@ -417,7 +417,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         HashMap<String, Method> setterMethods = new HashMap<>();
         for (PropertyDescriptor pd : pds) {
             if (attributes.contains(pd.getName())) { // take only methods, which have named specified given attributes
-                System.out.println(pd.getName());
+//                System.out.println(pd.getName());
                 Method mw = pd.getWriteMethod();
                 if (mw != null) { // if exist setter for attribute bean object
                     setterMethods.put(pd.getName(), mw);
@@ -428,8 +428,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
             }
         }
 
-        setterMethods.forEach((k, m) -> System.out.println("name: " + k + " method: " + m));
-
+//        setterMethods.forEach((k, m) -> System.out.println("name: " + k + " method: " + m));
         executeExtracting(strAttributes, setterMethods, object);
         return object;
     }
