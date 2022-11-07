@@ -750,7 +750,7 @@ public class MainWindowPanel extends BasePanel {
                             ticketGenerator.startGenerate(property);
                         } catch (GenerationConditionException | ExecutionException e1) {
                             JOptionPane.showInternalMessageDialog(null,
-                                    (e1.getCause() != null) ? e.getCause().getMessage()
+                                    (e1.getCause() != null) ? e1.getCause().getMessage()
                                             : e1.getMessage(),
                                     "Warning", JOptionPane.ERROR_MESSAGE);
 
