@@ -33,9 +33,6 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
     protected String urlDocxFile;
     protected Supplier<T> supplierQuestion;
 
-    public AbstractContentExtractThread() {
-    }
-
     /**
      * Constructor without parameters
      *

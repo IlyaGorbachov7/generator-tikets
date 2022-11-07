@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import org.apache.poi.xwpf.usermodel.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
@@ -134,6 +133,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
             docxDec.write(outputThread);
         }
+        docxDec.close();
     }
 
 
@@ -194,6 +194,11 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                 for (var thread : inputTreads) { // closing files
                     if (thread != null) {
                         thread.close();
+                    }
+                }
+                for (var document : docxRsc) {
+                    if (document != null) {
+                        document.close();
                     }
                 }
             }
@@ -261,12 +266,12 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * This method is <i>abstract</i> with goals allow consumer opportunity yourself realize this method for creation
      * list tickets.
      *
-     * @param tempTicket    template ticket
-     * @param listQuestions list questions
+     * @param templateTicket template ticket
+     * @param questions  list questions
      * @param property
      * @return a list of tickets
      */
-    protected abstract List<T> createListTickets(T tempTicket, List<Q> listQuestions, GenerationProperty property);
+    protected abstract List<T> createListTickets(T templateTicket, List<Q> questions, GenerationProperty property);
 
     /**
      * This method represented yourself as <i>factory</i> to implementation {@code AbstractOutputContentThread}
@@ -310,24 +315,13 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
     /**
      * This method is place, where should be checked all conditions generation before her starting.
      *
-     * @param qList              list questions
+     * @param questions              list questions
      * @param generationProperty generation property, which contains defined data needed for generation
      * @throws GenerationConditionException in case failure
      * @apiNote In case any fail in conditions generate tickets, you should throw exception, that will be describing
      * the reason of the exception.
      */
-    protected void conditionsStartGeneration(List<Q> qList, GenerationProperty generationProperty)
-            throws GenerationConditionException {
-
-        // throw exception if insufficient quantity questions
-        int quantityQuestions = qList.size();
-        if (generationProperty.getUnique() &&
-            generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
-            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                                                       + quantityQuestions + ") to " +
-                                                                                       "\nensure no repetition of questions in tickets"));
-        }
-
-    }
+    protected abstract void conditionsStartGeneration(List<Q> questions, GenerationProperty generationProperty)
+            throws GenerationConditionException;
 
 }

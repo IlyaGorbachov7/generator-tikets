@@ -27,5 +27,5 @@ public class TagPatterns {
     /**
      * Tag: {@code {...}}
      */
-    public static final PreparerPatterns QUESTION_TAG = PreparerPatterns.newInstance("^[\\s&&[^\\n]]*\\{(.*?)}");
+    public static final PreparerPatterns QUESTION_TAG = PreparerPatterns.newInstance("^[\\s&&[^\\n]]*\\{(.*?)}.*");
 }

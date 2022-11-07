@@ -16,9 +16,6 @@ import java.util.regex.Matcher;
 
 public class ContentExtractor extends AbstractContentExtractThread<Question2> {
 
-    public ContentExtractor() {
-    }
-
     public ContentExtractor(XWPFDocument docxFile, String urlDocxFile) {
         super(docxFile, urlDocxFile);
     }

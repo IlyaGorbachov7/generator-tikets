@@ -4,7 +4,7 @@ public class GenerationProperty {
     int quantityTickets;
     int quantityQTickets;
 
-    private Boolean unique;
+    private boolean unique;
 
     public GenerationProperty() {
     }

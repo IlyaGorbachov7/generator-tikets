@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
@@ -40,9 +41,17 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     }
 
     @Override
-    protected void conditionsStartGeneration(List<Question2> question2s, GenerationProperty generationProperty)
+    protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty generationProperty)
             throws GenerationConditionException {
-        super.conditionsStartGeneration(question2s, generationProperty);
+
+        // throw exception if insufficient quantity questions
+        int quantityQuestions = questions.size();
+        if (generationProperty.getUnique() &&
+            generationProperty.getQuantityTickets() * generationProperty.getQuantityQTickets() > (quantityQuestions)) {
+            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
+                                                                                       + quantityQuestions + ") to " +
+                                                                                       "\nensure no repetition of questions in tickets"));
+        }
     }
 
     @Override
@@ -56,10 +65,10 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     }
 
     @Override
-    protected List<Ticket<Question2>> createListTickets(Ticket<Question2> tempTicket, List<Question2> listQuestions,
+    protected List<Ticket<Question2>> createListTickets(Ticket<Question2> templateTicket, List<Question2> questions,
                                                         GenerationProperty property) {
 
-        Map<String, List<Question2>> mapQuestions = listQuestions.stream()
+        Map<String, List<Question2>> mapQuestions = questions.stream()
                 .collect(Collectors.groupingBy(Question2::getSection, LinkedHashMap::new,
                         Collectors.toCollection(ArrayList::new)));
 
@@ -80,10 +89,10 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
         }
         int[] arrCurPosList = new int[listsQ.size()]; // current positions of each list
         for (int indexTicket = 0; indexTicket < quantityTickets; ++indexTicket) {
-            Ticket<Question2> ticket = new Ticket<>(tempTicket.getInstitute(), tempTicket.getFaculty(), tempTicket.getDepartment(),
-                    tempTicket.getSpecialization(), tempTicket.getDiscipline(), tempTicket.getTeacher(),
-                    tempTicket.getHeadDepartment(), tempTicket.getType(), tempTicket.getDate(),
-                    tempTicket.getProtocolNumber(), quantityQuestionsTicket);
+            Ticket<Question2> ticket = new Ticket<>(templateTicket.getInstitute(), templateTicket.getFaculty(), templateTicket.getDepartment(),
+                    templateTicket.getSpecialization(), templateTicket.getDiscipline(), templateTicket.getTeacher(),
+                    templateTicket.getHeadDepartment(), templateTicket.getType(), templateTicket.getDate(),
+                    templateTicket.getProtocolNumber(), quantityQuestionsTicket);
             int curIdListQ = 0;
 
             for (int indexQuestion = 0; indexQuestion < quantityQuestionsTicket; ++indexQuestion) {

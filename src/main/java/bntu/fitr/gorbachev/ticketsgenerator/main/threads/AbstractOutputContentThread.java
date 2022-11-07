@@ -36,9 +36,6 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
 
     protected List<T> listTickets;
 
-    public AbstractOutputContentThread() {
-    }
-
     /**
      * Constructor without parameters
      *

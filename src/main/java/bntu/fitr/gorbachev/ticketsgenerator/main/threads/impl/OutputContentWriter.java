@@ -10,9 +10,6 @@ import java.util.List;
 
 public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Question2>> {
 
-    public OutputContentWriter() {
-    }
-
     /**
      * Constructor without parameters
      *
