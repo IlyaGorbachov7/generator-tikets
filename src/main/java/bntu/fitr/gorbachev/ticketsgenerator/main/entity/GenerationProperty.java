@@ -1,5 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
+/**
+ * This class contains generation property, which will be used
+ * for checking condition start generation and during tickets generation
+ *
+ * @version 01.11.2022
+ */
 public class GenerationProperty {
     int quantityTickets;
     int quantityQTickets;
