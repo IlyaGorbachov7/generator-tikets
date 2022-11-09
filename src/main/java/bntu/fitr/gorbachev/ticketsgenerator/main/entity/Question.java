@@ -11,7 +11,7 @@ import java.util.*;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
-public class Question {
+public class Question implements Cloneable {
     private List<XWPFParagraph> listParagraphs;
 
     /**
@@ -42,6 +42,10 @@ public class Question {
         this.listParagraphs.add(p);
     }
 
+    public void addAll(Collection<XWPFParagraph> collection) {
+        listParagraphs.addAll(collection);
+    }
+
     /**
      * @param p remov new Paragraph in list paragraphs
      */
@@ -65,5 +69,17 @@ public class Question {
     @Override
     public int hashCode() {
         return Objects.hash(listParagraphs);
+    }
+
+    @Override
+    public Question clone() {
+        Question clone = null;
+        try {
+            clone = (Question) super.clone(); // НУЖНО ТАК! По соглашению Java
+            clone.addAll(listParagraphs);
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
     }
 }

@@ -2,7 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
 import java.util.Objects;
 
-public class QuestionExt extends Question{
+public class QuestionExt extends Question {
     private String section;
     private int level;
     private int repeat;
@@ -69,6 +69,15 @@ public class QuestionExt extends Question{
                "section='" + section + '\'' +
                ", level=" + level +
                ", repeat=" + repeat +
+               ", text = " + getListParagraphs().get(0).getText() +
                '}';
+    }
+
+    @Override
+    public QuestionExt clone()  {
+        QuestionExt clone = (QuestionExt) super.clone();
+        clone.level = level;
+        clone.repeat = repeat;
+        return clone;
     }
 }
