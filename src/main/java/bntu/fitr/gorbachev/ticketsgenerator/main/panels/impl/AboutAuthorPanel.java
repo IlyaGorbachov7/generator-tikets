@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +23,7 @@ public class AboutAuthorPanel extends BasePanel {
         GridBagConstraints gbc = new GridBagConstraints();
 
         JLabel lbImage = new JLabel(new ImageIcon(Objects.requireNonNull(
-                AboutProgramPanel.class.getResource("/resources/pictureMy.jpg"))
+                getClass().getResource(FileNames.pictureMy))
         ));
         panelInfo.add(lbImage, gbc);
 

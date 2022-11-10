@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 
 import javax.swing.*;
 import java.awt.*;
@@ -105,7 +106,7 @@ public class AboutProgramPanel extends BasePanel {
         panelInfo.add(panelHtml);
 
         JLabel lbImage = new JLabel(new ImageIcon(Objects.requireNonNull(
-                AboutProgramPanel.class.getResource("/resources/picturePrim.jpg"))
+                FileNames.getResource(FileNames.picturePrim1))
         ));
         ;
         JPanel panelImage = new JPanel(new GridLayout(1, 1, 5, 5));

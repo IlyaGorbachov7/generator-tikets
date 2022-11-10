@@ -51,7 +51,10 @@
 
         <resources>
             <resource>
+                <!--ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)-->
                 <directory>src/main/resources</directory>
+                <!--А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
+                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
                 <targetPath>resources</targetPath>
             </resource>
         </resources>

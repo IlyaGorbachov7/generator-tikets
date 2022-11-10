@@ -4,6 +4,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,7 +55,7 @@ public class SplashScreenPanel extends BasePanel {
         lbNameCoursework = new JLabel("Конструктор" +
                                       " экзаменационных билетов");
         labelIcon = new JLabel(new ImageIcon(Objects.requireNonNull(
-                SplashScreenPanel.class.getResource("/resources/iconCoursework.png"))));
+                FileNames.getResource(FileNames.iconCoursework))));
         lbInfoDeveloper = new JLabel(infoDeveloper);
         lbNameDeveloper = new JLabel(nameDeveloper);
         lbInfoTeacher = new JLabel(infoTeacher);

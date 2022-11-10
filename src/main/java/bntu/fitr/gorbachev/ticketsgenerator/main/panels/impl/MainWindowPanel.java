@@ -1,9 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
@@ -57,24 +59,19 @@ public class MainWindowPanel extends BasePanel {
     {
         menuBar = new JMenuBar();
         loadItem = new JMenuItem("Загрузить",
-                new ImageIcon(Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/openItemIcon1.png"))
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.openItemIcon))
                 ));
         saveItem = new JMenuItem("Сохранить",
-                new ImageIcon(Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/saveItemIcon1.png"))
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.saveItemIcon))
                 ));
         exitItem = new JMenuItem("Выйти",
-                new ImageIcon(Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/exitIcon1.png"))
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.exitItemIcon))
                 ));
         aboutAuthorItem = new JMenuItem("О авторе",
-                new ImageIcon(Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/aboutAuthorIcon1.png"))
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutAuthorItemIcon))
                 ));
         aboutProgramItem = new JMenuItem("О программе",
-                new ImageIcon(Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/aboutProgramIcon1.png"))
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutProgramItemIcon))
                 ));
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
@@ -108,20 +105,22 @@ public class MainWindowPanel extends BasePanel {
 
         modelListFilesRsc = new DefaultListModel<>();
         btnAdd = new JButton("Загрузить файл вопросов", new ImageIcon(
-                Objects.requireNonNull(
-                        MainWindowPanel.class.getResource("/resources/openItemIcon1.png"))
+                Objects.requireNonNull(FileNames.getResource(FileNames.openItemIcon))
         ));
         btnRemove = new JButton("Исключить файл", new ImageIcon(
-                Objects.requireNonNull(MainWindowPanel.class.getResource("/resources/removeItemIcon.png"))
+                Objects.requireNonNull(FileNames.getResource(FileNames.removeItemIcon))
         ));
+        jboxModes = new JComboBox(new GenerationPropertyImpl.GenerationMode[]{
+                GenerationPropertyImpl.GenerationMode.MODE_1, GenerationPropertyImpl.GenerationMode.MODE_2,
+                GenerationPropertyImpl.GenerationMode.MODE_3, GenerationPropertyImpl.GenerationMode.MODE_4});
         btnGenerate = new JButton("Сгенерировать билеты", new ImageIcon(
-                Objects.requireNonNull(MainWindowPanel.class.getResource("/resources/generateIcon.png"))
+                Objects.requireNonNull(FileNames.getResource(FileNames.generateIcon))
         ));
         btnViewFile = new JButton("Предварительный просмотр", new ImageIcon(
-                Objects.requireNonNull(MainWindowPanel.class.getResource("/resources/previewIcon.png"))
+                Objects.requireNonNull(FileNames.getResource(FileNames.previewIcon))
         ));
         btnSave = new JButton("Сохранить билеты", new ImageIcon(
-                Objects.requireNonNull(MainWindowPanel.class.getResource("/resources/saveItemIcon1.png"))
+                Objects.requireNonNull(FileNames.getResource(FileNames.saveItemIcon))
         ));
         lblCountItems = new JLabel("Загружено файлов : ");
         lblListSize = new JLabel("" + "0");
@@ -623,6 +622,7 @@ public class MainWindowPanel extends BasePanel {
     private final JList<File> jList = new JList<>(modelListFilesRsc);
     private final JButton btnAdd;
     private final JButton btnRemove;
+    private final JComboBox<String> jboxModes;
     private final JButton btnGenerate;
     private final JButton btnViewFile;
     private final JButton btnSave;
@@ -700,6 +700,8 @@ public class MainWindowPanel extends BasePanel {
 
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
+    private GenerationPropertyImpl.GenerationMode generationMode;
+
 
     /**
      * The class is a descendant of the ticket generation execution
@@ -732,7 +734,8 @@ public class MainWindowPanel extends BasePanel {
                     datePicDecision.getText(), tfProtocol.getText());
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
-            GenerationProperty property = new GenerationProperty(quantityTickets, quantityQuestionInTicket, true);
+            GenerationProperty property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
+                    true, GenerationPropertyImpl.Rating.FIVE_POINT);
             try {
                 ticketGenerator.startGenerate(property);
             } catch (ExecutionException | GenerationConditionException e) {
@@ -825,8 +828,7 @@ public class MainWindowPanel extends BasePanel {
                 JOptionPane.showInternalMessageDialog(
                         null, "Генерация прошла успешно !", "",
                         JOptionPane.INFORMATION_MESSAGE, new ImageIcon(
-                                Objects.requireNonNull(
-                                        MainWindowPanel.class.getResource("/resources/successIcon.png"))
+                                Objects.requireNonNull(FileNames.getResource(FileNames.successIcon))
                         ));
             }
         }
