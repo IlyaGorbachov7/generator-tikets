@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 
 /**
@@ -70,15 +71,5 @@ public class GenerationPropertyImpl extends GenerationProperty {
          * Ten point ration
          */
         TEN_POINT
-    }
-
-    /**
-     * Mode enum will define generation tickets algorithm.
-     */
-    public enum GenerationMode {
-        MODE_1,
-        MODE_2,
-        MODE_3,
-        MODE_4
     }
 }

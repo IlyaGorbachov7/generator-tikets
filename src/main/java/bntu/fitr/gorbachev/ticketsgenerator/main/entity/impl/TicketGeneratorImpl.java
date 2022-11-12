@@ -1,6 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
@@ -52,10 +56,12 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
             throws GenerationConditionException {
         GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
 
-        if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_1) {
-            conditionsMode_1(questions, property);
-        } else if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_2) {
-            conditionsMode_2(questions, property);
+        if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_1) {
+            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl1.class)
+                    .conditionGeneration(questions, property);
+        } else if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_2) {
+            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl2.class)
+                    .conditionGeneration(questions, property);
         }
     }
 
@@ -64,102 +70,13 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
                                                         GenerationProperty property) {
         GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
 
-        if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_1) {
-            return generationMode_1(templateTicket, questions, property);
-        } else if (generationPropertyImpl.getGenerationMode() == GenerationPropertyImpl.GenerationMode.MODE_2) {
-            return generationMode_2(templateTicket, questions, property);
+        if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_1) {
+            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl1.class)
+                    .generate(templateTicket, questions, property);
+        } else if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_2) {
+            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl2.class)
+                    .generate(templateTicket, questions, property);
         }
         return null;
-    }
-
-    private void conditionsMode_2(List<Question2> questions, GenerationProperty property)
-            throws GenerationConditionException {
-
-    }
-
-    private List<Ticket<Question2>> generationMode_2(Ticket<Question2> templateTicket, List<Question2> questions,
-                                                     GenerationProperty property) {
-
-
-        return null;
-    }
-
-    private void conditionsMode_1(List<Question2> questions, GenerationProperty property)
-            throws GenerationConditionException {
-        // throw exception if insufficient quantity questions
-        int quantityQuestions = questions.size();
-        if (property.getUnique() &&
-            property.getQuantityTickets() * property.getQuantityQTickets() > (quantityQuestions)) {
-            throw new GenerationConditionException(new NumberQuestionsRequireException("Insufficient number of questions ("
-                                                                                       + quantityQuestions + ") to " +
-                                                                                       "\nensure no repetition of questions in tickets"));
-        }
-    }
-
-
-    private List<Ticket<Question2>> generationMode_1(Ticket<Question2> templateTicket, List<Question2> questions,
-                                                     GenerationProperty property) {
-        Map<String, List<Question2>> mapQuestions = questions.stream()
-                .collect(Collectors.groupingBy(Question2::getSection, LinkedHashMap::new,
-                        Collectors.toCollection(ArrayList::new)));
-
-        mapQuestions.forEach((k, v) -> {
-            System.out.println("=========== k: " + k + " : ====================");
-            for (var e : v) {
-                System.out.println(e);
-            }
-        });
-
-        // убрать жосткую привязку
-        int quantityTickets = property.getQuantityTickets();
-        int quantityQuestionsTicket = property.getQuantityQTickets();
-        List<Ticket<Question2>> listTickets = new ArrayList<>(quantityTickets);
-        List<List<Question2>> listsQ = new ArrayList<>(mapQuestions.values());
-        if (mapQuestions.isEmpty()) {
-            return listTickets;
-        }
-        int[] arrCurPosList = new int[listsQ.size()]; // current positions of each list
-        for (int indexTicket = 0; indexTicket < quantityTickets; ++indexTicket) {
-            Ticket<Question2> ticket = new Ticket<>(templateTicket.getInstitute(), templateTicket.getFaculty(), templateTicket.getDepartment(),
-                    templateTicket.getSpecialization(), templateTicket.getDiscipline(), templateTicket.getTeacher(),
-                    templateTicket.getHeadDepartment(), templateTicket.getType(), templateTicket.getDate(),
-                    templateTicket.getProtocolNumber(), quantityQuestionsTicket);
-            int curIdListQ = 0;
-
-            for (int indexQuestion = 0; indexQuestion < quantityQuestionsTicket; ++indexQuestion) {
-                //------------------------
-                if (curIdListQ == listsQ.size()) {
-                    curIdListQ = 0;
-                }
-
-                int countFilledList = 0;
-                while (curIdListQ < listsQ.size()) {
-                    if ((arrCurPosList[curIdListQ] < listsQ.get(curIdListQ).size())) {
-                        countFilledList = 0;
-                        break;
-                    } else {
-                        ++curIdListQ;
-                        if (curIdListQ == listsQ.size()) {
-                            curIdListQ = 0;
-                            // But if also each lists is filled, then start from the beginning
-                            if (countFilledList >= listsQ.size()) {
-                                arrCurPosList = new int[listsQ.size()];
-                                countFilledList = 0;
-                            }
-                        }
-                        ++countFilledList;
-                    }
-                }
-                //------------------------
-
-                List<Question2> listQ = listsQ.get(curIdListQ);
-                ticket.add(listQ.get(arrCurPosList[curIdListQ]));
-                arrCurPosList[curIdListQ]++;
-                curIdListQ++;
-            }
-            listTickets.add(ticket);
-        }
-
-        return listTickets;
     }
 }

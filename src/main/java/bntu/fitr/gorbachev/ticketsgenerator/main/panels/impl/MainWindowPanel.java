@@ -1,9 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -12,8 +11,6 @@ import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.AbstractTicketGenerator;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutAuthor;
@@ -110,9 +107,11 @@ public class MainWindowPanel extends BasePanel {
         btnRemove = new JButton("Исключить файл", new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.removeItemIcon))
         ));
-        jboxModes = new JComboBox(new GenerationPropertyImpl.GenerationMode[]{
-                GenerationPropertyImpl.GenerationMode.MODE_1, GenerationPropertyImpl.GenerationMode.MODE_2,
-                GenerationPropertyImpl.GenerationMode.MODE_3, GenerationPropertyImpl.GenerationMode.MODE_4});
+        jBoxModes = new JComboBox<>(new GenerationMode[]{
+                GenerationMode.MODE_1, GenerationMode.MODE_2,
+                GenerationMode.MODE_3, GenerationMode.MODE_4});
+        lbGenerationMode = new JLabel("Способ генерации: ");
+
         btnGenerate = new JButton("Сгенерировать билеты", new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.generateIcon))
         ));
@@ -622,7 +621,8 @@ public class MainWindowPanel extends BasePanel {
     private final JList<File> jList = new JList<>(modelListFilesRsc);
     private final JButton btnAdd;
     private final JButton btnRemove;
-    private final JComboBox<String> jboxModes;
+    private final JComboBox jBoxModes;
+    private final JLabel lbGenerationMode;
     private final JButton btnGenerate;
     private final JButton btnViewFile;
     private final JButton btnSave;
@@ -666,6 +666,13 @@ public class MainWindowPanel extends BasePanel {
         JPanel pnlBtnGenerate = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
+        pnlBtnGenerate.add(lbGenerationMode, gbc);
+
+        gbc.gridx = 1;
+        pnlBtnGenerate.add(jBoxModes, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         pnlBtnGenerate.add(lbQuantityTickets, gbc);
 
         gbc.gridx = 1;
@@ -673,24 +680,24 @@ public class MainWindowPanel extends BasePanel {
         pnlBtnGenerate.add(tfQuantityTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         pnlBtnGenerate.add(lbQuantityQuestionTickets, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         pnlBtnGenerate.add(tfQuantityQuestionTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.gridheight = 1;
         gbc.ipady = 25;
         gbc.fill = GridBagConstraints.BOTH;
         pnlBtnGenerate.add(btnGenerate, gbc);
 
-        gbc.gridy = 3;
-        pnlBtnGenerate.add(btnViewFile, gbc);
         gbc.gridy = 4;
+        pnlBtnGenerate.add(btnViewFile, gbc);
+        gbc.gridy = 5;
         pnlBtnGenerate.add(btnSave, gbc);
 
         pnlRes.add(pnlBtnGenerate);
@@ -700,7 +707,7 @@ public class MainWindowPanel extends BasePanel {
 
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
-    private GenerationPropertyImpl.GenerationMode generationMode;
+    private GenerationMode generationMode;
 
 
     /**
