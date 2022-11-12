@@ -57,6 +57,11 @@
                  КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
                 <targetPath>resources</targetPath>
             </resource>
+
+            <resource>
+                <directory>src/main/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+            </resource>
         </resources>
     </build>
 
