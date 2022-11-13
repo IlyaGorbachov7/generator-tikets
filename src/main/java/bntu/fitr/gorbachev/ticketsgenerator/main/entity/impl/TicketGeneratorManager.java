@@ -32,7 +32,7 @@ public class TicketGeneratorManager {
      * This method load classes, which implement interface TicketsGeneratorWay.
      * <p>
      * Definition classes should be describing in file <i>META-INF/services/
-     * <b>bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay</b></i>
+     * <b>bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.TicketsGeneratorWay</b></i>
      *
      * @see ServiceLoader
      */
