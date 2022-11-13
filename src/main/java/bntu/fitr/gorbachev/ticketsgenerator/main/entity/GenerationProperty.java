@@ -1,7 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
-
 /**
  * This class contains generation property, which will be used
  * for checking condition start generation and during tickets generation

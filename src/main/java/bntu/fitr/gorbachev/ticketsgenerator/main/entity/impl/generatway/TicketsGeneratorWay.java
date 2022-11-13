@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager;
+package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
