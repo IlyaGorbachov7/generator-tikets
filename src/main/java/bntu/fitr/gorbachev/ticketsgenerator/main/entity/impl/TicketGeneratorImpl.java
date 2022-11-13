@@ -1,12 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketGeneratorManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.ContentExtractor;
@@ -14,12 +10,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl.OutputContentWrite
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Ticket<Question2>> {
 
@@ -54,29 +46,14 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     @Override
     protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty property)
             throws GenerationConditionException {
-        GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
-
-        if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_1) {
-            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl1.class)
-                    .conditionGeneration(questions, property);
-        } else if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_2) {
-            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl2.class)
-                    .conditionGeneration(questions, property);
-        }
+        GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
+        TicketGeneratorManager.getGenerator(prop.getGenerationWay()).conditionGeneration(questions, property);
     }
 
     @Override
     protected List<Ticket<Question2>> createListTickets(Ticket<Question2> templateTicket, List<Question2> questions,
                                                         GenerationProperty property) {
-        GenerationPropertyImpl generationPropertyImpl = (GenerationPropertyImpl) property;
-
-        if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_1) {
-            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl1.class)
-                    .generate(templateTicket, questions, property);
-        } else if (generationPropertyImpl.getGenerationMode() == GenerationMode.MODE_2) {
-            TicketsGeneratorManager.getGenerator(TicketsGeneratorWayImpl2.class)
-                    .generate(templateTicket, questions, property);
-        }
-        return null;
+        GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
+        return TicketGeneratorManager.getGenerator(prop.getGenerationWay()).generate(templateTicket, questions, property);
     }
 }

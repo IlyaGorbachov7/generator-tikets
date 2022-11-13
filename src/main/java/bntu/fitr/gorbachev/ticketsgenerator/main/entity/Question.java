@@ -11,7 +11,7 @@ import java.util.*;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
-public class Question implements Cloneable {
+public abstract class Question implements Cloneable {
     private List<XWPFParagraph> listParagraphs;
 
     /**

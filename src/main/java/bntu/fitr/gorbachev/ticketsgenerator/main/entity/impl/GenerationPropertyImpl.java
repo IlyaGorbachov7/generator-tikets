@@ -1,57 +1,35 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationMode;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
 
 /**
  * Class Implementation.
  * <p>
- * Contains property: <b>rating</b> - define two value {@link Rating}
+ * Contains property: <b>rating</b> - define two value
  */
 public class GenerationPropertyImpl extends GenerationProperty {
-    private Rating rating;
     private GenerationMode generationMode;
+    private Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay;
 
     {
-        rating = Rating.FIVE_POINT;
         generationMode = GenerationMode.MODE_1;
     }
 
-    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique, Rating rating) {
+    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique) {
         super(quantityTickets, quantityQTickets, unique);
-        this.rating = rating;
     }
 
-    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique, Rating rating,
+    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique,
                                   GenerationMode generationMode) {
         super(quantityTickets, quantityQTickets, unique);
-        this.rating = rating;
         this.generationMode = generationMode;
     }
 
-    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Rating rating,
+    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets,
                                   GenerationMode generationMode) {
         super(quantityTickets, quantityQTickets);
-        this.rating = rating;
         this.generationMode = generationMode;
-    }
-
-    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Rating rating) {
-        super(quantityTickets, quantityQTickets);
-        this.rating = rating;
-    }
-
-    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, GenerationMode generationMode) {
-        super(quantityTickets, quantityQTickets);
-        this.generationMode = generationMode;
-    }
-
-    public Rating getRating() {
-        return rating;
-    }
-
-    public void setRating(Rating rating) {
-        this.rating = rating;
     }
 
     public GenerationMode getGenerationMode() {
@@ -62,14 +40,11 @@ public class GenerationPropertyImpl extends GenerationProperty {
         this.generationMode = generationMode;
     }
 
-    public enum Rating {
-        /**
-         * Five point ration
-         */
-        FIVE_POINT,
-        /**
-         * Ten point ration
-         */
-        TEN_POINT
+    public Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> getGenerationWay() {
+        return generationWay;
+    }
+
+    public void setGenerationWay(Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay) {
+        this.generationWay = generationWay;
     }
 }

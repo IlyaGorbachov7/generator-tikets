@@ -13,7 +13,6 @@ public class GenerationProperty {
     int quantityQTickets;
 
     private boolean unique;
-    private Class<? extends TicketsGeneratorWay<? extends QuestionExt, ? extends Ticket<?>>> generationWay;
 
     public GenerationProperty() {
     }
@@ -27,13 +26,6 @@ public class GenerationProperty {
     public GenerationProperty(int quantityTickets, int quantityQTickets) {
         this.quantityTickets = quantityTickets;
         this.quantityQTickets = quantityQTickets;
-    }
-
-    public <Q extends QuestionExt, E extends Ticket<? super Q>> GenerationProperty(int quantityTickets, int quantityQTickets,
-                                                                                   Class<? extends TicketsGeneratorWay<Q, E>> generationWay) {
-        this.quantityTickets = quantityTickets;
-        this.quantityQTickets = quantityQTickets;
-        this.generationWay = generationWay;
     }
 
     public int getQuantityTickets() {
@@ -58,13 +50,5 @@ public class GenerationProperty {
 
     public void setUnique(boolean unique) {
         this.unique = unique;
-    }
-
-    public <Q extends QuestionExt, E extends Ticket<? super Q>> Class<? extends TicketsGeneratorWay<Q, E>> getGenerationWay() {
-        return (Class<? extends TicketsGeneratorWay<Q, E>>) generationWay;
-    }
-
-    public void setGenerationWay(Class<TicketsGeneratorWay<?, ?>> generationWay) {
-        this.generationWay = generationWay;
     }
 }

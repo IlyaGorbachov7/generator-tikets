@@ -1,6 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
@@ -741,8 +743,11 @@ public class MainWindowPanel extends BasePanel {
                     datePicDecision.getText(), tfProtocol.getText());
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
-            GenerationProperty property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true, GenerationPropertyImpl.Rating.FIVE_POINT);
+            var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
+                    true);
+            property.setGenerationWay(TicketsGeneratorWayImpl1.class);
+            property.setGenerationWay(TicketsGeneratorWayImpl2.class);
+
             try {
                 ticketGenerator.startGenerate(property);
             } catch (ExecutionException | GenerationConditionException e) {

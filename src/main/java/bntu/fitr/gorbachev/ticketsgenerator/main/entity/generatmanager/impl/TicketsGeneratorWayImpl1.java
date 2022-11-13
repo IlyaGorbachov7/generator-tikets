@@ -2,9 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
@@ -96,5 +94,4 @@ public class TicketsGeneratorWayImpl1 implements TicketsGeneratorWay<Question2, 
         return listTickets;
 
     }
-
 }
