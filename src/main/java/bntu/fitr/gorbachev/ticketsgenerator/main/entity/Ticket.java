@@ -23,6 +23,20 @@ public class Ticket<T extends QuestionExt> {
     private String protocolNumber;
     private List<T> questions;
 
+    {
+        institute = "";
+        faculty = "";
+        department = "";
+        specialization = "";
+        discipline = "";
+        teacher = "";
+        headDepartment = "";
+
+        type = SessionType.AUTUMN;
+        date = "";
+        protocolNumber = "";
+    }
+
     /**
      * Constructor without parameters
      */
@@ -292,6 +306,19 @@ public class Ticket<T extends QuestionExt> {
                '}';
     }
 
+    public static <T extends QuestionExt> Ticket<T> of() {
+        return new Ticket<>();
+    }
+
+    public static <T extends QuestionExt> Ticket<T> of(String institute, String faculty, String department,
+                                                       String specialization, String discipline,
+                                                       String teacher, String headDepartment, SessionType type,
+                                                       String date, String protocolNumber) {
+        return new Ticket<>(institute, faculty, department,
+                specialization, discipline, teacher, headDepartment, type,
+                date, protocolNumber);
+    }
+
     /**
      * Enum choosing session type
      *
@@ -300,7 +327,8 @@ public class Ticket<T extends QuestionExt> {
      */
     public enum SessionType {
         AUTUMN("Осенняя"), WINTER("Зимняя"),
-        SPRING("Весенняя"), SUMMER("Летняя");
+        SPRING("Весенняя"), SUMMER("Летняя"),
+        NON("не определен");
         private final String name;
 
         /**
