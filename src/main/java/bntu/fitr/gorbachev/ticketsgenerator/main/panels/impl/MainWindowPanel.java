@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;

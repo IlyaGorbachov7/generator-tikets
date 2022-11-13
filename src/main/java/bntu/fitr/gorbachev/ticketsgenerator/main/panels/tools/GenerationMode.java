@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
+package bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools;
 
 
 /**
