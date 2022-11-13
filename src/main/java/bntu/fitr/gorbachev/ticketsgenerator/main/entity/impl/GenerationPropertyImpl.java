@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
 
 /**
  * Class Implementation.
@@ -9,11 +10,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGe
  * Contains property: <b>rating</b> - define two value
  */
 public class GenerationPropertyImpl extends GenerationProperty {
-    private GenerationMode generationMode;
     private Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay;
 
     {
-        generationMode = GenerationMode.MODE_1;
+        generationWay = TicketsGeneratorWayImpl1.class;
     }
 
     public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique) {
@@ -21,23 +21,15 @@ public class GenerationPropertyImpl extends GenerationProperty {
     }
 
     public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique,
-                                  GenerationMode generationMode) {
+                                  Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay) {
         super(quantityTickets, quantityQTickets, unique);
-        this.generationMode = generationMode;
+        this.generationWay = generationWay;
     }
 
     public GenerationPropertyImpl(int quantityTickets, int quantityQTickets,
-                                  GenerationMode generationMode) {
+                                  Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay) {
         super(quantityTickets, quantityQTickets);
-        this.generationMode = generationMode;
-    }
-
-    public GenerationMode getGenerationMode() {
-        return generationMode;
-    }
-
-    public void setGenerationMode(GenerationMode generationMode) {
-        this.generationMode = generationMode;
+        this.generationWay = generationWay;
     }
 
     public Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> getGenerationWay() {

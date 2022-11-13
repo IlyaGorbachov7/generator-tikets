@@ -744,9 +744,7 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true);
-            property.setGenerationWay(TicketsGeneratorWayImpl1.class);
-            property.setGenerationWay(TicketsGeneratorWayImpl2.class);
+                    true,TicketsGeneratorWayImpl1.class);
 
             try {
                 ticketGenerator.startGenerate(property);
