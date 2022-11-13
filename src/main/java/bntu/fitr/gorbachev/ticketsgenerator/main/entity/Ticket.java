@@ -9,7 +9,7 @@ import java.util.List;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
-public class Ticket<T extends QuestionExt> {
+public class Ticket<T extends QuestionExt> implements Cloneable {
     private String institute;
     private String faculty;
     private String department;
@@ -349,5 +349,21 @@ public class Ticket<T extends QuestionExt> {
         public String toString() {
             return name;
         }
+    }
+
+    /**
+     * Not a complete copy.
+     * <p>
+     * <b>NOT a complete copy:</b> list questions
+     */
+    @Override
+    public Ticket<T> clone() {
+        Ticket<T> clone = null;
+        try {
+            clone = (Ticket<T>) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return clone;
     }
 }
