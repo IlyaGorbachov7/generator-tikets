@@ -1,10 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -623,7 +622,7 @@ public class MainWindowPanel extends BasePanel {
     private final JList<File> jList = new JList<>(modelListFilesRsc);
     private final JButton btnAdd;
     private final JButton btnRemove;
-    private final JComboBox jBoxModes;
+    private final JComboBox<GenerationMode> jBoxModes;
     private final JLabel lbGenerationMode;
     private final JButton btnGenerate;
     private final JButton btnViewFile;
@@ -744,7 +743,7 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true,TicketsGeneratorWayImpl1.class);
+                    true, TicketsGeneratorWayImpl1.class);
 
             try {
                 ticketGenerator.startGenerate(property);

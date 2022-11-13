@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager;
+package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
@@ -9,7 +9,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- * Tickets Generator Manager to manage implementation interface {@link TicketsGeneratorWay}
+ * Tickets Generator Manager to manage implementation interface {@link bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay}
  * <p>
  * Implemented classes are loaded from a file: <b>bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay</b>
  * <p>
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * @version 13.11.2022
  */
 public class TicketGeneratorManager {
-    private static final Map<String, TicketsGeneratorWay<? extends QuestionExt, ? extends Ticket<?>>> generators;
+    private static final Map<String, bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<? extends QuestionExt, ? extends Ticket<?>>> generators;
     private static boolean isLoad = false;
 
     static {
@@ -38,8 +38,8 @@ public class TicketGeneratorManager {
      */
     private static <Q extends QuestionExt, T extends Ticket<? super Q>>
     void loadGenerators() {
-        ServiceLoader<TicketsGeneratorWay> loader = ServiceLoader.load(TicketsGeneratorWay.class);
-        Iterator<TicketsGeneratorWay> iterator = loader.iterator();
+        ServiceLoader<bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay> loader = ServiceLoader.load(bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay.class);
+        Iterator<bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay> iterator = loader.iterator();
 
         while (iterator.hasNext()) {
             var generatorWay = iterator.next();
@@ -50,15 +50,15 @@ public class TicketGeneratorManager {
     }
 
     /**
-     * This method registers/load clazz, which should implement interface {@link TicketsGeneratorWay}
+     * This method registers/load clazz, which should implement interface {@link bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay}
      *
      * @param clazz class realization TicketsGeneratorWay
      */
     public static <Q extends QuestionExt, T extends Ticket<? super Q>>
-    void registerGenerator(Class<? extends TicketsGeneratorWay<Q, T>> clazz) {
+    void registerGenerator(Class<? extends bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<Q, T>> clazz) {
         if (!generators.containsKey(clazz.getName())) {
             try {
-                TicketsGeneratorWay<Q, T> generatorWay = clazz.getConstructor().newInstance();
+                bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<Q, T> generatorWay = clazz.getConstructor().newInstance();
                 generators.put(generatorWay.getClass().getName(), generatorWay);
             } catch (InstantiationException | IllegalAccessException |
                     InvocationTargetException | NoSuchMethodException e) {
@@ -74,17 +74,17 @@ public class TicketGeneratorManager {
      * @return object specified class
      */
     public static <Q extends QuestionExt, T extends Ticket<? super Q>>
-    TicketsGeneratorWay<Q, T> getGenerator(Class<? extends TicketsGeneratorWay<Q, T>> clazz) {
+    bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<Q, T> getGenerator(Class<? extends bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<Q, T>> clazz) {
         if (!isLoad) {
             loadGenerators();
         }
-        return (TicketsGeneratorWay<Q, T>) generators.get(clazz.getName());
+        return (bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<Q, T>) generators.get(clazz.getName());
     }
 
     /**
-     * @return stream data {@link TicketsGeneratorWay}
+     * @return stream data {@link bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay}
      */
-    public static Stream<TicketsGeneratorWay<? extends QuestionExt, ? extends Ticket<? extends QuestionExt>>> getGenerators() {
+    public static Stream<bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay<? extends QuestionExt, ? extends Ticket<? extends QuestionExt>>> getGenerators() {
         if (!isLoad) {
             loadGenerators();
         }

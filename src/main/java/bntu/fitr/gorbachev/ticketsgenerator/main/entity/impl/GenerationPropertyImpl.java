@@ -2,7 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.TicketsGeneratorWay;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.generatmanager.impl.TicketsGeneratorWayImpl1;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl1;
 
 /**
  * Class Implementation.
