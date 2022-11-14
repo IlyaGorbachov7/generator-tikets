@@ -8,7 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.TicketsG
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 
 import java.util.*;
-import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -16,7 +16,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     private GenerationPropertyImpl prop;
     private Map<Integer, List<Question2>> mapGroupByLevel;
     private Set<Integer> rangeQuest;
-    private Map<Integer, Integer> mapStatePos;
+    private Map<Integer, Map.Entry<Integer, Integer>> mapStatePos;
 
 
     @Override
@@ -30,6 +30,8 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         mapGroupByLevel = questions.stream()
                 .collect(Collectors.groupingBy(Question2::getLevel, TreeMap::new, Collectors.toList()));
 
+        mapStatePos = rangeQuest.stream().map(lev -> Map.entry(lev, 0))
+                .collect(Collectors.toMap(Map.Entry::getKey, Function.identity()));
 
         Set<Integer> range = rangeQuest;
         Map<Boolean, List<Integer>> boolListMap = mapGroupByLevel.keySet().stream()
@@ -54,6 +56,26 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                                                    "Не достает вопросов со сложностью:" +
                                                    range.stream().dropWhile(boolListMap.get(true)::contains).toList());
         }
+
+
+        // Further, checking quantity needed questions for each property: level with taking into account property: repeat
+        // For each key:level  must be list, contains total quantity questions (with repeated) == requirement quantity
+        // tickets
+        if (prop.isUnique()) { // if true, this is means then we require that USER control repeated questions
+            // then check really user take into account the conditions for generation tickets
+            for (var entry : mapGroupByLevel.entrySet()) {
+                int totalQuantity = entry.getValue()
+                        .stream().mapToInt(Question2::getRepeat).sum();
+                if (totalQuantity != prop.getQuantityTickets()) {
+                    throw new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
+                                                           "Данный режим генерации требует, чтобы количество вопросов\n" +
+                                                           "в списке со ложностью: " + entry.getKey() + "\n" +
+                                                           "(с учётом указанного количество повторения вопроса) был\n" +
+                                                           "равен количеству билетов: " + prop.getQuantityTickets());
+                }
+            }
+        }
+
     }
 
     @Override
@@ -91,14 +113,18 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         return listTickets;
     }
 
-    private void generateTicketsWithMinNumber(final int minQuantityTickets, final List<Ticket<Question2>> listTickets, Ticket<Question2> tmpT) {
-        for (int indexArray = 0; indexArray < minQuantityTickets; indexArray++) {
+    private void generateTicketsWithMinNumber(final int minQuantityTickets, final List<Ticket<Question2>> listTickets,
+                                              Ticket<Question2> tmpT) {
+        for (int indexArray = 0; indexArray < minQuantityTickets; ) {
             Ticket<Question2> ticket = tmpT.clone();
             tmpT.clearQuestions();
+            int level = 0;
             for (var listQ  // iterate by level : 1 , 2 , 3 ...
                     : mapGroupByLevel.values()) { // grouped map by level question
                 var q = listQ.get(indexArray);
                 ticket.add(q); // added in sequential order ~ equivalent to 1, 2, 3 ... questions with same sequential level
+                // change state position lists. level++ -- this is iteration by level
+                mapStatePos.get(level++).setValue(++indexArray);
             }
             listTickets.add(ticket);
         }
@@ -110,9 +136,6 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         System.out.println("remainQuestionTic: " + remainQuantityTickets);
         System.out.println("-------------------------------- list tickets ----------------");
         listTickets.forEach(System.out::println);
-
-        mapStatePos = rangeQuest.stream().map(lev -> Map.entry(lev, offsetStartIndex))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e, e1) -> e, TreeMap::new));
 
         List<TicketNode> listNodes = initTicketChildrenFromParent(listTickets);
 
@@ -149,7 +172,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     }
 
     private void changeQuestionsTicket(TicketNode ticketNode) {
-        List<Question2> question2 = ticketNode.getTicket().getQuestions();
+        List<Question2> questions = ticketNode.getTicket().getQuestions();
 
         /*Теперрь нужно циклом бежать по вопросам в билете
          *
@@ -160,14 +183,86 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
          * Елси уже закончились то фиксируем вопросы легкие,
          * А  ВОПРОС с уровнем сложности самой большей измияем в любом случаи   */
 
+        for (int i = 0; i < questions.size(); i++) {
+            int levelQuest = i + 1;
+            int curPosInQuestListByLevel = mapStatePos.get(levelQuest).getValue();
+            List<Question2> listQuestByLevel = mapGroupByLevel.get(levelQuest);
+
+            // checking curPos on the is within bounds list
+            boolean isWithin = WrapperList.isIndexWithinBounds(curPosInQuestListByLevel, listQuestByLevel.size());
+            if (isWithin) {
+                questions.set(i, listQuestByLevel.get(curPosInQuestListByLevel));
+            } else {
+                // I take only those questions that con be repeated
+                Question2 qFirst = listQuestByLevel.stream().filter(q -> q.getRepeat() > 0)
+                        .findFirst().orElse(null);
+
+                if (!Objects.isNull(qFirst)) { // in ase if questions with repeated is present
+                    qFirst.setRepeat(qFirst.getRepeat() - 1); // reducing number repeat this question
+                    questions.set(i, qFirst);
+                } else if (!prop.isUnique()) { // in case if questions with repeated is absent
+
+                }
+            }
+
+
+        }
+
     }
 
-    private Question2 chooseLevelAndProvideNeededQuestion(int level) {
+    private static class WrapperList {
+        private int curIndexList;
+        private final List<Question2> list;
 
+        private WrapperList(List<Question2> list) {
+            curIndexList = 0;
+            this.list = list;
+        }
 
-        return null;
+        public int getCurIndexList() {
+            return curIndexList;
+        }
+
+        public void setCurIndexList(int curIndexList) {
+            this.curIndexList = curIndexList;
+        }
+
+        public int improvePosPrefix() {
+            return ++curIndexList;
+        }
+
+        public int improvePosPostfix() {
+            return curIndexList++;
+        }
+
+        public boolean isIndexWithinBounds() {
+            return isIndexWithinBounds(curIndexList, list.size());
+        }
+
+        public void resetPos() {
+            curIndexList = 0;
+        }
+
+        public List<Question2> getList() {
+            return list;
+        }
+
+        public static WrapperList of(List<Question2> list) {
+            return new WrapperList(list);
+        }
+
+        public static boolean isIndexWithinBounds(int index, int length) {
+            try {
+                Objects.checkIndex(index, length);
+            } catch (RuntimeException e) {
+                return false;
+            }
+            return true;
+        }
     }
 
+    public static void main(String[] args) {
+    }
 
     private static class TicketNode {
         private Ticket<Question2> ticket;
