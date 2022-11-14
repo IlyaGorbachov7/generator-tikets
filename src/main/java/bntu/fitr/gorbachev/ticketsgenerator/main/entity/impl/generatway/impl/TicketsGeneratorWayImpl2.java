@@ -9,6 +9,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionE
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -17,6 +19,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     private Map<Integer, List<Question2>> mapGroupByLevel;
     private Set<Integer> rangeQuest;
     private Map<Integer, Map.Entry<Integer, Integer>> mapStatePos;
+    private RandomGenerator randomGenerator = RandomGeneratorFactory.getDefault().create();
 
 
     @Override
@@ -181,7 +184,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
          * сободные вопросы, которые еще нигразу не брались ТО БЕРЕМ и изминяем состояение
          *
          * Елси уже закончились то фиксируем вопросы легкие,
-         * А  ВОПРОС с уровнем сложности самой большей измияем в любом случаи   */
+         * А ВОПРОС с уровнем сложности самой большей измияем в любом случаи   */
 
         for (int i = 0; i < questions.size(); i++) {
             int levelQuest = i + 1;
@@ -194,20 +197,29 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                 questions.set(i, listQuestByLevel.get(curPosInQuestListByLevel));
             } else {
                 // I take only those questions that con be repeated
+                /*
+                *
+                *
+                * Здесь нужно учесть тот факт, чтобы не брало вопрос один и тот же пока  он не обнулился
+                * допустпм если у нас есть вопрос с repeat = 100 то только он будет повторяться, пока он не
+                * исчезнит.
+                *
+                * Нужно сделать как-то равномерно, то есть как бы равномерно сделать по всем вопросам, которые повторяються
+                *
+                * */
                 Question2 qFirst = listQuestByLevel.stream().filter(q -> q.getRepeat() > 0)
                         .findFirst().orElse(null);
 
                 if (!Objects.isNull(qFirst)) { // in ase if questions with repeated is present
                     qFirst.setRepeat(qFirst.getRepeat() - 1); // reducing number repeat this question
                     questions.set(i, qFirst);
-                } else if (!prop.isUnique()) { // in case if questions with repeated is absent
-
+                } else if (!prop.isUnique()) { // in case if questions with repeated is absent, then random index
+                    // Forced generate, via random // можно все рандомить списки сложностей
+                    // или можно рандомить только список с паксимальной сложностю, а те оставить не подвижные как в родителе
                 }
             }
 
-
         }
-
     }
 
     private static class WrapperList {
@@ -262,6 +274,15 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     }
 
     public static void main(String[] args) {
+
+        var randomer = RandomGeneratorFactory.getDefault().create();
+        for (int i = 0; i < 10; i++) {
+            System.out.println(randomer.nextInt(0, 10));
+        }
+        System.out.println("------------");
+        for (int i = 0; i < 10; i++) {
+            System.out.println(randomer.nextInt(0, 10));
+        }
     }
 
     private static class TicketNode {
