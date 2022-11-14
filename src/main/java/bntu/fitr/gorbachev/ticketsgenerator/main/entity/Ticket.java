@@ -41,7 +41,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
      * Constructor without parameters
      */
     public Ticket() {
-        questions = new ArrayList<>();
+        questions = new ArrayList<>(3);
     }
 
     /**
@@ -71,7 +71,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
                   String specialization, String discipline,
                   String teacher, String headDepartment, SessionType type,
                   String date, String protocolNumber) {
-        this();
+        this(5);
         this.institute = institute;
         this.faculty = faculty;
         this.department = department;
@@ -269,6 +269,17 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
     }
 
     /**
+     * Removes all of the elements from this list (optional operation).
+     * The list will be empty after this call returns.
+     *
+     * @throws UnsupportedOperationException if the {@code clear} operation
+     *                                       is not supported by this list
+     */
+    public void clearQuestions() {
+        questions.clear();
+    }
+
+    /**
      * @return quantity questions in Ticket
      */
     public int getQuantity() {
@@ -354,13 +365,14 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
     /**
      * Not a complete copy.
      * <p>
-     * <b>NOT a complete copy:</b> list questions
+     * <b>NOT a complete copy:</b> questions inside list questions
      */
     @Override
     public Ticket<T> clone() {
         Ticket<T> clone = null;
         try {
             clone = (Ticket<T>) super.clone();
+            clone.questions = new ArrayList<>(this.questions);
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
         }

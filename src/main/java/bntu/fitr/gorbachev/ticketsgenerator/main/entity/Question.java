@@ -18,7 +18,7 @@ public abstract class Question implements Cloneable {
      * Constructor without parameters
      */
     public Question() {
-        listParagraphs = new ArrayList<>();
+        listParagraphs = new ArrayList<>(5);
     }
 
     /**
