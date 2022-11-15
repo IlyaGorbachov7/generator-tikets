@@ -133,7 +133,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
         try (FileOutputStream outputThread = new FileOutputStream(fileDes)) {
             docxDec.write(outputThread);
         }
-        docxDec.close();
     }
 
 

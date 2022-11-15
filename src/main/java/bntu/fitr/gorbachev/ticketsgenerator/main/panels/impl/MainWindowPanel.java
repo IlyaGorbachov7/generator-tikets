@@ -747,13 +747,13 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true, TicketsGeneratorWayImpl2.class);
+                    false, TicketsGeneratorWayImpl2.class);
 
             try {
                 ticketGenerator.startGenerate(property);
             } catch (ExecutionException | GenerationConditionException e) {
 
-                if (e.getCause().getClass() == NumberQuestionsRequireException.class) {
+                if (!Objects.isNull(e.getCause()) && e.getCause().getClass() == NumberQuestionsRequireException.class) {
                     int selected = JOptionPane.showInternalConfirmDialog(null,
                             e.getCause().getMessage() +
                             "\n\nDo you want to do a repeat of the questions ?",
