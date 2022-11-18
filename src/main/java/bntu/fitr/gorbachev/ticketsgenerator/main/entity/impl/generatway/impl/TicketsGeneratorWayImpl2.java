@@ -5,8 +5,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.TicketsGeneratorWay;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.FindsNonMatchingLevel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
-import com.mysql.cj.log.Log;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -72,46 +73,63 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
             throws GenerationConditionException {
         initFields(questions, property);
 
-        Set<Integer> range = rangeQuest;
-        Map<Boolean, List<Integer>> boolListMap = mapListQuestGroupByLevel.keySet().stream()
-                .collect(Collectors.partitioningBy(range::contains));
+        Map<Boolean, List<Integer>> mapRang = rangeQuest.stream()
+                .collect(Collectors.partitioningBy(mapListQuestGroupByLevel::containsKey));
 
-        boolean isNonMatchLevelNumber = boolListMap.get(false).isEmpty();
+        List<Integer> findsNonMatchLevel = mapListQuestGroupByLevel.keySet().stream()
+                .dropWhile(mapRang.get(true)::contains).toList();
 
-        if (!isNonMatchLevelNumber) {
-            System.out.println(boolListMap.get(true));
-            throw new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                   "Данный режим генерации требует указать в файле уровень сложности\n" +
-                                                   "вопроса в приделах [1; " + prop.getQuantityQTickets() + "]\n" +
-                                                   "Среди вопросов были найдены вопросы со сложностью:"
-                                                   + boolListMap.get(false) + ", которые не позволительны \n");
+        if (!mapRang.get(false).isEmpty()) {
+            System.out.println(mapRang.get(true));
+            System.out.println(mapRang.get(false));
+            // fatal exception
+            throw new GenerationConditionException(
+                    "Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
+                    "Отсутствуют вопросы со сложностью: " + mapRang.get(false) + "\n" +
+                    ((findsNonMatchLevel.isEmpty()) ? ""
+                            : "Однако найдены вопросы со сложностью: " + findsNonMatchLevel + "\n") +
+                    "Необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets()
+            );
+        } else if (!findsNonMatchLevel.isEmpty()) {
+            if (!prop.isFlagContinGenWithDepriveLev()) {
+                // exception allowed to continue generation. That continue generation needed set flag == true
+                throw new FindsNonMatchingLevel("Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
+                                                "По-мимо вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты\n" +
+                                                "Были найдены вопросы сложности: " + findsNonMatchLevel + "\n" +
+                                                "Выборка вопросов будет производится только в пределах: [1; " + prop.getQuantityQTickets() + "]\n"
+                );
+            } else {
+                // just remove unnecessary levels from global mapListQuest
+                for (int unnecessaryLevel : findsNonMatchLevel) {
+                    mapListQuestGroupByLevel.remove(unnecessaryLevel);
+                    mapListQuestRepeatedGroupByLevel.remove(unnecessaryLevel);
+                }
+            }
         }
-
-        isNonMatchLevelNumber = range.size() == boolListMap.get(true).size();
-        if (!isNonMatchLevelNumber) {
-            throw new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                   "Данный режим генерации требует указать в файле сложности\n" +
-                                                   "вопросов в приделах [1; " + prop.getQuantityQTickets() + "]\n" +
-                                                   "Не достает вопросов со сложностью:" +
-                                                   range.stream().dropWhile(boolListMap.get(true)::contains).toList());
-        }
-
 
         // Further, checking quantity needed questions for each property: level with taking into account property: repeat
         // For each key:level  must be list, contains total quantity questions (with repeated) == requirement quantity
         // tickets
         if (prop.isUnique()) { // if true, this is means then we require that USER control repeated questions
             // then check really user take into account the conditions for generation tickets
-            for (var entry : mapListQuestGroupByLevel.entrySet()) {
-                int totalQuantity = entry.getValue()
-                        .stream().mapToInt(Question2::getRepeat).sum();
-                if (totalQuantity != prop.getQuantityTickets()) {
-                    throw new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                           "Данный режим генерации требует, чтобы количество вопросов\n" +
-                                                           "в списке со ложностью: " + entry.getKey() + "\n" +
-                                                           "(с учётом указанного количество повторения вопроса) был\n" +
-                                                           "равен количеству билетов: " + prop.getQuantityTickets());
+            Set<Map.Entry<Integer, Integer>> entryQuantityNotEnough = new HashSet<>(rangeQuest.size());
+            for (var entry : mapListQuestRepeatedGroupByLevel.entrySet()) {
+                int totalQuantity = entry.getValue().stream().mapToInt(Question2::getRepeat).sum();
+                totalQuantity = prop.getQuantityTickets() - totalQuantity;
+                if (totalQuantity != 0) {
+                    entryQuantityNotEnough.add(new AbstractMap.SimpleEntry<>(entry.getKey(), totalQuantity));
                 }
+            }
+            if (!entryQuantityNotEnough.isEmpty()) {
+                // exception allowed to continew generation
+                throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
+                                                          "Требуется, чтобы количество вопросов со ложностями: " /*+ entry.getKey()*/ + "\n" +
+                                                          "(с учётом указанного Вами количество повторения) был\n" +
+                                                          "равен как минимум: " + prop.getQuantityTickets() + "\n" +
+                                                          "Не достаточно: " /*+ totalQuantity*/ + " вопросов\n\n" +
+                                                          "Вопросам, у которых указано число повторений, будет\n" +
+                                                          "автоматически увеличено значение числа повторений, если таковые имеются,\n" +
+                                                          "иначе вопросы будут выбраны рандомно.");
             }
         }
 
@@ -243,8 +261,9 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                 } else if (!prop.isUnique()) { // in case if questions with repeated is absent, then random index
                     // Forced generate, via random // можно все рандомить списки сложностей
                     // или можно рандомить только список с паксимальной сложностю, а те оставить не подвижные как в родителе
-                    Logger.getLogger(this.getClass().getName()).info("Forced  choice question from list grouped  by level:" + level);
                     curStatePosQuest = randomGenerator.nextInt(0, listQuestByLevel.size());
+                    Logger.getLogger(this.getClass().getName()).info("Forced  choice question from list grouped  by level="
+                                                                     + level + " : numberQuest = " + curStatePosQuest);
                     questions.set(i, listQuestByLevel.get(curStatePosQuest));
                     mapStatePosQuest.get(level).setValue(++curStatePosQuest);
                 }
@@ -399,11 +418,11 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
 
         var randomer = RandomGeneratorFactory.getDefault().create();
         for (int i = 0; i < 10; i++) {
-            System.out.println(randomer.nextInt(0, 10));
+            System.out.println(randomer.nextInt(0, 14));
         }
         System.out.println("------------");
         for (int i = 0; i < 10; i++) {
-            System.out.println(randomer.nextInt(0, 10));
+            System.out.println(randomer.nextInt(0, 14));
         }
     }
 

@@ -3,9 +3,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -14,7 +13,6 @@ import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutAuthor;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutProgram;
@@ -749,46 +747,42 @@ public class MainWindowPanel extends BasePanel {
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
                     false, TicketsGeneratorWayImpl2.class);
 
-            try {
-                ticketGenerator.startGenerate(property);
-            } catch (ExecutionException | GenerationConditionException e) {
+            boolean repeat;
+            do {
+                try {
+                    ticketGenerator.startGenerate(property);
+                } catch (ExecutionException | GenerationConditionException ex) {
+                    if (ex.getClass() == FindsNonMatchingLevel.class || ex.getClass() == NumberQuestionsRequireException.class) {
 
-                if (!Objects.isNull(e.getCause()) && e.getCause().getClass() == NumberQuestionsRequireException.class) {
-                    int selected = JOptionPane.showInternalConfirmDialog(null,
-                            e.getCause().getMessage() +
-                            "\n\nDo you want to do a repeat of the questions ?",
-                            "Message", JOptionPane.YES_NO_OPTION,
-                            JOptionPane.QUESTION_MESSAGE);
-
-                    if (selected == JOptionPane.OK_OPTION) {
-                        try {
-                            property.setUnique(false);
-                            ticketGenerator.startGenerate(property);
-                        } catch (GenerationConditionException | ExecutionException e1) {
-                            JOptionPane.showInternalMessageDialog(null,
-                                    (e1.getCause() != null) ? e1.getCause().getMessage()
-                                            : e1.getMessage(),
-                                    "Warning", JOptionPane.ERROR_MESSAGE);
-
+                        int selected = JOptionPane.showInternalConfirmDialog(null,
+                                ex.getCause().getMessage() + "\n" +
+                                "Хотите продолжить генерацию ?",
+                                "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        if (selected == JOptionPane.OK_OPTION) {
+                            repeat = true;
+                            if (ex.getClass() == FindsNonMatchingLevel.class) {
+                                property.setFlagContinGenWithDepriveLev(true);
+                            } else {
+                                property.setUnique(false);
+                            }
+                        } else {
                             this.setEnabledComponents(true, false);
-                        } catch (InterruptedException e2) {
-                            System.out.println(Thread.currentThread() + " is interrupted: Reason " +
-                                               ": interrupted generate tickets by close program during ticket generation");
                         }
-
                     } else {
+                        // general condition exception and execution exception
+                        JOptionPane.showMessageDialog(null,
+                                (ex.getCause() != null) ? ex.getCause().getMessage() // handle InterruptedException
+                                        : ex.getMessage(),// handle ConditionGenerationException
+                                "Warning !", JOptionPane.ERROR_MESSAGE);
                         this.setEnabledComponents(true, false);
                     }
-                } else {
-                    JOptionPane.showMessageDialog(null, (e.getCause() != null) ? e.getCause().getMessage() // handle InterruptedException
-                                    : e.getMessage(),// handle ConditionGenerationException
-                            "Warning !", JOptionPane.ERROR_MESSAGE);
-                    this.setEnabledComponents(true, false);
+
+                } catch (InterruptedException e) {
+                    System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
+                                       "close program during ticket generation");
                 }
-            } catch (InterruptedException e) {
-                System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
-                                   "close program during ticket generation");
-            }
+                repeat = false;
+            } while (repeat);
 
             // if docx file is generated, then ...
             // save generate file docx inside project for further conversion to pdf file
@@ -977,6 +971,15 @@ public class MainWindowPanel extends BasePanel {
                             }
                             try {
                                 ticketGenerator.writeOutputFile(saveFile);
+                                int selected = JOptionPane.showInternalConfirmDialog(null,
+                                        "Файл успешно сохранен!\n " +
+                                        "Хотите ли вы открыть ?",
+                                        "Message", JOptionPane.YES_NO_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE);
+
+                                if (selected == JOptionPane.OK_OPTION) {
+//                                    Runtime.getRuntime().exec();
+                                }
                             } catch (IOException ex) {
                                 ex.printStackTrace();
                             }
@@ -1019,5 +1022,9 @@ public class MainWindowPanel extends BasePanel {
                 }).start();
             }
         }
+    }
+
+    private static void viewDialogChoiceConit() {
+
     }
 }

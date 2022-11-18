@@ -8,7 +8,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.exceptions;
  * @author Gorbachev I. D.
  * @version 12, 03.2022
  */
-public final class NumberQuestionsRequireException extends Exception {
+public final class NumberQuestionsRequireException extends GenerationConditionException {
     /**
      * Constructor without parameters
      */
