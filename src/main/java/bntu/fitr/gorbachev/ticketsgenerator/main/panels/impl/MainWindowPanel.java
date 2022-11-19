@@ -746,7 +746,7 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true, TicketsGeneratorWayImpl2.class);
+                    true, ((GenerationMode) Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay());
 
             boolean repeat = false;
             do {
@@ -1038,9 +1038,5 @@ public class MainWindowPanel extends BasePanel {
                 }).start();
             }
         }
-    }
-
-    private static void viewDialogChoiceConit() {
-
     }
 }
