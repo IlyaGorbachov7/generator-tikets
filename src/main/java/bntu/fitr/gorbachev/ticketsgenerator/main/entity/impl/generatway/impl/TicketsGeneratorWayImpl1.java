@@ -51,10 +51,8 @@ public class TicketsGeneratorWayImpl1 implements TicketsGeneratorWay<Question2, 
         }
         int[] arrCurPosList = new int[listsQ.size()]; // current positions of each list
         for (int indexTicket = 0; indexTicket < quantityTickets; ++indexTicket) {
-            Ticket<Question2> ticket = Ticket.of(templateTicket.getInstitute(), templateTicket.getFaculty(), templateTicket.getDepartment(),
-                    templateTicket.getSpecialization(), templateTicket.getDiscipline(), templateTicket.getTeacher(),
-                    templateTicket.getHeadDepartment(), templateTicket.getType(), templateTicket.getDate(),
-                    templateTicket.getProtocolNumber(), quantityQuestionsTicket);
+            Ticket<Question2> ticket = templateTicket.clone();
+            ticket.clearQuestions();
             int curIdListQ = 0;
 
             for (int indexQuestion = 0; indexQuestion < quantityQuestionsTicket; ++indexQuestion) {
