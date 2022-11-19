@@ -31,7 +31,7 @@ public class TextPatterns {
     /**
      * Text: 234234234
      */
-    public static final PreparerPatterns NUMBER_PATTERN = PreparerPatterns.newInstance("[0-9]+");
+    public static final PreparerPatterns NUMBER_PATTERN = PreparerPatterns.newInstance("[1-9]{1}([0-9]{1,2})?");
     /**
      * Text: 21.02.3232 or: 31/12/2022, or: 03-01-2002
      */

@@ -41,7 +41,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
      * Constructor without parameters
      */
     public Ticket() {
-        questions = new ArrayList<>(3);
+        questions = new ArrayList<>(4);
     }
 
     /**
@@ -71,7 +71,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
                   String specialization, String discipline,
                   String teacher, String headDepartment, SessionType type,
                   String date, String protocolNumber) {
-        this(5);
+        this();
         this.institute = institute;
         this.faculty = faculty;
         this.department = department;
@@ -105,8 +105,17 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
                   String specialization, String discipline,
                   String teacher, String headDepartment, SessionType type,
                   String date, String protocolNumber, int capacity) {
-        this(institute, faculty, department, specialization, discipline, teacher,
-                headDepartment, type, date, protocolNumber);
+        this.institute = institute;
+        this.faculty = faculty;
+        this.department = department;
+        this.specialization = specialization;
+        this.discipline = discipline;
+        this.teacher = teacher;
+        this.headDepartment = headDepartment;
+
+        this.type = type;
+        this.date = date;
+        this.protocolNumber = protocolNumber;
         questions = new ArrayList<>(capacity);
     }
 
@@ -328,6 +337,15 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
         return new Ticket<>(institute, faculty, department,
                 specialization, discipline, teacher, headDepartment, type,
                 date, protocolNumber);
+    }
+
+    public static <T extends QuestionExt> Ticket<T> of(String institute, String faculty, String department,
+                                                       String specialization, String discipline,
+                                                       String teacher, String headDepartment, SessionType type,
+                                                       String date, String protocolNumber, int cap) {
+        return new Ticket<>(institute, faculty, department,
+                specialization, discipline, teacher, headDepartment, type,
+                date, protocolNumber, cap);
     }
 
     /**

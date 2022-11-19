@@ -11,6 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPat
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
+import com.documents4j.throwables.ConverterException;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
@@ -710,7 +711,6 @@ public class MainWindowPanel extends BasePanel {
 
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
-    private GenerationMode generationMode;
 
 
     /**
@@ -734,30 +734,31 @@ public class MainWindowPanel extends BasePanel {
 
 
             File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());
-            Ticket<Question2> tempTicket = new Ticket<>(
+            Ticket<Question2> tempTicket = Ticket.of(
                     tfInstitute.getText(),
                     tfFaculty.getText(),
                     tfDepartment.getText(), tfSpecialization.getText(),
                     tfDiscipline.getText(), tfTeacher.getText(),
                     tfHeadDepartment.getText(),
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
-                    datePicDecision.getText(), tfProtocol.getText());
+                    datePicDecision.getText(), tfProtocol.getText(), quantityQuestionInTicket);
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
                     false, TicketsGeneratorWayImpl2.class);
 
-            boolean repeat;
+            boolean repeat = false;
             do {
                 try {
                     ticketGenerator.startGenerate(property);
+                    repeat = false;
                 } catch (ExecutionException | GenerationConditionException ex) {
                     if (ex.getClass() == FindsNonMatchingLevel.class || ex.getClass() == NumberQuestionsRequireException.class) {
 
                         int selected = JOptionPane.showInternalConfirmDialog(null,
-                                ex.getCause().getMessage() + "\n" +
+                                ex.getMessage() + "\n" +
                                 "Хотите продолжить генерацию ?",
-                                "Message", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                                "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
@@ -781,7 +782,6 @@ public class MainWindowPanel extends BasePanel {
                     System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
                                        "close program during ticket generation");
                 }
-                repeat = false;
             } while (repeat);
 
             // if docx file is generated, then ...
@@ -799,11 +799,18 @@ public class MainWindowPanel extends BasePanel {
 
                         ticketGenerator.writeOutputFile(tmpFileDocx);
 
+                        /*Since if the user wants 100,000 tickets,the memory will fill up by 3GB.
+                          At the end of the generation, we will write the generator*/
+                        ticketGenerator = null;
+                        Runtime.getRuntime().gc();
+
                         // convert saved file to pdf file
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
-                        converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
+                        System.out.println("start convret => pdf");
+                        converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
+                                .as(DocumentType.PDF).execute();
                         System.out.println("convert docx => pdf is : success");
                         // if convert docx is success, then load file for open viewFilePanel
                         viewFileDialog.setFile(tmpFilePdf);
@@ -820,14 +827,17 @@ public class MainWindowPanel extends BasePanel {
                         if (outputStream != null) {
                             outputStream.close();
                         }
-                        if (converter != null) {
-                            converter.shutDown();
-                        }
                     }
                 } catch (Exception e) {
-                    // ConverterException in case if program has been close
-                    // for a reason: InterruptedException inside method .execute();
-                    System.out.println("complete");
+                    System.out.println("CONVERTOR Xyeta 5min wait that close program");
+                    if (e.getClass() == ConverterException.class &&
+                        (e.getCause() != null && e.getCause().getClass() != InterruptedException.class)){
+                        JOptionPane.showMessageDialog(null,
+                                "Произошла ошибка ожидания .\n" +
+                                "Прошу повторите попытку снова",
+                                "ERROR !", JOptionPane.ERROR_MESSAGE);
+                    }
+                    e.printStackTrace();
                     return;
                 }
                 // after generating and conversion enable all components
@@ -909,8 +919,8 @@ public class MainWindowPanel extends BasePanel {
                           " 4.1 (или 1.23.1)";
                 } else if ((textField == tfQuantityTickets || textField == tfQuantityQuestionTickets) &&
                            !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимы символы:\n" +
-                          " 0-9";
+                    msg = "Допустимо число:\n" +
+                          "[1; 999]";
                 } else if (textField != tfTeacher && textField != tfHeadDepartment &&
                            textField != tfProtocol &&
                            textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
