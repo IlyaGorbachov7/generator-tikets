@@ -711,6 +711,7 @@ public class MainWindowPanel extends BasePanel {
 
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
+    private File tmpFileDocx;
 
 
     /**
@@ -792,7 +793,7 @@ public class MainWindowPanel extends BasePanel {
                 IConverter converter = null;
                 try {
                     try {
-                        File tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
+                        tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
                         tmpFileDocx.deleteOnExit();
                         File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
                         tmpFilePdf.deleteOnExit();
@@ -978,6 +979,9 @@ public class MainWindowPanel extends BasePanel {
                             if (!saveFile.getName().toLowerCase().endsWith(".docx")) {
                                 saveFile = new File(saveFile.getParentFile(),
                                         saveFile.getName() + ".docx");
+                            }
+                            if(tmpFileDocx == null){
+                                System.err.println("To save file not can: tmpFileDocx == null");
                             }
                             try {
                                 ticketGenerator.writeOutputFile(saveFile);

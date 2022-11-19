@@ -15,6 +15,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
@@ -77,7 +78,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                 .collect(Collectors.partitioningBy(mapListQuestGroupByLevel::containsKey));
 
         List<Integer> findsNonMatchLevel = mapListQuestGroupByLevel.keySet().stream()
-                .dropWhile(mapRang.get(true)::contains).toList();
+                .filter(Predicate.not(mapRang.get(true)::contains)).toList();
 
         if (!mapRang.get(false).isEmpty()) {
             System.out.println(mapRang.get(true));
@@ -88,7 +89,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                     "Отсутствуют вопросы со сложностью: " + mapRang.get(false) + "\n" +
                     ((findsNonMatchLevel.isEmpty()) ? ""
                             : "Однако найдены вопросы со сложностью: " + findsNonMatchLevel + "\n") +
-                    "Необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets()
+                    "Необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets() + "]"
             );
         } else if (!findsNonMatchLevel.isEmpty()) {
             if (!prop.isFlagContinGenWithDepriveLev()) {
@@ -137,17 +138,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
 
     @Override
     public List<Ticket<Question2>> generate(Ticket<Question2> templateTicket, List<Question2> questions, GenerationProperty property) {
-        List<Ticket<Question2>> listTickets = new ArrayList<>();
-
-//        mapGroupByLevel.values().forEach(listQuest -> {
-//            listQuest.sort(Comparator.comparingInt(QuestionExt::getRepeat));
-//        });
-//        System.out.println("-------------------- Map SORTED ----------------");
-        mapListQuestGroupByLevel.forEach((k, v) -> {
-            System.out.println("------ k=" + k + " -------- size: " + v.size());
-            v.forEach(System.out::println);
-        });
-
+        List<Ticket<Question2>> listTickets = new ArrayList<>(property.getQuantityTickets());
         Integer rangWithMinQuantityQ = mapListQuestGroupByLevel.entrySet().stream()
                 .min(Map.Entry.comparingByValue(Comparator.comparingInt(List::size)))
                 .orElseThrow().getKey();
@@ -158,15 +149,12 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         generateTicketsWithMinNumber(minQuantityTickets, listTickets, templateTicket);
 
         // checking on to continue generation additional tickets
-        if (prop.getQuantityQTickets() == minQuantityTickets) { // if equals, then complete generate
+        if (prop.getQuantityTickets() == minQuantityTickets) { // if equals, then complete generate
             return listTickets;
         }
 
         // else continue generation
-        int offsetStartIndex = minQuantityTickets;
-        minQuantityTickets = prop.getQuantityTickets() - minQuantityTickets;
-        generateTicketsWithRemainingNumber(offsetStartIndex, minQuantityTickets, listTickets);
-
+        generateTicketsWithRemainingNumber(listTickets);
         return listTickets;
     }
 
@@ -188,46 +176,14 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         }
     }
 
-    private void generateTicketsWithRemainingNumber(final int offsetStartIndex, final int remainQuantityTickets,
-                                                    final List<Ticket<Question2>> listTickets) {
-        System.out.println("offsetStart:" + offsetStartIndex);
-        System.out.println("remainQuestionTic: " + remainQuantityTickets);
-        System.out.println("-------------------------------- list tickets ----------------");
-        listTickets.forEach(System.out::println);
+    private void generateTicketsWithRemainingNumber(final List<Ticket<Question2>> listTickets) {
+        Ticket<Question2> template = listTickets.get(0);
 
-        List<TicketNode> listNodes = initTicketChildrenFromParent(listTickets);
-
-        for (TicketNode ticketNode : listNodes) {
-            for (var chNode : ticketNode.getChildrenNodes()) {
-                var ticket = chNode.getTicket();
-                changeQuestionsTicket(ticket);
-                listTickets.add(ticket);
-            }
-        }
-        System.out.println("-------------------------------- list tickets ----------------");
-        listTickets.forEach(System.out::println);
-    }
-
-    private List<TicketNode> initTicketChildrenFromParent(List<Ticket<Question2>> listTicketsParent) {
-        // сколько сгенерированых билетов
-        int quantityTickets = listTicketsParent.size();
-        // сктолько билетов еще осталось
-        int remainQuantityTickets = prop.getQuantityTickets() - quantityTickets;
-        // 1 полный проход по всем билетам, чтобы сгенерировать детей
-        int fullPass = remainQuantityTickets / quantityTickets;
-        // и узнаем остаток билетов, которым нужно повторно сгенерировать детей
-        int remainsChildrens = remainQuantityTickets - fullPass * quantityTickets;
-
-        List<TicketNode> listTicketNode = new ArrayList<>();
-        for (int i = 0; i < quantityTickets; i++) {
-            int nNodes = fullPass;
-            if (i < remainsChildrens) {
-                nNodes++;
-            }
-            listTicketNode.add(TicketNode.of(listTicketsParent.get(i), nNodes));
-        }
-
-        return listTicketNode;
+        int remainQuantityTickets = prop.getQuantityTickets() - listTickets.size();
+        IntStream.range(0, remainQuantityTickets)
+                .mapToObj(i -> template.clone())
+                .peek(this::changeQuestionsTicket)
+                .peek(listTickets::add);
     }
 
     private void changeQuestionsTicket(Ticket<Question2> ticket) {
@@ -346,71 +302,6 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                 return false;
             }
             return true;
-        }
-    }
-
-    private static class TicketNode {
-
-        private Ticket<Question2> ticket;
-        private LinkedList<TicketNode> childrenNodes;
-
-        private TicketNode() {
-            childrenNodes = new LinkedList<>();
-        }
-
-        private TicketNode(Ticket<Question2> ticket) {
-            this();
-            this.ticket = ticket;
-        }
-
-        private TicketNode(Ticket<Question2> ticket, LinkedList<TicketNode> childrenNodes) {
-            this.ticket = ticket;
-            this.childrenNodes = childrenNodes;
-        }
-
-        public Ticket<Question2> getTicket() {
-            return ticket;
-        }
-
-        public List<TicketNode> getChildrenNodes() {
-            return childrenNodes;
-        }
-
-        public void setTicket(Ticket<Question2> ticket) {
-            this.ticket = ticket;
-        }
-
-        public void setChildrenNodes(LinkedList<TicketNode> childrenNodes) {
-            this.childrenNodes = childrenNodes;
-        }
-
-        public int getQuantityChildrenNodes() {
-            return childrenNodes.size();
-        }
-
-        public boolean addNode(TicketNode node) {
-            return childrenNodes.add(node);
-        }
-
-        public static TicketNode of(Ticket<Question2> ticket) {
-            return new TicketNode(ticket);
-        }
-
-        public static TicketNode of(Ticket<Question2> ticket, int nChildNodeFromParent) {
-            TicketNode parNode = new TicketNode(ticket);
-            parNode.initChNodesFromParentClone(nChildNodeFromParent);
-            return parNode;
-        }
-
-        private void initChNodesFromParentClone(int nChNodes) {
-            for (int i = 0; i < nChNodes; i++) {
-                TicketNode chNode = TicketNode.of(ticket.clone());
-                childrenNodes.add(chNode);
-            }
-        }
-
-        public static TicketNode of(Ticket<Question2> ticket, LinkedList<TicketNode> childrenNodes) {
-            return new TicketNode(ticket, childrenNodes);
         }
     }
 
