@@ -746,7 +746,7 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    false, TicketsGeneratorWayImpl2.class);
+                    true, TicketsGeneratorWayImpl2.class);
 
             boolean repeat = false;
             do {
@@ -768,6 +768,7 @@ public class MainWindowPanel extends BasePanel {
                                 property.setUnique(false);
                             }
                         } else {
+                            repeat = false;
                             this.setEnabledComponents(true, false);
                         }
                     } else {
@@ -832,7 +833,8 @@ public class MainWindowPanel extends BasePanel {
                 } catch (Exception e) {
                     System.out.println("CONVERTOR Xyeta 5min wait that close program");
                     if (e.getClass() == ConverterException.class &&
-                        (e.getCause() != null && e.getCause().getClass() != InterruptedException.class)){
+                        (e.getCause() != null && e.getCause().getClass() != InterruptedException.class)) {
+                        this.setEnabledComponents(true, false);
                         JOptionPane.showMessageDialog(null,
                                 "Произошла ошибка ожидания .\n" +
                                 "Прошу повторите попытку снова",
@@ -980,7 +982,7 @@ public class MainWindowPanel extends BasePanel {
                                 saveFile = new File(saveFile.getParentFile(),
                                         saveFile.getName() + ".docx");
                             }
-                            if(tmpFileDocx == null){
+                            if (tmpFileDocx == null) {
                                 System.err.println("To save file not can: tmpFileDocx == null");
                             }
                             try {
