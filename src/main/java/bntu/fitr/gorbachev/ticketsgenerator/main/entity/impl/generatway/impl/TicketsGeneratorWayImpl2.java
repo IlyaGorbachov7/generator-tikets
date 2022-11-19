@@ -30,11 +30,9 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     private Map<Integer, List<Question2>> mapListQuestRepeatedGroupByLevel;
     private Map<Integer, Map.Entry<Integer, Integer>> mapStatePosRepeatedQuest;
 
-    private boolean isInit;
-    private RandomGenerator randomGenerator = RandomGeneratorFactory.getDefault().create();
+    private final RandomGenerator randomGenerator = RandomGeneratorFactory.getDefault().create();
 
     private void initFields(List<Question2> questions, GenerationProperty property) {
-        isInit = true;
         // Initialize here, that don't duplicate extra code
         prop = (GenerationPropertyImpl) property;
         rangeQuest = IntStream.rangeClosed(1, prop.getQuantityQTickets()).boxed()
@@ -111,29 +109,51 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         // Further, checking quantity needed questions for each property: level with taking into account property: repeat
         // For each key:level  must be list, contains total quantity questions (with repeated) == requirement quantity
         // tickets
+        Set<Map.Entry<Integer, Integer>> entryQuantityNotEnough = new HashSet<>(rangeQuest.size());
+        for (var entry : mapListQuestRepeatedGroupByLevel.entrySet()) {
+            int totalQuantity = entry.getValue().stream().mapToInt(Question2::getRepeat).sum();
+
+            totalQuantity = prop.getQuantityTickets() - totalQuantity - mapListQuestGroupByLevel.get(entry.getKey()).size();
+            if (totalQuantity > 0) {
+                entryQuantityNotEnough.add(new AbstractMap.SimpleEntry<>(entry.getKey(), totalQuantity));
+            }
+        }
         if (prop.isUnique()) { // if true, this is means then we require that USER control repeated questions
             // then check really user take into account the conditions for generation tickets
-            Set<Map.Entry<Integer, Integer>> entryQuantityNotEnough = new HashSet<>(rangeQuest.size());
-            for (var entry : mapListQuestRepeatedGroupByLevel.entrySet()) {
-                int totalQuantity = entry.getValue().stream().mapToInt(Question2::getRepeat).sum();
-                totalQuantity = prop.getQuantityTickets() - totalQuantity;
-                if (totalQuantity != 0) {
-                    entryQuantityNotEnough.add(new AbstractMap.SimpleEntry<>(entry.getKey(), totalQuantity));
-                }
-            }
+
             if (!entryQuantityNotEnough.isEmpty()) {
                 // exception allowed to continew generation
                 throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                          "Требуется, чтобы количество вопросов со ложностями: " /*+ entry.getKey()*/ + "\n" +
+                                                          "Требуется, чтобы количество вопросов в каждой из сложностей\n" +
                                                           "(с учётом указанного Вами количество повторения) был\n" +
                                                           "равен как минимум: " + prop.getQuantityTickets() + "\n" +
-                                                          "Не достаточно: " /*+ totalQuantity*/ + " вопросов\n\n" +
+                                                          "Не достаточно вопросов у сложностей:\n" +
+                                                          entryQuantityNotEnough.stream()
+                                                                  .map(e -> e.getKey() + " => в количестве: " + e.getValue())
+                                                                  .collect(Collectors.joining("\n")) + "\n" +
                                                           "Вопросам, у которых указано число повторений, будет\n" +
-                                                          "автоматически увеличено значение числа повторений, если таковые имеются,\n" +
+                                                          "автоматически равномерно увеличено значение числа повторений, если таковые имеются,\n" +
                                                           "иначе вопросы будут выбраны рандомно.");
             }
-        }
+        } else {
+            for (var entry : entryQuantityNotEnough) {
+                List<Question2> listRepeatedQuest = mapListQuestRepeatedGroupByLevel.get(entry.getKey());
+                if (!listRepeatedQuest.isEmpty()) {
+                    int fullPass = entry.getValue() / listRepeatedQuest.size();
+                    int quantityQuestForIncrease = entry.getValue() - fullPass * listRepeatedQuest.size();
 
+                    for (int i = 0; i < listRepeatedQuest.size(); i++) {
+                        Question2 repQuest = listRepeatedQuest.get(i);
+
+                        int rep = fullPass + repQuest.getRepeat();
+                        if (i < quantityQuestForIncrease) {
+                            ++rep;
+                        }
+                        repQuest.setRepeat(rep);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -183,7 +203,7 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
         IntStream.range(0, remainQuantityTickets)
                 .mapToObj(i -> template.clone())
                 .peek(this::changeQuestionsTicket)
-                .peek(listTickets::add);
+                .forEach(listTickets::add);
     }
 
     private void changeQuestionsTicket(Ticket<Question2> ticket) {
