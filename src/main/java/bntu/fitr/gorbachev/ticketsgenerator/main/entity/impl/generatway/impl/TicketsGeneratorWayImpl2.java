@@ -124,15 +124,15 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
             if (!entryQuantityNotEnough.isEmpty()) {
                 // exception allowed to continew generation
                 throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                          "Требуется, чтобы количество вопросов в каждой из сложностей\n" +
-                                                          "(с учётом указанного Вами количество повторения) был\n" +
-                                                          "равен как минимум: " + prop.getQuantityTickets() + "\n" +
+                                                          "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
+                                                          " был равен как минимум: " + prop.getQuantityTickets() + "" +
+                                                          "(с учётом указанного Вами количество повторения)\n" +
                                                           "Не достаточно вопросов у сложностей:\n" +
                                                           entryQuantityNotEnough.stream()
                                                                   .map(e -> e.getKey() + " => в количестве: " + e.getValue())
                                                                   .collect(Collectors.joining("\n")) + "\n" +
-                                                          "Вопросам, у которых указано число повторений, будет\n" +
-                                                          "автоматически равномерно увеличено значение числа повторений, если таковые имеются,\n" +
+                                                          "Вопросом, у которых указано число повторений будет\n" +
+                                                          "равномерно увеличено число повторений, если таковые имеются,\n" +
                                                           "иначе вопросы будут выбраны рандомно.");
             }
         } else {
