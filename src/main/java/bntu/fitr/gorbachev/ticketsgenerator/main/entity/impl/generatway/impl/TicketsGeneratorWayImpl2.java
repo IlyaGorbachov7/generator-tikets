@@ -131,8 +131,8 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                                                           entryQuantityNotEnough.stream()
                                                                   .map(e -> e.getKey() + " => в количестве: " + e.getValue())
                                                                   .collect(Collectors.joining("\n")) + "\n" +
-                                                          "Вопросом, у которых указано число повторений будет\n" +
-                                                          "равномерно увеличено число повторений, если таковые имеются,\n" +
+                                                          "Среди вопросов, у которых указано число повторений будет\n" +
+                                                          "равномерно увеличено недостающее число повторений, если таковые имеются,\n" +
                                                           "иначе вопросы будут выбраны рандомно.");
             }
         } else {
