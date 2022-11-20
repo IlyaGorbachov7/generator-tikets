@@ -6,7 +6,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
  *
  * @version 01.11.2022
  */
-public class GenerationProperty {
+public abstract class GenerationProperty {
     int quantityTickets;
     int quantityQTickets;
 

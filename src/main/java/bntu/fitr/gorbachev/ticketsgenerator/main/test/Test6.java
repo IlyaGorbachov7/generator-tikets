@@ -1,14 +1,19 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
-import java.util.ResourceBundle;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 public class Test6 {
     public static void main(String[] args) {
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("resources/patterns");
+        Iterator<Driver> drivers= DriverManager.getDrivers().asIterator();
 
-        resourceBundle.getString("fdfd");
-        for(var v : resourceBundle.keySet()){
-            System.out.println(v);
-        }
+        while (drivers.hasNext())
+            System.out.println(drivers.next());
+
+        System.out.println("---------------");
+        ServiceLoader<Driver> loader = ServiceLoader.load(Driver.class);
+        loader.forEach(System.out::println);
     }
 }

@@ -1,10 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.InvalidLexicalException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.PreparerPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.SomeAttributes;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.attributes.impl.AttributesListStartTag;
-import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.tags.LexicalPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.PreparerPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.AttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.impl.ListTagAttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.LexicalPatterns;
 
 import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
@@ -25,13 +25,13 @@ public class Test5 {
 
         System.out.println(attributTagObject);
 
-        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), AttributesListStartTag.class);
+        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), ListTagAttributeService.class);
 
         System.out.println(attributTagObject);
     }
 
     static void test2() throws InvalidLexicalException {
-        Object attrib = extractAndFullingDTO("avarage=23; a= 11;age=  -12.20;", SomeAttributes.class);
+        Object attrib = extractAndFullingDTO("avarage=23; a= 11;age=  -12.20;", AttributeService.class);
         System.out.println(attrib);
     }
 

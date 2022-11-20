@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
@@ -29,7 +30,7 @@ public class Test2 {
 
         TicketGeneratorImpl ticketGenerator = new TicketGeneratorImpl(false, paths, ticket);
 
-        ticketGenerator.startGenerate(new GenerationProperty(30, 3, false));
+        ticketGenerator.startGenerate(new GenerationPropertyImpl(30, 3, false));
 
         ticketGenerator.getListTicket().forEach(System.out::println);
 //        System.out.println("1");
