@@ -12,9 +12,15 @@ import java.util.List;
  * <p>
  * This implementation allow
  * <p>
- * 1) give random access to the elements by index.
+ * <b>1) Receive current elements by current state position of the list</b>
  * <p>
- * 2) remove elements by index
+ * <b>2) Remove current element by current state position on the list</b>
+ * <p>
+ * <b>3) Moved position </b>
+ * <p>
+ * 4) give random access to the elements by index.
+ * <p>
+ * 5) remove elements by index
  *
  * @apiNote current position not controlled if <b>remove</b> elements of the list.
  * So if remove any element from list, and the {@link #curIndex} will be  >= 0, then
@@ -31,6 +37,10 @@ public class WrapperList<E> extends AbstractList<E> implements Iterator<E> {
 
     public int getCurIndex() {
         return curIndex;
+    }
+
+    public List<E> getList() {
+        return list;
     }
 
     public void setCurIndex(int index) {

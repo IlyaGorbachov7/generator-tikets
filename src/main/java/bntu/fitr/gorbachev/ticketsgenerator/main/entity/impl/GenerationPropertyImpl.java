@@ -12,6 +12,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.Tic
 public class GenerationPropertyImpl extends GenerationProperty {
     private Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay;
     private boolean flagContinGenWithDepriveLev;
+    private boolean flagRandomizeOrderReading;
 
     {
         generationWay = TicketsGeneratorWayImpl1.class;
@@ -25,6 +26,14 @@ public class GenerationPropertyImpl extends GenerationProperty {
                                   Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay) {
         super(quantityTickets, quantityQTickets, unique);
         this.generationWay = generationWay;
+    }
+
+    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique,
+                                  Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay,
+                                  boolean flagRandomizeOrderReading) {
+        super(quantityTickets, quantityQTickets, unique);
+        this.generationWay = generationWay;
+        this.flagRandomizeOrderReading = flagRandomizeOrderReading;
     }
 
     public GenerationPropertyImpl(int quantityTickets, int quantityQTickets,
@@ -47,5 +56,13 @@ public class GenerationPropertyImpl extends GenerationProperty {
 
     public void setFlagContinGenWithDepriveLev(boolean flagContinGenWithDepriveLev) {
         this.flagContinGenWithDepriveLev = flagContinGenWithDepriveLev;
+    }
+
+    public boolean isFlagRandomizeOrderReading() {
+        return flagRandomizeOrderReading;
+    }
+
+    public void setFlagRandomizeOrderReading(boolean flagRandomizeOrderReading) {
+        this.flagRandomizeOrderReading = flagRandomizeOrderReading;
     }
 }

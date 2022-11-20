@@ -29,6 +29,8 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -112,6 +114,12 @@ public class MainWindowPanel extends BasePanel {
         jBoxModes = new JComboBox<>(new GenerationMode[]{
                 GenerationMode.MODE_1, GenerationMode.MODE_2,
                 GenerationMode.MODE_3, GenerationMode.MODE_4});
+
+        lbReadRandom = new JLabel("Считывать вопросы: ");
+        btnGroupReadWay = new ButtonGroup();
+        rdiBtnSequence = new JRadioButton("последовательно", true);
+        rdiBtnRandom = new JRadioButton("произвольно", false);
+
         lbGenerationMode = new JLabel("Способ генерации: ");
 
         btnGenerate = new JButton("Сгенерировать билеты", new ImageIcon(
@@ -297,6 +305,8 @@ public class MainWindowPanel extends BasePanel {
         btnGenerate.addActionListener(handler);
         btnViewFile.addActionListener(handler);
         btnSave.addActionListener(handler);
+        rdiBtnRandom.addActionListener(handler);
+        rdiBtnSequence.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -636,6 +646,10 @@ public class MainWindowPanel extends BasePanel {
     private final JTextField tfQuantityTickets;
     private final JLabel lbQuantityQuestionTickets;
     private final JTextField tfQuantityQuestionTickets;
+    private final JLabel lbReadRandom;
+    private final ButtonGroup btnGroupReadWay;
+    private final JRadioButton rdiBtnRandom;
+    private final JRadioButton rdiBtnSequence;
 
     /**
      * The method creates a panel containing a list of downloaded files
@@ -670,13 +684,27 @@ public class MainWindowPanel extends BasePanel {
         JPanel pnlBtnGenerate = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
+
+        pnlBtnGenerate.add(lbReadRandom, gbc);
+
+        gbc.gridx = 1;
+        btnGroupReadWay.add(rdiBtnSequence);
+        btnGroupReadWay.add(rdiBtnRandom);
+        JPanel pnlGroupBtn = new JPanel(new FlowLayout());
+        pnlGroupBtn.add(rdiBtnSequence);
+        pnlGroupBtn.add(rdiBtnRandom);
+        pnlBtnGenerate.add(pnlGroupBtn, gbc);
+
+
+        gbc.gridx = 0;
+        gbc.gridy = 1;
         pnlBtnGenerate.add(lbGenerationMode, gbc);
 
         gbc.gridx = 1;
         pnlBtnGenerate.add(jBoxModes, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 2;
         pnlBtnGenerate.add(lbQuantityTickets, gbc);
 
         gbc.gridx = 1;
@@ -684,24 +712,24 @@ public class MainWindowPanel extends BasePanel {
         pnlBtnGenerate.add(tfQuantityTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         pnlBtnGenerate.add(lbQuantityQuestionTickets, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         pnlBtnGenerate.add(tfQuantityQuestionTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.gridwidth = 2;
         gbc.gridheight = 1;
         gbc.ipady = 25;
         gbc.fill = GridBagConstraints.BOTH;
         pnlBtnGenerate.add(btnGenerate, gbc);
 
-        gbc.gridy = 4;
-        pnlBtnGenerate.add(btnViewFile, gbc);
         gbc.gridy = 5;
+        pnlBtnGenerate.add(btnViewFile, gbc);
+        gbc.gridy = 6;
         pnlBtnGenerate.add(btnSave, gbc);
 
         pnlRes.add(pnlBtnGenerate);
@@ -712,6 +740,7 @@ public class MainWindowPanel extends BasePanel {
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private TicketsGenerationExecutionThread executionThread;
     private File tmpFileDocx;
+    private boolean isRandomRead;
 
 
     /**
@@ -746,7 +775,9 @@ public class MainWindowPanel extends BasePanel {
 
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true, ((GenerationMode) Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay());
+                    true,
+                    ((GenerationMode) Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay(),
+                    isRandomRead);
 
             boolean repeat = false;
             do {
@@ -832,14 +863,20 @@ public class MainWindowPanel extends BasePanel {
                     }
                 } catch (Exception e) {
                     System.out.println("CONVERTOR Xyeta 5min wait that close program");
-                    if (e.getClass() == ConverterException.class &&
-                        (e.getCause() != null && e.getCause().getClass() != InterruptedException.class)) {
-                        this.setEnabledComponents(true, false);
-                        JOptionPane.showMessageDialog(null,
-                                "Произошла ошибка ожидания .\n" +
-                                "Прошу повторите попытку снова",
-                                "ERROR !", JOptionPane.ERROR_MESSAGE);
+
+                    if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
+                        e.printStackTrace();
+                        return;
                     }
+                    this.setEnabledComponents(true, false);
+                    JOptionPane.showMessageDialog(null,
+                            """
+                                    Произошла ошибка ожидания .
+                                    Прошу повторите попытку снова
+                                    Одной из причин является: Microsoft Office:
+                                    => Microsoft Office у Вас отсутствует на компьютере.
+                                    => Просто закройте окно Мастер активации Microsoft Office""",
+                            "ERROR !", JOptionPane.ERROR_MESSAGE);
                     e.printStackTrace();
                     return;
                 }
@@ -973,7 +1010,7 @@ public class MainWindowPanel extends BasePanel {
                 }
 
             } else if (e.getSource() == saveItem || e.getSource() == btnSave) {
-                if (ticketGenerator != null) {
+                if (tmpFileDocx != null) {
                     new Thread(() -> {
                         int res = chooserSave.showSaveDialog(frameRoot);
                         if (res == JFileChooser.APPROVE_OPTION) {
@@ -982,11 +1019,9 @@ public class MainWindowPanel extends BasePanel {
                                 saveFile = new File(saveFile.getParentFile(),
                                         saveFile.getName() + ".docx");
                             }
-                            if (tmpFileDocx == null) {
-                                System.err.println("To save file not can: tmpFileDocx == null");
-                            }
                             try {
-                                ticketGenerator.writeOutputFile(saveFile);
+                                Files.deleteIfExists(saveFile.toPath());
+                                Files.copy(tmpFileDocx.toPath(), saveFile.toPath());
                                 int selected = JOptionPane.showInternalConfirmDialog(null,
                                         "Файл успешно сохранен!\n " +
                                         "Хотите ли вы открыть ?",
@@ -997,10 +1032,16 @@ public class MainWindowPanel extends BasePanel {
 //                                    Runtime.getRuntime().exec();
                                 }
                             } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(null,
+                                        "Произошла ошибка.\n" +
+                                        ex.getMessage(),
+                                        "ERROR !", JOptionPane.ERROR_MESSAGE);
                                 ex.printStackTrace();
                             }
                         }
                     }).start();
+                } else {
+                    System.err.println("To save file not can: tmpFileDocx == null");
                 }
 
             } else if (e.getSource() == exitItem) {
@@ -1023,6 +1064,10 @@ public class MainWindowPanel extends BasePanel {
                     lblListSize.setText("" + modelListFilesRsc.size());
                 }
 
+            } else if (e.getSource() == rdiBtnRandom) {
+                isRandomRead = rdiBtnRandom.isSelected();
+            } else if (e.getSource() == rdiBtnSequence) {
+                isRandomRead = rdiBtnSequence.isSelected();
             } else if (e.getSource() == btnGenerate) {
                 if (checkValidData()) {
                     executionThread = new TicketsGenerationExecutionThread();
@@ -1033,9 +1078,7 @@ public class MainWindowPanel extends BasePanel {
                     datePicDecision.getComponentDateTextField().grabFocus();
                 }
             } else if (e.getSource() == btnViewFile) {
-                new Thread(() -> {
-                    viewFileDialog.setVisible(true);
-                }).start();
+                new Thread(() -> viewFileDialog.setVisible(true)).start();
             }
         }
     }

@@ -22,16 +22,16 @@ import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, Ticket<Question2>> {
-    private GenerationPropertyImpl prop;
-    private Set<Integer> rangeQuest;
-    private Map<Integer, WrapperList<Question2>> mapWrapListQuestGroupByLevel;
-    private Map<Integer, WrapperList<Question2>> mapWrapListQuestRepeatedGroupByLevel;
+public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, Ticket<Question2>> {
+    protected GenerationPropertyImpl prop;
+    protected Set<Integer> rangeQuest;
+    protected Map<Integer, WrapperList<Question2>> mapWrapListQuestGroupByLevel;
+    protected Map<Integer, WrapperList<Question2>> mapWrapListQuestRepeatedGroupByLevel;
 
 
     private final RandomGenerator randomGenerator = RandomGeneratorFactory.getDefault().create();
 
-    private void initFields(List<Question2> questions, GenerationProperty property) {
+    protected void initFields(List<Question2> questions, GenerationProperty property) {
         // Initialize here, that don't duplicate extra code
         prop = (GenerationPropertyImpl) property;
         rangeQuest = IntStream.rangeClosed(1, prop.getQuantityQTickets()).boxed()
@@ -154,6 +154,15 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
     @Override
     public List<Ticket<Question2>> generate(Ticket<Question2> templateTicket, List<Question2> questions, GenerationProperty property) {
         List<Ticket<Question2>> listTickets = new ArrayList<>(property.getQuantityTickets());
+
+        if (prop.isFlagRandomizeOrderReading()) {
+            mapWrapListQuestGroupByLevel.forEach((lev, wrapListQ) -> {
+                Collections.shuffle(wrapListQ.getList());
+            });
+            mapWrapListQuestRepeatedGroupByLevel.forEach((lev, wrapListQ) -> {
+                Collections.shuffle(wrapListQ.getList());
+            });
+        }
         int minListSize = mapWrapListQuestGroupByLevel.entrySet().stream()
                 .min(Map.Entry.comparingByValue(Comparator.comparingInt(WrapperList::size)))
                 .orElseThrow().getValue().size();
@@ -207,8 +216,6 @@ public final class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Quest
                     questions.set(i, q);
 
                 } else if (!prop.isUnique()) { // in case if questions with repeated is absent, then random index
-                    // Forced generate, via random // можно все рандомить списки сложностей
-                    // или можно рандомить только список с паксимальной сложностю, а те оставить не подвижные как в родителе
                     wrapListQ.setCurIndex(randomGenerator.nextInt(0, wrapListQ.size()));
                     Logger.getLogger(this.getClass()
                             .getName()).info("Forced  choice question from list grouped  by level=" + level +
