@@ -3,7 +3,6 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.GenerationMode;
@@ -11,7 +10,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPat
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
-import com.documents4j.throwables.ConverterException;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
@@ -22,6 +20,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
 
 import javax.swing.*;
+import javax.swing.border.StrokeBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -29,7 +28,6 @@ import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.Objects;
@@ -115,10 +113,16 @@ public class MainWindowPanel extends BasePanel {
                 GenerationMode.MODE_1, GenerationMode.MODE_2,
                 GenerationMode.MODE_3, GenerationMode.MODE_4});
 
-        lbReadRandom = new JLabel("Считывать вопросы: ");
+        lbReadQuestRandom = new JLabel("Считывать вопросы:");
         btnGroupReadWay = new ButtonGroup();
         rdiBtnSequence = new JRadioButton("последовательно", true);
         rdiBtnRandom = new JRadioButton("произвольно", false);
+
+        lbWriteQuestRandom = new JLabel("Записывать вопросы:");
+        btnGroupWriteWay = new ButtonGroup();
+        rdiBtnWriteSequence = new JRadioButton("последовательно", true);
+        rdiBtnWriteRandom = new JRadioButton("произвольно", false);
+
 
         lbGenerationMode = new JLabel("Способ генерации: ");
 
@@ -307,6 +311,8 @@ public class MainWindowPanel extends BasePanel {
         btnSave.addActionListener(handler);
         rdiBtnRandom.addActionListener(handler);
         rdiBtnSequence.addActionListener(handler);
+        rdiBtnWriteRandom.addActionListener(handler);
+        rdiBtnWriteSequence.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -646,10 +652,14 @@ public class MainWindowPanel extends BasePanel {
     private final JTextField tfQuantityTickets;
     private final JLabel lbQuantityQuestionTickets;
     private final JTextField tfQuantityQuestionTickets;
-    private final JLabel lbReadRandom;
+    private final JLabel lbReadQuestRandom;
     private final ButtonGroup btnGroupReadWay;
     private final JRadioButton rdiBtnRandom;
     private final JRadioButton rdiBtnSequence;
+    private final JLabel lbWriteQuestRandom;
+    private final ButtonGroup btnGroupWriteWay;
+    private final JRadioButton rdiBtnWriteRandom;
+    private final JRadioButton rdiBtnWriteSequence;
 
     /**
      * The method creates a panel containing a list of downloaded files
@@ -685,26 +695,39 @@ public class MainWindowPanel extends BasePanel {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.WEST;
 
-        pnlBtnGenerate.add(lbReadRandom, gbc);
+        pnlBtnGenerate.add(lbReadQuestRandom, gbc);
 
         gbc.gridx = 1;
         btnGroupReadWay.add(rdiBtnSequence);
         btnGroupReadWay.add(rdiBtnRandom);
         JPanel pnlGroupBtn = new JPanel(new FlowLayout());
+        pnlGroupBtn.setBorder(new StrokeBorder(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL)));
         pnlGroupBtn.add(rdiBtnSequence);
         pnlGroupBtn.add(rdiBtnRandom);
         pnlBtnGenerate.add(pnlGroupBtn, gbc);
 
-
         gbc.gridx = 0;
         gbc.gridy = 1;
+        pnlBtnGenerate.add(lbWriteQuestRandom, gbc);
+
+        gbc.gridx = 1;
+        btnGroupWriteWay.add(rdiBtnWriteRandom);
+        btnGroupWriteWay.add(rdiBtnWriteSequence);
+        pnlGroupBtn = new JPanel(new FlowLayout());
+        pnlGroupBtn.add(rdiBtnWriteSequence);
+        pnlGroupBtn.add(rdiBtnWriteRandom);
+        pnlBtnGenerate.add(pnlGroupBtn, gbc);
+
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         pnlBtnGenerate.add(lbGenerationMode, gbc);
 
         gbc.gridx = 1;
         pnlBtnGenerate.add(jBoxModes, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         pnlBtnGenerate.add(lbQuantityTickets, gbc);
 
         gbc.gridx = 1;
@@ -712,24 +735,24 @@ public class MainWindowPanel extends BasePanel {
         pnlBtnGenerate.add(tfQuantityTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         pnlBtnGenerate.add(lbQuantityQuestionTickets, gbc);
 
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         pnlBtnGenerate.add(tfQuantityQuestionTickets, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 6;
         gbc.gridwidth = 2;
         gbc.gridheight = 1;
         gbc.ipady = 25;
         gbc.fill = GridBagConstraints.BOTH;
         pnlBtnGenerate.add(btnGenerate, gbc);
 
-        gbc.gridy = 5;
+        gbc.gridy = 7;
         pnlBtnGenerate.add(btnViewFile, gbc);
-        gbc.gridy = 6;
+        gbc.gridy = 8;
         pnlBtnGenerate.add(btnSave, gbc);
 
         pnlRes.add(pnlBtnGenerate);
@@ -741,6 +764,7 @@ public class MainWindowPanel extends BasePanel {
     private TicketsGenerationExecutionThread executionThread;
     private File tmpFileDocx;
     private boolean isRandomRead;
+    private boolean isRandomWrite;
 
 
     /**
@@ -772,12 +796,14 @@ public class MainWindowPanel extends BasePanel {
                     tfHeadDepartment.getText(),
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
                     datePicDecision.getText(), tfProtocol.getText(), quantityQuestionInTicket);
-
             ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
+
+            var generateWay = ((GenerationMode)
+                    Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay();
             var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
                     true,
-                    ((GenerationMode) Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay(),
-                    isRandomRead);
+                    generateWay,
+                    isRandomRead, isRandomWrite);
 
             boolean repeat = false;
             do {
@@ -1065,9 +1091,13 @@ public class MainWindowPanel extends BasePanel {
                 }
 
             } else if (e.getSource() == rdiBtnRandom) {
-                isRandomRead = rdiBtnRandom.isSelected();
+                isRandomRead = true;
             } else if (e.getSource() == rdiBtnSequence) {
-                isRandomRead = rdiBtnSequence.isSelected();
+                isRandomRead = false;
+            } else if (e.getSource() == rdiBtnWriteRandom) {
+                isRandomWrite = true;
+            } else if (e.getSource() == rdiBtnWriteSequence) {
+                isRandomWrite = false;
             } else if (e.getSource() == btnGenerate) {
                 if (checkValidData()) {
                     executionThread = new TicketsGenerationExecutionThread();

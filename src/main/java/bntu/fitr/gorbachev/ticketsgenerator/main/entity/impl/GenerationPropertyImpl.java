@@ -12,7 +12,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.Tic
 public class GenerationPropertyImpl extends GenerationProperty {
     private Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay;
     private boolean flagContinGenWithDepriveLev;
-    private boolean flagRandomizeOrderReading;
+    private boolean flagRandomOrderReading;
+    private boolean flagRandomOrderQuestInTicket;
 
     {
         generationWay = TicketsGeneratorWayImpl1.class;
@@ -33,7 +34,16 @@ public class GenerationPropertyImpl extends GenerationProperty {
                                   boolean flagRandomizeOrderReading) {
         super(quantityTickets, quantityQTickets, unique);
         this.generationWay = generationWay;
-        this.flagRandomizeOrderReading = flagRandomizeOrderReading;
+        this.flagRandomOrderReading = flagRandomizeOrderReading;
+    }
+
+    public GenerationPropertyImpl(int quantityTickets, int quantityQTickets, Boolean unique,
+                                  Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay,
+                                  boolean flagRandomizeOrderReading, boolean flatRandomOrderQuestInTicket) {
+        super(quantityTickets, quantityQTickets, unique);
+        this.flagRandomOrderReading = flagRandomizeOrderReading;
+        this.flagRandomOrderQuestInTicket = flatRandomOrderQuestInTicket;
+        this.generationWay = generationWay;
     }
 
     public GenerationPropertyImpl(int quantityTickets, int quantityQTickets,
@@ -58,11 +68,19 @@ public class GenerationPropertyImpl extends GenerationProperty {
         this.flagContinGenWithDepriveLev = flagContinGenWithDepriveLev;
     }
 
-    public boolean isFlagRandomizeOrderReading() {
-        return flagRandomizeOrderReading;
+    public boolean isFlagRandomOrderReading() {
+        return flagRandomOrderReading;
     }
 
-    public void setFlagRandomizeOrderReading(boolean flagRandomizeOrderReading) {
-        this.flagRandomizeOrderReading = flagRandomizeOrderReading;
+    public void setFlagRandomOrderReading(boolean flagRandomOrderReading) {
+        this.flagRandomOrderReading = flagRandomOrderReading;
+    }
+
+    public boolean isFlagRandomOrderQuestInTicket() {
+        return flagRandomOrderQuestInTicket;
+    }
+
+    public void setFlagRandomOrderQuestInTicket(boolean flagRandomOrderQuestInTicket) {
+        this.flagRandomOrderQuestInTicket = flagRandomOrderQuestInTicket;
     }
 }
