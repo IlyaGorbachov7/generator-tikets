@@ -24,7 +24,7 @@ import java.util.stream.IntStream;
 
 public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, Ticket<Question2>> {
     protected GenerationPropertyImpl prop;
-    protected Set<Integer> rangeQuest;
+    protected List<Integer> rangeQuest;
     protected Map<Integer, WrapperList<Question2>> mapWrapListQuestGroupByLevel;
     protected Map<Integer, WrapperList<Question2>> mapWrapListQuestRepeatedGroupByLevel;
 
@@ -34,8 +34,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
     protected void initFields(List<Question2> questions, GenerationProperty property) {
         // Initialize here, that don't duplicate extra code
         prop = (GenerationPropertyImpl) property;
-        rangeQuest = IntStream.rangeClosed(1, prop.getQuantityQTickets()).boxed()
-                .collect(Collectors.toUnmodifiableSet());
+        rangeQuest = IntStream.rangeClosed(1, prop.getQuantityQTickets()).boxed().collect(Collectors.toList());
 
         ExecutorService service = Executors.newFixedThreadPool(2);
         List<Future<?>> futures = new ArrayList<>(2);
@@ -155,13 +154,9 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
     public List<Ticket<Question2>> generate(Ticket<Question2> templateTicket, List<Question2> questions, GenerationProperty property) {
         List<Ticket<Question2>> listTickets = new ArrayList<>(property.getQuantityTickets());
 
-        if (prop.isFlagRandomizeOrderReading()) {
-            mapWrapListQuestGroupByLevel.forEach((lev, wrapListQ) -> {
-                Collections.shuffle(wrapListQ.getList());
-            });
-            mapWrapListQuestRepeatedGroupByLevel.forEach((lev, wrapListQ) -> {
-                Collections.shuffle(wrapListQ.getList());
-            });
+        if (prop.isFlagRandomOrderReading()) {
+            mapWrapListQuestGroupByLevel.forEach((lev, wrapListQ) -> Collections.shuffle(wrapListQ.getList()));
+            mapWrapListQuestRepeatedGroupByLevel.forEach((lev, wrapListQ) -> Collections.shuffle(wrapListQ.getList()));
         }
         int minListSize = mapWrapListQuestGroupByLevel.entrySet().stream()
                 .min(Map.Entry.comparingByValue(Comparator.comparingInt(WrapperList::size)))
@@ -186,7 +181,10 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         tmpT.clearQuestions();
         for (int indexArray = 0; indexArray < minQuantityTickets; ++indexArray) {
             Ticket<Question2> ticket = tmpT.clone();
-            mapWrapListQuestGroupByLevel.values().forEach(wrapListQ -> ticket.add(wrapListQ.next()));
+            if (prop.isFlagRandomOrderQuestInTicket()) Collections.shuffle(rangeQuest);
+            for (var level : rangeQuest) {
+                ticket.add(mapWrapListQuestGroupByLevel.get(level).next());
+            }
             listTickets.add(ticket);
         }
     }
@@ -197,7 +195,10 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         int remainQuantityTickets = prop.getQuantityTickets() - listTickets.size();
         IntStream.range(0, remainQuantityTickets)
                 .mapToObj(i -> template.clone())
-                .peek(this::changeQuestionsTicket)
+                .peek(clnTicket -> {
+                    if (prop.isFlagRandomOrderQuestInTicket()) Collections.shuffle(rangeQuest);
+                    this.changeQuestionsTicket(clnTicket);
+                })
                 .forEach(listTickets::add);
     }
 
@@ -205,7 +206,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         List<Question2> questions = ticket.getQuestions();
 
         for (int i = 0; i < questions.size(); i++) {
-            int level = i + 1;
+            int level = rangeQuest.get(i);
             WrapperList<Question2> wrapListQ = mapWrapListQuestGroupByLevel.get(level);
             if (wrapListQ.hasNext()) {
                 questions.set(i, wrapListQ.next());
