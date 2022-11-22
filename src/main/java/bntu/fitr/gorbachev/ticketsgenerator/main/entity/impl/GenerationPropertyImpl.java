@@ -10,11 +10,17 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.Tic
  * Contains property: <b>rating</b> - define two value
  */
 public class GenerationPropertyImpl extends GenerationProperty {
+    /* using
+    TicketGeneratorWayImpl1
+    TicketGeneratorWayImpl2
+    * */
     private Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generationWay;
     private boolean flagContinGenWithDepriveLev;
     private boolean flagRandomOrderReading;
     private boolean flagRandomOrderQuestInTicket;
 
+    /* using TicketGeneratorWayImpl1 */
+    private boolean flagContinGenWithChapterWithoutSection;
     {
         generationWay = TicketsGeneratorWayImpl1.class;
     }
@@ -66,6 +72,14 @@ public class GenerationPropertyImpl extends GenerationProperty {
 
     public void setFlagContinGenWithDepriveLev(boolean flagContinGenWithDepriveLev) {
         this.flagContinGenWithDepriveLev = flagContinGenWithDepriveLev;
+    }
+
+    public boolean isFlagContinGenWithChapterWithoutSection() {
+        return flagContinGenWithChapterWithoutSection;
+    }
+
+    public void setFlagContinGenWithChapterWithoutSection(boolean flagContinGenWithChapterWithoutSection) {
+        this.flagContinGenWithChapterWithoutSection = flagContinGenWithChapterWithoutSection;
     }
 
     public boolean isFlagRandomOrderReading() {

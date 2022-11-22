@@ -828,6 +828,19 @@ public class MainWindowPanel extends BasePanel {
                             repeat = false;
                             this.setEnabledComponents(true, false);
                         }
+
+                    } else if (ex.getClass() == FindsChapterWithoutSection.class) {
+                        int selected = JOptionPane.showInternalConfirmDialog(null,
+                                ex.getMessage() + "\n" +
+                                "Хотите продолжить генерацию ?",
+                                "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                        if (selected == JOptionPane.OK_OPTION) {
+                            repeat = true;
+                            property.setFlagContinGenWithChapterWithoutSection(true);
+                        } else {
+                            repeat = false;
+                            this.setEnabledComponents(true, false);
+                        }
                     } else {
                         // general condition exception and execution exception
                         JOptionPane.showMessageDialog(null,
@@ -835,6 +848,7 @@ public class MainWindowPanel extends BasePanel {
                                         : ex.getMessage(),// handle ConditionGenerationException
                                 "Warning !", JOptionPane.ERROR_MESSAGE);
                         this.setEnabledComponents(true, false);
+                        repeat = false; // necessary, because need set value false, if earlier repeat = true
                     }
 
                 } catch (InterruptedException e) {
@@ -1055,7 +1069,7 @@ public class MainWindowPanel extends BasePanel {
                                         JOptionPane.QUESTION_MESSAGE);
 
                                 if (selected == JOptionPane.OK_OPTION) {
-//                                    Runtime.getRuntime().exec();
+                                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + saveFile.getPath());
                                 }
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(null,
