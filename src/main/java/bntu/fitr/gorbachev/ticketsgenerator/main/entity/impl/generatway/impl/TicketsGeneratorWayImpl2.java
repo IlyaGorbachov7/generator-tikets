@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.Predicate;
-import java.util.logging.Logger;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
@@ -87,7 +86,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             if (!prop.isFlagContinGenWithDepriveLev()) {
                 // exception allowed to continue generation. That continue generation needed set flag == true
                 throw new FindsNonMatchingLevel("Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
-                                                "По-мимо вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты\n" +
+                                                "Кроме вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты\n" +
                                                 "Были найдены вопросы сложности: " + findsNonMatchLevel + "\n" +
                                                 "Выборка вопросов будет производится только в пределах: [1; " + prop.getQuantityQTickets() + "]\n"
                 );
@@ -120,14 +119,14 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
                 throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
                                                           "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
                                                           " был равен как минимум: " + prop.getQuantityTickets() + "" +
-                                                          "(с учётом указанного Вами количество повторения)\n" +
-                                                          "Не достаточно вопросов у сложностей:\n" +
+                                                          " (с учётом указанного Вами количество повторения)\n" +
+                                                          "Не достаточно вопросов у сложности:\n" +
                                                           entryQuantityNotEnough.stream()
                                                                   .map(e -> e.getKey() + " => в количестве: " + e.getValue())
                                                                   .collect(Collectors.joining("\n")) + "\n" +
                                                           "Среди вопросов, у которых указано число повторений будет\n" +
                                                           "равномерно увеличено недостающее число повторений, если таковые имеются,\n" +
-                                                          "иначе вопросы будут выбраны рандомно.");
+                                                          "иначе вопросы будут выбраны произвольно.");
             }
         } else {
             for (var entry : entryQuantityNotEnough) {
@@ -190,16 +189,15 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
     }
 
     private void generateTicketsWithRemainingNumber(final List<Ticket<Question2>> listTickets) {
-        Ticket<Question2> template = listTickets.get(0);
-
-        int remainQuantityTickets = prop.getQuantityTickets() - listTickets.size();
-        IntStream.range(0, remainQuantityTickets)
-                .mapToObj(i -> template.clone())
-                .peek(clnTicket -> {
+        List<TicketNode> listNodes = initTicketChildrenFromParent(listTickets);
+        listNodes.stream()
+                .flatMap(parentTicketNode -> parentTicketNode.getChildrenNodes().stream())
+                .map(childTicketNode -> {
+                    Ticket<Question2> ticket = childTicketNode.getTicket();
                     if (prop.isFlagRandomOrderQuestInTicket()) Collections.shuffle(rangeQuest);
-                    this.changeQuestionsTicket(clnTicket);
-                })
-                .forEach(listTickets::add);
+                    this.changeQuestionsTicket(ticket);
+                    return ticket;
+                }).forEach(listTickets::add);
     }
 
     private void changeQuestionsTicket(Ticket<Question2> ticket) {
@@ -217,11 +215,16 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
                     questions.set(i, q);
 
                 } else if (!prop.isUnique()) { // in case if questions with repeated is absent, then random index
-                    wrapListQ.setCurIndex(randomGenerator.nextInt(0, wrapListQ.size()));
-                    Logger.getLogger(this.getClass()
-                            .getName()).info("Forced  choice question from list grouped  by level=" + level +
-                                             " : indexQuest = " + wrapListQ.getCurIndex());
+                    Collections.shuffle(wrapListQ.getList());
+//                    wrapListQ.setCurIndex(randomGenerator.nextInt(0, wrapListQ.size()));
+//                    Logger.getLogger(this.getClass()
+//                            .getName()).info("Forced  choice question from list grouped  by level=" + level +
+//                                             " : indexQuest = " + wrapListQ.getCurIndex());
+
+                    wrapListQ.resetCurIndex();
                     questions.set(i, wrapListQ.next());
+                } else {
+                    throw new RuntimeException("Compose unique questions not possible");
                 }
             }
 
@@ -246,4 +249,87 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         }
         return null;
     }
+
+    private List<TicketNode> initTicketChildrenFromParent(List<Ticket<Question2>> listTicketsParent) {
+        int quantityTickets = listTicketsParent.size();
+        int remainQuantityTickets = prop.getQuantityTickets() - quantityTickets;
+        int fullPass = remainQuantityTickets / quantityTickets;
+        int remainsChildrens = remainQuantityTickets - fullPass * quantityTickets;
+
+        int size = Math.min(quantityTickets, remainQuantityTickets);
+        List<TicketNode> listTicketNode = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            int nNodes = fullPass;
+            if (i < remainsChildrens) {
+                nNodes++;
+            }
+            listTicketNode.add(TicketNode.of(listTicketsParent.get(i), nNodes));
+        }
+        return listTicketNode;
+    }
+
+    private static class TicketNode {
+        private Ticket<Question2> ticket;
+        private LinkedList<TicketNode> childrenNodes;
+
+        private TicketNode() {
+            childrenNodes = new LinkedList<>();
+        }
+
+        private TicketNode(Ticket<Question2> ticket) {
+            this();
+            this.ticket = ticket;
+        }
+
+        private TicketNode(Ticket<Question2> ticket, LinkedList<TicketNode> childrenNodes) {
+            this.ticket = ticket;
+            this.childrenNodes = childrenNodes;
+        }
+
+        public Ticket<Question2> getTicket() {
+            return ticket;
+        }
+
+        public List<TicketNode> getChildrenNodes() {
+            return childrenNodes;
+        }
+
+        public void setTicket(Ticket<Question2> ticket) {
+            this.ticket = ticket;
+        }
+
+        public void setChildrenNodes(LinkedList<TicketNode> childrenNodes) {
+            this.childrenNodes = childrenNodes;
+        }
+
+        public int getQuantityChildrenNodes() {
+            return childrenNodes.size();
+        }
+
+        public boolean addNode(TicketNode node) {
+            return childrenNodes.add(node);
+        }
+
+        public static TicketNode of(Ticket<Question2> ticket) {
+            return new TicketNode(ticket);
+        }
+
+        public static TicketNode of(Ticket<Question2> ticket, int nChildNodeFromParent) {
+            TicketNode parNode = new TicketNode(ticket);
+            parNode.initChNodesFromParentClone(nChildNodeFromParent);
+            return parNode;
+        }
+
+        public static TicketNode of(Ticket<Question2> ticket, LinkedList<TicketNode> childrenNodes) {
+            return new TicketNode(ticket, childrenNodes);
+        }
+
+        private void initChNodesFromParentClone(int nChNodes) {
+            for (int i = 0; i < nChNodes; i++) {
+                TicketNode chNode = TicketNode.of(ticket.clone());
+                childrenNodes.add(chNode);
+            }
+        }
+    }
+
 }
