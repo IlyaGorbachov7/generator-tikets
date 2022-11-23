@@ -76,6 +76,7 @@ public abstract class Question implements Cloneable {
         Question clone = null;
         try {
             clone = (Question) super.clone(); // НУЖНО ТАК! По соглашению Java
+            clone.listParagraphs = new ArrayList<>(listParagraphs.size());
             clone.addAll(listParagraphs);
         } catch (CloneNotSupportedException e) {
             e.printStackTrace();
