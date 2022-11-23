@@ -19,4 +19,12 @@ public class Question2 extends QuestionExt {
     public UUID getId() {
         return id;
     }
+
+    @Override
+    public String toString() {
+        return "Question2{" +
+               "id=" + id +
+               super.toString() +
+               '}';
+    }
 }
