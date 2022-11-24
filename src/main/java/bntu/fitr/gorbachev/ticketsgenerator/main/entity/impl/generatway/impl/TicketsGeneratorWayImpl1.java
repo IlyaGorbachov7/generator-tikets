@@ -65,9 +65,9 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
             if (!prop.isFlagContinGenWithDepriveLev()) {
                 throw new FindsNonMatchingLevel("Вы указали " + prop.getQuantityQTickets() + " вопрос в билете.\n" +
                                                 "Были найдены следующие темы: \n" +
-                                                mapWrapListQuestBySection.keySet() + "\n" +
-                                                "Выборка вопросов будет производится по-верным " + prop.getQuantityQTickets() +
-                                                " перечисленным темам\n" +
+                                                mapWrapListQuestBySection.keySet() + ".\n" +
+                                                "Выборка вопросов будет производится по первым " + prop.getQuantityQTickets() +
+                                                " перечисленным темам.\n" +
                                                 "Остальные темы: \n" + findsNonMatch + "\nв выборку не войдут");
             } else {
                 for (var section :
@@ -84,7 +84,7 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
             throw new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопрос в билете.\n" +
                                                    "Были найдены следующие темы: " +
                                                    mapWrapListQuestBySection.keySet() + "\n" +
-                                                   "Не достаточно количество тем, чтобы сгруппировать вопросы билета по темам\n" +
+                                                   "Не достаточно количество тем, чтобы сгруппировать вопросы билета по темам.\n" +
                                                    "Минимально необходимое количество тем: " + prop.getQuantityQTickets() + "\n" +
                                                    "Не хватает тем в количестве: " + Math.abs(notEnough));
         }
@@ -108,14 +108,14 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
                 // exception allowed to continew generation
                 throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
                                                           "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
-                                                          " был равен как минимум: " + prop.getQuantityTickets() + "" +
-                                                          "(с учётом указанного Вами количество повторения)\n" +
+                                                          " был равен как минимум: " + prop.getQuantityTickets() + " " +
+                                                          " (с учётом указанного Вами количество повторения)\n" +
                                                           "Не достаточно вопросов у сложностей:\n" +
                                                           entryQuantityNotEnough.stream()
                                                                   .map(e -> e.getKey() + " => в количестве: " + e.getValue())
                                                                   .collect(Collectors.joining("\n")) + "\n" +
                                                           "Среди вопросов, у которых указано число повторений будет\n" +
-                                                          "равномерно увеличено недостающее число повторений, если таковые имеются,\n" +
+                                                          "произвольно увеличено недостающее число повторений, если таковые имеются,\n" +
                                                           "иначе вопросы будут выбраны рандомно.");
             }
         } else {
