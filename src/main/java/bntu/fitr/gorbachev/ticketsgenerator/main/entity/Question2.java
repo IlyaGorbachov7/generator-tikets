@@ -22,9 +22,6 @@ public class Question2 extends QuestionExt {
 
     @Override
     public String toString() {
-        return "Question2{" +
-               "id=" + id +
-               super.toString() +
-               '}';
+        return getListParagraphs().get(0).getText();
     }
 }

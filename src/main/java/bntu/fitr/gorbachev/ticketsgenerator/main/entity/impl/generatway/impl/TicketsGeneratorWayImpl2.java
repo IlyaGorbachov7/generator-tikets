@@ -212,10 +212,11 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             WrapperList<Question2> wrapListQ = mapWrapListQuestGroupByLevel.get(level);
 
             if (wrapListQ.hasNext()) { // THis block code, designed in case free questions
-                var q = wrapListQ.next();
-
+                var q = wrapListQ.current();
                 if (q.getId().equals(questions.get(i).getId())) { // this related with the advent of logic tryReplaceQuest
                     q = tryReplaceThisQuest(q, wrapListQ); // in case id-question from list == id question-replace
+                } else {
+                    q = wrapListQ.next();
                 }
                 questions.set(i, q);
             } else {
@@ -236,6 +237,41 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         }
     }
 
+    private Question2 tryReplaceThisQuest(Question2 rscReplQuest, WrapperList<Question2> wrapperList) {
+        class Methods {
+            static <L, T> int findQuest(List<T> list, T elem, Comparator<T> comparator) {
+                int findIndex = -1;
+                for (int j = 0; j < list.size(); j++) {
+                    if (comparator.compare(list.get(j), elem) == 0) {
+                        findIndex = j;
+                        break;
+                    }
+                }
+                return findIndex;
+            }
+        }
+        if (wrapperList.isEmpty()) throw new RuntimeException("list is empty, by try replace question ");
+
+        if (wrapperList.size() == 1) {
+            return rscReplQuest;
+        }
+        if (wrapperList.hasNext()) {
+            Collections.rotate(wrapperList.getList().subList(wrapperList.getCurIndex(), wrapperList.size()), -1);
+            return wrapperList.next();
+        }
+
+        int findIndex = Methods.findQuest(wrapperList, rscReplQuest, Comparator.comparing(Question2::getId));
+        if (findIndex < 0) throw new NoSuchElementException("no find element by id: " + rscReplQuest);
+
+        Collections.swap(wrapperList.getList(), 0, findIndex);
+
+        // if wrapperList.hasNext == false
+        Collections.shuffle(wrapperList.getList().subList(1, wrapperList.size()));
+        Collections.rotate(wrapperList.getList(), -1);
+        wrapperList.resetCurIndex();
+        return wrapperList.next();
+    }
+
     private Question2 giveRepeatedQuest(int level) {
         WrapperList<Question2> wrapListRepeatQ = mapWrapListQuestRepeatedGroupByLevel.get(level);
         if (!wrapListRepeatQ.isEmpty()) {
@@ -253,37 +289,6 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             return q;
         }
         return null;
-    }
-
-    private Question2 tryReplaceThisQuest(Question2 rscReplQuest, WrapperList<Question2> wrapperList) {
-        class Methods {
-            static <L, T> int findQuest(List<T> list, T elem, Comparator<T> comparator) {
-                int findIndex = -1;
-                for (int j = 0; j < list.size(); j++) {
-                    if (comparator.compare(list.get(j), elem) == 0) {
-                        findIndex = j;
-                        break;
-                    }
-                }
-                return findIndex;
-            }
-        }
-        if (wrapperList.isEmpty()) throw new RuntimeException("list is empty, by try replace question ");
-
-
-        int findIndex = Methods.findQuest(wrapperList, rscReplQuest, Comparator.comparing(Question2::getId));
-        if (findIndex < 0) throw new NoSuchElementException("no find element by id: " + rscReplQuest);
-        if (wrapperList.size() == 1) {
-            return rscReplQuest;
-        }
-        if (findIndex != 0) {
-            Collections.swap(wrapperList.getList(), 0, findIndex);
-        }
-        if (!wrapperList.hasNext()) {
-            Collections.shuffle(wrapperList.getList().subList(1, wrapperList.size()));
-            wrapperList.setCurIndex(1);
-        }
-        return wrapperList.next();
     }
 
     private List<TicketNode> initTicketChildrenFromParent(List<Ticket<Question2>> listTicketsParent) {
