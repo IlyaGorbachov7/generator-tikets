@@ -13,10 +13,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.Tic
  * Mode enum will define generation tickets algorithm.
  */
 public enum GenerationMode {
+    MODE_3("Сплошным списком", TicketsGeneratorWayImpl3.class),
     MODE_1("Группировать по темам", TicketsGeneratorWayImpl1.class),
-    MODE_2("Группировать по сложности", TicketsGeneratorWayImpl2.class),
-    MODE_3("Рандомно", TicketsGeneratorWayImpl3.class),
-    MODE_4("Последовательно", TicketsGeneratorWayImpl4.class);
+    MODE_2("Группировать по сложности", TicketsGeneratorWayImpl2.class);
     String name;
 
     Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generateWay;

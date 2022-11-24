@@ -110,8 +110,7 @@ public class MainWindowPanel extends BasePanel {
                 Objects.requireNonNull(FileNames.getResource(FileNames.removeItemIcon))
         ));
         jBoxModes = new JComboBox<>(new GenerationMode[]{
-                GenerationMode.MODE_1, GenerationMode.MODE_2,
-                GenerationMode.MODE_3, GenerationMode.MODE_4});
+                GenerationMode.MODE_3, GenerationMode.MODE_1, GenerationMode.MODE_2});
 
         lbReadQuestRandom = new JLabel("Считывать вопросы:");
         btnGroupReadWay = new ButtonGroup();
