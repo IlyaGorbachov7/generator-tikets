@@ -20,7 +20,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
 
 import javax.swing.*;
-import javax.swing.border.StrokeBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -252,6 +251,13 @@ public class MainWindowPanel extends BasePanel {
 
         // createPanelMainActionPanel
         btnAdd.setFocusable(false);
+
+        btnGroupReadWay.add(rdiBtnSequence);
+        btnGroupReadWay.add(rdiBtnRandom);
+        btnGroupWriteWay.add(rdiBtnWriteRandom);
+        btnGroupWriteWay.add(rdiBtnWriteSequence);
+
+        rdiBtnRandom.setVerticalAlignment(SwingConstants.CENTER);
 
         btnRemove.setFocusable(false);
         btnRemove.setEnabled(false);
@@ -690,69 +696,48 @@ public class MainWindowPanel extends BasePanel {
         pnlRes.add(pBtn);
 
 
-        JPanel pnlBtnGenerate = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.anchor = GridBagConstraints.WEST;
+        JPanel pnlBtnGenerate = new JPanel();
+        pnlBtnGenerate.setLayout(new BoxLayout(pnlBtnGenerate, BoxLayout.Y_AXIS));
 
-        pnlBtnGenerate.add(lbReadQuestRandom, gbc);
-
-        gbc.gridx = 1;
-        btnGroupReadWay.add(rdiBtnSequence);
-        btnGroupReadWay.add(rdiBtnRandom);
+        JPanel panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow.add(lbReadQuestRandom);
         JPanel pnlGroupBtn = new JPanel(new FlowLayout());
-        pnlGroupBtn.setBorder(new StrokeBorder(new BasicStroke(1, BasicStroke.CAP_ROUND, BasicStroke.JOIN_BEVEL)));
         pnlGroupBtn.add(rdiBtnSequence);
         pnlGroupBtn.add(rdiBtnRandom);
-        pnlBtnGenerate.add(pnlGroupBtn, gbc);
+        panelRow.add(pnlGroupBtn);
 
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        pnlBtnGenerate.add(lbWriteQuestRandom, gbc);
+        pnlBtnGenerate.add(panelRow);
 
-        gbc.gridx = 1;
-        btnGroupWriteWay.add(rdiBtnWriteRandom);
-        btnGroupWriteWay.add(rdiBtnWriteSequence);
+        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow.add(lbWriteQuestRandom);
         pnlGroupBtn = new JPanel(new FlowLayout());
         pnlGroupBtn.add(rdiBtnWriteSequence);
         pnlGroupBtn.add(rdiBtnWriteRandom);
-        pnlBtnGenerate.add(pnlGroupBtn, gbc);
+        panelRow.add(pnlGroupBtn);
+        pnlBtnGenerate.add(panelRow);
 
 
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        pnlBtnGenerate.add(lbGenerationMode, gbc);
+        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow.add(lbGenerationMode);
+        panelRow.add(jBoxModes);
+        pnlBtnGenerate.add(panelRow);
 
-        gbc.gridx = 1;
-        pnlBtnGenerate.add(jBoxModes, gbc);
+        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow.add(lbQuantityTickets);
+        panelRow.add(tfQuantityTickets);
+        pnlBtnGenerate.add(panelRow);
 
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        pnlBtnGenerate.add(lbQuantityTickets, gbc);
 
-        gbc.gridx = 1;
-        gbc.insets = new Insets(5, 5, 5, 5);
-        pnlBtnGenerate.add(tfQuantityTickets, gbc);
+        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow.add(lbQuantityQuestionTickets);
+        panelRow.add(tfQuantityQuestionTickets);
+        pnlBtnGenerate.add(panelRow);
 
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        pnlBtnGenerate.add(lbQuantityQuestionTickets, gbc);
-
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        pnlBtnGenerate.add(tfQuantityQuestionTickets, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 2;
-        gbc.gridheight = 1;
-        gbc.ipady = 25;
-        gbc.fill = GridBagConstraints.BOTH;
-        pnlBtnGenerate.add(btnGenerate, gbc);
-
-        gbc.gridy = 7;
-        pnlBtnGenerate.add(btnViewFile, gbc);
-        gbc.gridy = 8;
-        pnlBtnGenerate.add(btnSave, gbc);
+        panelRow = new JPanel(new GridLayout(3, 1));
+        panelRow.add(btnGenerate);
+        panelRow.add(btnViewFile);
+        panelRow.add(btnSave);
+        pnlBtnGenerate.add(panelRow);
 
         pnlRes.add(pnlBtnGenerate);
 
