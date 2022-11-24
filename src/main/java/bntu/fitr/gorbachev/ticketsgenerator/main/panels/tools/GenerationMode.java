@@ -7,7 +7,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.TicketsG
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl3;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl.TicketsGeneratorWayImpl4;
 
 /**
  * Mode enum will define generation tickets algorithm.
