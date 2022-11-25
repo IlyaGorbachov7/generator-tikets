@@ -20,6 +20,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.border.StrokeBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -28,6 +30,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -139,6 +143,9 @@ public class MainWindowPanel extends BasePanel {
         tfQuantityTickets = new JTextField("10", 2);
         lbQuantityQuestionTickets = new JLabel("Количество вопросов в билете");
         tfQuantityQuestionTickets = new JTextField("3", 2);
+
+        spinnerQuantityTickets = new JSpinner();
+        spinnerQuantityQuestionTickets = new JSpinner();
     }
 
 
@@ -296,6 +303,25 @@ public class MainWindowPanel extends BasePanel {
                 return ".docx";
             }
         });
+
+        // spinner number quantity tickets
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 0, 1000, 1);
+        spinnerQuantityTickets.setModel(spinnerNumberModel);
+        JSpinner.NumberEditor numberEditor = (JSpinner.NumberEditor) spinnerQuantityTickets.getEditor();
+        JFormattedTextField textField = numberEditor.getTextField();
+        textField.setColumns(3);
+        textField.setHorizontalAlignment(JTextField.CENTER);
+        textField.setFont(new Font("Serif", Font.PLAIN, 12));
+
+
+        // spinner number quantity question in ticket
+        spinnerNumberModel = new SpinnerNumberModel(3, 0, 50, 1);
+        spinnerQuantityQuestionTickets.setModel(spinnerNumberModel);
+        numberEditor = (JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor();
+        textField = numberEditor.getTextField();
+        textField.setColumns(3);
+        textField.setHorizontalAlignment(JTextField.CENTER);
+        textField.setFont(new Font("Serif", Font.PLAIN, 12));
     }
 
     /**
@@ -655,8 +681,10 @@ public class MainWindowPanel extends BasePanel {
     private final JLabel lblListSize;
     private final JLabel lbQuantityTickets;
     private final JTextField tfQuantityTickets;
+    private final JSpinner spinnerQuantityTickets;
     private final JLabel lbQuantityQuestionTickets;
     private final JTextField tfQuantityQuestionTickets;
+    private final JSpinner spinnerQuantityQuestionTickets;
     private final JLabel lbReadQuestRandom;
     private final ButtonGroup btnGroupReadWay;
     private final JRadioButton rdiBtnRandom;
@@ -701,16 +729,15 @@ public class MainWindowPanel extends BasePanel {
 
         JPanel panelRow = new JPanel(new GridLayout(1, 2));
         panelRow.add(lbReadQuestRandom);
-        JPanel pnlGroupBtn = new JPanel(new FlowLayout());
+        JPanel pnlGroupBtn = new JPanel(new GridLayout(1, 2));
         pnlGroupBtn.add(rdiBtnSequence);
         pnlGroupBtn.add(rdiBtnRandom);
         panelRow.add(pnlGroupBtn);
-
         pnlBtnGenerate.add(panelRow);
 
         panelRow = new JPanel(new GridLayout(1, 2));
         panelRow.add(lbWriteQuestRandom);
-        pnlGroupBtn = new JPanel(new FlowLayout());
+        pnlGroupBtn = new JPanel(new GridLayout(1, 2));
         pnlGroupBtn.add(rdiBtnWriteSequence);
         pnlGroupBtn.add(rdiBtnWriteRandom);
         panelRow.add(pnlGroupBtn);
@@ -722,15 +749,21 @@ public class MainWindowPanel extends BasePanel {
         panelRow.add(jBoxModes);
         pnlBtnGenerate.add(panelRow);
 
-        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow = new JPanel(new GridLayout(1, 2, 0, 10));
         panelRow.add(lbQuantityTickets);
-        panelRow.add(tfQuantityTickets);
+        JPanel pSpinner = new JPanel();
+        pSpinner.setLayout(new BorderLayout());
+        pSpinner.add(spinnerQuantityTickets, BorderLayout.LINE_START);
+        panelRow.add(pSpinner);
         pnlBtnGenerate.add(panelRow);
 
 
-        panelRow = new JPanel(new GridLayout(1, 2));
+        panelRow = new JPanel(new GridLayout(1, 2, 0, 10));
         panelRow.add(lbQuantityQuestionTickets);
-        panelRow.add(tfQuantityQuestionTickets);
+        pSpinner = new JPanel();
+        pSpinner.setLayout(new BorderLayout());
+        pSpinner.add(spinnerQuantityQuestionTickets, BorderLayout.LINE_START);
+        panelRow.add(pSpinner);
         pnlBtnGenerate.add(panelRow);
 
         panelRow = new JPanel(new GridLayout(3, 1));
@@ -765,10 +798,8 @@ public class MainWindowPanel extends BasePanel {
         @Override
         public void run() {
             this.setEnabledComponents(false, false);
-            String val = tfQuantityTickets.getText();
-            int quantityTickets = Integer.parseInt(val);
-            val = tfQuantityQuestionTickets.getText();
-            int quantityQuestionInTicket = Integer.parseInt(val);
+            int quantityTickets = (int) spinnerQuantityTickets.getValue();
+            int quantityQuestionInTicket = (int) spinnerQuantityQuestionTickets.getValue();
 
 
             File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());

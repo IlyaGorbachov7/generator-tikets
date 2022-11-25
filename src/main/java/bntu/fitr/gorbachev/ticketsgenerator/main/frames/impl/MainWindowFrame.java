@@ -14,7 +14,7 @@ public class MainWindowFrame extends JFrame implements DialogFunc {
     public MainWindowFrame(PanelType type) {
         Dimension sizeScreen = toolkit.getScreenSize();
         this.setLayout(new BorderLayout());
-        Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.5),
+        Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.4),
                 (int) (sizeScreen.height / 1.4));
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                 (sizeScreen.height - sizeFrame.height) / 2,
