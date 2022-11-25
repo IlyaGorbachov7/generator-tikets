@@ -107,10 +107,10 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
             if (!entryQuantityNotEnough.isEmpty()) {
                 // exception allowed to continew generation
                 throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                          "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
+                                                          "Требуется, чтобы количество вопросов в каждой из тем суммарно\n" +
                                                           " был равен как минимум: " + prop.getQuantityTickets() + " " +
                                                           " (с учётом указанного Вами количество повторения)\n" +
-                                                          "Не достаточно вопросов у сложностей:\n" +
+                                                          "Не достаточно вопросов у тем:\n" +
                                                           entryQuantityNotEnough.stream()
                                                                   .map(e -> e.getKey() + " => в количестве: " + e.getValue())
                                                                   .collect(Collectors.joining("\n")) + "\n" +
