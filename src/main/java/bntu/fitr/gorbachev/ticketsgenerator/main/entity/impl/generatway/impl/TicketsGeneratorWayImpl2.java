@@ -158,12 +158,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             mapWrapListQuestGroupByLevel.forEach((lev, wrapListQ) -> Collections.shuffle(wrapListQ.getList()));
             mapWrapListQuestRepeatedGroupByLevel.forEach((lev, wrapListQ) -> Collections.shuffle(wrapListQ.getList()));
         }
-        int minListSize = mapWrapListQuestGroupByLevel.entrySet().stream()
-                .min(Map.Entry.comparingByValue(Comparator.comparingInt(WrapperList::size)))
-                .orElseThrow().getValue().size();
-
-        // generate with minimum possible and needed number tickets
-        int minQuantityTickets = Integer.min(prop.getQuantityTickets(), minListSize);
+        int minQuantityTickets = getMinQuantityPossibleTickets();
         generateTicketsWithMinNumber(minQuantityTickets, listTickets, templateTicket);
 
         // checking on to continue generation additional tickets
@@ -176,8 +171,17 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         return listTickets;
     }
 
-    private void generateTicketsWithMinNumber(final int minQuantityTickets, final List<Ticket<Question2>> listTickets,
-                                              Ticket<Question2> tmpT) {
+    protected int getMinQuantityPossibleTickets() {
+        int minListSize = mapWrapListQuestGroupByLevel.entrySet().stream()
+                .min(Map.Entry.comparingByValue(Comparator.comparingInt(WrapperList::size)))
+                .orElseThrow().getValue().size();
+
+        // generate with minimum possible and needed number tickets
+        return Integer.min(prop.getQuantityTickets(), minListSize);
+    }
+
+    protected void generateTicketsWithMinNumber(final int minQuantityTickets, final List<Ticket<Question2>> listTickets,
+                                                Ticket<Question2> tmpT) {
         tmpT.clearQuestions();
         for (int indexArray = 0; indexArray < minQuantityTickets; ++indexArray) {
             Ticket<Question2> ticket = tmpT.clone();
@@ -189,7 +193,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         }
     }
 
-    private void generateTicketsWithRemainingNumber(final List<Ticket<Question2>> listTickets) {
+    protected void generateTicketsWithRemainingNumber(final List<Ticket<Question2>> listTickets) {
         List<TicketNode> listNodes = initTicketChildrenFromParent(listTickets);
         listNodes.stream()
                 .flatMap(parentTicketNode -> parentTicketNode.getChildrenNodes().stream())
@@ -204,7 +208,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
                 }).forEach(listTickets::add);
     }
 
-    private void changeQuestionsTicket(Ticket<Question2> ticket) {
+    protected void changeQuestionsTicket(Ticket<Question2> ticket) {
         List<Question2> questions = ticket.getQuestions();
 
         for (int i = 0; i < questions.size(); i++) {
@@ -237,7 +241,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         }
     }
 
-    private Question2 tryReplaceThisQuest(Question2 rscReplQuest, WrapperList<Question2> wrapperList) {
+    protected Question2 tryReplaceThisQuest(Question2 rscReplQuest, WrapperList<Question2> wrapperList) {
         class Methods {
             static <L, T> int findQuest(List<T> list, T elem, Comparator<T> comparator) {
                 int findIndex = -1;
@@ -272,7 +276,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         return wrapperList.next();
     }
 
-    private Question2 giveRepeatedQuest(int level) {
+    protected Question2 giveRepeatedQuest(int level) {
         WrapperList<Question2> wrapListRepeatQ = mapWrapListQuestRepeatedGroupByLevel.get(level);
         if (!wrapListRepeatQ.isEmpty()) {
             if (!wrapListRepeatQ.hasNext()) wrapListRepeatQ.resetCurIndex();
@@ -291,7 +295,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         return null;
     }
 
-    private List<TicketNode> initTicketChildrenFromParent(List<Ticket<Question2>> listTicketsParent) {
+    protected List<TicketNode> initTicketChildrenFromParent(List<Ticket<Question2>> listTicketsParent) {
         int quantityTickets = listTicketsParent.size();
         int remainQuantityTickets = prop.getQuantityTickets() - quantityTickets;
         int fullPass = remainQuantityTickets / quantityTickets;
@@ -309,7 +313,7 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         return listTicketNode;
     }
 
-    private static class TicketNode {
+    protected static class TicketNode {
         private Ticket<Question2> ticket;
         private LinkedList<TicketNode> childrenNodes;
 

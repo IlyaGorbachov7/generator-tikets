@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway;
 
 import java.util.AbstractList;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -126,5 +127,9 @@ public class WrapperList<E> extends AbstractList<E> implements Iterator<E> {
 
     public static <E> WrapperList<E> of(List<E> list) {
         return new WrapperList<>(list);
+    }
+
+    public static <E> WrapperList<E> of() {
+        return new WrapperList<>(new ArrayList<>());
     }
 }
