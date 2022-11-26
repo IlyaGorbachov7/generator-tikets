@@ -2,31 +2,37 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.WrapperList;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * I want node you attention, that ticket can't contain 2 same questions.
+ * <p>
+ * So those questions, who have property <b>repeat > 0</b> this  is  no means, that
+ * this questions will must repeat specified number of times.
+ * <p>
+ * Quantity question in list should be at least equals quantity questions in one ticket
+ */
 public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
-    protected GenerationPropertyImpl prop;
-    protected List<Integer> rangeQuest;
     protected WrapperList<Question2> wrapListQuest;
     protected WrapperList<Question2> wrapListRepeatQuest;
-    protected WrapperList<Question2> bufferQuestCurrentTickets;
+    protected List<Question2> bufferQuestCurrentTickets;
 
     protected void initFields(List<Question2> questions, GenerationProperty property) {
         prop = (GenerationPropertyImpl) property;
         rangeQuest = IntStream.range(0, prop.getQuantityQTickets()).boxed().collect(Collectors.toList());
         wrapListQuest = WrapperList.of(questions);
         wrapListRepeatQuest = WrapperList.of(questions.stream().filter(q -> q.getRepeat() > 0).toList());
-        bufferQuestCurrentTickets = WrapperList.of();
+        bufferQuestCurrentTickets = new ArrayList<>(prop.getQuantityQTickets());
     }
 
     @Override
@@ -171,3 +177,4 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
         return q;
     }
 }
+
