@@ -20,18 +20,14 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
-import javax.swing.border.StrokeBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ListDataEvent;
-import javax.swing.event.ListDataListener;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.file.Files;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -408,6 +404,18 @@ public class MainWindowPanel extends BasePanel {
             }
 
         });
+
+        //https://stackoverflow.com/questions/3949382/jspinner-value-change-events
+        JFormattedTextField formTextField = ((JSpinner.NumberEditor) spinnerQuantityTickets.getEditor())
+                .getTextField();
+        DefaultFormatter form = (DefaultFormatter) formTextField.getFormatter();
+        form.setCommitsOnValidEdit(true);
+        spinnerQuantityTickets.addChangeListener(e -> System.out.println(spinnerQuantityTickets.getValue()));
+
+        formTextField = ((JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor()).getTextField();
+        form = (DefaultFormatter) formTextField.getFormatter();
+        form.setCommitsOnValidEdit(true);
+        spinnerQuantityQuestionTickets.addChangeListener(e -> System.out.println(spinnerQuantityQuestionTickets.getValue()));
 
     }
 
