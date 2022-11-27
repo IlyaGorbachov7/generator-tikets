@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyI
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.WrapperList;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.NumberQuestionsRequireException;
+import org.bouncycastle.util.Arrays;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,13 +26,16 @@ import java.util.stream.IntStream;
 public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
     protected WrapperList<Question2> wrapListQuest;
     protected WrapperList<Question2> wrapListRepeatQuest;
+    protected WrapperList<Question2> wrapListQuestRandom;
     protected List<Question2> bufferQuestCurrentTickets;
 
     protected void initFields(List<Question2> questions, GenerationProperty property) {
         prop = (GenerationPropertyImpl) property;
         rangeQuest = IntStream.range(0, prop.getQuantityQTickets()).boxed().collect(Collectors.toList());
         wrapListQuest = WrapperList.of(questions);
-        wrapListRepeatQuest = WrapperList.of(questions.stream().filter(q -> q.getRepeat() > 0).toList());
+        wrapListQuestRandom = WrapperList.of(new ArrayList<>(questions));
+        Collections.shuffle(wrapListQuestRandom.getList());
+        wrapListRepeatQuest = WrapperList.of(questions.stream().filter(q -> q.getRepeat() > 0).collect(Collectors.toList()));
         bufferQuestCurrentTickets = new ArrayList<>(prop.getQuantityQTickets());
     }
 
@@ -62,8 +66,8 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
                                         КоличествоБилетов * КоличествоВопросовБилета = %d * %d = %d
                                         Недостаточно вопросов, в количестве: %d
                                         Среди вопросов, у которых указано число повторений будет
-                                        произвольно увеличено недостающее число повторений, если таковые имеются,
-                                        иначе вопросы будут выбраны рандомно.""",
+                                        последовательно увеличено недостающее число повторений, если таковые имеются,
+                                        иначе вопросы будут выбраны произвольно.""",
                                 prop.getQuantityQTickets(), prop.getQuantityTickets(), prop.getQuantityQTickets(),
                                 prop.getQuantityTickets() * prop.getQuantityQTickets(), totalQuantity));
             } else if (!wrapListRepeatQuest.isEmpty()) {
@@ -80,6 +84,27 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
                 }
             }
         }
+    }
+
+    @Override
+    public List<Ticket<Question2>> generate(Ticket<Question2> templateTicket, List<Question2> questions, GenerationProperty property) {
+        List<Ticket<Question2>> listTickets = new ArrayList<>(property.getQuantityTickets());
+
+        if (prop.isFlagRandomOrderReading()) {
+            Collections.shuffle(wrapListQuest.getList());
+            Collections.shuffle(wrapListRepeatQuest.getList());
+        }
+        int minQuantityTickets = getMinQuantityPossibleTickets();
+        generateTicketsWithMinNumber(minQuantityTickets, listTickets, templateTicket);
+
+        // checking on to continue generation additional tickets
+        if (prop.getQuantityTickets() == minQuantityTickets) { // if equals, then complete generate
+            return listTickets;
+        }
+
+        // else continue generation
+        generateTicketsWithRemainingNumber(listTickets);
+        return listTickets;
     }
 
     @Override
@@ -119,16 +144,15 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
         for (var index : rangeQuest) {
             Question2 q;
             if (wrapListQuest.hasNext()) {
-                q = tryReplaceThisQuest(null, null);
+                q = wrapListQuest.next();
             } else {
                 q = giveRepeatedQuest(-1);
 
-                if (q == null && !prop.isUnique()) {
+                if (q == null /*&& !prop.isUnique()*/) {
                     q = tryReplaceThisQuest(null, null);
-                } else {
-                    throw new RuntimeException("Compose unique questions non possible");
                 }
             }
+
             quests.set(index, q);
             bufferQuestCurrentTickets.add(q);
         }
@@ -138,16 +162,21 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
 
     @Override
     protected Question2 tryReplaceThisQuest(Question2 nullQiest, WrapperList<Question2> nullWrapperList) {
-        if (wrapListQuest.isEmpty()) throw new RuntimeException("list is empty, by try replace question");
+        if (wrapListQuestRandom.isEmpty()) throw new RuntimeException("list is empty, by try replace question");
 
-        if (!wrapListQuest.hasNext()) {
-            Collections.shuffle(wrapListQuest.getList());
-            wrapListQuest.resetCurIndex();
+        if (!wrapListQuestRandom.hasNext()) {
+            Collections.shuffle(wrapListQuestRandom.getList());
+            wrapListQuestRandom.resetCurIndex();
         }
-        while (bufferQuestCurrentTickets.contains(wrapListQuest.current())) {
-            wrapListQuest.next();
+        while (bufferQuestCurrentTickets.contains(wrapListQuestRandom.current())) {
+            wrapListQuestRandom.next();
+            if (!wrapListQuestRandom.hasNext()) {
+                Collections.shuffle(wrapListQuestRandom.getList());
+                wrapListQuestRandom.resetCurIndex();
+            }
         }
-        return wrapListQuest.next();
+
+        return wrapListQuestRandom.next();
     }
 
     @Override
