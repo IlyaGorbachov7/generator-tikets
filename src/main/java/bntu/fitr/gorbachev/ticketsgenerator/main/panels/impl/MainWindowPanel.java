@@ -74,7 +74,8 @@ public class MainWindowPanel extends BasePanel {
         aboutProgramItem = new JMenuItem("О программе",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutProgramItemIcon))
                 ));
-        recordSettingItem = new JMenuItem("Свойство записи");
+        recordSettingItem = new JMenuItem("Свойство записи",
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
 
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
@@ -86,7 +87,7 @@ public class MainWindowPanel extends BasePanel {
         lbDepartment = new JLabel("Кафедра");
         lbSpecialization = new JLabel("Специальность");
         lbDiscipline = new JLabel("Дисциплина");
-        lbTeacher = new JLabel("Преподаватель");
+        lbTeacher = new JLabel("Экзаменатор");
         lbHeadDepartment = new JLabel("Заведующий кафедрой");
         lbTypeSession = new JLabel("Вид сессии");
         lbDateDecision = new JLabel("Дата утверждения : ");

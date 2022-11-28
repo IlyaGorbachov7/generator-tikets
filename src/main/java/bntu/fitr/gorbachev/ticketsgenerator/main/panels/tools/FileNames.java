@@ -56,4 +56,6 @@ public class FileNames {
 
     public static final String successIcon = targetPath + "successIcon.png";
 
+    public static final String recordSettingIcon = targetPath + "recordSettingIcon.png";
+
 }
