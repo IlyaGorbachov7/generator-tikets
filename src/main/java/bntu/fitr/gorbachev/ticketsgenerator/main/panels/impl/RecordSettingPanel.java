@@ -1,4 +1,6 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.panels;
+package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
+
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 
 import javax.swing.*;
 import java.awt.*;
