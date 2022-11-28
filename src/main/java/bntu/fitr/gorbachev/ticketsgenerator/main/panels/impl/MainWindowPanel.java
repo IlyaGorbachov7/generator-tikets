@@ -205,8 +205,7 @@ public class MainWindowPanel extends BasePanel {
      */
     @Override
     public void initPanel() {
-        this.setLayout(new GridLayout(1, 2, 10, 10));
-
+        this.setLayout(new BorderLayout());
         // разбил на потоки, чтобы было быстро инициализировалось
         Thread thread1 = new Thread(() -> {
             pnlData = this.createDataInputPanel();
@@ -216,6 +215,7 @@ public class MainWindowPanel extends BasePanel {
 
         Thread thread2 = new Thread(() -> {
             pnlGenerate = this.createPanelMainActionPanel();
+            pnlGenerate.setPreferredSize(new Dimension(430, pnlGenerate.getHeight()));
             System.out.println("0000");
         });
         thread2.start();
@@ -228,8 +228,8 @@ public class MainWindowPanel extends BasePanel {
         } catch (InterruptedException ignored) {
         }
         this.setConfigComponents();
-        this.add(pnlData);
-        this.add(pnlGenerate);
+        this.add(pnlData, BorderLayout.CENTER);
+        this.add(pnlGenerate, BorderLayout.EAST);
     }
 
     /**

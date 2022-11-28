@@ -17,7 +17,7 @@ public class MainWindowFrame extends BaseFrame {
         Dimension sizeScreen = toolkit.getScreenSize();
         this.setLayout(new BorderLayout());
         Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.4),
-                (int) (sizeScreen.height / 1.4));
+                (int) (sizeScreen.height / 1.5));
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                 (sizeScreen.height - sizeFrame.height) / 2,
                 sizeFrame.width, sizeFrame.height);
