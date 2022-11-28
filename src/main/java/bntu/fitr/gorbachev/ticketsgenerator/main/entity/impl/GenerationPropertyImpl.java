@@ -21,6 +21,9 @@ public class GenerationPropertyImpl extends GenerationProperty {
 
     /* using TicketGeneratorWayImpl1 */
     private boolean flagContinGenWithChapterWithoutSection;
+
+    private WriterTicketProperty writerTicketProperty;
+
     {
         generationWay = TicketsGeneratorWayImpl1.class;
     }
@@ -96,5 +99,13 @@ public class GenerationPropertyImpl extends GenerationProperty {
 
     public void setFlagRandomOrderQuestInTicket(boolean flagRandomOrderQuestInTicket) {
         this.flagRandomOrderQuestInTicket = flagRandomOrderQuestInTicket;
+    }
+
+    public WriterTicketProperty getWriterTicketProperty() {
+        return writerTicketProperty;
+    }
+
+    public void setWriterTicketProperty(WriterTicketProperty writerTicketProperty) {
+        this.writerTicketProperty = writerTicketProperty;
     }
 }

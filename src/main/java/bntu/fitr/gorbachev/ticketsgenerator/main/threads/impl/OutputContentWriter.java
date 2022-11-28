@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.threads.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.OutputContentException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -14,9 +15,11 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 
 public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Question2>> {
+    protected WriterTicketProperty property;
     protected int twipsPerInch = 1440;
 
     protected int PAGE_W = 12240;   //12240 Twips = 12240/20 = 612 pt = 612/72 = 8.5"
@@ -52,6 +55,11 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
         super(listTickets);
     }
 
+    public OutputContentWriter(List<Ticket<Question2>> listTickets, WriterTicketProperty writerTicketProperty) {
+        super(listTickets);
+        property = Objects.requireNonNullElse(writerTicketProperty, new WriterTicketProperty());
+    }
+
     @Override
     public List<Ticket<Question2>> getListTickets() {
         return super.getListTickets();
@@ -60,6 +68,8 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
     @Override
     public XWPFDocument call() throws OutputContentException {
         XWPFDocument docxDes = new XWPFDocument();
+        int quantityTicketsOnSinglePage = property.getQuantityOnSinglePage();
+
         // there must be a styles document, even if it is empty
         docxDes.createStyles();
 
@@ -135,7 +145,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
 
 
             text = "Утверждено на заседании кафедры ";
-            p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL, ParagraphAlignment.BOTH,
+            p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_LIST, ParagraphAlignment.BOTH,
                     false, false);
             text = ticket.getDate() + ", ";
             setConfig(p, ParagraphAlignment.LEFT, text,
@@ -144,7 +154,16 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
             setConfig(p, ParagraphAlignment.LEFT, text,
                     false, true);
             if (iter < listTickets.size()) {
-                p.createRun().addBreak(BreakType.PAGE);
+                if (quantityTicketsOnSinglePage <= 1 || property.isTicketOnSinglePage()) {
+                    quantityTicketsOnSinglePage = property.getQuantityOnSinglePage();
+                    p.createRun().addBreak(BreakType.PAGE);
+                } else {
+                    p = docxDes.createParagraph();
+                    p.setIndentationLeft((int) (-1.1 * twipsPerInch));
+                    p.setIndentationRight((int) (((BigInteger) pageSz.getW()).intValue() * 1.1 * twipsPerInch));
+                    p.setBorderTop(Borders.SOUTHWEST);
+                    --quantityTicketsOnSinglePage;
+                }
             }
 
         }

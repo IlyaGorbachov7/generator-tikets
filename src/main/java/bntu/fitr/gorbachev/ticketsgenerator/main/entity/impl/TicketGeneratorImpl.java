@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Ticket<Question2>> {
+    /**
+     * This pointer will be initialized only on the time {@link #conditionsStartGeneration(List, GenerationProperty)}
+     */
+    protected GenerationPropertyImpl property;
 
     public TicketGeneratorImpl() {
     }
@@ -39,13 +43,15 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
 
     @Override
     protected Supplier<AbstractOutputContentThread<Ticket<Question2>>> factoryOutputContent(List<Ticket<Question2>> listTickets) {
-        return () -> new OutputContentWriter(listTickets);
+
+        return () -> new OutputContentWriter(listTickets, property.getWriterTicketProperty());
     }
 
     @Override
     protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty property)
             throws GenerationConditionException {
         GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
+        this.property = prop;
         TicketGeneratorManager.getGenerator(prop.getGenerationWay()).conditionGeneration(questions, property);
     }
 
