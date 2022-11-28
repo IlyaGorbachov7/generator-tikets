@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels;
 
+import java.awt.*;
+
 /**
  * This interface describes base functional {@link javax.swing.JPanel}
  */
@@ -19,4 +21,5 @@ public interface PanelFunc {
      */
     void setConfigComponents();
 
+    Window getRootFrame();
 }

@@ -38,6 +38,7 @@ public class PanelFactory {
             case ABOUT_PROGRAM -> new AboutProgramPanel(rootWindow);
             case ABOUT_AUTHOR -> new AboutAuthorPanel(rootWindow);
             case MAIN_WINDOW -> new MainWindowPanel(rootWindow);
+            case RECORD_SETTING -> new RecordSettingPanel(rootWindow);
             default -> throw new IllegalArgumentException("The panel is not define for the type: " + type);
         };
     }

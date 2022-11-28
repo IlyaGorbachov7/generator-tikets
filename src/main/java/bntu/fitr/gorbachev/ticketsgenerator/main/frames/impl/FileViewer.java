@@ -18,7 +18,6 @@ import java.io.File;
  * @version 03.05.2022
  */
 public class FileViewer extends BaseDialog {
-    private final Window frame;
     private SwingController control;
     private File file;
 
@@ -27,8 +26,6 @@ public class FileViewer extends BaseDialog {
      */
     public FileViewer(Window frame) {
         super(frame, "Предпросмотр");
-        this.frame = frame;
-        this.initDialog();
     }
 
     /**
@@ -37,8 +34,8 @@ public class FileViewer extends BaseDialog {
     @Override
     public void initDialog() {
         this.control = new SwingController();
-        this.setBounds((int) frame.getBounds().getX(),
-                (int) frame.getBounds().getY(), 900, 700);
+        this.setBounds((int) getFrame().getBounds().getX(),
+                (int) getFrame().getBounds().getY(), 900, 700);
 
         SwingViewBuilder factory = new SwingViewBuilder(control);
         JPanel pnlViewFile = factory.buildViewerPanel();

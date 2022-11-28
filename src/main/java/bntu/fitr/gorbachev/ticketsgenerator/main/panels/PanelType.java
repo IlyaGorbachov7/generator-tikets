@@ -5,5 +5,6 @@ public enum PanelType {
     ABOUT_AUTHOR,
     MAIN_WINDOW,
     SPLASH_SCREEN,
-    FILE_VIEWER
+    FILE_VIEWER,
+    RECORD_SETTING;
 }

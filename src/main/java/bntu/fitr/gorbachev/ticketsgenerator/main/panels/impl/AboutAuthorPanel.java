@@ -46,7 +46,7 @@ public class AboutAuthorPanel extends BasePanel {
         this.add(panelInfo, BorderLayout.CENTER);
 
         var ok = new JButton("OK");
-        ok.addActionListener(event -> getFrame().setVisible(false));
+        ok.addActionListener(event -> getRootFrame().setVisible(false));
         add(ok, BorderLayout.SOUTH);
     }
 

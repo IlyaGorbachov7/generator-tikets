@@ -116,7 +116,7 @@ public class AboutProgramPanel extends BasePanel {
         this.add(new JScrollPane(panelInfo), BorderLayout.CENTER);
 
         var btnOk = new JButton("OK");
-        btnOk.addActionListener(event -> getFrame().setVisible(false));
+        btnOk.addActionListener(event -> getRootFrame().setVisible(false));
         add(btnOk, BorderLayout.SOUTH);
     }
 

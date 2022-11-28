@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.RecordSetting;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -45,6 +46,7 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem exitItem;
     private final JMenuItem aboutAuthorItem;
     private final JMenuItem aboutProgramItem;
+    private final JMenuItem recordSettingItem;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -53,6 +55,7 @@ public class MainWindowPanel extends BasePanel {
     private final AboutAuthor aboutAuthorDialog;
     private final AboutProgram aboutProgramDialog;
     private final FileViewer viewFileDialog;
+    private final RecordSetting recordSettingDialog;
 
     {
         menuBar = new JMenuBar();
@@ -71,6 +74,8 @@ public class MainWindowPanel extends BasePanel {
         aboutProgramItem = new JMenuItem("О программе",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutProgramItemIcon))
                 ));
+        recordSettingItem = new JMenuItem("Свойство записи");
+
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
 
@@ -152,13 +157,15 @@ public class MainWindowPanel extends BasePanel {
      */
     public MainWindowPanel(Window frame) {
         super(frame);
-        frameRoot = getFrame();
+        frameRoot = getRootFrame();
         aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
                 .createJDialog(frame, PanelType.ABOUT_AUTHOR);
         aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
                 .createJDialog(frame, PanelType.ABOUT_PROGRAM);
         viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
                 .createJDialog(frame, PanelType.FILE_VIEWER);
+        recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
+                .createJDialog(frame, PanelType.RECORD_SETTING);
 
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
@@ -171,8 +178,12 @@ public class MainWindowPanel extends BasePanel {
         infoMenu.add(aboutProgramItem);
         infoMenu.add(aboutAuthorItem);
 
+        JMenu settingMenu = new JMenu("Парамеры");
+        settingMenu.add(recordSettingItem);
+
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
+        menuBar.add(settingMenu);
         if (frame instanceof JFrame window) {
             window.setJMenuBar(menuBar);
         } else if (frame instanceof JDialog window) {
@@ -330,6 +341,7 @@ public class MainWindowPanel extends BasePanel {
         exitItem.addActionListener(handler);
         aboutAuthorItem.addActionListener(handler);
         aboutProgramItem.addActionListener(handler);
+        recordSettingItem.addActionListener(handler);
 
         btnAdd.addActionListener(handler);
         btnRemove.addActionListener(handler);
@@ -474,9 +486,6 @@ public class MainWindowPanel extends BasePanel {
      * @return created panel
      */
     private JPanel createDataInputPanel() {
-        new Thread(() -> {
-
-        });
         JPanel panelLEFT = new JPanel(new GridBagLayout());
         panelLEFT.setBorder(new TitledBorder("Заполните область ввода данных"));
 
@@ -1118,6 +1127,8 @@ public class MainWindowPanel extends BasePanel {
             } else if (e.getSource() == aboutProgramItem) {
                 aboutProgramDialog.setVisible(true);
 
+            } else if(e.getSource() == recordSettingItem){
+                recordSettingDialog.setVisible(true);
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {

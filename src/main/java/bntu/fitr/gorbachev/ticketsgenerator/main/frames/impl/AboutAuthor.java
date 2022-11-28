@@ -15,19 +15,12 @@ import java.awt.*;
  * @version 20.04.2022
  */
 public class AboutAuthor extends BaseDialog {
-
-    private final Window frame;
-    private final PanelType type;
-
     /**
      * @param frame class object {@link JFrame}
      */
     public AboutAuthor(Window frame, PanelType type) {
-        super(frame, "О авторе");
+        super(frame, type, "О авторе");
         this.setModal(false);
-        this.frame = frame;
-        this.type = type;
-        this.initDialog();
     }
 
     /**
@@ -35,11 +28,11 @@ public class AboutAuthor extends BaseDialog {
      */
     @Override
     public void initDialog() {
-        System.out.println(frame.getBounds());
-        this.setBounds((int) frame.getBounds().getX(),
-                (int) frame.getBounds().getY(), 250, 450);
+        System.out.println(getFrame().getBounds());
+        this.setBounds((int) getFrame().getBounds().getX(),
+                (int) getFrame().getBounds().getY(), 250, 450);
         this.setResizable(false);
-        add(PanelFactory.getInstance().createPanel(this, type));
+        add(PanelFactory.getInstance().createPanel(this, getPanelType()));
     }
 
 }

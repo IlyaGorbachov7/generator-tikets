@@ -49,6 +49,7 @@ public class FrameDialogFactory {
             case ABOUT_AUTHOR -> new AboutAuthor(root, type);
             case ABOUT_PROGRAM -> new AboutProgram(root, type);
             case FILE_VIEWER -> new FileViewer(root);
+            case RECORD_SETTING -> new RecordSetting(root, type);
             default -> throw new IllegalArgumentException("The dialog is not define for the type: " + type);
         };
     }

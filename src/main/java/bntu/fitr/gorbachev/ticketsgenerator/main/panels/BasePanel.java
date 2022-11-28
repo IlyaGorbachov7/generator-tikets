@@ -26,9 +26,9 @@ public abstract class BasePanel extends JPanel implements PanelFunc {
     @Override
     public abstract void setConfigComponents();
 
-    public Window getFrame() {
+    @Override
+    public Window getRootFrame() {
         return frame;
     }
-
 }
 
