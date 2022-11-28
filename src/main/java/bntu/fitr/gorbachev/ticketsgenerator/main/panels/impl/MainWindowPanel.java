@@ -47,6 +47,7 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem aboutAuthorItem;
     private final JMenuItem aboutProgramItem;
     private final JMenuItem recordSettingItem;
+    private final JMenuItem databaseSettingItem;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -74,9 +75,10 @@ public class MainWindowPanel extends BasePanel {
         aboutProgramItem = new JMenuItem("О программе",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutProgramItemIcon))
                 ));
-        recordSettingItem = new JMenuItem("Свойство записи",
+        recordSettingItem = new JMenuItem("Запись билетов",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
-
+        databaseSettingItem = new JMenuItem("Параметры ввода",
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
 
@@ -181,6 +183,7 @@ public class MainWindowPanel extends BasePanel {
 
         JMenu settingMenu = new JMenu("Парамеры");
         settingMenu.add(recordSettingItem);
+        settingMenu.add(databaseSettingItem);
 
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
@@ -343,7 +346,7 @@ public class MainWindowPanel extends BasePanel {
         aboutAuthorItem.addActionListener(handler);
         aboutProgramItem.addActionListener(handler);
         recordSettingItem.addActionListener(handler);
-
+        databaseSettingItem.addActionListener(handler);
         btnAdd.addActionListener(handler);
         btnRemove.addActionListener(handler);
         btnGenerate.addActionListener(handler);
@@ -1131,6 +1134,8 @@ public class MainWindowPanel extends BasePanel {
 
             } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
+            } else if (e.getSource() == databaseSettingItem) {
+
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {

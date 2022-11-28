@@ -58,4 +58,6 @@ public class FileNames {
 
     public static final String recordSettingIcon = targetPath + "recordSettingIcon.png";
 
+    public static final String databaseSettingIcon = targetPath + "databaseSettingIcon.png";
+
 }
