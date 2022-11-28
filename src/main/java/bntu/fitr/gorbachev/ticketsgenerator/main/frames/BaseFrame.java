@@ -31,4 +31,7 @@ public abstract class BaseFrame extends JFrame implements DialogFunc {
     public void setPanelType(PanelType panelType) {
         this.panelType = panelType;
     }
+
+    @Override
+    public abstract void initDialog();
 }

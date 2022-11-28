@@ -836,6 +836,7 @@ public class MainWindowPanel extends BasePanel {
                     true,
                     generateWay,
                     isRandomRead, isRandomWrite);
+            property.setWriterTicketProperty(recordSettingDialog.getWriterTicketProperty());
 
             boolean repeat = false;
             do {
@@ -1127,7 +1128,7 @@ public class MainWindowPanel extends BasePanel {
             } else if (e.getSource() == aboutProgramItem) {
                 aboutProgramDialog.setVisible(true);
 
-            } else if(e.getSource() == recordSettingItem){
+            } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);

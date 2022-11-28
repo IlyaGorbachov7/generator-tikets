@@ -13,6 +13,7 @@ public abstract class BaseDialog extends JDialog implements DialogFunc {
 
     public BaseDialog(Window owner) {
         super(owner);
+        initDialog();
     }
 
     public BaseDialog(Window owner, String title) {
