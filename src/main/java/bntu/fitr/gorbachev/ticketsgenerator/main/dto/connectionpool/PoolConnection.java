@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
 
 public class PoolConnection {
     private static final PoolConnection instance = new PoolConnection();
-    private static final Logger logger = LogManager.getLogger(PoolConnection.class);
+    private  final Logger logger = LogManager.getLogger(PoolConnection.class);
 
     private BlockingQueue<Connection> freeConnectionQueue;
     private BlockingQueue<Connection> givenConnectionQueue;
@@ -45,7 +45,6 @@ public class PoolConnection {
 
     public void initPool() throws ConnectionPoolException {
         Locale.setDefault(Locale.ENGLISH);
-
         try {
             Class.forName(driver);
             freeConnectionQueue = new ArrayBlockingQueue<>(poolsize);
@@ -61,6 +60,19 @@ public class PoolConnection {
             logger.error("Can't find database driver class", e);
             throw new ConnectionPoolException("Can't find database driver class", e);
         }
+        logger.info("Connection pool is success");
+        System.out.println("Connection pool is success");
+    }
+
+    public void destroyConnectionPool() {
+        try {
+            closeConnections(freeConnectionQueue);
+            closeConnections(givenConnectionQueue);
+            logger.info("Connection pool successful closed");
+            System.out.println("Connection pool successful closed");
+        } catch (SQLException throwables) {
+            logger.error("Error closing the connection.", throwables);
+        }
     }
 
     public Connection takeConnection() throws ConnectionPoolException {
@@ -73,15 +85,6 @@ public class PoolConnection {
             throw new ConnectionPoolException("Error connecting to the data source.", e);
         }
         return conn;
-    }
-
-    public void destroyConnectionPool() {
-        try {
-            closeConnections(freeConnectionQueue);
-            closeConnections(givenConnectionQueue);
-        } catch (SQLException throwables) {
-            logger.error("Error closing the connection.", throwables);
-        }
     }
 
     private void closeConnections(BlockingQueue<Connection> blockingQueue) throws SQLException {
