@@ -1,6 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory;
-
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.RegistrarSenderMessage;
+package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender;
 
 public class RegistrarSenderMsgFactory {
     private final static RegistrarSenderMsgFactory instance = new RegistrarSenderMsgFactory();

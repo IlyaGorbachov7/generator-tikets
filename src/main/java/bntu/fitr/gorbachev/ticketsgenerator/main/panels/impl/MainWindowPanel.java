@@ -2,9 +2,10 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMessageImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.MessageSender;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMessage;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.*;

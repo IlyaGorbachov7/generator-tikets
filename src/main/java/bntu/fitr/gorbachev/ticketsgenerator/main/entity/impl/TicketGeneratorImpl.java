@@ -1,7 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMessage;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;

@@ -1,7 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory;
-
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.MessageSender;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.RegistrarSenderMessage;
+package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender;
 
 import java.util.ArrayList;
 import java.util.List;
