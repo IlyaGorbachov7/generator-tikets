@@ -888,9 +888,17 @@ public class MainWindowPanel extends BasePanel {
                         repeat = false; // necessary, because need set value false, if earlier repeat = true
                     }
 
-                } catch (InterruptedException e) {
+                }  catch (InterruptedException e) {
                     System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
                                        "close program during ticket generation");
+                }catch (Exception allExceptions){
+                    // general condition exception and execution exception
+                    JOptionPane.showMessageDialog(null,
+                            (allExceptions.getCause() != null) ? allExceptions.getCause().getMessage() // handle InterruptedException
+                                    : allExceptions.getMessage(),// handle ConditionGenerationException
+                            "Warning !", JOptionPane.ERROR_MESSAGE);
+                    this.setEnabledComponents(true, false);
+                    repeat = false; // necessary, because need set value false, if earlier repeat = true
                 }
             } while (repeat);
 
