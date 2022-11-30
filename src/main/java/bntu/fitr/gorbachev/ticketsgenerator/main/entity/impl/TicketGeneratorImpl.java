@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
@@ -17,6 +18,9 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
      * This pointer will be initialized only on the time {@link #conditionsStartGeneration(List, GenerationProperty)}
      */
     protected GenerationPropertyImpl property;
+
+    private final static RegistrarSenderMessage registrarSenderMsg = RegistrarSenderMsgFactory.getInstance()
+            .getRegistrarSenderMsg();
 
     public TicketGeneratorImpl() {
     }
@@ -38,18 +42,20 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
 
     @Override
     protected Supplier<AbstractContentExtractThread<Question2>> factoryExtractor(XWPFDocument p, String url) {
+        registrarSenderMsg.sendMsg("extract data:" + url);
         return () -> new ContentExtractor(p, url);
     }
 
     @Override
     protected Supplier<AbstractOutputContentThread<Ticket<Question2>>> factoryOutputContent(List<Ticket<Question2>> listTickets) {
-
+        registrarSenderMsg.sendMsg("creating tickets using the docx template");
         return () -> new OutputContentWriter(listTickets, property.getWriterTicketProperty());
     }
 
     @Override
     protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty property)
             throws GenerationConditionException {
+        registrarSenderMsg.sendMsg("checking the conditions for starting generation");
         GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
         this.property = prop;
         TicketGeneratorManager.getGenerator(prop.getGenerationWay()).conditionGeneration(questions, property);
@@ -59,6 +65,7 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
     protected List<Ticket<Question2>> createListTickets(Ticket<Question2> templateTicket, List<Question2> questions,
                                                         GenerationProperty property) {
         GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
+        registrarSenderMsg.sendMsg("creation list tickets");
         return TicketGeneratorManager.getGenerator(prop.getGenerationWay()).generate(templateTicket, questions, property);
     }
 }

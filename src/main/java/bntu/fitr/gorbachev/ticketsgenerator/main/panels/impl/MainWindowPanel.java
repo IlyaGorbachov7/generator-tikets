@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMessageImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.*;
@@ -157,7 +158,8 @@ public class MainWindowPanel extends BasePanel {
         spinnerQuantityQuestionTickets = new JSpinner();
 
         loadingDialog = new LoadingDialog();
-//        registerSenderMsg = new
+
+        registerSenderMsg = RegistrarSenderMsgFactory.getInstance().getRegistrarSenderMsg();
     }
 
 
@@ -324,7 +326,7 @@ public class MainWindowPanel extends BasePanel {
         });
 
         // spinner number quantity tickets
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 0, 1000, 1);
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 1, 1000, 1);
         spinnerQuantityTickets.setModel(spinnerNumberModel);
         JSpinner.NumberEditor numberEditor = (JSpinner.NumberEditor) spinnerQuantityTickets.getEditor();
         JFormattedTextField textField = numberEditor.getTextField();
@@ -334,7 +336,7 @@ public class MainWindowPanel extends BasePanel {
 
 
         // spinner number quantity question in ticket
-        spinnerNumberModel = new SpinnerNumberModel(3, 0, 50, 1);
+        spinnerNumberModel = new SpinnerNumberModel(3, 1, 50, 1);
         spinnerQuantityQuestionTickets.setModel(spinnerNumberModel);
         numberEditor = (JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor();
         textField = numberEditor.getTextField();
@@ -442,6 +444,9 @@ public class MainWindowPanel extends BasePanel {
         form.setCommitsOnValidEdit(true);
         spinnerQuantityQuestionTickets.addChangeListener(e -> {
         });
+
+        // registrations sender msg
+        registerSenderMsg.add(loadingDialog);
     }
 
     /**
@@ -813,7 +818,7 @@ public class MainWindowPanel extends BasePanel {
     private File tmpFileDocx;
     private boolean isRandomRead;
     private boolean isRandomWrite;
-//    private final RegistrarSenderMessage registerSenderMsg;
+    private final RegistrarSenderMessage registerSenderMsg;
 
 
     /**
@@ -856,6 +861,7 @@ public class MainWindowPanel extends BasePanel {
             boolean repeat;
             do {
                 try {
+                    registerSenderMsg.sendMsg("start...");
                     loadingDialog.showDialog();
                     ticketGenerator.startGenerate(property);
                     repeat = false;
@@ -929,11 +935,13 @@ public class MainWindowPanel extends BasePanel {
                 IConverter converter;
                 try {
                     try {
+                        registerSenderMsg.sendMsg("create temp file .docx .pdf");
                         tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
                         tmpFileDocx.deleteOnExit();
                         File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
                         tmpFilePdf.deleteOnExit();
 
+                        registerSenderMsg.sendMsg("write output data to tmp .docx file ");
                         ticketGenerator.writeOutputFile(tmpFileDocx);
 
                         /*Since if the user wants 100,000 tickets,the memory will fill up by 3GB.
@@ -945,9 +953,11 @@ public class MainWindowPanel extends BasePanel {
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
-                        System.out.println("start convert docx => pdf");
+                        registerSenderMsg.sendMsg("start convert docx => pdf");
+                        System.out.println("convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
                                 .as(DocumentType.PDF).execute();
+                        registerSenderMsg.sendMsg("convert docx => pdf is : success");
                         System.out.println("convert docx => pdf is : success");
                         // if convert docx is success, then load file for open viewFilePanel
                         viewFileDialog.setFile(tmpFilePdf);
@@ -1038,7 +1048,12 @@ public class MainWindowPanel extends BasePanel {
 
     }
 
-    private final class LoadingDialog extends BaseDialog implements PanelFunc {
+    /**
+     * This class is JDialog object/
+     *
+     * @see BaseDialog
+     */
+    private final class LoadingDialog extends BaseDialog implements PanelFunc, MessageSender {
 
         public LoadingDialog() {
             super(MainWindowPanel.this.getRootFrame());
@@ -1047,11 +1062,13 @@ public class MainWindowPanel extends BasePanel {
         @Override
         public void initDialog() {
             Dimension sizeScreen = toolkit.getScreenSize();
-            Dimension sizeFrame = new Dimension(250, 150);
+            Dimension sizeFrame = new Dimension(250, 100);
             this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                     (sizeScreen.height - sizeFrame.height) / 2,
                     sizeFrame.width, sizeFrame.height);
             this.setMinimumSize(sizeFrame);
+            // remove close option
+            this.setUndecorated(true);
             this.pack();
             this.validate();
             initPanel();
@@ -1087,7 +1104,7 @@ public class MainWindowPanel extends BasePanel {
 
         private ImageIcon initImageIcon() {
             ImageIcon icon = new ImageIcon(FileNames.getResource(FileNames.spinnerLoaderIcon));
-            return new ImageIcon(icon.getImage().getScaledInstance(64, 64, Image.SCALE_DEFAULT));
+            return new ImageIcon(icon.getImage().getScaledInstance(40, 40, Image.SCALE_DEFAULT));
         }
 
         @Override
@@ -1103,6 +1120,9 @@ public class MainWindowPanel extends BasePanel {
         public void setConfigComponents() {
             this.setModal(true);
             this.setResizable(false);
+            lblMsg.setFont(new Font("Serif", Font.PLAIN, 13));
+            lblMsg.setMinimumSize(new Dimension(lblMsg.getWidth(),
+                    12));
         }
 
         @Override
@@ -1122,7 +1142,8 @@ public class MainWindowPanel extends BasePanel {
             }).start();
         }
 
-        public void updateViewProgressMSF(String msg) {
+        @Override
+        public void send(String msg) {
             lblMsg.setText(msg);
         }
     }
