@@ -34,7 +34,9 @@ public class SplashScreenPanel extends BasePanel {
     private final JButton btnExit;
     private final Window frame;
     private final Thread thread;
-
+    private JPanel miniPanels1;
+    JPanel panelBtn = new JPanel(new GridLayout(1, 2, 5, 5));
+    private final JProgressBar progressBar;
     private JFrame mainWindow;
 
     {
@@ -61,8 +63,12 @@ public class SplashScreenPanel extends BasePanel {
         lbInfoTeacher = new JLabel(infoTeacher);
         lbNameTeacher = new JLabel(nameTeacher);
         lbYear = new JLabel("Минск, 2022");
+
+        miniPanels1 = new JPanel();
         btnNext = new JButton("Далее");
         btnExit = new JButton("Выход");
+
+        progressBar = new JProgressBar();
 
         thread = new Thread(() -> {
             try {
@@ -81,7 +87,6 @@ public class SplashScreenPanel extends BasePanel {
     public SplashScreenPanel(Window frame) {
         super(frame);
         this.frame = frame;
-        mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
         this.initPanel();
         this.setComponentsListeners();
         thread.start();
@@ -112,16 +117,20 @@ public class SplashScreenPanel extends BasePanel {
         panelInfo.add(pInfoDevs);
         miniPanels.add(panelInfo);
         // В неё год, и кнопки
-        JPanel miniPanels1 = new JPanel(new GridLayout(2, 1));
+        miniPanels1.setLayout(new GridLayout(2, 1));
         miniPanels1.add(lbYear);
-        JPanel panelBtn = new JPanel(new GridLayout(1, 2, 5, 5));
+
+        panelBtn.setLayout(new GridLayout(1, 2, 5, 5));
         panelBtn.add(btnNext);
         btnNext.setBorder(BorderFactory.createRaisedBevelBorder());
         panelBtn.add(btnExit);
+
         miniPanels1.add(panelBtn);
+
         setConfigComponents();
-        this.add(miniPanels, BorderLayout.NORTH);
+        this.add(miniPanels, BorderLayout.CENTER);
         this.add(miniPanels1, BorderLayout.SOUTH);
+        this.add(progressBar,BorderLayout.NORTH);
     }
 
     /**
@@ -154,6 +163,15 @@ public class SplashScreenPanel extends BasePanel {
         lbNameTeacher.setVerticalAlignment(SwingConstants.TOP);
         lbYear.setHorizontalAlignment(SwingConstants.CENTER);
         lbYear.setFont(new Font("Dialog", Font.BOLD, 15));
+
+        progressBar.setVisible(false);
+//        progressBar.setMinimum(0);
+//        progressBar.setMinimum(100);
+//        progressBar.setStringPainted(true);
+//        progressBar.setBorderPainted(true);
+//        progressBar.setMinimumSize(new Dimension(
+//                progressBar.getWidth(), 40
+//        ));
     }
 
     /**
@@ -165,9 +183,40 @@ public class SplashScreenPanel extends BasePanel {
 
         btnNext.addActionListener(e -> {
             thread.interrupt();
-            frame.setVisible(false);
-            mainWindow.setVisible(true);
+            var threadProcess = SplashScreenPanel.this.new ThreadProcessBar();
+            threadProcess.start();
+//            frame.setVisible(false);
+//            mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
+//            mainWindow.setVisible(true);
         });
     }
 
+    private class ThreadProcessBar extends Thread {
+//https://coderanch.com/t/501538/java/repainting-JFrame
+        @Override
+        public void run() {
+            progressBar.setVisible(true);
+            miniPanels1.remove(panelBtn);
+//            miniPanels1.add(new JButton("fdfdfdffkdsjlsdjf"));
+            var g = miniPanels1.getGraphics();
+            miniPanels1.print(g);
+            miniPanels1.revalidate();
+            miniPanels1.repaint();
+            miniPanels1.revalidate();
+            miniPanels1.repaint();
+            fill();
+        }
+    }
+    public void fill() {
+        int i = 0;
+        try {
+            while (i <= 100) {
+                progressBar.setValue(i + 10);
+                Thread.sleep(1000);
+                i += 20;
+            }
+        } catch (Exception e) {
+
+        }
+    }
 }
