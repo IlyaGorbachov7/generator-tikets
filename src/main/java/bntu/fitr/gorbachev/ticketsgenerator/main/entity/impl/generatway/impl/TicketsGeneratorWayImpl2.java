@@ -214,46 +214,37 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         for (int i = 0; i < questions.size(); i++) {
             int level = rangeQuest.get(i);
             WrapperList<Question2> wrapListQ = mapWrapListQuestGroupByLevel.get(level);
-
+            // I must search question from child ticket, who level equals with question from list questions by level
+            int findIndex = (Methods.findQuestByLevel(questions, level));
+            if (findIndex < 0) {
+                throw new RuntimeException("find index  < 0 probably into list child questions was reset level: " + level
+                                           + ".\n No found level: " + level);
+            }
+            Question2 questFromChildTick = questions.get(findIndex);
+            Question2 questFromList;
             if (wrapListQ.hasNext()) { // THis block code, designed in case free questions
-                var q = wrapListQ.current();
-                if (q.getId().equals(questions.get(i).getId())) { // this related with the advent of logic tryReplaceQuest
-                    q = tryReplaceThisQuest(q, wrapListQ); // in case id-question from list == id question-replace
+                questFromList = wrapListQ.current();
+                if (questFromList.getId().equals(questFromChildTick.getId())) { // this related with the advent of logic tryReplaceQuest
+                    questFromList = tryReplaceThisQuest(questFromList, wrapListQ); // in case id-question from list == id question-replace
                 } else {
-                    q = wrapListQ.next();
+                    questFromList = wrapListQ.next();
                 }
-                questions.set(i, q);
             } else {
-                // I take only those questions that con be repeated
-                Question2 q = giveRepeatedQuest(level);
-                if (!Objects.isNull(q)) { // in ase if questions with repeated is present
-                    questions.set(i, q);
-                } else if (!prop.isUnique()) { // in case if questions with repeated is absent, then random index
-                    System.out.println(wrapListQ);
-                    q = tryReplaceThisQuest(questions.get(i), wrapListQ);
-                    System.out.println(wrapListQ);
-                    questions.set(i, q);
-                } else {
-                    throw new RuntimeException("Compose unique questions not possible");
+                questFromList = giveRepeatedQuest(level); // I take only those questions that con be repeated
+                if (Objects.isNull(questFromList)) { // in ase if questions with repeated is present
+                    if (!prop.isUnique()) {
+                        questFromList = tryReplaceThisQuest(questFromChildTick, wrapListQ);
+                    } else {
+                        throw new RuntimeException("Compose unique questions not possible");
+                    }
                 }
             }
-
+            Collections.swap(questions, findIndex, i); // this invoked very very very IMPORTANT!
+            questions.set(i, questFromList);
         }
     }
 
     protected Question2 tryReplaceThisQuest(Question2 rscReplQuest, WrapperList<Question2> wrapperList) {
-        class Methods {
-            static <L, T> int findQuest(List<T> list, T elem, Comparator<T> comparator) {
-                int findIndex = -1;
-                for (int j = 0; j < list.size(); j++) {
-                    if (comparator.compare(list.get(j), elem) == 0) {
-                        findIndex = j;
-                        break;
-                    }
-                }
-                return findIndex;
-            }
-        }
         if (wrapperList.isEmpty()) throw new RuntimeException("list is empty, by try replace question ");
 
         if (wrapperList.size() == 1) {
@@ -265,7 +256,9 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         }
 
         int findIndex = Methods.findQuest(wrapperList, rscReplQuest, Comparator.comparing(Question2::getId));
-        if (findIndex < 0) throw new NoSuchElementException("no find element by id: " + rscReplQuest);
+        if (findIndex < 0) {
+            throw new NoSuchElementException(TicketsGeneratorWayImpl2.class + " no find element by id: " + rscReplQuest);
+        }
 
         Collections.swap(wrapperList.getList(), 0, findIndex);
 
@@ -311,6 +304,27 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             listTicketNode.add(TicketNode.of(listTicketsParent.get(i), nNodes));
         }
         return listTicketNode;
+    }
+
+    private static class Methods {
+        static <T> int findQuest(List<T> list, T elem, Comparator<T> comparator) {
+            for (int j = 0; j < list.size(); j++) {
+                if (comparator.compare(list.get(j), elem) == 0) {
+                    return j;
+                }
+            }
+            return -1;
+        }
+
+        static <T extends Question2> int findQuestByLevel(List<T> list, int level) {
+            for (int j = 0; j < list.size(); j++) {
+                if (list.get(j).getLevel() == level) {
+                    return j;
+                }
+            }
+            return -1;
+        }
+
     }
 
     protected static class TicketNode {
