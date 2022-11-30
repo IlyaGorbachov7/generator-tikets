@@ -54,6 +54,11 @@ public class MainWindowFrame extends BaseFrame {
 
     private void initPanelErrorConnectionPool(ConnectionPoolException ex) {
         // general condition exception and execution exception
+        this.add(new JLabel("Произошла ошибка подключения к базе данных"));
+        JButton btnOk = new JButton("Ok");
+        btnOk.addActionListener(e -> MainWindowFrame.this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
+        this.add(btnOk, BorderLayout.SOUTH);
+
         Dimension sizeScreen = toolkit.getScreenSize();
         Dimension sizeFrame = new Dimension(200, 100);
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
@@ -62,10 +67,5 @@ public class MainWindowFrame extends BaseFrame {
         this.setMinimumSize(sizeFrame);
         this.pack();
         this.validate();
-
-        this.add(new JLabel("Произошла ошибка подключения к базе данных"));
-        JButton btnOk = new JButton("Ok");
-        btnOk.addActionListener(e -> MainWindowFrame.this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
-        this.add(btnOk, BorderLayout.SOUTH);
     }
 }

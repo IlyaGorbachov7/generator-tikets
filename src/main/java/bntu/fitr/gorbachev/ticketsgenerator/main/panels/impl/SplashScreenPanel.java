@@ -253,7 +253,6 @@ public class SplashScreenPanel extends BasePanel {
                 while (mainWindow == null) {
                     Thread.sleep(200);
                     progressBar.setValue(i);
-                    System.out.println("--- process bar statement: " + progressBar.getValue());
                     i += generator.nextInt(10);
                 }
             } catch (InterruptedException ignored) {
