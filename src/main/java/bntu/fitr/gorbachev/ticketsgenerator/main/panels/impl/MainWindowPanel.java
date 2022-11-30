@@ -2,9 +2,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.factory.RegistrarSenderMessageImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.RecordSetting;
+import bntu.fitr.gorbachev.ticketsgenerator.main.frames.BaseDialog;
+import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.TextPatterns;
@@ -14,11 +17,10 @@ import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutAuthor;
-import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.AboutProgram;
-import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.FileViewer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -33,6 +35,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.LaunchFrame.toolkit;
+
 /**
  * The class represent main window panel
  *
@@ -40,6 +44,7 @@ import java.util.concurrent.ExecutionException;
  * @version 18.04.2022
  */
 public class MainWindowPanel extends BasePanel {
+    private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
     private final JMenuItem saveItem;
@@ -150,6 +155,9 @@ public class MainWindowPanel extends BasePanel {
 
         spinnerQuantityTickets = new JSpinner();
         spinnerQuantityQuestionTickets = new JSpinner();
+
+        loadingDialog = new LoadingDialog();
+//        registerSenderMsg = new
     }
 
 
@@ -426,13 +434,14 @@ public class MainWindowPanel extends BasePanel {
                 .getTextField();
         DefaultFormatter form = (DefaultFormatter) formTextField.getFormatter();
         form.setCommitsOnValidEdit(true);
-        spinnerQuantityTickets.addChangeListener(e -> System.out.println(spinnerQuantityTickets.getValue()));
+        spinnerQuantityTickets.addChangeListener(e -> {
+        });
 
         formTextField = ((JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor()).getTextField();
         form = (DefaultFormatter) formTextField.getFormatter();
         form.setCommitsOnValidEdit(true);
-        spinnerQuantityQuestionTickets.addChangeListener(e -> System.out.println(spinnerQuantityQuestionTickets.getValue()));
-
+        spinnerQuantityQuestionTickets.addChangeListener(e -> {
+        });
     }
 
     /**
@@ -799,10 +808,12 @@ public class MainWindowPanel extends BasePanel {
     }
 
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
+    private final LoadingDialog loadingDialog;
     private TicketsGenerationExecutionThread executionThread;
     private File tmpFileDocx;
     private boolean isRandomRead;
     private boolean isRandomWrite;
+//    private final RegistrarSenderMessage registerSenderMsg;
 
 
     /**
@@ -842,12 +853,14 @@ public class MainWindowPanel extends BasePanel {
                     isRandomRead, isRandomWrite);
             property.setWriterTicketProperty(recordSettingDialog.getWriterTicketProperty());
 
-            boolean repeat = false;
+            boolean repeat;
             do {
                 try {
+                    loadingDialog.showDialog();
                     ticketGenerator.startGenerate(property);
                     repeat = false;
                 } catch (ExecutionException | GenerationConditionException ex) {
+                    loadingDialog.closeDialog();
                     if (ex.getClass() == FindsNonMatchingLevel.class || ex.getClass() == NumberQuestionsRequireException.class) {
 
                         int selected = JOptionPane.showInternalConfirmDialog(null,
@@ -856,6 +869,7 @@ public class MainWindowPanel extends BasePanel {
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
+                            loadingDialog.showDialog();
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
                                 property.setFlagContinGenWithDepriveLev(true);
                             } else {
@@ -873,6 +887,7 @@ public class MainWindowPanel extends BasePanel {
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
+                            loadingDialog.showDialog();
                             property.setFlagContinGenWithChapterWithoutSection(true);
                         } else {
                             repeat = false;
@@ -888,10 +903,14 @@ public class MainWindowPanel extends BasePanel {
                         repeat = false; // necessary, because need set value false, if earlier repeat = true
                     }
 
-                }  catch (InterruptedException e) {
-                    System.out.println(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
-                                       "close program during ticket generation");
-                }catch (Exception allExceptions){
+                } catch (InterruptedException e) {
+                    loadingDialog.closeDialog();
+                    logger.error(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
+                                 "close program during ticket generation: interrupted is successful");
+                    this.setEnabledComponents(true, false);
+                    repeat = false; // necessary, because need set value false, if earlier repeat = true
+                } catch (Exception allExceptions) {
+                    loadingDialog.closeDialog();
                     // general condition exception and execution exception
                     JOptionPane.showMessageDialog(null,
                             (allExceptions.getCause() != null) ? allExceptions.getCause().getMessage() // handle InterruptedException
@@ -907,7 +926,7 @@ public class MainWindowPanel extends BasePanel {
             if (ticketGenerator.getDocxDec() != null) {
                 InputStream inputStream = null;
                 OutputStream outputStream = null;
-                IConverter converter = null;
+                IConverter converter;
                 try {
                     try {
                         tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
@@ -926,7 +945,7 @@ public class MainWindowPanel extends BasePanel {
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
-                        System.out.println("start convret => pdf");
+                        System.out.println("start convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
                                 .as(DocumentType.PDF).execute();
                         System.out.println("convert docx => pdf is : success");
@@ -937,6 +956,7 @@ public class MainWindowPanel extends BasePanel {
                         } catch (Exception ex) {
                             JOptionPane.showConfirmDialog(frameRoot,
                                     "No such file");
+                            this.setEnabledComponents(true, false);
                         }
                     } finally {
                         if (inputStream != null) {
@@ -947,25 +967,26 @@ public class MainWindowPanel extends BasePanel {
                         }
                     }
                 } catch (Exception e) {
-                    System.out.println("CONVERTOR Xyeta 5min wait that close program");
+                    loadingDialog.closeDialog();
+                    this.setEnabledComponents(true, false);
+                    logger.error("CONVERTOR Xyeta 5min wait that close program");
+                    logger.error(e);
 
                     if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
-                        e.printStackTrace();
                         return;
                     }
-                    this.setEnabledComponents(true, false);
                     JOptionPane.showMessageDialog(null,
                             """
                                     Произошла ошибка ожидания .
                                     Прошу повторите попытку снова
-                                    Одной из причин является: Microsoft Office:
+                                    Причин является: Microsoft Office:
                                     => Microsoft Office у Вас отсутствует на компьютере.
                                     => Просто закройте окно Мастер активации Microsoft Office""",
                             "ERROR !", JOptionPane.ERROR_MESSAGE);
-                    e.printStackTrace();
                     return;
                 }
                 // after generating and conversion enable all components
+                loadingDialog.closeDialog();
                 this.setEnabledComponents(true, true);
                 JOptionPane.showInternalMessageDialog(
                         null, "Генерация прошла успешно !", "",
@@ -1010,10 +1031,99 @@ public class MainWindowPanel extends BasePanel {
             jList.clearSelection();
             jList.setEnabled(b);
 
-
             btnSave.setEnabled(b1);
             btnViewFile.setEnabled(b1);
             saveItem.setEnabled(b1);
+        }
+
+    }
+
+    private final class LoadingDialog extends BaseDialog implements PanelFunc {
+
+        public LoadingDialog() {
+            super(MainWindowPanel.this.getRootFrame());
+        }
+
+        @Override
+        public void initDialog() {
+            Dimension sizeScreen = toolkit.getScreenSize();
+            Dimension sizeFrame = new Dimension(250, 150);
+            this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
+                    (sizeScreen.height - sizeFrame.height) / 2,
+                    sizeFrame.width, sizeFrame.height);
+            this.setMinimumSize(sizeFrame);
+            this.pack();
+            this.validate();
+            initPanel();
+        }
+
+        private JButton btnCancel;
+        private JLabel lblMsg;
+
+        @Override
+        public void initPanel() {
+            // init fields
+            this.setLayout(new BorderLayout());
+            btnCancel = new JButton("Отмена");
+            lblMsg = new JLabel("Processing message");
+            JScrollPane scrollPane = new JScrollPane(lblMsg);
+
+
+            JPanel pnlMain = new JPanel();
+            pnlMain.setLayout(new BoxLayout(pnlMain, BoxLayout.Y_AXIS));
+
+            JPanel pnlRow = new JPanel();
+            pnlRow.setLayout(new BoxLayout(pnlRow, BoxLayout.X_AXIS));
+            pnlRow.add(new JLabel(initImageIcon()));
+            pnlRow.add(new JLabel("Генерируется."));
+            pnlMain.add(pnlRow);
+            pnlMain.add(scrollPane);
+
+            this.add(pnlMain, BorderLayout.CENTER);
+            this.add(btnCancel, BorderLayout.SOUTH);
+            setConfigComponents();
+            setComponentsListeners();
+        }
+
+        private ImageIcon initImageIcon() {
+            ImageIcon icon = new ImageIcon(FileNames.getResource(FileNames.spinnerLoaderIcon));
+            return new ImageIcon(icon.getImage().getScaledInstance(64, 64, Image.SCALE_DEFAULT));
+        }
+
+        @Override
+        public void setComponentsListeners() {
+            btnCancel.addActionListener(e -> {
+                executionThread.interrupt();
+                closeDialog();
+            });
+
+        }
+
+        @Override
+        public void setConfigComponents() {
+            this.setModal(true);
+            this.setResizable(false);
+        }
+
+        @Override
+        public Window getRootFrame() {
+            return MainWindowPanel.this.getRootFrame();
+        }
+
+        public void closeDialog() {
+            this.setModal(false);
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        }
+
+        public void showDialog() {
+            new Thread(() -> {
+                this.setModal(true);
+                this.setVisible(true);
+            }).start();
+        }
+
+        public void updateViewProgressMSF(String msg) {
+            lblMsg.setText(msg);
         }
     }
 
@@ -1114,7 +1224,8 @@ public class MainWindowPanel extends BasePanel {
                                         JOptionPane.QUESTION_MESSAGE);
 
                                 if (selected == JOptionPane.OK_OPTION) {
-                                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler " + saveFile.getPath());
+                                    Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler "
+                                                              + saveFile.getPath());
                                 }
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(null,
@@ -1143,7 +1254,7 @@ public class MainWindowPanel extends BasePanel {
             } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
-
+                //TODO:
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {
