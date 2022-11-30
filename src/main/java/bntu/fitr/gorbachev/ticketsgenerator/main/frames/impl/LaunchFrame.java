@@ -20,12 +20,6 @@ public class LaunchFrame extends BaseFrame {
      */
     public LaunchFrame(PanelType type) {
         setPanelType(type);
-
-        UIDefaults uiDefaults = UIManager.getDefaults();
-        uiDefaults.put("activeCaption", new javax.swing.plaf.ColorUIResource(Color.white));
-        uiDefaults.put("activeCaptionText", new javax.swing.plaf.ColorUIResource(Color.white));
-        JFrame.setDefaultLookAndFeelDecorated(true);
-
         Dimension sizeScreen = toolkit.getScreenSize();
         Dimension sizeFrame = new Dimension(sizeScreen.width / 2 - 100,
                 sizeScreen.height / 2);

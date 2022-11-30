@@ -1,14 +1,20 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.dto.connectionpool.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.tools.FileNames;
+import lombok.SneakyThrows;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.Objects;
+import java.util.random.RandomGenerator;
+import java.util.random.RandomGeneratorFactory;
 
 /**
  * The class represent splash screen panel
@@ -32,10 +38,7 @@ public class SplashScreenPanel extends BasePanel {
     private final JLabel lbYear;
     private final JButton btnNext;
     private final JButton btnExit;
-    private final Window frame;
     private final Thread thread;
-    private JPanel miniPanels1;
-    JPanel panelBtn = new JPanel(new GridLayout(1, 2, 5, 5));
     private final JProgressBar progressBar;
     private JFrame mainWindow;
 
@@ -64,7 +67,6 @@ public class SplashScreenPanel extends BasePanel {
         lbNameTeacher = new JLabel(nameTeacher);
         lbYear = new JLabel("Минск, 2022");
 
-        miniPanels1 = new JPanel();
         btnNext = new JButton("Далее");
         btnExit = new JButton("Выход");
 
@@ -77,6 +79,8 @@ public class SplashScreenPanel extends BasePanel {
             } catch (InterruptedException ignored) {
             }
         });
+        threadProcess = this.new ThreadProcessBar();
+        threadInit = this.new ThreadInitMinWindow();
     }
 
     /**
@@ -86,7 +90,6 @@ public class SplashScreenPanel extends BasePanel {
      */
     public SplashScreenPanel(Window frame) {
         super(frame);
-        this.frame = frame;
         this.initPanel();
         this.setComponentsListeners();
         thread.start();
@@ -117,10 +120,11 @@ public class SplashScreenPanel extends BasePanel {
         panelInfo.add(pInfoDevs);
         miniPanels.add(panelInfo);
         // В неё год, и кнопки
-        miniPanels1.setLayout(new GridLayout(2, 1));
+
+        JPanel miniPanels1 = new JPanel(new GridLayout(2, 1));
         miniPanels1.add(lbYear);
 
-        panelBtn.setLayout(new GridLayout(1, 2, 5, 5));
+        JPanel panelBtn = new JPanel(new GridLayout(1, 2, 5, 5));
         panelBtn.add(btnNext);
         btnNext.setBorder(BorderFactory.createRaisedBevelBorder());
         panelBtn.add(btnExit);
@@ -130,7 +134,7 @@ public class SplashScreenPanel extends BasePanel {
         setConfigComponents();
         this.add(miniPanels, BorderLayout.CENTER);
         this.add(miniPanels1, BorderLayout.SOUTH);
-        this.add(progressBar,BorderLayout.NORTH);
+        this.add(progressBar, BorderLayout.NORTH);
     }
 
     /**
@@ -165,58 +169,98 @@ public class SplashScreenPanel extends BasePanel {
         lbYear.setFont(new Font("Dialog", Font.BOLD, 15));
 
         progressBar.setVisible(false);
-//        progressBar.setMinimum(0);
-//        progressBar.setMinimum(100);
-//        progressBar.setStringPainted(true);
-//        progressBar.setBorderPainted(true);
-//        progressBar.setMinimumSize(new Dimension(
-//                progressBar.getWidth(), 40
-//        ));
+        progressBar.setPreferredSize(new Dimension(progressBar.getWidth(), 7));
+        progressBar.setMinimum(0);
+        progressBar.setMaximum(200);
     }
+
+    private final Thread threadProcess;
+    private final Thread threadInit;
 
     /**
      * The method sets necessary all components listeners
      */
     @Override
     public void setComponentsListeners() {
-        btnExit.addActionListener(e -> System.exit(0));
+        btnExit.addActionListener(e -> this.dispatchEvent(new WindowEvent(getRootFrame(), WindowEvent.WINDOW_CLOSING)));
 
         btnNext.addActionListener(e -> {
             thread.interrupt();
-            var threadProcess = SplashScreenPanel.this.new ThreadProcessBar();
             threadProcess.start();
-//            frame.setVisible(false);
-//            mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
-//            mainWindow.setVisible(true);
+            threadInit.start();
+        });
+
+        getRootFrame().addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.out.println(SplashScreenPanel.class + " window Closing");
+                PoolConnection.getInstance().destroyConnectionPool();
+                threadProcess.interrupt();
+                /* There are cases when throw NullPointerException.
+                 * This event happening, if this thread trying
+                 * to destroy Connection Pool, that still doesn't initialize arrayQueue
+                 *
+                 * This event you can achieve way fasted closing SplashScreen frame
+                 * before initialization connection pool
+                 *
+                 * However, probability this case very, very small, since the thread, that
+                 * initialize connection pool will be
+                 * running first and method destroyConnectionPool and initPool is synchronized
+                 *
+                 * If this event still happened, then this thread-handler throw don't handled exception
+                 * Then Swing-Framework don't complete success this process.
+                 * In the finally, frame Window don't closed*/
+            }
         });
     }
 
-    private class ThreadProcessBar extends Thread {
-//https://coderanch.com/t/501538/java/repainting-JFrame
+    private class ThreadInitMinWindow extends Thread {
+        @SneakyThrows
         @Override
         public void run() {
-            progressBar.setVisible(true);
-            miniPanels1.remove(panelBtn);
-//            miniPanels1.add(new JButton("fdfdfdffkdsjlsdjf"));
-            var g = miniPanels1.getGraphics();
-            miniPanels1.print(g);
-            miniPanels1.revalidate();
-            miniPanels1.repaint();
-            miniPanels1.revalidate();
-            miniPanels1.repaint();
-            fill();
+            System.out.println("Start init Main Window...<");
+            mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
+            threadProcess.interrupt();
+            System.out.println("mainWindow created is success");
         }
     }
-    public void fill() {
-        int i = 0;
-        try {
-            while (i <= 100) {
-                progressBar.setValue(i + 10);
-                Thread.sleep(1000);
-                i += 20;
-            }
-        } catch (Exception e) {
 
+    private class ThreadProcessBar extends Thread {
+        private final RandomGenerator generator = RandomGeneratorFactory.getDefault().create();
+
+        //https://coderanch.com/t/501538/java/repainting-JFrame
+        @Override
+        public void run() {
+            System.out.println("Launch process bar loading");
+            progressBar.setVisible(true);
+            btnNext.setVisible(false);
+            btnExit.setVisible(false);
+//            miniPanels1.remove(panelBtn);
+//            var g = miniPanels1.getGraphics();
+//            miniPanels1.print(g);
+//            miniPanels1.revalidate();
+//            miniPanels1.repaint();
+            fill();
+            frame.setVisible(false);
+            mainWindow.setVisible(true);
+            System.out.println("process bar is filling");
+        }
+
+        @SneakyThrows
+        public void fill() {
+            int i = 0;
+            try {
+                while (mainWindow == null) {
+                    Thread.sleep(200);
+                    progressBar.setValue(i);
+                    System.out.println("--- process bar statement: " + progressBar.getValue());
+                    i += generator.nextInt(10);
+                }
+            } catch (InterruptedException ignored) {
+            }
+            progressBar.setValue(500);
+            Thread.sleep(500);
         }
     }
+
 }

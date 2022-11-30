@@ -14,7 +14,7 @@ import java.util.concurrent.Executor;
 
 public class PoolConnection {
     private static final PoolConnection instance = new PoolConnection();
-    private  final Logger logger = LogManager.getLogger(PoolConnection.class);
+    private final Logger logger = LogManager.getLogger(PoolConnection.class);
 
     private BlockingQueue<Connection> freeConnectionQueue;
     private BlockingQueue<Connection> givenConnectionQueue;
@@ -43,14 +43,16 @@ public class PoolConnection {
         }
     }
 
-    public void initPool() throws ConnectionPoolException {
+    public synchronized void initPool() throws ConnectionPoolException {
         Locale.setDefault(Locale.ENGLISH);
         try {
-            Class.forName(driver);
             freeConnectionQueue = new ArrayBlockingQueue<>(poolsize);
             givenConnectionQueue = new ArrayBlockingQueue<>(poolsize);
+            Class.forName(driver);
             for (int i = 0; i < poolsize; i++) {
+                System.out.println("________ Wait connection...>");
                 Connection connection = DriverManager.getConnection(url, user, password);
+                System.out.println("******** Received connection <");
                 freeConnectionQueue.add(this.new WrapperConnection(connection));
             }
         } catch (SQLException e) {
@@ -64,7 +66,7 @@ public class PoolConnection {
         System.out.println("Connection pool is success");
     }
 
-    public void destroyConnectionPool() {
+    public synchronized void destroyConnectionPool() {
         try {
             closeConnections(freeConnectionQueue);
             closeConnections(givenConnectionQueue);
@@ -89,9 +91,10 @@ public class PoolConnection {
 
     private void closeConnections(BlockingQueue<Connection> blockingQueue) throws SQLException {
         Connection connection;
-        while ((connection = blockingQueue.poll()) != null) {
-            ((WrapperConnection) connection).reallyClose();
-        }
+            while ((connection = blockingQueue.poll()) != null) {
+                ((WrapperConnection) connection).reallyClose();
+                System.out.println(" ************ CLOSE connection !");
+            }
     }
 
     private class WrapperConnection implements Connection {

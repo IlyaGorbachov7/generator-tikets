@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.dto.connectionpool.PoolConnecti
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.BaseFrame;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
+import org.icepdf.core.pobjects.OptionalContent;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,12 +41,14 @@ public class MainWindowFrame extends BaseFrame {
             this.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
+                    System.out.print(MainWindowFrame.class + " ");
                     PoolConnection.getInstance().destroyConnectionPool();
                 }
             });
         } catch (ConnectionPoolException e) {
-            initPanelErrorConnectionPool(e);
+            // close connections, which opened already
             PoolConnection.getInstance().destroyConnectionPool();
+            initPanelErrorConnectionPool(e);
         }
     }
 
@@ -60,11 +63,9 @@ public class MainWindowFrame extends BaseFrame {
         this.pack();
         this.validate();
 
-        this.add(new JLabel(ex.getMessage()));
+        this.add(new JLabel("Произошла ошибка подключения к базе данных"));
         JButton btnOk = new JButton("Ok");
-        btnOk.addActionListener(e -> {
-            MainWindowFrame.this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
-        });
+        btnOk.addActionListener(e -> MainWindowFrame.this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING)));
         this.add(btnOk, BorderLayout.SOUTH);
     }
 }
