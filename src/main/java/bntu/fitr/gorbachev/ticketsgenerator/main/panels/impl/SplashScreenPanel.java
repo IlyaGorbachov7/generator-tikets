@@ -182,7 +182,7 @@ public class SplashScreenPanel extends BasePanel {
      */
     @Override
     public void setComponentsListeners() {
-        btnExit.addActionListener(e -> this.dispatchEvent(new WindowEvent(getRootFrame(), WindowEvent.WINDOW_CLOSING)));
+        btnExit.addActionListener(e -> System.exit(0));
 
         btnNext.addActionListener(e -> {
             thread.interrupt();

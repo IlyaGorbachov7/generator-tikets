@@ -60,4 +60,6 @@ public class FileNames {
 
     public static final String databaseSettingIcon = targetPath + "databaseSettingIcon.png";
 
+    public static final String spinnerLoaderIcon = targetPath + "spinner-loader.gif";
+
 }
