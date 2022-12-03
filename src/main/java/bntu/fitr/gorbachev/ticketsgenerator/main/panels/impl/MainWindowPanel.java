@@ -3,9 +3,9 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.MessageSender;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMessage;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.MessageRetriever;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.SenderMessage;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.*;
@@ -160,7 +160,7 @@ public class MainWindowPanel extends BasePanel {
 
         loadingDialog = new LoadingDialog();
 
-        registerSenderMsg = RegistrarSenderMsgFactory.getInstance().getRegistrarSenderMsg();
+        registerSenderMsg = SenderMsgFactory.getInstance().getSenderMsg();
     }
 
 
@@ -819,7 +819,7 @@ public class MainWindowPanel extends BasePanel {
     private File tmpFileDocx;
     private boolean isRandomRead;
     private boolean isRandomWrite;
-    private final RegistrarSenderMessage registerSenderMsg;
+    private final SenderMessage registerSenderMsg;
 
 
     /**
@@ -1054,7 +1054,7 @@ public class MainWindowPanel extends BasePanel {
      *
      * @see BaseDialog
      */
-    private final class LoadingDialog extends BaseDialog implements PanelFunc, MessageSender {
+    private final class LoadingDialog extends BaseDialog implements PanelFunc, MessageRetriever {
 
         public LoadingDialog() {
             super(MainWindowPanel.this.getRootFrame());

@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMessage;
-import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.RegistrarSenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.SenderMessage;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.AbstractOutputContentThread;
@@ -20,8 +20,8 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
      */
     protected GenerationPropertyImpl property;
 
-    private final static RegistrarSenderMessage registrarSenderMsg = RegistrarSenderMsgFactory.getInstance()
-            .getRegistrarSenderMsg();
+    private final static SenderMessage registrarSenderMsg = SenderMsgFactory.getInstance()
+            .getSenderMsg();
 
     public TicketGeneratorImpl() {
     }

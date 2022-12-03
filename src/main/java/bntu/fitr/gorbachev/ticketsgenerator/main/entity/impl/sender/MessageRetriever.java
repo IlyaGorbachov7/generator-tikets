@@ -1,5 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.sender;
 
-public interface MessageSender {
+public interface MessageRetriever {
     void send(String msg);
 }
