@@ -908,6 +908,7 @@ public class MainWindowPanel extends BasePanel {
                                 "Warning !", JOptionPane.ERROR_MESSAGE);
                         this.setEnabledComponents(true, false);
                         repeat = false; // necessary, because need set value false, if earlier repeat = true
+                        loadingDialog.closeDialog();
                     }
 
                 } catch (InterruptedException e) {
@@ -1065,7 +1066,7 @@ public class MainWindowPanel extends BasePanel {
             Dimension sizeScreen = toolkit.getScreenSize();
             Dimension sizeFrame = new Dimension(250, 100);
             this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
-                    (sizeScreen.height - sizeFrame.height) / 2,
+                    (sizeScreen.height - sizeFrame.height) / 2 - 20,
                     sizeFrame.width, sizeFrame.height);
             this.setMinimumSize(sizeFrame);
             // remove close option

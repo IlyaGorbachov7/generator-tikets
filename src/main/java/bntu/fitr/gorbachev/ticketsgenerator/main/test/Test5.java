@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.Attrib
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.attributes.impl.ListTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.constants.LexicalPatterns;
 
+import javax.management.Attribute;
 import java.beans.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,16 +17,12 @@ import java.util.stream.Collectors;
 
 public class Test5 {
     public static void main(String[] args) throws InvalidLexicalException {
-        test2();
-//        test1();
+//        test2();
+        test1();
     }
 
     static void test1() throws InvalidLexicalException {
-        Object attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("k", "l", "n"), BeanObj.class);
-
-        System.out.println(attributTagObject);
-
-        attributTagObject = extractAndFullingDTO("k=23; r=11;n=Bkmz;", Arrays.asList("n", "r", "l"), ListTagAttributeService.class);
+        Object attributTagObject = extractAndFullingDTO("k=23; r=11;n;", Arrays.asList("n", "r", "l"), ListTagAttributeService.class);
 
         System.out.println(attributTagObject);
     }
