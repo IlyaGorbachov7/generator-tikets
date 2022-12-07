@@ -50,7 +50,7 @@ public class SplashScreenPanel extends BasePanel {
         String infoDeveloper = "Выполнил: Студент группы 10702419";
         String nameDeveloper = "Горбачёв Илья Дмитриевич";
         String infoTeacher = "Преподаватель: к.ф.-м.н.,доц.";
-        String nameTeacher = "Сидорик Валерий Владимирович";
+        String nameTeacher = "Ковалёва Ирина Львовна";
         lbUniversity = new JLabel(university);
         lbFaculty = new JLabel(faculty);
         lbDepartment = new JLabel(department);
