@@ -230,18 +230,6 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
-        generate(listQuestions);
-    }
-
-    public final void startGenerate(List<Q> listQuestions, GenerationProperty generationProperty)
-            throws GenerationConditionException, ExecutionException, InterruptedException {
-        this.generationProperty = generationProperty;
-        checkedNecessarilyConditions();
-        generate(listQuestions);
-    }
-
-    private void generate(List<Q> listQuestions)
-            throws GenerationConditionException, ExecutionException, InterruptedException {
         conditionsStartGeneration(listQuestions, this.generationProperty);
 
         listTicket = createListTickets(templateTicket, listQuestions, this.generationProperty);
@@ -273,7 +261,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * list tickets.
      *
      * @param templateTicket template ticket
-     * @param questions      list questions
+     * @param questions  list questions
      * @param property
      * @return a list of tickets
      */
@@ -321,7 +309,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
     /**
      * This method is place, where should be checked all conditions generation before her starting.
      *
-     * @param questions          list questions
+     * @param questions              list questions
      * @param generationProperty generation property, which contains defined data needed for generation
      * @throws GenerationConditionException in case failure
      * @apiNote In case any fail in conditions generate tickets, you should throw exception, that will be describing
