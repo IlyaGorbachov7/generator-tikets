@@ -1,11 +1,16 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * This class contains generation property, which will be used
  * for checking condition start generation and during tickets generation
  *
  * @version 01.11.2022
  */
+@Getter
+@Setter
 public abstract class GenerationProperty {
     int quantityTickets;
     int quantityQTickets;
@@ -24,29 +29,5 @@ public abstract class GenerationProperty {
     public GenerationProperty(int quantityTickets, int quantityQTickets) {
         this.quantityTickets = quantityTickets;
         this.quantityQTickets = quantityQTickets;
-    }
-
-    public int getQuantityTickets() {
-        return quantityTickets;
-    }
-
-    public void setQuantityTickets(int quantityTickets) {
-        this.quantityTickets = quantityTickets;
-    }
-
-    public int getQuantityQTickets() {
-        return quantityQTickets;
-    }
-
-    public void setQuantityQTickets(int quantityQTickets) {
-        this.quantityQTickets = quantityQTickets;
-    }
-
-    public boolean isUnique() {
-        return unique;
-    }
-
-    public void setUnique(boolean unique) {
-        this.unique = unique;
     }
 }

@@ -1,6 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
 import java.util.*;
@@ -11,6 +13,8 @@ import java.util.*;
  * @author Gorbachev I. D.
  * @version 09.03.2022
  */
+@Getter
+@Setter
 public abstract class Question implements Cloneable {
     private List<XWPFParagraph> listParagraphs;
 
@@ -20,21 +24,6 @@ public abstract class Question implements Cloneable {
     public Question() {
         listParagraphs = new ArrayList<>(4);
     }
-
-    /**
-     * @return list paragraphs
-     */
-    public List<XWPFParagraph> getListParagraphs() {
-        return listParagraphs;
-    }
-
-    /**
-     * @param listParagraphs set list paragraphs
-     */
-    public void setListParagraphs(List<XWPFParagraph> listParagraphs) {
-        this.listParagraphs = listParagraphs;
-    }
-
     /**
      * @param p added new Paragraph in list paragraphs
      */

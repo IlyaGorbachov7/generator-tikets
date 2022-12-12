@@ -1,8 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity;
 
+import lombok.Getter;
+
 import java.util.Objects;
 import java.util.UUID;
 
+@Getter
 public class Question2 extends QuestionExt {
     private final UUID id;
 
@@ -15,10 +18,6 @@ public class Question2 extends QuestionExt {
 
     public Question2(String section, int level, int repeat, int countRepeat) {
         super(section, level, repeat);
-    }
-
-    public UUID getId() {
-        return id;
     }
 
     @Override
