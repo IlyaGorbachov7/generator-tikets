@@ -1183,8 +1183,7 @@ public class MainWindowPanel extends BasePanel {
                            textField != tfProtocol &&
                            textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
                            !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимы символы:\n" +
-                          " A-Я,А-Z, а-я, a-z, 0-9, - , «, », \", }, {, ),(";
+                    msg = "Допустимы символы: любые";
                 } else { // кидаем ошибку
                     textField.setForeground(Color.BLACK);
                 }
