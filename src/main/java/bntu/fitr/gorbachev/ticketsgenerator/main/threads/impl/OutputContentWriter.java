@@ -90,19 +90,19 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                     ParagraphAlignment.CENTER, true, true);
 
 
-            text = "Факультет " + ticket.getFaculty();
+            text = /*"Факультет " + */ticket.getFaculty();
             createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
                     ParagraphAlignment.CENTER, false, true);
 
 
-            text = "Кафедра " + ticket.getDepartment();
+            text = /*"Кафедра " +*/ ticket.getDepartment();
             createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
                     ParagraphAlignment.CENTER, false, false)
                     .setBorderBottom((ticket.getSpecialization().isEmpty()) ? Borders.SINGLE : Borders.NONE);
 
             // not necessary or necessary
             if (!ticket.getSpecialization().isEmpty()) {
-                text = "Специальность " + ticket.getSpecialization();
+                text = /*"Специальность " +*/ ticket.getSpecialization();
                 createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
                         ParagraphAlignment.CENTER, false, false)
                         .setBorderBottom(Borders.SINGLE);
