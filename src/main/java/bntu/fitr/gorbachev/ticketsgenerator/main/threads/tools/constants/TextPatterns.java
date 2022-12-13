@@ -11,7 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.threads.tools.PreparerPatterns;
  */
 public class TextPatterns {
 
-    public static final PreparerPatterns COMMON_PATTERN = PreparerPatterns.newInstance("[\\wА-Яа-я\\-\"«»{})(\\sЁё&&[^_]]*");
+    public static final PreparerPatterns COMMON_PATTERN = PreparerPatterns.newInstance("[\\wА-Яа-я\\-\"«»{}:;)(\\sЁё&&[^_]]*");
 
     /**
      * Text: Серова Арина Юрьевна, or: Серова А Ю, or: Серова А. Ю.
