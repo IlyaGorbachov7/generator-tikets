@@ -144,19 +144,19 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
         for (var entry :
                 mapWrapListQuestBySection.entrySet()) {
             WrapperList<Question2> listQ = entry.getValue();
-            int lev = i;
+            int lev = rangeQuest.get(i++);
             listQ.forEach(q -> q.setLevel(lev)); // set level question
-            mapWrapListQuestGroupByLevel.put(rangeQuest.get(i++), listQ);
+            mapWrapListQuestGroupByLevel.put(lev, listQ);
         }
 
         mapWrapListQuestRepeatedGroupByLevel = new LinkedHashMap<>(prop.getQuantityQTickets());
         i = 0;
         for (var entry :
                 mapWrapListRepeatedQuestBySection.entrySet()) {
-            int lev = i;
+            int lev = rangeQuest.get(i++);
             WrapperList<Question2> listQ = entry.getValue();
-            listQ.forEach(q->q.setLevel(lev));
-            mapWrapListQuestRepeatedGroupByLevel.put(rangeQuest.get(i++), listQ);
+            listQ.forEach(q -> q.setLevel(lev));
+            mapWrapListQuestRepeatedGroupByLevel.put(lev, listQ);
         }
 
     }
