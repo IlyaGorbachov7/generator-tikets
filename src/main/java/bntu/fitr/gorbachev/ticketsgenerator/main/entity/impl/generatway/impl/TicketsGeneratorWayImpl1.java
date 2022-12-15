@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.generatway.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
@@ -77,7 +78,7 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
                 }
             }
         } else if (notEnough < 0) {
-            if(sections.isEmpty()){
+            if (sections.isEmpty()) {
                 throw new GenerationConditionException("Не обнаружено ни одна тема");
             }
 
@@ -142,14 +143,20 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
         int i = 0;
         for (var entry :
                 mapWrapListQuestBySection.entrySet()) {
-            mapWrapListQuestGroupByLevel.put(rangeQuest.get(i++), entry.getValue());
+            WrapperList<Question2> listQ = entry.getValue();
+            int lev = i;
+            listQ.forEach(q -> q.setLevel(lev)); // set level question
+            mapWrapListQuestGroupByLevel.put(rangeQuest.get(i++), listQ);
         }
 
         mapWrapListQuestRepeatedGroupByLevel = new LinkedHashMap<>(prop.getQuantityQTickets());
         i = 0;
         for (var entry :
                 mapWrapListRepeatedQuestBySection.entrySet()) {
-            mapWrapListQuestRepeatedGroupByLevel.put(rangeQuest.get(i++), entry.getValue());
+            int lev = i;
+            WrapperList<Question2> listQ = entry.getValue();
+            listQ.forEach(q->q.setLevel(lev));
+            mapWrapListQuestRepeatedGroupByLevel.put(rangeQuest.get(i++), listQ);
         }
 
     }
