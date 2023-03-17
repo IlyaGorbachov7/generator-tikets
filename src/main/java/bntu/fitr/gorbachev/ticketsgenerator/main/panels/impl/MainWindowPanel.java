@@ -21,6 +21,8 @@ import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
+import com.github.lgooddatepicker.optionalusertools.DateChangeListener;
+import com.github.lgooddatepicker.zinternaltools.DateChangeEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -33,6 +35,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.ValueRange;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -276,7 +282,11 @@ public class MainWindowPanel extends BasePanel {
         datePicDecision.getComponentDateTextField().setEnabled(false);
         datePicDecision.setDateToToday();
         datePicDecision.setFocusable(false);
+
+        // range with between September and December
+        setTimeYearOnBoxTypeSession(datePicDecision.getDate());
         boxTypeSession.setFocusable(false);
+
 
         // createPanelMainActionPanel
         btnAdd.setFocusable(false);
@@ -344,6 +354,11 @@ public class MainWindowPanel extends BasePanel {
         textField.setColumns(3);
         textField.setHorizontalAlignment(JTextField.CENTER);
         textField.setFont(new Font("Serif", Font.PLAIN, 12));
+    }
+
+    private void setTimeYearOnBoxTypeSession(LocalDate newDate) {
+        var range = ValueRange.of(Month.SEPTEMBER.getValue(), Month.DECEMBER.getValue());
+        boxTypeSession.setSelectedIndex((range.isValidIntValue(newDate.getMonthValue())) ? 0 : 1);
     }
 
     /**
@@ -876,7 +891,6 @@ public class MainWindowPanel extends BasePanel {
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
-//                            loadingDialog.showDialog();
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
                                 property.setFlagContinGenWithDepriveLev(true);
                             } else {
@@ -1149,7 +1163,7 @@ public class MainWindowPanel extends BasePanel {
             thread.start();
 
             try {
-                while(!isRun){
+                while (!isRun) {
                     Thread.sleep(600);
                 }
             } catch (InterruptedException ignored) {

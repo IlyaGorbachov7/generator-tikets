@@ -29,8 +29,11 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
 
     protected int INDENTATION_LEFT = (int) (-0.4 * twipsPerInch);
 
-    protected int SPACING_AFTER_GENERAL = 0; // 1 -> отступ 0.05 в доке
-    protected int SPACING_AFTER_LIST = 120; // отступ 6 в доке -> 6/0.05 = 120
+    protected int SPACING_BEFORE_0p = 0;
+    protected int SPACING_BEFORE_1p = 20; // отступ 1п в доке -> 1п/0.05 = 20
+
+    protected int SPACING_AFTER_0p = 0; // 0
+    protected int SPACING_AFTER_1p = 20; // отступ 1п в доке -> 1п/0.05 = 20
 
     protected int INDENTATION_LEFT_QUEST = (int) (-0.1 * twipsPerInch);
     protected int FIRST_LINE_INDENT_QUEST = (int) (-0.3 * twipsPerInch);
@@ -85,38 +88,49 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
 
         int iter = 0;
         for (var ticket : listTickets) {
+            boolean isPresentText = false;
             var text = ticket.getInstitute();
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
-                    ParagraphAlignment.CENTER, true, true);
-
-
-            text = /*"Факультет " + */ticket.getFaculty();
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
-                    ParagraphAlignment.CENTER, false, true);
-
-
-            text = /*"Кафедра " +*/ ticket.getDepartment();
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
-                    ParagraphAlignment.CENTER, false, false)
-                    .setBorderBottom((ticket.getSpecialization().isEmpty()) ? Borders.SINGLE : Borders.NONE);
-
-            // not necessary or necessary
-            if (!ticket.getSpecialization().isEmpty()) {
-                text = /*"Специальность " +*/ ticket.getSpecialization();
-                createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
-                        ParagraphAlignment.CENTER, false, false)
-                        .setBorderBottom(Borders.SINGLE);
+            if (!text.isEmpty()) {
+                createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
+                        ParagraphAlignment.CENTER, true, true);
+                isPresentText = true;
             }
 
-            docxDes.createParagraph().setSpacingAfter(SPACING_AFTER_GENERAL);
+            text = ticket.getFaculty();
+            if (!text.isEmpty()) {
+                createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
+                        ParagraphAlignment.CENTER, false, true);
+                isPresentText = true;
+            }
+
+            text = ticket.getDepartment();
+            if (!text.isEmpty()) {
+                createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
+                        ParagraphAlignment.CENTER, false, false)
+                        .setBorderBottom((ticket.getSpecialization().isEmpty()) ? Borders.SINGLE : Borders.NONE);
+                isPresentText = true;
+            }
+
+            // not necessary or necessary
+            text = ticket.getSpecialization();
+            if (!text.isEmpty()) {
+                createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
+                        ParagraphAlignment.CENTER, false, false)
+                        .setBorderBottom(Borders.SINGLE);
+                isPresentText = true;
+            }
+
+            if (isPresentText) { // if present at least one text, then added spacing after line
+                docxDes.createParagraph().setSpacingAfter(SPACING_AFTER_0p);
+            }
 
 
             text = "Экзаменационный билет №" + (iter + 1);
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
+            createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
                     ParagraphAlignment.CENTER, true, true);
 
             text = "Дисциплина ";
-            var p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL,
+            var p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
                     ParagraphAlignment.CENTER, false, false);
             text = "«" + ticket.getDiscipline() + "»";
             setConfig(p, ParagraphAlignment.CENTER, text, false, false);
@@ -130,22 +144,18 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                         ("/" + (Integer.parseInt(strForm) + 1)) : "";
             }
             text = ticket.getType() + " экзаменационная сессия " + strForm + " учебного года";
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_GENERAL, ParagraphAlignment.CENTER,
+            createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p, ParagraphAlignment.CENTER,
                     false, false);
 
 
-            docxDes.createParagraph().setSpacingAfter(SPACING_AFTER_GENERAL);
-
             BigInteger newNumID = getNewDecimalNumberingId(docxDes, BigInteger.valueOf(iter++));
             createListParaQuestions(docxDes, ticket, newNumID);
-
-            docxDes.createParagraph().setSpacingAfter(SPACING_AFTER_GENERAL);
 
             createTable(docxDes, ticket);
 
 
             text = "Утверждено на заседании кафедры ";
-            p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_AFTER_LIST, ParagraphAlignment.BOTH,
+            p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_1p, ParagraphAlignment.BOTH,
                     false, false);
             text = ticket.getDate() + ", ";
             setConfig(p, ParagraphAlignment.LEFT, text,
@@ -189,11 +199,12 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
     }
 
     protected XWPFParagraph createPara(String text, XWPFDocument docxDes, int indentationLeft,
-                                       int spacingAfter, ParagraphAlignment alignment,
+                                       int spacingBefore, int spacingAfter, ParagraphAlignment alignment,
                                        boolean capitalized, boolean bold) {
         var newP = docxDes.createParagraph();
         newP.setIndentationLeft(indentationLeft);
         newP.setSpacingAfter(spacingAfter);
+        newP.setSpacingBefore(spacingBefore);
         setConfig(newP, alignment, text, capitalized, bold);
         return newP;
     }
@@ -201,11 +212,20 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
     protected void createListParaQuestions(XWPFDocument docxDes,
                                            Ticket<? extends QuestionExt> ticket, BigInteger newNumID)
             throws OutputContentException {
+        int indexQuestion = 0;
+        int sizeQuestions = ticket.getQuestions().size();
         for (var question : ticket.getQuestions()) {
             int indexParagraph = 0;
             for (var resP : question.getListParagraphs()) {
                 var desP = docxDes.createParagraph();
-                desP.setSpacingAfter(SPACING_AFTER_LIST);
+                if (indexQuestion == 0) {
+                    desP.setSpacingBefore(SPACING_BEFORE_1p * 10);
+                    desP.setSpacingAfter(SPACING_AFTER_1p * 3);
+                } else if (indexQuestion == sizeQuestions - 1) {
+                    desP.setSpacingAfter(SPACING_AFTER_1p * 10);
+                } else {
+                    desP.setSpacingAfter(SPACING_AFTER_1p * 3);
+                }
                 try {
                     setParagraphProperties(desP);
                 } catch (XmlException e) {
@@ -272,8 +292,9 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                     }
 
                 }
-                indexParagraph++;
+                ++indexParagraph;
             }
+            ++indexQuestion;
         }
     }
 
@@ -310,7 +331,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
         cell.setWidth(String.valueOf(WIDTH_CALL_1)); // width == 4 дюйма == 1 см
 
         var p = cell.getParagraphs().get(0);
-        p.setSpacingAfter(SPACING_AFTER_GENERAL);
+        p.setSpacingAfter(SPACING_AFTER_0p);
         p.setVerticalAlignment(TextAlignment.CENTER);
         setConfig(p, ParagraphAlignment.BOTH, "Заведующий кафедры: ",
                 false, false);
@@ -327,7 +348,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
         cell.setWidth(String.valueOf(WIDTH_CALL_2)); // 3 дюйма = 8 см
 
         p = cell.getParagraphs().get(0);
-        p.setSpacingAfter(SPACING_AFTER_GENERAL);
+        p.setSpacingAfter(SPACING_AFTER_0p);
         p.setVerticalAlignment(TextAlignment.CENTER);
         setConfig(p, ParagraphAlignment.BOTH, "Экзаменатор: ",
                 false, false);

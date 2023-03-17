@@ -214,6 +214,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
         public String toString() {
             return name;
         }
+
     }
 
     /**
