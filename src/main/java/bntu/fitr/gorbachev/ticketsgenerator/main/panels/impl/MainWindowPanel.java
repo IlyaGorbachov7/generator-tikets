@@ -876,7 +876,7 @@ public class MainWindowPanel extends BasePanel {
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
-                            loadingDialog.showDialog();
+//                            loadingDialog.showDialog();
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
                                 property.setFlagContinGenWithDepriveLev(true);
                             } else {
@@ -894,7 +894,7 @@ public class MainWindowPanel extends BasePanel {
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
-                            loadingDialog.showDialog();
+//                            loadingDialog.showDialog();
                             property.setFlagContinGenWithChapterWithoutSection(true);
                         } else {
                             repeat = false;
@@ -992,7 +992,6 @@ public class MainWindowPanel extends BasePanel {
                                     Произошла ошибка ожидания .
                                     Прошу повторите попытку снова
                                     Причин является: Microsoft Office:
-                                    => Microsoft Office у Вас отсутствует на компьютере.
                                     => Просто закройте окно Мастер активации Microsoft Office""",
                             "ERROR !", JOptionPane.ERROR_MESSAGE);
                     return;
@@ -1137,11 +1136,24 @@ public class MainWindowPanel extends BasePanel {
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
 
+        private volatile boolean isRun;
+
         public void showDialog() {
-            new Thread(() -> {
+            isRun = false;
+
+            var thread = new Thread(() -> {
+                isRun = true;
                 this.setModal(true);
                 this.setVisible(true);
-            }).start();
+            });
+            thread.start();
+
+            try {
+                while(!isRun){
+                    Thread.sleep(600);
+                }
+            } catch (InterruptedException ignored) {
+            }
         }
 
         @Override

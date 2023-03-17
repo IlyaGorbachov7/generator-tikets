@@ -28,6 +28,10 @@ public class RecordSettingPanel extends BasePanel {
     {
         lbQuantityTicketOnSinglePage = new JLabel("Количество билетов на странице");
         spinnerQuantityTicketOnSinglePage = new JSpinner(new SpinnerNumberModel(1, 1, 5, 1));
+
+        lbFontSize = new JLabel("Размер шрифта");
+        spinnerFontSize = new JSpinner(new SpinnerNumberModel(14, 1, 20, 1));
+
         btnOk = new JButton("Ok");
     }
 
@@ -47,16 +51,23 @@ public class RecordSettingPanel extends BasePanel {
             @Override
             public void windowClosing(WindowEvent e) {
                 property.setQuantityOnSinglePage((Integer) spinnerQuantityTicketOnSinglePage.getValue());
+                property.setSizeFont((Integer) spinnerFontSize.getValue());
             }
         });
         btnOk.addActionListener(e -> {
             property.setQuantityOnSinglePage((Integer) spinnerQuantityTicketOnSinglePage.getValue());
+            property.setSizeFont((Integer) spinnerFontSize.getValue());
             getRootFrame().setVisible(false);
         });
 
         JFormattedTextField formattedTextField = ((JSpinner.NumberEditor) spinnerQuantityTicketOnSinglePage
                 .getEditor()).getTextField();
         DefaultFormatter formatter = (DefaultFormatter) formattedTextField.getFormatter();
+        formatter.setCommitsOnValidEdit(true);
+
+        formattedTextField = ((JSpinner.NumberEditor) spinnerFontSize
+                .getEditor()).getTextField();
+        formatter = (DefaultFormatter) formattedTextField.getFormatter();
         formatter.setCommitsOnValidEdit(true);
     }
 
@@ -68,6 +79,9 @@ public class RecordSettingPanel extends BasePanel {
     private final JLabel lbQuantityTicketOnSinglePage;
     private final JSpinner spinnerQuantityTicketOnSinglePage;
 
+    private final JLabel lbFontSize;
+    private final JSpinner spinnerFontSize;
+
     private JPanel createPanel() {
         JPanel mainPnl = new JPanel(new BorderLayout());
 
@@ -75,18 +89,32 @@ public class RecordSettingPanel extends BasePanel {
         pnlRow.setLayout(new BoxLayout(pnlRow, BoxLayout.Y_AXIS));
         pnlRow.setBorder(new LineBorder(Color.BLACK));
 
+        //------------------------------------------------------------------------------------
         JPanel pnlColl = new JPanel();
         pnlColl.setLayout(new BoxLayout(pnlColl, BoxLayout.X_AXIS));
 
-        JPanel pnlLbl = new JPanel(new BorderLayout());
-        pnlLbl.add(lbQuantityTicketOnSinglePage);
-        pnlColl.add(pnlLbl);
-
-        pnlLbl = new JPanel(new BorderLayout());
-        pnlLbl.add(spinnerQuantityTicketOnSinglePage);
-        pnlColl.add(pnlLbl);
+        JPanel pnlLblAndSpinner = new JPanel(new BorderLayout());
+        pnlLblAndSpinner.add(lbQuantityTicketOnSinglePage);
+        pnlColl.add(pnlLblAndSpinner);
+        pnlLblAndSpinner = new JPanel(new BorderLayout());
+        pnlLblAndSpinner.add(spinnerQuantityTicketOnSinglePage);
+        pnlColl.add(pnlLblAndSpinner);
 
         pnlRow.add(pnlColl);
+        //------------------------------------------------------------------------------------
+
+        pnlColl = new JPanel();
+        pnlColl.setLayout(new BoxLayout(pnlColl, BoxLayout.X_AXIS));
+
+        pnlLblAndSpinner = new JPanel(new BorderLayout());
+        pnlLblAndSpinner.add(lbFontSize);
+        pnlColl.add(pnlLblAndSpinner);
+        pnlLblAndSpinner = new JPanel(new BorderLayout());
+        pnlLblAndSpinner.add(spinnerFontSize);
+        pnlColl.add(pnlLblAndSpinner);
+
+        pnlRow.add(pnlColl);
+        //------------------------------------------------------------------------------------
 
         mainPnl.add(pnlRow);
         return mainPnl;

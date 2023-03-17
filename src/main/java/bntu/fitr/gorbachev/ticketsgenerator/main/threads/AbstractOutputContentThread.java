@@ -184,8 +184,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
                                 // copy properties : bold, italic, color and other
                                 cloneRunProperties(resR, desR);
                                 // however, setting properties run according standard requirement
-                                desR.setFontFamily("Times New Roman");
-                                desR.setFontSize(14);
+                                setStandardPropForRun(desR);
 
                                 try {
                                     clonePictureRun(resR, desR);
@@ -298,7 +297,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param desR destination run
      * @throws Exception in case general troubles
      */
-    protected static void clonePictureRun(XWPFRun resR, XWPFRun desR)
+    protected void clonePictureRun(XWPFRun resR, XWPFRun desR)
             throws Exception {
         // checking on the contains picture in main run that will by copy in created run
         List<XWPFPicture> listPictures = resR.getEmbeddedPictures();
@@ -345,7 +344,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param source source properties
      * @param dest   destination properties
      */
-    protected static void cloneRunProperties(XWPFRun source, XWPFRun dest) {
+    protected void cloneRunProperties(XWPFRun source, XWPFRun dest) {
         CTRPr rPrSource = source.getCTR().getRPr();
         if (rPrSource == null) return;
 
@@ -360,7 +359,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param run run paragraph
      * @throws XmlException in case no correct format
      */
-    protected static void setRunProperties(XWPFRun run)
+    protected void setRunProperties(XWPFRun run)
             throws XmlException {
         String prXml = "<w:rPr xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\">" +
                        "                <w:rFonts w:ascii=\"Times New Roman\" w:hAnsi=\"Times New Roman\" w:cs=\"Times New Roman\"/>" +
@@ -384,8 +383,8 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param source source paragraph contains properties
      * @param dest   destination paragraph where will be setting configuration
      */
-    protected static void cloneParagraphProperties(XWPFParagraph source,
-                                                   XWPFParagraph dest) {
+    protected void cloneParagraphProperties(XWPFParagraph source,
+                                            XWPFParagraph dest) {
         CTP ctpSource = source.getCTP();
         if (ctpSource.getPPr() == null) return;
         if (ctpSource.getPPr().getRPr() == null) return;
@@ -406,7 +405,7 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param p paragraph
      * @throws XmlException in case no correct format
      */
-    protected static void setParagraphProperties(XWPFParagraph p)
+    protected void setParagraphProperties(XWPFParagraph p)
             throws XmlException {
         CTPPr ctpPr = p.getCTP().getPPr();
         if (ctpPr == null) ctpPr = p.getCTP().addNewPPr();
@@ -427,15 +426,22 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
     /**
      * The method establishes configuration paragraph and text content
      */
-    protected static void setConfig(XWPFParagraph p, ParagraphAlignment align,
-                                    String text, boolean capitalized, boolean bold) {
+    protected void setConfig(XWPFParagraph p, ParagraphAlignment align,
+                             String text, boolean capitalized, boolean bold) {
         p.setAlignment(align);
         XWPFRun config = p.createRun();
-        config.setFontFamily("Times New Roman");
-        config.setFontSize(14);
+        setStandardPropForRun(config);
         config.setText(text);
         config.setCapitalized(capitalized);
         config.setBold(bold);
+    }
+
+    /**
+     * This method will be overridden to define customer standart for XWPFRun property
+     */
+    protected void setStandardPropForRun(XWPFRun run) {
+        run.setFontSize(14);
+        run.setFontFamily("Times New Roman");
     }
 
     /**
@@ -445,8 +451,8 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @param abstractNumID current numbering id
      * @return new numbering id
      */
-    protected static BigInteger getNewDecimalNumberingId(XWPFDocument document,
-                                                         BigInteger abstractNumID) {
+    protected BigInteger getNewDecimalNumberingId(XWPFDocument document,
+                                                  BigInteger abstractNumID) {
         CTAbstractNum cTAbstractNum = CTAbstractNum.Factory.newInstance();
         cTAbstractNum.setAbstractNumId(abstractNumID);
         CTLvl cTLvl = cTAbstractNum.addNewLvl();
@@ -471,8 +477,8 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @return class object {@link CTAnchor}
      * @throws Exception in case general troubles
      */
-    protected static CTAnchor getAnchorWithGraphicByTemplate(CTGraphicalObject graphicRsc,
-                                                             CTAnchor anchorTemplate) throws Exception {
+    protected CTAnchor getAnchorWithGraphicByTemplate(CTGraphicalObject graphicRsc,
+                                                      CTAnchor anchorTemplate) throws Exception {
         WrapXml wrapXml;
         if (!Objects.isNull(anchorTemplate.getWrapTight())) {
             wrapXml = WrapXml.getInstance(STWrapType.TIGHT, anchorTemplate.getWrapTight()
@@ -498,9 +504,9 @@ public abstract class AbstractOutputContentThread<T extends Ticket<? extends Que
      * @return new anchor
      * @throws Exception in case general troubles
      */
-    protected static CTAnchor getAnchorWithGraphicByWrapType(WrapXml wrapXml,
-                                                             CTGraphicalObject graphicRsc,
-                                                             CTAnchor anchorTemplate) throws Exception {
+    protected CTAnchor getAnchorWithGraphicByWrapType(WrapXml wrapXml,
+                                                      CTGraphicalObject graphicRsc,
+                                                      CTAnchor anchorTemplate) throws Exception {
 
         String drawingDescr = anchorTemplate.getDocPr().getDescr();
         long distL = anchorTemplate.getDistL();

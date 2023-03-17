@@ -170,6 +170,24 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
         return docxDes;
     }
 
+    /**
+     * Override method to set font size for created XWPFRun
+     */
+    @Override
+    protected void setConfig(XWPFParagraph p, ParagraphAlignment align, String text, boolean capitalized, boolean bold) {
+        super.setConfig(p, align, text, capitalized, bold);
+        var list = p.getRuns();
+        if (!list.isEmpty()) { // getting XWPFRun, which is last and setting font size from property
+            list.get(list.size() - 1).setFontSize(property.getSizeFont());
+        }
+    }
+
+    @Override
+    protected void setStandardPropForRun(XWPFRun run) {
+        super.setStandardPropForRun(run);
+        run.setFontSize(property.getSizeFont());
+    }
+
     protected XWPFParagraph createPara(String text, XWPFDocument docxDes, int indentationLeft,
                                        int spacingAfter, ParagraphAlignment alignment,
                                        boolean capitalized, boolean bold) {
@@ -224,8 +242,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                             // copy properties : bold, italic, color and other
                             cloneRunProperties(resR, desR);
                             // however, setting properties run according standard requirement
-                            desR.setFontFamily("Times New Roman");
-                            desR.setFontSize(14);
+                            setStandardPropForRun(desR);
 
                             try {
                                 clonePictureRun(resR, desR);
@@ -237,6 +254,7 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                         else if (xmlcursor.getName().getLocalPart().equalsIgnoreCase("oMath")) {
                             CTOMath ctoMath = (CTOMath) xmlcursor.getObject();
                             desP.getCTP().addNewOMath();
+                            ctoMath = getNewModifiedCTOMath(ctoMath);
                             desP.getCTP().setOMathArray(counterOMath++, ctoMath);
                         }
 
@@ -257,6 +275,21 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                 indexParagraph++;
             }
         }
+    }
+
+    /**
+     * This method replace <b>ctoMath</b> object on the new modified object
+     * <p>
+     * This setting size font in math expression according to value giving from {@code WriterTicketProperty}
+     */
+    protected CTOMath getNewModifiedCTOMath(CTOMath ctoMath) {
+        try {
+            String xmlMathString = ctoMath.xmlText().replaceAll("w:sz w:val=\"\\d*\"",
+                    String.format("w:sz w:val=\"%d\"", property.getSizeFont() * 2));
+            ctoMath = CTOMath.Factory.parse(xmlMathString);
+        } catch (XmlException ignore) {
+        }
+        return ctoMath;
     }
 
     protected void createTable(XWPFDocument docxDes, Ticket<? extends QuestionExt> ticket) {

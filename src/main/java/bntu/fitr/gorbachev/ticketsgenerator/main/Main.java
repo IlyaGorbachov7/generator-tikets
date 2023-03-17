@@ -1,10 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.frames.FrameDialogFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.frames.impl.LaunchFrame;
 import bntu.fitr.gorbachev.ticketsgenerator.main.panels.PanelType;
-import com.formdev.flatlaf.FlatDarculaLaf;
-import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import javax.swing.*;

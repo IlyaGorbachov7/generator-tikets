@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.test;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.entity.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.entity.GenerationProperty;
@@ -16,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 public class Test2 {
     static File[] paths = List.of(
-                    new File("C:\\Users\\SecuRiTy\\Documents\\БЗиППР, вопросы 2021 - Copy (3).docx"))
+                    new File("C:\\Users\\SecuRiTy\\Documents\\Questions - Copy - Copy.docx"))
             .toArray(File[]::new);
 
     static Ticket<Question2> ticket = new Ticket<Question2>("", "", "",
@@ -31,10 +32,14 @@ public class Test2 {
 
         TicketGeneratorImpl ticketGenerator = new TicketGeneratorImpl(false, paths, ticket);
 
-        var prop = new GenerationPropertyImpl(30, 3, false);
+        var prop = new GenerationPropertyImpl(1, 1, false);
         prop.setGenerationWay(TicketsGeneratorWayImpl3.class);
-        prop.setFlagRandomOrderReading(true);
+        prop.setFlagRandomOrderReading(false);
         prop.setFlagRandomOrderQuestInTicket(false);
+
+        WriterTicketProperty writerTicketProperty = new WriterTicketProperty();
+        writerTicketProperty.setSizeFont(14);
+        prop.setWriterTicketProperty(writerTicketProperty);
 
         ticketGenerator.startGenerate(prop);
 

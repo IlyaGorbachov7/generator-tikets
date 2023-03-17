@@ -9,8 +9,10 @@ public class WriterTicketProperty {
     private boolean isTicketOnSinglePage;
     private int quantityOnSinglePage;
 
+    private int sizeFont;
     {
         quantityOnSinglePage = 1;
+        sizeFont = 14;
     }
 
     public WriterTicketProperty() {
