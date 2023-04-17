@@ -7,7 +7,7 @@
     <groupId>bntu.fitr.gorbachev</groupId>
     <artifactId>ConstructorTickets</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -22,7 +22,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>main.Main</mainClass>
+                            <mainClass>bntu.fitr.gorbachev.ticketsgenerator.main.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
@@ -51,8 +51,16 @@
 
         <resources>
             <resource>
+                <!--ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)-->
                 <directory>src/main/resources</directory>
+                <!--А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
+                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
                 <targetPath>resources</targetPath>
+            </resource>
+
+            <resource>
+                <directory>src/main/META-INF</directory>
+                <targetPath>META-INF</targetPath>
             </resource>
         </resources>
     </build>
@@ -136,6 +144,38 @@
             </exclusions>
         </dependency>
 
-    </dependencies>
 
+        <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.31</version>
+        </dependency>
+
+        <!--flatlaf-->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>2.6</version>
+        </dependency>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Log4j -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.19.0</version>
+        </dependency>
+    </dependencies>
 </project>
