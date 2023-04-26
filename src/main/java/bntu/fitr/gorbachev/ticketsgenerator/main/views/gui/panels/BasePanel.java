@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.PanelFunc;
 
 import javax.swing.*;
@@ -36,6 +37,9 @@ public abstract class BasePanel extends JPanel implements PanelFunc {
     @Override
     public void actionViewElems(ActionEvent event) {
     }
+
+    @Override
+    public abstract void actionInitViewElems(InitViewEvent event);
 
     @Override
     public Window getRootFrame() {

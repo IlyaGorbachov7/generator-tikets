@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMessag
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.PanelFunc;
@@ -356,6 +357,11 @@ public class MainWindowPanel extends BasePanel {
 
     @Override
     public void changeStateViewElems(ChangeFieldModelEvent event) {
+
+    }
+
+    @Override
+    public void actionInitViewElems(InitViewEvent event) {
 
     }
 
@@ -1155,6 +1161,11 @@ public class MainWindowPanel extends BasePanel {
 
         @Override
         public void actionViewElems(ActionEvent event) {
+
+        }
+
+        @Override
+        public void actionInitViewElems(InitViewEvent event) {
 
         }
 

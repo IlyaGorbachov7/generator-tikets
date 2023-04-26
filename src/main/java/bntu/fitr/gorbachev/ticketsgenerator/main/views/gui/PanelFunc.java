@@ -29,4 +29,6 @@ public interface PanelFunc {
     void changeStateViewElems(ChangeFieldModelEvent event);
 
     void actionViewElems(ActionEvent event);
+
+    void actionInitViewElems(InitViewEvent event);
 }

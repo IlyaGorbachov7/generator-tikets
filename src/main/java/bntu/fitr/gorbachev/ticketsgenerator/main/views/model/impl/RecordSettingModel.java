@@ -3,6 +3,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
 import lombok.Getter;
 
+import java.util.Map;
+
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.FONT_SIZE;
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.QUANTITY_TICKET_ON_SINGLEPAGE;
 
@@ -21,5 +23,13 @@ public class RecordSettingModel extends AbstractModel {
         Integer oldValue = this.fontSize;
         this.fontSize = fontSize;
         fireChangeFiledEvent(FONT_SIZE, oldValue, fontSize);
+    }
+
+    @Override
+    public void triggeringInitView() {
+        fireInitViewEvent(Map.of(
+                QUANTITY_TICKET_ON_SINGLEPAGE, quantityTicketOnSinglePage,
+                FONT_SIZE, fontSize
+        ));
     }
 }

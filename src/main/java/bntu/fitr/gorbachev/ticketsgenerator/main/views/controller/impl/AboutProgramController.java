@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.AboutProgramPanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
@@ -17,18 +18,14 @@ public class AboutProgramController extends AbstractController {
         super(view, model);
         this.view = (AboutProgramPanel) view;
         this.model = (AboutProgramModel) model;
-        initView();
         init();
     }
 
-    @Override
-    public void init() {
-        model.addChangeFiledModelListener(this);
-    }
+    // callbacks methods, invoked via model object
 
     @Override
-    public void initView() {
-
+    public void eventInitView(InitViewEvent event) {
+        view.actionInitViewElems(event);
     }
 
     @Override

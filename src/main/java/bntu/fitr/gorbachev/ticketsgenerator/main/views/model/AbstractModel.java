@@ -2,6 +2,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.model;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import lombok.NonNull;
 
 import java.awt.event.ActionEvent;
@@ -10,6 +12,9 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
+
+import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.FONT_SIZE;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.QUANTITY_TICKET_ON_SINGLEPAGE;
 
 public abstract class AbstractModel {
     protected final List<Map.Entry<Class<? extends EventListener>, EventListener>> listeners = new ArrayList<>();
@@ -43,5 +48,19 @@ public abstract class AbstractModel {
                 .filter(entity -> entity.getKey() == ChangeFieldModelListener.class)
                 .map(entity -> (ActionListener) entity.getValue())
                 .forEach(lst -> lst.actionPerformed(new ActionEvent(value, Integer.MAX_VALUE, commandName)));
+    }
+
+    public void addInitViewEvent(@NonNull InitViewListener listener) {
+        listeners.add(Map.entry(InitViewListener.class, listener));
+    }
+
+    public void fireInitViewEvent(@NonNull Map<String, Object> fields) {
+        listeners.stream()
+                .filter(entity -> entity.getKey() == InitViewListener.class)
+                .map(entity -> (InitViewListener) entity.getValue())
+                .forEach(lst -> lst.eventInitView(new InitViewEvent(fields)));
+    }
+
+    public void triggeringInitView() {
     }
 }

@@ -3,12 +3,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.SplashScreenPanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.SplashScreenModel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 public class SplashScreenController extends AbstractController {
@@ -19,23 +19,14 @@ public class SplashScreenController extends AbstractController {
         super(view, model);
         this.view = (SplashScreenPanel) view;
         this.model = (SplashScreenModel) model;
-        initView();
         init();
     }
 
-    @Override
-    public void init() {
-        model.addChangeFiledModelListener(this);
-    }
+    // callback methods, invoked via view object, when user action occurred
 
     @Override
-    public void initView() {
-
-    }
-
-    @Override
-    public void eventChangeFiledModel(ChangeFieldModelEvent e) {
-        view.changeStateViewElems(e);
+    public void actionInitViewByModel() {
+        super.actionInitViewByModel();
     }
 
     public void actionExitBtn() {
@@ -66,5 +57,17 @@ public class SplashScreenController extends AbstractController {
          * If this event still happened, then this thread-handler throw don't handled exception
          * Then Swing-Framework don't complete success this process.
          * In the finally, frame Window don't closed*/
+    }
+
+    // callbacks methods, invoked via model object
+
+    @Override
+    public void eventInitView(InitViewEvent event) {
+        view.actionInitViewElems(event);
+    }
+
+    @Override
+    public void eventChangeFiledModel(ChangeFieldModelEvent e) {
+        view.changeStateViewElems(e);
     }
 }

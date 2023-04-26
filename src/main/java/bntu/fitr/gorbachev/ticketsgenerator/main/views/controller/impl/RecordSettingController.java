@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.RecordSettingPanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
@@ -18,23 +19,21 @@ public class RecordSettingController extends AbstractController implements Actio
         super(view, model);
         this.view = (RecordSettingPanel) view;
         this.model = (RecordSettingModel) model;
-        initView();
         init();
     }
 
     @Override
     public void init() {
-        model.addChangeFiledModelListener(this);
+        super.init();
         model.addActionListener(this);
     }
 
-    @Override
-    public void initView() {
-        view.getSpinnerQuantityTicketOnSinglePage().setValue(model.getQuantityTicketOnSinglePage());
-        view.getSpinnerFontSize().setValue(model.getFontSize());
-    }
-
     // callback methods, invoked via view object, when user action occurred
+
+    @Override
+    public void actionInitViewByModel() {
+        super.actionInitViewByModel();
+    }
 
     public void actionWindowClosing(Integer quantityTicketOnSinglePage, Integer fontSize) {
         model.setQuantityTicketOnSinglePage(quantityTicketOnSinglePage);
@@ -46,6 +45,11 @@ public class RecordSettingController extends AbstractController implements Actio
     }
 
     // callbacks methods, invoked via model object
+
+    @Override
+    public void eventInitView(InitViewEvent event) {
+        view.actionInitViewElems(event);
+    }
 
     @Override
     public void eventChangeFiledModel(ChangeFieldModelEvent e) {

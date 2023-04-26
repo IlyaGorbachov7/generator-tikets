@@ -3,9 +3,9 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.RecordSettingController;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.RecordSettingModel;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst;
 import lombok.Getter;
 
 import javax.swing.*;
@@ -15,7 +15,6 @@ import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Objects;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.FONT_SIZE;
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.QUANTITY_TICKET_ON_SINGLEPAGE;
@@ -62,6 +61,7 @@ public class RecordSettingPanel extends BasePanel {
         setComponentsListeners();
         property = new WriterTicketProperty();
         controller = new RecordSettingController(this, new RecordSettingModel());
+        controller.actionInitViewByModel();
     }
 
     @Override
@@ -140,20 +140,29 @@ public class RecordSettingPanel extends BasePanel {
     }
 
     @Override
+    public void actionInitViewElems(InitViewEvent event) {
+        event.getFields().forEach(this::setNewValueFieldByName);
+    }
+
+    @Override
     public void changeStateViewElems(ChangeFieldModelEvent event) {
-        switch (event.getFieldName()) {
+        setNewValueFieldByName(event.getFieldName(), event.getNewValue());
+    }
+
+    private void setNewValueFieldByName(String fieldName, Object newValue) {
+        switch (fieldName) {
             case QUANTITY_TICKET_ON_SINGLEPAGE:
-                checkRangeQuantityTicketPageSize((Integer) event.getNewValue());
-                valueQuantityTicketOnSinglePage = (int) event.getNewValue();
-                property.setQuantityOnSinglePage((Integer) event.getNewValue());
+                checkRangeQuantityTicketPageSize((Integer) newValue);
+                valueQuantityTicketOnSinglePage = (int) newValue;
+                property.setQuantityOnSinglePage((Integer) newValue);
             case FONT_SIZE:
-                checkRangeFontSize((Integer) event.getNewValue());
-                valueFontSize = (int) event.getNewValue();
-                property.setSizeFont((Integer) event.getNewValue());
+                checkRangeFontSize((Integer) newValue);
+                valueFontSize = (int) newValue;
+                property.setSizeFont((Integer) newValue);
         }
     }
 
-    void checkRangeQuantityTicketPageSize(int newValue) {
+    private void checkRangeQuantityTicketPageSize(int newValue) {
         if (newValue < minVQuantityTicketSinglePage || newValue > maxVQuantityTicketOnSinglePage) {
             throw new IllegalArgumentException(String.format("newValue quantityTicketPageSize outside required boundary: [%s, %s]",
                     minVQuantityTicketSinglePage, maxVQuantityTicketOnSinglePage));

@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.AboutAuthorController;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.AboutAuthorModel;
@@ -72,6 +73,11 @@ public class AboutAuthorPanel extends BasePanel {
 
     @Override
     public void actionViewElems(ActionEvent event) {
+
+    }
+
+    @Override
+    public void actionInitViewElems(InitViewEvent event) {
 
     }
 }

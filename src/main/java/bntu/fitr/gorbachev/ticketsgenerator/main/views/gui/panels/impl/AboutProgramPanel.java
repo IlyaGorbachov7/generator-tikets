@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.FileNames;
 
@@ -133,6 +134,11 @@ public class AboutProgramPanel extends BasePanel {
 
     @Override
     public void changeStateViewElems(ChangeFieldModelEvent event) {
+
+    }
+
+    @Override
+    public void actionInitViewElems(InitViewEvent event) {
 
     }
 }
