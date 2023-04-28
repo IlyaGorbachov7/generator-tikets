@@ -39,7 +39,7 @@ public abstract class BasePanel extends JPanel implements PanelFunc {
     }
 
     @Override
-    public abstract void actionInitViewElems(InitViewEvent event);
+    public abstract void primaryInitViewElems(InitViewEvent event);
 
     @Override
     public Window getRootFrame() {

@@ -3,9 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.AboutAuthorPanel;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.AboutAuthorModel;
 import lombok.Getter;
 
@@ -18,17 +16,18 @@ public class AboutAuthorController extends AbstractController implements ActionL
 
     private final AboutAuthorModel model;
 
-    public AboutAuthorController(BasePanel view, AbstractModel model) {
+    public AboutAuthorController(AboutAuthorPanel view, AboutAuthorModel model) {
         super(view, model);
-        this.view = (AboutAuthorPanel) view;
-        this.model = (AboutAuthorModel) model;
-        init();
+        this.view = view;
+        this.model = model;
     }
 
     @Override
     public void init() {
         super.init();
-        model.addActionListener(this);
+       /*invoking super.getModel() link, by reason that link this.getModel() == null
+         take look on the constructor*/
+        super.getModel().addActionListener(this);
     }
 
     // callback methods, invoked via view object, when user action occurred
@@ -46,7 +45,7 @@ public class AboutAuthorController extends AbstractController implements ActionL
 
     @Override
     public void eventInitView(InitViewEvent event) {
-        view.actionInitViewElems(event);
+        view.primaryInitViewElems(event);
     }
 
     @Override

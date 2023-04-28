@@ -20,17 +20,20 @@ public abstract class AbstractController implements ChangeFieldModelListener, In
     public AbstractController(BasePanel view, AbstractModel model) {
         this.view = view;
         this.model = model;
+        init();
     }
 
     /**
-     * This method require necessary invoke inside constructors extends classes
+     * This method require necessary invoke inside constructors this classes
      * <p>
-     * It contains base realize, required for normal work
+     * It contains base initialization, required for normal work.
+     * <p>
+     * For extended classes no necessary invoke it method. All that will be required
+     * is overridden method and adding necessary's code
      */
     public void init() {
-        // invoke through this.getModel very necessary, because extends classes may be overriding fields supper class
-        this.getModel().addChangeFiledModelListener(this);
-        this.getModel().addInitViewEvent(this);
+        model.addChangeFiledModelListener(this);
+        model.addInitViewEvent(this);
     }
 
     public void actionInitViewByModel() {

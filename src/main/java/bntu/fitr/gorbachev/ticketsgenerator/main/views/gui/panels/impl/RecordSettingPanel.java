@@ -140,7 +140,7 @@ public class RecordSettingPanel extends BasePanel {
     }
 
     @Override
-    public void actionInitViewElems(InitViewEvent event) {
+    public void primaryInitViewElems(InitViewEvent event) {
         event.getFields().forEach(this::setNewValueFieldByName);
     }
 
@@ -151,28 +151,14 @@ public class RecordSettingPanel extends BasePanel {
 
     private void setNewValueFieldByName(String fieldName, Object newValue) {
         switch (fieldName) {
-            case QUANTITY_TICKET_ON_SINGLEPAGE:
-                checkRangeQuantityTicketPageSize((Integer) newValue);
+            case QUANTITY_TICKET_ON_SINGLEPAGE -> {
                 valueQuantityTicketOnSinglePage = (int) newValue;
                 property.setQuantityOnSinglePage((Integer) newValue);
-            case FONT_SIZE:
-                checkRangeFontSize((Integer) newValue);
+            }
+            case FONT_SIZE -> {
                 valueFontSize = (int) newValue;
                 property.setSizeFont((Integer) newValue);
-        }
-    }
-
-    private void checkRangeQuantityTicketPageSize(int newValue) {
-        if (newValue < minVQuantityTicketSinglePage || newValue > maxVQuantityTicketOnSinglePage) {
-            throw new IllegalArgumentException(String.format("newValue quantityTicketPageSize outside required boundary: [%s, %s]",
-                    minVQuantityTicketSinglePage, maxVQuantityTicketOnSinglePage));
-        }
-    }
-
-    private void checkRangeFontSize(Integer newValue) {
-        if (newValue < minVFontSize || newValue > maxVFontSize) {
-            throw new IllegalArgumentException(String.format("newValue fonSize outside required boundary: [%s, %s]",
-                    minVFontSize, maxVFontSize));
+            }
         }
     }
 

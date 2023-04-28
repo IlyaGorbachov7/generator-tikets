@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMessag
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.MainWindowInputDataController;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.*;
@@ -15,6 +16,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.constants.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.exceptions.IllegalInputValueException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.MainWindowInputDataModel;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -23,6 +26,7 @@ import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.PanelType;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,7 +46,11 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
+import static bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket.SessionType.WINTER;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.actionconst.MainWindowActionConst.ACTION_ADD_LIST_QUESTIONFILE;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.actionconst.MainWindowActionConst.ACTION_REMOVE_LIST_QUESTIONFILE;
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.LaunchFrame.toolkit;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.MainWindowInputDataModelConst.*;
 
 /**
  * The class represent main window panel
@@ -51,6 +59,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.La
  * @version 18.04.2022
  */
 public class MainWindowPanel extends BasePanel {
+    private final MainWindowInputDataController controllerInputData;
     private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
@@ -116,7 +125,7 @@ public class MainWindowPanel extends BasePanel {
         tfHeadDepartment = new JTextField(30);
         tfProtocol = new JTextField(5);
         boxTypeSession = new JComboBox<>(
-                new Ticket.SessionType[]{Ticket.SessionType.WINTER, Ticket.SessionType.SUMMER
+                new Ticket.SessionType[]{WINTER, Ticket.SessionType.SUMMER
                 });
         datePicDecision = new DatePicker();
         //**********************
@@ -211,8 +220,10 @@ public class MainWindowPanel extends BasePanel {
         }
 
         this.initPanel();
-
         this.setComponentsListeners();
+        controllerInputData = new MainWindowInputDataController(this, new MainWindowInputDataModel());
+        controllerInputData.actionInitViewByModel();
+
         this.setVisible(true);
     }
 
@@ -283,7 +294,7 @@ public class MainWindowPanel extends BasePanel {
         datePicDecision.setFocusable(false);
 
         // range with between September and December
-        setTimeYearOnBoxTypeSession(datePicDecision.getDate());
+//        setTimeYearOnBoxTypeSession(datePicDecision.getDate());
         boxTypeSession.setFocusable(false);
 
 
@@ -336,7 +347,7 @@ public class MainWindowPanel extends BasePanel {
         });
 
         // spinner number quantity tickets
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 1, 1000, 1);
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 1, 1023, 1);
         spinnerQuantityTickets.setModel(spinnerNumberModel);
         JSpinner.NumberEditor numberEditor = (JSpinner.NumberEditor) spinnerQuantityTickets.getEditor();
         JFormattedTextField textField = numberEditor.getTextField();
@@ -346,7 +357,7 @@ public class MainWindowPanel extends BasePanel {
 
 
         // spinner number quantity question in ticket
-        spinnerNumberModel = new SpinnerNumberModel(3, 1, 50, 1);
+        spinnerNumberModel = new SpinnerNumberModel(3, 1, 100, 1);
         spinnerQuantityQuestionTickets.setModel(spinnerNumberModel);
         numberEditor = (JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor();
         textField = numberEditor.getTextField();
@@ -357,14 +368,90 @@ public class MainWindowPanel extends BasePanel {
 
     @Override
     public void changeStateViewElems(ChangeFieldModelEvent event) {
-
+        setNewValueFieldInputDataByName(event.getFieldName(), event.getNewValue());
     }
 
     @Override
-    public void actionInitViewElems(InitViewEvent event) {
-
+    public void primaryInitViewElems(InitViewEvent event) {
+        event.getFields().forEach(this::setNewValueFieldInputDataByName);
     }
 
+    @Override
+    public void actionViewElems(ActionEvent event) {
+        switch (event.getActionCommand()) {
+            case ACTION_ADD_LIST_QUESTIONFILE -> {
+                modelListFilesRsc.addElement((File) event.getSource());
+            }
+            case ACTION_REMOVE_LIST_QUESTIONFILE -> {
+                modelListFilesRsc.removeElement(event.getSource());
+            }
+            default -> throw new IllegalArgumentException("Action not defined");
+        }
+    }
+
+    private void setNewValueFieldInputDataByName(String fieldName, Object newValue) {
+        switch (fieldName) {
+            case INSTITUTE -> {
+                tfInstitute.setText((String) newValue);
+            }
+            case FACULTY -> {
+                tfFaculty.setText((String) newValue);
+            }
+            case DEPARTMENT -> {
+                tfDepartment.setText((String) newValue);
+            }
+            case SPECIALIZATION -> {
+                tfSpecialization.setText((String) newValue);
+            }
+            case DISCIOLINE -> {
+                tfDiscipline.setText((String) newValue);
+            }
+            case TEACHAR -> {
+                tfTeacher.setText((String) newValue);
+            }
+            case HEADDEPARTMENT -> {
+                tfHeadDepartment.setText((String) newValue);
+            }
+            case PROTOCOL -> {
+                String intV = (String) newValue;
+                tfProtocol.setText(intV);
+            }
+            case TYPESESSION -> {
+                Ticket.SessionType typeSession = (Ticket.SessionType) newValue;
+                boxTypeSession.setSelectedIndex(switch (typeSession) {
+                    case WINTER -> 0;
+                    case SUMMER -> 1;
+                    default -> throw new IllegalArgumentException(
+                            String.format("newValue=%s does not meet the requirements", typeSession));
+                });
+            }
+            case DATETIME -> {
+                LocalDate date = (LocalDate) newValue;
+                datePicDecision.setDate(date);
+            }
+            case QUANTITYTICKETS -> {
+                spinnerQuantityTickets.setValue(newValue);
+            }
+            case QUANTITYQUESTIONTICKETS -> {
+                spinnerQuantityQuestionTickets.setValue(newValue);
+            }
+            case GENERATIONMODE -> {
+                jBoxModes.setSelectedItem(newValue);
+            }
+            case RANDOMREAD -> {
+                boolean randomRead = (Boolean) newValue;
+                btnGroupReadWay.setSelected((randomRead ? rdiBtnRandom.getModel() :
+                        rdiBtnSequence.getModel()), true);
+            }
+            case RANDOMWRITE -> {
+                boolean randomWrite = (Boolean) newValue;
+                btnGroupWriteWay.setSelected((randomWrite ? rdiBtnWriteRandom.getModel()
+                        : rdiBtnWriteSequence.getModel()), true);
+            }
+        }
+    }
+
+    @Deprecated
     private void setTimeYearOnBoxTypeSession(LocalDate newDate) {
         var range = ValueRange.of(Month.SEPTEMBER.getValue(), Month.DECEMBER.getValue());
         boxTypeSession.setSelectedIndex((range.isValidIntValue(newDate.getMonthValue())) ? 0 : 1);
@@ -391,6 +478,8 @@ public class MainWindowPanel extends BasePanel {
         rdiBtnSequence.addActionListener(handler);
         rdiBtnWriteRandom.addActionListener(handler);
         rdiBtnWriteSequence.addActionListener(handler);
+        jBoxModes.addActionListener(handler);
+        boxTypeSession.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -403,6 +492,10 @@ public class MainWindowPanel extends BasePanel {
         tfProtocol.addFocusListener(tfFocusListener);
         tfQuantityTickets.addFocusListener(tfFocusListener);
         tfQuantityQuestionTickets.addFocusListener(tfFocusListener);
+
+        datePicDecision.addDateChangeListener((e) -> {
+            controllerInputData.actionChangeDateTime(e.getNewDate());
+        });
 
         modelListFilesRsc.addListDataListener(new ListDataListener() {
             @Override
@@ -462,12 +555,14 @@ public class MainWindowPanel extends BasePanel {
         DefaultFormatter form = (DefaultFormatter) formTextField.getFormatter();
         form.setCommitsOnValidEdit(true);
         spinnerQuantityTickets.addChangeListener(e -> {
+            controllerInputData.actionChangeQuantityTickets((Integer) spinnerQuantityTickets.getValue());
         });
 
         formTextField = ((JSpinner.NumberEditor) spinnerQuantityQuestionTickets.getEditor()).getTextField();
         form = (DefaultFormatter) formTextField.getFormatter();
         form.setCommitsOnValidEdit(true);
         spinnerQuantityQuestionTickets.addChangeListener(e -> {
+            controllerInputData.actionChangeQuantityQuestionsTickets((Integer) spinnerQuantityQuestionTickets.getValue());
         });
 
         // registrations sender msg
@@ -511,16 +606,25 @@ public class MainWindowPanel extends BasePanel {
     private final JLabel lbTypeSession;
     private final JLabel lbDateDecision;
     private final JLabel lbProtocol;
-
+    @Getter
     private final JTextField tfInstitute;
+    @Getter
     private final JTextField tfFaculty;
+    @Getter
     private final JTextField tfDepartment;
+    @Getter
     private final JTextField tfSpecialization;
+    @Getter
     private final JTextField tfDiscipline;
+    @Getter
     private final JTextField tfTeacher;
+    @Getter
     private final JTextField tfHeadDepartment;
+    @Getter
     private final JTextField tfProtocol;
+    @Getter
     private final JComboBox<Ticket.SessionType> boxTypeSession;
+    @Getter
     private final DatePicker datePicDecision;
 
     /**
@@ -728,10 +832,12 @@ public class MainWindowPanel extends BasePanel {
         return panelLEFT;
     }
 
+    @Getter
     private final DefaultListModel<File> modelListFilesRsc;
     private final JList<File> jList = new JList<>(modelListFilesRsc);
     private final JButton btnAdd;
     private final JButton btnRemove;
+    @Getter
     private final JComboBox<GenerationMode> jBoxModes;
     private final JLabel lbGenerationMode;
     private final JButton btnGenerate;
@@ -740,10 +846,14 @@ public class MainWindowPanel extends BasePanel {
     private final JLabel lblCountItems;
     private final JLabel lblListSize;
     private final JLabel lbQuantityTickets;
+    @Deprecated
     private final JTextField tfQuantityTickets;
+    @Getter
     private final JSpinner spinnerQuantityTickets;
     private final JLabel lbQuantityQuestionTickets;
+    @Deprecated
     private final JTextField tfQuantityQuestionTickets;
+    @Getter
     private final JSpinner spinnerQuantityQuestionTickets;
     private final JLabel lbReadQuestRandom;
     private final ButtonGroup btnGroupReadWay;
@@ -751,6 +861,7 @@ public class MainWindowPanel extends BasePanel {
     private final JRadioButton rdiBtnSequence;
     private final JLabel lbWriteQuestRandom;
     private final ButtonGroup btnGroupWriteWay;
+    @Getter
     private final JRadioButton rdiBtnWriteRandom;
     private final JRadioButton rdiBtnWriteSequence;
 
@@ -1165,7 +1276,7 @@ public class MainWindowPanel extends BasePanel {
         }
 
         @Override
-        public void actionInitViewElems(InitViewEvent event) {
+        public void primaryInitViewElems(InitViewEvent event) {
 
         }
 
@@ -1195,7 +1306,7 @@ public class MainWindowPanel extends BasePanel {
         }
 
         @Override
-        public void send(String msg) {
+        public void getSentMsg(String msg) {
             lblMsg.setText(msg);
         }
     }
@@ -1216,34 +1327,35 @@ public class MainWindowPanel extends BasePanel {
         @Override
         public void focusLost(FocusEvent e) {
             if (e.getSource() instanceof JTextField textField) {
-                String msg = "";
-                if ((textField == tfTeacher || textField == tfHeadDepartment) &&
-                    !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
-                    msg = "Пример:\n" +
-                          " Фамилия Имя Отчество (или Фамилия И. О.)";
-                } else if (textField == tfProtocol &&
-                           !TextPatterns.PROTOCOL_PATTERN.matches(textField.getText())) {
-                    msg = "Пример:\n" +
-                          " 4.1 (или 1.23.1)";
-                } else if ((textField == tfQuantityTickets || textField == tfQuantityQuestionTickets) &&
-                           !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимо число:\n" +
-                          "[1; 999]";
-                } else if (textField != tfTeacher && textField != tfHeadDepartment &&
-                           textField != tfProtocol &&
-                           textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
-                           !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимы символы:\n" +
-                          " A-Я,А-Z, а-я, a-z, 0-9, -, _, «, », \", }, {, ),(";
-                } else { // кидаем ошибку
-                    textField.setForeground(Color.BLACK);
+                String fieldName = "";
+                String textV = textField.getText();
+
+                if (textField == tfInstitute) {
+                    fieldName = INSTITUTE;
+                } else if (textField == tfFaculty) {
+                    fieldName = FACULTY;
+                } else if (textField == tfDepartment) {
+                    fieldName = DEPARTMENT;
+                } else if (textField == tfSpecialization) {
+                    fieldName = SPECIALIZATION;
+                } else if (textField == tfDiscipline) {
+                    fieldName = DISCIOLINE;
+                } else if (textField == tfTeacher) {
+                    fieldName = TEACHAR;
+                } else if (textField == tfHeadDepartment) {
+                    fieldName = HEADDEPARTMENT;
+                } else if (textField == tfProtocol) {
+                    fieldName = PROTOCOL;
                 }
 
-                if (!msg.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Неверный ввод !\n" +
-                                                        msg);
+                try {
+                    controllerInputData.actionFocusLostOnTextField(fieldName, textV);
+                    textField.setForeground(Color.BLACK);
+                } catch (IllegalInputValueException ex) {
+                    JOptionPane.showMessageDialog(null, "Неверный ввод !\n" + ex.getMessage());
                     textField.setForeground(Color.RED);
                     textField.grabFocus();
+
                 }
             }
         }
@@ -1271,7 +1383,8 @@ public class MainWindowPanel extends BasePanel {
                     File[] files = chooserUpLoad.getSelectedFiles();
                     for (var file : files) {
                         if (!modelListFilesRsc.contains(file)) {
-                            modelListFilesRsc.addElement(file);
+//                            modelListFilesRsc.addElement(file);
+                            controllerInputData.actionAddFileQuestions(file);
                         }
                     }
                     lblListSize.setText("" + modelListFilesRsc.size());
@@ -1332,19 +1445,24 @@ public class MainWindowPanel extends BasePanel {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {
                     for (File element : selectedElements) {
-                        modelListFilesRsc.removeElement(element);
+//                        modelListFilesRsc.removeElement(element);
+                        controllerInputData.actionRemoveFileQuestions(element);
                     }
                     lblListSize.setText("" + modelListFilesRsc.size());
                 }
 
             } else if (e.getSource() == rdiBtnRandom) {
-                isRandomRead = true;
+//                isRandomRead = true;
+                controllerInputData.actionChangeRandomRead(true);
             } else if (e.getSource() == rdiBtnSequence) {
-                isRandomRead = false;
+//                isRandomRead = false;
+                controllerInputData.actionChangeRandomRead(false);
             } else if (e.getSource() == rdiBtnWriteRandom) {
-                isRandomWrite = true;
+//                isRandomWrite = true;
+                controllerInputData.actionChangeRandomWrite(true);
             } else if (e.getSource() == rdiBtnWriteSequence) {
-                isRandomWrite = false;
+//                isRandomWrite = false;
+                controllerInputData.actionChangeRandomWrite(false);
             } else if (e.getSource() == btnGenerate) {
                 if (checkValidData()) {
                     executionThread = new TicketsGenerationExecutionThread();
@@ -1356,6 +1474,11 @@ public class MainWindowPanel extends BasePanel {
                 }
             } else if (e.getSource() == btnViewFile) {
                 new Thread(() -> viewFileDialog.setVisible(true)).start();
+            } else if (e.getSource() == jBoxModes) {
+                controllerInputData.actionChangeGenerationMode(
+                        ((GenerationMode) Objects.requireNonNull(jBoxModes.getSelectedItem())));
+            } else if (e.getSource() == boxTypeSession) {
+                controllerInputData.actionChangeTypeSession((Ticket.SessionType) boxTypeSession.getSelectedItem());
             }
         }
     }

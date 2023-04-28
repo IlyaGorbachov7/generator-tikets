@@ -30,5 +30,5 @@ public interface PanelFunc {
 
     void actionViewElems(ActionEvent event);
 
-    void actionInitViewElems(InitViewEvent event);
+    void primaryInitViewElems(InitViewEvent event);
 }

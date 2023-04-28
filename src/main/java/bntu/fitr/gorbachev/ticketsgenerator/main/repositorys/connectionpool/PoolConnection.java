@@ -91,10 +91,12 @@ public class PoolConnection {
 
     private void closeConnections(BlockingQueue<Connection> blockingQueue) throws SQLException {
         Connection connection;
+        if (blockingQueue != null) {
             while ((connection = blockingQueue.poll()) != null) {
                 ((WrapperConnection) connection).reallyClose();
                 System.out.println(" ************ CLOSE connection !");
             }
+        }
     }
 
     private class WrapperConnection implements Connection {

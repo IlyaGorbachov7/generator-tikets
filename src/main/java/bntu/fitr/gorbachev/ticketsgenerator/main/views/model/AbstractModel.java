@@ -43,7 +43,7 @@ public abstract class AbstractModel {
         listeners.removeIf(entity -> entity.getKey() == ActionListener.class && entity.getValue().equals(listener));
     }
 
-    public void fireActionEvent(Object value, String commandName) {
+    public void fireActionEvent(String commandName,Object value) {
         listeners.stream()
                 .filter(entity -> entity.getKey() == ChangeFieldModelListener.class)
                 .map(entity -> (ActionListener) entity.getValue())
@@ -62,5 +62,8 @@ public abstract class AbstractModel {
     }
 
     public void triggeringInitView() {
+    }
+
+    protected void checkConditionsValueField(final String fieldName, Object value){
     }
 }

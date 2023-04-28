@@ -4,9 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool.Pool
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.SplashScreenPanel;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.SplashScreenModel;
 import lombok.Getter;
 
@@ -15,11 +13,10 @@ public class SplashScreenController extends AbstractController {
     private final SplashScreenPanel view;
     private final SplashScreenModel model;
 
-    public SplashScreenController(BasePanel view, AbstractModel model) {
+    public SplashScreenController(SplashScreenPanel view, SplashScreenModel model) {
         super(view, model);
-        this.view = (SplashScreenPanel) view;
-        this.model = (SplashScreenModel) model;
-        init();
+        this.view = view;
+        this.model = model;
     }
 
     // callback methods, invoked via view object, when user action occurred
@@ -63,7 +60,7 @@ public class SplashScreenController extends AbstractController {
 
     @Override
     public void eventInitView(InitViewEvent event) {
-        view.actionInitViewElems(event);
+        view.primaryInitViewElems(event);
     }
 
     @Override

@@ -191,7 +191,7 @@ public class SplashScreenPanel extends BasePanel {
     }
 
     @Override
-    public void actionInitViewElems(InitViewEvent event) {
+    public void primaryInitViewElems(InitViewEvent event) {
 
     }
 
