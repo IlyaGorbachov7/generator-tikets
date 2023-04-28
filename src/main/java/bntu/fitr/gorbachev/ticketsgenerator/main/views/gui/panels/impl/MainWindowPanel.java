@@ -347,7 +347,7 @@ public class MainWindowPanel extends BasePanel {
         });
 
         // spinner number quantity tickets
-        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 1, 1023, 1);
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(10, 1, 1000, 1);
         spinnerQuantityTickets.setModel(spinnerNumberModel);
         JSpinner.NumberEditor numberEditor = (JSpinner.NumberEditor) spinnerQuantityTickets.getEditor();
         JFormattedTextField textField = numberEditor.getTextField();
@@ -385,7 +385,6 @@ public class MainWindowPanel extends BasePanel {
             case ACTION_REMOVE_LIST_QUESTIONFILE -> {
                 modelListFilesRsc.removeElement(event.getSource());
             }
-            default -> throw new IllegalArgumentException("Action not defined");
         }
     }
 
@@ -948,12 +947,9 @@ public class MainWindowPanel extends BasePanel {
         return pnlRes;
     }
 
-    private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private final LoadingDialog loadingDialog;
     private TicketsGenerationExecutionThread executionThread;
     private File tmpFileDocx;
-    private boolean isRandomRead;
-    private boolean isRandomWrite;
     private final SenderMessage registerSenderMsg;
 
 
@@ -971,35 +967,17 @@ public class MainWindowPanel extends BasePanel {
         @Override
         public void run() {
             this.setEnabledComponents(false, false);
-            int quantityTickets = (int) spinnerQuantityTickets.getValue();
-            int quantityQuestionInTicket = (int) spinnerQuantityQuestionTickets.getValue();
-
-
-            File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());
-            Ticket<Question2> tempTicket = Ticket.of(
-                    tfInstitute.getText(),
-                    tfFaculty.getText(),
-                    tfDepartment.getText(), tfSpecialization.getText(),
-                    tfDiscipline.getText(), tfTeacher.getText(),
-                    tfHeadDepartment.getText(),
-                    (Ticket.SessionType) boxTypeSession.getSelectedItem(),
-                    datePicDecision.getText(), tfProtocol.getText(), quantityQuestionInTicket);
-            ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
-
-            var generateWay = ((GenerationMode)
-                    Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay();
-            var property = new GenerationPropertyImpl(quantityTickets, quantityQuestionInTicket,
-                    true,
-                    generateWay,
-                    isRandomRead, isRandomWrite);
-            property.setWriterTicketProperty(recordSettingDialog.getWriterTicketProperty());
+            controllerInputData.actionInitializeDataGeneration(recordSettingDialog.getWriterTicketProperty());
 
             boolean repeat;
+            boolean saveGeneratedFile = false;
             do {
                 try {
                     registerSenderMsg.sendMsg("start...");
                     loadingDialog.showDialog();
-                    ticketGenerator.startGenerate(property);
+                    controllerInputData.actionStartGenerate();
+                    // if generation tickets is successfully, then flag saveGenerationFile == true, else always value = false
+                    saveGeneratedFile = true;
                     repeat = false;
                 } catch (ExecutionException | GenerationConditionException ex) {
                     loadingDialog.closeDialog();
@@ -1012,9 +990,9 @@ public class MainWindowPanel extends BasePanel {
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
-                                property.setFlagContinGenWithDepriveLev(true);
+                                controllerInputData.actionChangeValueFieldGenerationPropertyFlagContinGenWithDepriveLev(true);
                             } else {
-                                property.setUnique(false);
+                                controllerInputData.actionChangeValueFieldGenerationPropertyUnique(false);
                             }
                         } else {
                             repeat = false;
@@ -1029,7 +1007,7 @@ public class MainWindowPanel extends BasePanel {
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
 //                            loadingDialog.showDialog();
-                            property.setFlagContinGenWithChapterWithoutSection(true);
+                            controllerInputData.actionChangeValueFieldGenerationPropertyFlagContinGenWithChapterWithoutSection(true);
                         } else {
                             repeat = false;
                             this.setEnabledComponents(true, false);
@@ -1063,9 +1041,13 @@ public class MainWindowPanel extends BasePanel {
                 }
             } while (repeat);
 
+            saveGeneratedFile(saveGeneratedFile);
+        }
+
+        private void saveGeneratedFile(boolean saveFile) {
             // if docx file is generated, then ...
             // save generate file docx inside project for further conversion to pdf file
-            if (ticketGenerator.getDocxDec() != null) {
+            if (saveFile) {
                 InputStream inputStream = null;
                 OutputStream outputStream = null;
                 IConverter converter;
@@ -1078,12 +1060,8 @@ public class MainWindowPanel extends BasePanel {
                         tmpFilePdf.deleteOnExit();
 
                         registerSenderMsg.sendMsg("write output data to tmp .docx file ");
-                        ticketGenerator.writeOutputFile(tmpFileDocx);
-
-                        /*Since if the user wants 100,000 tickets,the memory will fill up by 3GB.
-                          At the end of the generation, we will write the generator*/
-                        ticketGenerator = null;
-                        Runtime.getRuntime().gc();
+                        controllerInputData.actionWriteOutputFile(tmpFileDocx);
+                        controllerInputData.actionClearDataGeneration();
 
                         // convert saved file to pdf file
                         inputStream = new FileInputStream(tmpFileDocx);

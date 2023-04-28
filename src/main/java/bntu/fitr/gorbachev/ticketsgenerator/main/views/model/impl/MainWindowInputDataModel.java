@@ -1,6 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.GenerationPropertyImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
@@ -51,6 +54,9 @@ public class MainWindowInputDataModel extends AbstractModel {
     private GenerationMode generationMode = GenerationMode.MODE_1;
     private boolean randomRead = true;
     private boolean randomWrite = true;
+    private GenerationPropertyImpl propertyGeneration;
+    private Ticket<Question2> ticket;
+    private TicketGeneratorImpl ticketGenerator;
 
     {
         typeSession = ValueRange.of(Month.SEPTEMBER.getValue(), Month.DECEMBER.getValue()).
@@ -237,5 +243,17 @@ public class MainWindowInputDataModel extends AbstractModel {
 
     public boolean containsFile(File file) {
         return listFilesRsc.contains(file);
+    }
+
+    public void setTicket(Ticket<Question2> ticket) {
+        this.ticket = ticket;
+    }
+
+    public void setPropertyGeneration(GenerationPropertyImpl propertyGeneration) {
+        this.propertyGeneration = propertyGeneration;
+    }
+
+    public void setTicketGenerator(TicketGeneratorImpl ticketGenerator) {
+        this.ticketGenerator = ticketGenerator;
     }
 }
