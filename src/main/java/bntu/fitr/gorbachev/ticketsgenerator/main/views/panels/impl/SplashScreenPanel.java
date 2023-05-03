@@ -194,7 +194,7 @@ public class SplashScreenPanel extends BasePanel {
             @Override
             public void windowClosing(WindowEvent e) {
                 System.out.println(SplashScreenPanel.class + " window Closing");
-                PoolConnection.getInstance().destroyConnectionPool();
+//                PoolConnection.getInstance().destroyConnectionPool();
                 threadProcess.interrupt();
                 /* There are cases when throw NullPointerException.
                  * This event happening, if this thread trying

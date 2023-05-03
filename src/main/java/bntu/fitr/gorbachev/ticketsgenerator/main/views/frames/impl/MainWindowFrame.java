@@ -32,8 +32,8 @@ public class MainWindowFrame extends BaseFrame {
 
     @Override
     public void initDialog() {
-        try {
-            PoolConnection.getInstance().initPool();
+//        try {
+//            PoolConnection.getInstance().initPool();
             JPanel panel = PanelFactory.getInstance().createPanel(this, getPanelType());
             this.add(panel, BorderLayout.CENTER);
 
@@ -41,14 +41,14 @@ public class MainWindowFrame extends BaseFrame {
                 @Override
                 public void windowClosing(WindowEvent e) {
                     System.out.print(MainWindowFrame.class + " ");
-                    PoolConnection.getInstance().destroyConnectionPool();
+//                    PoolConnection.getInstance().destroyConnectionPool();
                 }
             });
-        } catch (ConnectionPoolException e) {
-            // close connections, which opened already
-            PoolConnection.getInstance().destroyConnectionPool();
-            initPanelErrorConnectionPool(e);
-        }
+//        } catch (ConnectionPoolException e) {
+//             close connections, which opened already
+//            PoolConnection.getInstance().destroyConnectionPool();
+//            initPanelErrorConnectionPool(e);
+//        }
     }
 
     private void initPanelErrorConnectionPool(ConnectionPoolException ex) {
