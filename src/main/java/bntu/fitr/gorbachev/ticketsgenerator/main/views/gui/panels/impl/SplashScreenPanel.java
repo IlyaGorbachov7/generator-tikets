@@ -148,7 +148,7 @@ public class SplashScreenPanel extends BasePanel {
     }
 
     /**
-     * The method sets configuration all components bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels. This method invoked once panel generation
+     * The method sets configuration all components bntu.fitr.gorbachev.ticketsgenerator.main.views.panels. This method invoked once panel generation
      */
     @Override
     public void setConfigComponents() {
@@ -211,6 +211,7 @@ public class SplashScreenPanel extends BasePanel {
         getRootFrame().addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
+                //                PoolConnection.getInstance().destroyConnectionPool();
                 controller.actionWindowClosing();
             }
         });

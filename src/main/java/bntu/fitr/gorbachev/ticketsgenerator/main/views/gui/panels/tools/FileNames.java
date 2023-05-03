@@ -2,11 +2,9 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools;
 
 import lombok.SneakyThrows;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Contains constants file-paths
@@ -38,8 +36,7 @@ public class FileNames {
     @SneakyThrows
     public static String readFromInputStream(InputStream inputStream) {
         StringBuilder resultStringBuilder = new StringBuilder();
-        try (BufferedReader br
-                     = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
                 resultStringBuilder.append(line).append("\n");
