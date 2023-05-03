@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.GenerationPropertyImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.MessageRetriever;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMsgFactory;
@@ -13,7 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.PanelFunc;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.FileNames;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.exceptions.IllegalInputValueException;
