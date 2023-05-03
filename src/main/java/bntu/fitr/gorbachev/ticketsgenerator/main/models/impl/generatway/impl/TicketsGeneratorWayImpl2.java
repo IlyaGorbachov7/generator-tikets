@@ -200,10 +200,8 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
                 .map(childTicketNode -> {
 
                     Ticket<Question2> ticket = childTicketNode.getTicket();
-                    System.out.println("childern TIcket: " + ticket);
                     if (prop.isFlagRandomOrderQuestInTicket()) Collections.shuffle(rangeQuest);
                     this.changeQuestionsTicket(ticket);
-                    System.out.println(ticket + "\n");
                     return ticket;
                 }).forEach(listTickets::add);
     }
