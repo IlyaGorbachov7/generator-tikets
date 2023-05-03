@@ -1,5 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools;
 
+import lombok.SneakyThrows;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 
 /**
@@ -7,6 +13,9 @@ import java.net.URL;
  */
 public class FileNames {
     private static final String targetPath = "/resources/pictures/";
+
+    // record "resources/html/" - important in such look
+    private static final String targetPathHtml = "resources/html/";
 
     private FileNames() {
     }
@@ -20,6 +29,25 @@ public class FileNames {
         return FileNames.class.getResource(filePath);
     }
 
+    public static String readResourceToString(String aboutProgramHtml) throws IOException {
+        try (InputStream in = FileNames.class.getClassLoader().getResourceAsStream(aboutProgramHtml)) {
+            return readFromInputStream(in);
+        }
+    }
+
+    @SneakyThrows
+    public static String readFromInputStream(InputStream inputStream) {
+        StringBuilder resultStringBuilder = new StringBuilder();
+        try (BufferedReader br
+                     = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                resultStringBuilder.append(line).append("\n");
+            }
+        }
+        return resultStringBuilder.toString();
+    }
+
     /**
      * {@link bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.SplashScreenPanel}
      */
@@ -29,6 +57,8 @@ public class FileNames {
      * {@link bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.AboutProgramPanel}
      */
     public final static String picturePrim1 = targetPath + "picturePrim.jpg";
+
+    public final static String picturePrim2 = targetPath + "picturePrim.png";
 
     /**
      * {@link bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.AboutAuthorPanel}
@@ -62,4 +92,7 @@ public class FileNames {
 
     public static final String spinnerLoaderIcon = targetPath + "spinner-loader.gif";
 
+    public static final String aboutProgramHtml = targetPathHtml + "AboutProgram.html";
+
+    public static final String aboutProgramSnippet1Html = targetPathHtml + "AboutProgramSnippet1.html";
 }

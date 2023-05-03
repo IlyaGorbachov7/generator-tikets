@@ -7,6 +7,11 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.PanelType;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.WindowAdapter;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 /**
  * The class represents a dialog box object "About Program"
@@ -29,7 +34,7 @@ public class AboutProgram extends BaseDialog {
      */
     @Override
     public void initDialog() {
-        this.setBounds((int) getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 600, 500);
+        this.setBounds((int) getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 800, 500);
         this.setResizable(false);
         this.add(PanelFactory.getInstance().createPanel(this, getPanelType()));
     }
