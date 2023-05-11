@@ -17,16 +17,4 @@ public class AboutProgramController extends AbstractController {
         this.view = view;
         this.model = model;
     }
-
-    // callbacks methods, invoked via model object
-
-    @Override
-    public void eventInitView(InitViewEvent event) {
-        view.primaryInitViewElems(event);
-    }
-
-    @Override
-    public void eventChangeFiledModel(ChangeFieldModelEvent e) {
-        view.changeStateViewElems(e);
-    }
 }

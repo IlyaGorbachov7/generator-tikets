@@ -41,8 +41,14 @@ public abstract class AbstractController implements ChangeFieldModelListener, In
         this.getModel().triggeringInitView();
     }
 
-    public abstract void eventInitView(InitViewEvent event);
+    // callbacks methods, invoked via model object
+
+    public  void eventInitView(InitViewEvent event){
+        view.primaryInitViewElems(event);
+    };
 
     @Override
-    public abstract void eventChangeFiledModel(ChangeFieldModelEvent e);
+    public void eventChangeFiledModel(ChangeFieldModelEvent e){
+        view.changeStateViewElems(e);
+    };
 }

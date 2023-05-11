@@ -46,16 +46,6 @@ public class RecordSettingController extends AbstractController implements Actio
     // callbacks methods, invoked via model object
 
     @Override
-    public void eventInitView(InitViewEvent event) {
-        view.primaryInitViewElems(event);
-    }
-
-    @Override
-    public void eventChangeFiledModel(ChangeFieldModelEvent e) {
-        view.changeStateViewElems(e);
-    }
-
-    @Override
     public void actionPerformed(ActionEvent e) {
         view.actionViewElems(e);
     }

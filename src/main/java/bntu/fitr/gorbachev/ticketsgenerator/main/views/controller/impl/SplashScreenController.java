@@ -55,16 +55,4 @@ public class SplashScreenController extends AbstractController {
          * Then Swing-Framework don't complete success this process.
          * In the finally, frame Window don't closed*/
     }
-
-    // callbacks methods, invoked via model object
-
-    @Override
-    public void eventInitView(InitViewEvent event) {
-        view.primaryInitViewElems(event);
-    }
-
-    @Override
-    public void eventChangeFiledModel(ChangeFieldModelEvent e) {
-        view.changeStateViewElems(e);
-    }
 }
