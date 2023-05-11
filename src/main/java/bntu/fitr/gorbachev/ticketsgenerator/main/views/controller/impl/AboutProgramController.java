@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.AboutProgramPanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.AboutProgramModel;
 import lombok.Getter;

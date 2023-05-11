@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewEvent;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

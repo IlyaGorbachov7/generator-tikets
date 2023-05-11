@@ -2,8 +2,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.model;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import lombok.NonNull;
 
 import java.awt.event.ActionEvent;
@@ -12,9 +12,6 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 import java.util.Map;
-
-import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.FONT_SIZE;
-import static bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.perconst.RecordSettingFieldNameConst.QUANTITY_TICKET_ON_SINGLEPAGE;
 
 public abstract class AbstractModel {
     protected final List<Map.Entry<Class<? extends EventListener>, EventListener>> listeners = new ArrayList<>();

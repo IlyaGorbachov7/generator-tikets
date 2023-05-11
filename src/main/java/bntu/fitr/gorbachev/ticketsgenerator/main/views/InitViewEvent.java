@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,9 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool.PoolConnection;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.AbstractController;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl.SplashScreenPanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.impl.SplashScreenModel;
 import lombok.Getter;

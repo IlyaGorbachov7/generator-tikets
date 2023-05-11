@@ -7,7 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMsgFac
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.controller.impl.MainWindowInputDataController;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.PanelFunc;

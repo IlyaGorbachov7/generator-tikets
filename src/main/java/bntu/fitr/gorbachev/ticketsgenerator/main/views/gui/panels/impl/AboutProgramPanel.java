@@ -1,7 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.tools.*;
 import lombok.SneakyThrows;

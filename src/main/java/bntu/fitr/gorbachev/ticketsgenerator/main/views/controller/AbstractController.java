@@ -3,7 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.controller;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.ChangeFieldModelListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.InitViewEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.InitViewEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.gui.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.model.AbstractModel;
 import lombok.*;
