@@ -15,7 +15,7 @@ public class LexicalPatterns {
      * @apiNote <b>Should necessarily start with symbol '='</b>
      */
     public static final PreparerPatterns STRING_REGEX = PreparerPatterns
-            .newInstance("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё.\\-]+)[\\s&&[^\\n]]*;");
+            .newInstance("^[\\s&&[^\\n]]*=[\\s&&[^\\n]]*([\\wА-Яа-яё.\\-]+([\\s&&[^\\n]]*[\\wА-Яа-яё.\\-])*)[\\s&&[^\\n]]*;");
 
     /**
      * Text: = 23 or: =99.99,
