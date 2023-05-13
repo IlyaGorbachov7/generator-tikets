@@ -1,10 +1,12 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.ContentExtractException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.InvalidLexicalException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.AbstractContentExtractThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.attributes.AttributeService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.attributes.impl.ListTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.attributes.impl.QuestTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.constants.TagPatterns;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -14,6 +16,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTText;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 
@@ -47,9 +50,9 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
 
                 // if all required check is fulfilled
                 // Then...
-                AttributeService listStartTagService;
+                ListTagAttributeService listStartTagService;
                 try { /* extract attributes from ListStartTag and put values inside a class ListTagAttributesService*/
-                    listStartTagService = extractAttributesFromListStartTag(curP);
+                    listStartTagService = (ListTagAttributeService) extractAttributesFromListStartTag(curP);
                 } catch (InvalidLexicalException e) {
                     throw new ContentExtractException(e.getMessage());
                 }
@@ -57,13 +60,11 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
                 i++;
                 while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
                     Question2 ques = supplierQuestion.get();// 1 question - can contain picture or math-expressions
-                    /* filling question fields via object implementing AttributeService*/
-                    fillerQuestionFields(ques, listStartTagService);
+                    QuestTagAttributeService questTagService = null;
                     /* checking paragraph to contains QuestionTag */
                     if (isExistQuestTag(curP)) {
                         try { /*extract attributes from QuestionTag and put value inside a class QuestTagAttributeService*/
-                            AttributeService questTagService = extractAttributesFromQuestTag(curP);
-                            fillerQuestionFields(ques, questTagService);
+                            questTagService = extractAttributesFromQuestTag(curP);
                         } catch (InvalidLexicalException e) {
                             throw new ContentExtractException(e.getMessage());
                         }
@@ -81,7 +82,35 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
                     }
 
                     i = j; // then update index, point on the
-                    listQuestions.add(ques);
+
+                    if (!Objects.isNull(questTagService)) { // else override attributes question of values contains in questTagService
+                        if (questTagService.getR() >= QuestionExt.MIN_VALUE_REPEAT) {
+                            final int valueAtrR = listStartTagService.getR(); // value can be < MIN_VALUE_REPEAT, so
+                            if (valueAtrR < QuestionExt.MIN_VALUE_REPEAT) { // this is needed that setter setRepeat from QuestionExt don't throw exception
+                                listStartTagService.setR(questTagService.getR());
+                            }
+                            // then will be filling question fields via object implementing listStartTagService
+                            fillerQuestionFields(ques, listStartTagService);
+                            // then return old value
+                            listStartTagService.setR(valueAtrR);
+                            // filling question fields via object implementing QuestTagAttributeService
+                            fillerQuestionFields(ques, questTagService);
+                            if(listStartTagService.getR() >= QuestionExt.MIN_VALUE_REPEAT){
+                                listQuestions.add(ques);
+                            }else if(questTagService.getR() != Integer.MAX_VALUE){
+                                listQuestions.add(ques);
+                            }
+                        }
+                        // else if getR <= 0 then question don't add in list
+                    } else {
+                        if (listStartTagService.getR() >= QuestionExt.MIN_VALUE_REPEAT) {
+                            /* filling question fields via object implementing AttributeService*/
+                            fillerQuestionFields(ques, listStartTagService);
+                            /*and adding question in list, else if getR() < MIN_VALUE_REPEAT then this question don't add in list*/
+                            listQuestions.add(ques);
+                        }
+                        // else if getR <= 0 then question don't add in list
+                    }
                 }
             }
         }
@@ -96,10 +125,12 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
     @Override
     protected void fillerQuestionFields(Question2 quest, AttributeService service) {
         if (service instanceof QuestTagAttributeService questTagAttributeService) {
-            quest.setRepeat((questTagAttributeService.getR() <= 0 ? quest.getRepeat() :
-                    questTagAttributeService.getR()));
-            quest.setLevel((questTagAttributeService.getL()) <= 0 ? quest.getLevel() :
+            // value getL() can be  < or >= MIN_VALUE_LEVEL. Throw exception if getL < MIN_VALUE_LEVEL
+            quest.setLevel((questTagAttributeService.getL()) == Integer.MAX_VALUE ? quest.getLevel() :
                     questTagAttributeService.getL());
+            // value getR() always >= MIN_VALUE_LEVEL, else throw exception
+            quest.setRepeat((questTagAttributeService.getR() == Integer.MAX_VALUE ? quest.getRepeat() :
+                    questTagAttributeService.getR()));
         } else super.fillerQuestionFields(quest, service);
     }
 

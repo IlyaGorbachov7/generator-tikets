@@ -108,7 +108,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // if all required check is fulfilled
                 // Then...
-                AttributeService attributeTag;
+                ListTagAttributeService attributeTag;
                 try {
                     attributeTag = extractAttributesFromListStartTag(curP);
                 } catch (InvalidLexicalException e) {
@@ -118,7 +118,6 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 i++;
                 while (i < paragraphs.size() && isNumbering(curP = paragraphs.get(i))) { // running by one topic
                     T ques = supplierQuestion.get();// 1 question - can contain picture or math-expressions
-                    fillerQuestionFields(ques, attributeTag);
                     ques.add(curP);
 
                     int j = i + 1;
@@ -132,7 +131,10 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     }
 
                     i = j; // then update index, point on the
-                    listQuestions.add(ques);
+                    if (attributeTag.getR() >= QuestionExt.MIN_VALUE_REPEAT) {
+                        fillerQuestionFields(ques, attributeTag);
+                        listQuestions.add(ques);
+                    }
                 }
             }
         }
@@ -225,7 +227,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      * @throws IllegalArgumentException if paragraph is not start tag. <b>This method await, that
      *                                  paragraph contain start teg</b>
      */
-    protected AttributeService extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
+    protected ListTagAttributeService extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
         if (!isListStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
 
         String attributes = null;
@@ -236,7 +238,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
         if (attributes == null) { // if <S>
             attributes = "";
         }
-        return extractAndFill(attributes, ListTagAttributeService.class);
+        return (ListTagAttributeService) extractAndFill(attributes, ListTagAttributeService.class);
     }
 
     /**
@@ -339,8 +341,12 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
     protected void fillerQuestionFields(T quest, AttributeService service) {
         if (service instanceof ListTagAttributeService attributesListStartTag) {
             quest.setSection(attributesListStartTag.getN());
-            quest.setLevel(attributesListStartTag.getL());
-            quest.setRepeat(attributesListStartTag.getR());
+            // value getL() can be  < or >= MIN_VALUE_LEVEL. Throw exception if getL < MIN_VALUE_LEVEL
+            quest.setLevel((attributesListStartTag.getL() == Integer.MAX_VALUE) ? QuestionExt.MIN_VALUE_LEVEL
+                    : attributesListStartTag.getL());
+            // value getR() always >= MIN_VALUE_REPEAT, else throw exception
+            quest.setRepeat((attributesListStartTag.getR() == Integer.MAX_VALUE) ? QuestionExt.MIN_VALUE_REPEAT
+                    : attributesListStartTag.getR());
         }
     }
 

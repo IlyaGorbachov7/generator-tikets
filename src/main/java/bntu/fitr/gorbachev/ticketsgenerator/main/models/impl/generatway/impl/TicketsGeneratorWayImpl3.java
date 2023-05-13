@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.WrapperList;
@@ -34,53 +35,74 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
         wrapListQuest = WrapperList.of(questions);
         wrapListQuestRandom = WrapperList.of(new ArrayList<>(questions));
         Collections.shuffle(wrapListQuestRandom.getList());
-        wrapListRepeatQuest = WrapperList.of(questions.stream().filter(q -> q.getRepeat() > 0).collect(Collectors.toList()));
+        wrapListRepeatQuest = WrapperList.of(questions.stream().filter(q -> q.getRepeat() > QuestionExt.MIN_VALUE_REPEAT)
+                .collect(Collectors.toList()));
         bufferQuestCurrentTickets = new ArrayList<>(prop.getQuantityQTickets());
+
+        // it is necessary to reduce by one the value of repetitions for questions with > MIN_VALUE_REPEAT
+        // since always the question were separated into 2 arrays: mapWrapListQuestBySection and mapWrapListRepeatedQuestBySection
+        questions.forEach(q -> {
+            if (q.getRepeat() > QuestionExt.MIN_VALUE_REPEAT) {
+                q.setRepeat(q.getRepeat() - 1);
+            }
+        });
     }
 
     @Override
     public void conditionGeneration(List<Question2> questions, GenerationProperty property) throws GenerationConditionException {
         initFields(questions, property);
-
-        if (questions.size() < prop.getQuantityQTickets()) {
-            throw new GenerationConditionException(
-                    String.format("""
-                                    Вы указали: %d вопросов в билете.
-                                    Недостаточно вопросов, чтобы сгенерировать билет без повторяющихся вопросов
-                                    """,
-                            prop.getQuantityQTickets())
-            );
-        }
-
-        int totalQuantity = questions.size() + wrapListRepeatQuest.stream()
-                .mapToInt(Question2::getRepeat).sum();
-        totalQuantity = prop.getQuantityTickets() * prop.getQuantityQTickets() - totalQuantity;
-        if (totalQuantity > 0) {
-            if (prop.isUnique()) {
-                throw new NumberQuestionsRequireException(
+        try {
+            GenerationConditionException generationConditionException;
+            if (questions.size() < prop.getQuantityQTickets()) {
+                generationConditionException = new GenerationConditionException(
                         String.format("""
                                         Вы указали: %d вопросов в билете.
-                                        Требуется, чтобы количество вопросов суммарно с учётом указанного Вами
-                                        количество повторения был равен как минимум:
-                                        КоличествоБилетов * КоличествоВопросовБилета = %d * %d = %d
-                                        Недостаточно вопросов, в количестве: %d
-                                        Среди вопросов, у которых указано число повторений будет
-                                        последовательно увеличено недостающее число повторений, если таковые имеются,
-                                        иначе вопросы будут выбраны произвольно.""",
-                                prop.getQuantityQTickets(), prop.getQuantityTickets(), prop.getQuantityQTickets(),
-                                prop.getQuantityTickets() * prop.getQuantityQTickets(), totalQuantity));
-            } else if (!wrapListRepeatQuest.isEmpty()) {
-                int fullPass = totalQuantity / wrapListRepeatQuest.size();
-                int quantityQuestForIncrease = totalQuantity - fullPass * wrapListRepeatQuest.size();
-                for (int i = 0; i < wrapListRepeatQuest.size(); i++) {
-                    Question2 repQuest = wrapListRepeatQuest.get(i);
+                                        Недостаточно вопросов, чтобы сгенерировать билет без повторяющихся вопросов
+                                        """, prop.getQuantityQTickets()));
+                throw new RuntimeException(generationConditionException);
+            }
 
-                    int rep = fullPass + repQuest.getRepeat();
-                    if (i < quantityQuestForIncrease) {
-                        ++rep;
+            int totalQuantity = questions.size() + wrapListRepeatQuest.stream()
+                    .mapToInt(Question2::getRepeat).sum();
+            totalQuantity = prop.getQuantityTickets() * prop.getQuantityQTickets() - totalQuantity;
+            if (totalQuantity > 0) {
+                if (prop.isUnique()) {
+                    generationConditionException = new NumberQuestionsRequireException(
+                            String.format("""
+                                            Вы указали: %d вопросов в билете.
+                                            Требуется, чтобы количество вопросов суммарно с учётом указанного Вами
+                                            количество повторения был равен как минимум:
+                                            КоличествоБилетов * КоличествоВопросовБилета = %d * %d = %d
+                                            Недостаточно вопросов, в количестве: %d
+                                            Среди вопросов, у которых указано число повторений строго больше %d, будет
+                                            равномерно-последовательно увеличено недостающее число повторений, если таковые имеются,
+                                            однако если среди вопросов нет ни одного вопроса
+                                            повторяемость которого больше %d, вопросы будут выбраны равномерно-рандомно.
+                                            """,
+                                    prop.getQuantityQTickets(), prop.getQuantityTickets(), prop.getQuantityQTickets(),
+                                    prop.getQuantityTickets() * prop.getQuantityQTickets(), totalQuantity,
+                                    QuestionExt.MIN_VALUE_REPEAT, QuestionExt.MIN_VALUE_REPEAT));
+                    throw new RuntimeException(generationConditionException);
+                } else if (!wrapListRepeatQuest.isEmpty()) {
+                    int fullPass = totalQuantity / wrapListRepeatQuest.size();
+                    int quantityQuestForIncrease = totalQuantity - fullPass * wrapListRepeatQuest.size();
+                    for (int i = 0; i < wrapListRepeatQuest.size(); i++) {
+                        Question2 repQuest = wrapListRepeatQuest.get(i);
+
+                        int rep = fullPass + repQuest.getRepeat();
+                        if (i < quantityQuestForIncrease) {
+                            ++rep;
+                        }
+                        repQuest.setRepeat(rep);
                     }
-                    repQuest.setRepeat(rep);
                 }
+            }
+        } catch (RuntimeException ex) {
+            if (ex.getCause() instanceof GenerationConditionException generationConditionException1) {
+                wrapListRepeatQuest.forEach(q -> q.setRepeat(q.getRepeat() + 1));
+                throw generationConditionException1;
+            } else {
+                throw ex;
             }
         }
     }
@@ -195,11 +217,11 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
         }
 
         Question2 q = wrapListRepeatQuest.current();
-        q.setRepeat(q.getRepeat() - 1);
 
-        if (q.getRepeat() == 0) {
+        if (q.getRepeat() == QuestionExt.MIN_VALUE_REPEAT) {
             wrapListRepeatQuest.remove(); // removed quest with prop:repeat == 0
         } else {
+            q.setRepeat(q.getRepeat() - 1);
             wrapListRepeatQuest.next();
         }
         return q;
