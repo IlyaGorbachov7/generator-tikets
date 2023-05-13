@@ -11,8 +11,16 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.attributes
  */
 public class ListTagAttributeService implements AttributeService {
     private String n;
-    private int l;
-    private int r;
+    /**
+     * if user don't specify explicitly this attribute then by default, value property {@link #l} equals Integer.MAX_VALUE.
+     * However, this value can be changed via setter
+     */
+    private int l = Integer.MAX_VALUE;
+    /**
+     * if user don't specify explicitly this attribute then by default, value property {@link #r} equals Integer.MAX_VALUE.
+     * However, this value can be changed via setter
+     */
+    private int r = Integer.MAX_VALUE;
 
     public ListTagAttributeService() {
         n = "";
@@ -56,7 +64,6 @@ public class ListTagAttributeService implements AttributeService {
                ", r=" + r +
                '}';
     }
-
 
 
 }

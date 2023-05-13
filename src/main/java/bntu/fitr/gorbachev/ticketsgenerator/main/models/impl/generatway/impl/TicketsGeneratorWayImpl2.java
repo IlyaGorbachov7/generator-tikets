@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.models.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.TicketsGeneratorWay;
@@ -35,116 +36,126 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
         prop = (GenerationPropertyImpl) property;
         rangeQuest = IntStream.rangeClosed(1, prop.getQuantityQTickets()).boxed().collect(Collectors.toList());
 
-        ExecutorService service = Executors.newFixedThreadPool(2);
-        List<Future<?>> futures = new ArrayList<>(2);
+        mapWrapListQuestGroupByLevel = questions.stream()
+                .collect(Collectors.groupingBy(Question2::getLevel, TreeMap::new,
+                        Collectors.collectingAndThen(Collectors.toList(), WrapperList::of)));
 
-        futures.add(service.submit(() -> {
-            mapWrapListQuestGroupByLevel = questions.stream()
-                    .collect(Collectors.groupingBy(Question2::getLevel, TreeMap::new,
-                            Collectors.collectingAndThen(Collectors.toList(), WrapperList::of)));
-        }));
-        futures.add(service.submit(() -> {
-            mapWrapListQuestRepeatedGroupByLevel = questions.stream()
-                    .collect(Collectors.groupingBy(Question2::getLevel, TreeMap::new,
-                            Collectors.filtering(q -> q.getRepeat() > 0,
-                                    Collectors.collectingAndThen(Collectors.toList(), WrapperList::of))));
-        }));
-        service.shutdown();
-        for (var future : futures) {
-            try {
-                future.get();
-            } catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+
+        mapWrapListQuestRepeatedGroupByLevel = questions.stream()
+                .collect(Collectors.groupingBy(Question2::getLevel, TreeMap::new,
+                        Collectors.filtering(q -> q.getRepeat() > QuestionExt.MIN_VALUE_REPEAT,
+                                Collectors.collectingAndThen(Collectors.toList(), WrapperList::of))));
+
+        // it is necessary to reduce by one the value of repetitions for questions with > MIN_VALUE_REPEAT
+        // since always the question were separated into 2 arrays: mapWrapListQuestBySection and mapWrapListRepeatedQuestBySection
+        questions.forEach(q -> {
+            if (q.getRepeat() > QuestionExt.MIN_VALUE_REPEAT) {
+                q.setRepeat(q.getRepeat() - 1);
             }
-        }
-
+        });
     }
 
     @Override
     public void conditionGeneration(List<Question2> questions, GenerationProperty property)
             throws GenerationConditionException {
         initFields(questions, property);
+        try {
+            GenerationConditionException generationConditionException;
+            Map<Boolean, List<Integer>> mapRang = rangeQuest.stream()
+                    .collect(Collectors.partitioningBy(mapWrapListQuestGroupByLevel::containsKey));
 
-        Map<Boolean, List<Integer>> mapRang = rangeQuest.stream()
-                .collect(Collectors.partitioningBy(mapWrapListQuestGroupByLevel::containsKey));
+            List<Integer> findsNonMatchLevel = mapWrapListQuestGroupByLevel.keySet().stream()
+                    .filter(Predicate.not(mapRang.get(true)::contains)).toList();
 
-        List<Integer> findsNonMatchLevel = mapWrapListQuestGroupByLevel.keySet().stream()
-                .filter(Predicate.not(mapRang.get(true)::contains)).toList();
-
-        if (!mapRang.get(false).isEmpty()) {
-            System.out.println(mapRang.get(true));
-            System.out.println(mapRang.get(false));
-            // fatal exception
-            throw new GenerationConditionException(
-                    "Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + ".\n" +
-                    "Отсутствуют вопросы со сложностью: " + mapRang.get(false) + ".\n" +
-                    ((findsNonMatchLevel.isEmpty()) ? ""
-                            : "Однако найдены вопросы со сложностью: " + findsNonMatchLevel + ",\n") +
-                    "необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets() + "]"
-            );
-        } else if (!findsNonMatchLevel.isEmpty()) {
-            if (!prop.isFlagContinGenWithDepriveLev()) {
-                // exception allowed to continue generation. That continue generation needed set flag == true
-                throw new FindsNonMatchingLevel("Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
-                                                "Кроме вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты,\n" +
-                                                "были найдены вопросы сложности: " + findsNonMatchLevel + ".\n" +
-                                                "Выборка вопросов будет производится только в пределах: [1; " + prop.getQuantityQTickets() + "]\n"
+            if (!mapRang.get(false).isEmpty()) {
+                System.out.println(mapRang.get(true));
+                System.out.println(mapRang.get(false));
+                // fatal exception
+                generationConditionException = new GenerationConditionException(
+                        "Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + ".\n" +
+                        "Отсутствуют вопросы со сложностью: " + mapRang.get(false) + ".\n" +
+                        ((findsNonMatchLevel.isEmpty()) ? ""
+                                : "Однако найдены вопросы со сложностью: " + findsNonMatchLevel + ",\n") +
+                        "необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets() + "]"
                 );
-            } else {
-                // just remove unnecessary levels from global mapListQuest
-                for (int unnecessaryLevel : findsNonMatchLevel) {
-                    mapWrapListQuestGroupByLevel.remove(unnecessaryLevel);
-                    mapWrapListQuestRepeatedGroupByLevel.remove(unnecessaryLevel);
-                }
-            }
-        }
-
-        // Further, checking quantity needed questions for each property: level with taking into account property: repeat
-        // For each key:level  must be list, contains total quantity questions (with repeated) == requirement quantity
-        // tickets
-        Set<Map.Entry<Integer, Integer>> entryQuantityNotEnough = new HashSet<>(rangeQuest.size());
-        for (var entry : mapWrapListQuestRepeatedGroupByLevel.entrySet()) {
-            int totalQuantity = entry.getValue().stream().mapToInt(Question2::getRepeat).sum();
-
-            totalQuantity = prop.getQuantityTickets() - totalQuantity - mapWrapListQuestGroupByLevel.get(entry.getKey()).size();
-            if (totalQuantity > 0) {
-                entryQuantityNotEnough.add(new AbstractMap.SimpleEntry<>(entry.getKey(), totalQuantity));
-            }
-        }
-        if (prop.isUnique()) { // if true, this is means then we require that USER control repeated questions
-            // then check really user take into account the conditions for generation tickets
-
-            if (!entryQuantityNotEnough.isEmpty()) {
-                // exception allowed to continew generation
-                throw new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                          "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
-                                                          " был равен как минимум: " + prop.getQuantityTickets() + "" +
-                                                          " (с учётом указанного Вами количество повторения).\n" +
-                                                          "Не достаточно вопросов у сложности:\n" +
-                                                          entryQuantityNotEnough.stream()
-                                                                  .map(e -> e.getKey() + " => в количестве: " + e.getValue())
-                                                                  .collect(Collectors.joining("\n")) + ".\n" +
-                                                          "Среди вопросов, у которых указано число повторений будет\n" +
-                                                          "равномерно увеличено недостающее число повторений, если таковые имеются,\n" +
-                                                          "иначе вопросы будут выбраны произвольно.");
-            }
-        } else {
-            for (var entry : entryQuantityNotEnough) {
-                List<Question2> listRepeatedQuest = mapWrapListQuestRepeatedGroupByLevel.get(entry.getKey());
-                if (!listRepeatedQuest.isEmpty()) {
-                    int fullPass = entry.getValue() / listRepeatedQuest.size();
-                    int quantityQuestForIncrease = entry.getValue() - fullPass * listRepeatedQuest.size();
-
-                    for (int i = 0; i < listRepeatedQuest.size(); i++) {
-                        Question2 repQuest = listRepeatedQuest.get(i);
-
-                        int rep = fullPass + repQuest.getRepeat();
-                        if (i < quantityQuestForIncrease) {
-                            ++rep;
-                        }
-                        repQuest.setRepeat(rep);
+                throw new RuntimeException(generationConditionException);
+            } else if (!findsNonMatchLevel.isEmpty()) {
+                if (!prop.isFlagContinGenWithDepriveLev()) {
+                    // exception allowed to continue generation. That continue generation needed set flag == true
+                    generationConditionException =
+                            new FindsNonMatchingLevel("Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
+                                                      "Кроме вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты,\n" +
+                                                      "были найдены вопросы сложности: " + findsNonMatchLevel + ".\n" +
+                                                      "Выборка вопросов будет производится только в пределах: [1; " + prop.getQuantityQTickets() + "]\n");
+                    throw new RuntimeException(generationConditionException);
+                } else {
+                    // just remove unnecessary levels from global mapListQuest
+                    for (int unnecessaryLevel : findsNonMatchLevel) {
+                        mapWrapListQuestGroupByLevel.remove(unnecessaryLevel);
+                        mapWrapListQuestRepeatedGroupByLevel.remove(unnecessaryLevel);
                     }
                 }
+            }
+
+            // Further, checking quantity needed questions for each property: level with taking into account property: repeat
+            // For each key:level  must be list, contains total quantity questions (with repeated) == requirement quantity
+            // tickets
+            Set<Map.Entry<Integer, Integer>> entryQuantityNotEnough = new HashSet<>(rangeQuest.size());
+            for (var entry : mapWrapListQuestRepeatedGroupByLevel.entrySet()) {
+                int totalQuantity = entry.getValue().stream().mapToInt(Question2::getRepeat).sum();
+
+                totalQuantity = prop.getQuantityTickets() - totalQuantity - mapWrapListQuestGroupByLevel.get(entry.getKey()).size();
+                if (totalQuantity > 0) {
+                    entryQuantityNotEnough.add(new AbstractMap.SimpleEntry<>(entry.getKey(), totalQuantity));
+                }
+            }
+            if (prop.isUnique()) { // if true, this is means then we require that USER control repeated questions
+                // then check really user take into account the conditions for generation tickets
+
+                if (!entryQuantityNotEnough.isEmpty()) {
+                    // exception allowed to continew generation
+                    generationConditionException =
+                            new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
+                                                                "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
+                                                                " был равен как минимум: " + prop.getQuantityTickets() + "" +
+                                                                " (с учётом указанного Вами количество повторения).\n" +
+                                                                "Не достаточно вопросов у сложности:\n" +
+                                                                entryQuantityNotEnough.stream()
+                                                                        .map(e -> e.getKey() + " => в количестве: " + e.getValue())
+                                                                        .collect(Collectors.joining("\n")) + ".\n" +
+                                                                "Среди вопросов, у которых указано число повторений строго больше " + QuestionExt.MIN_VALUE_REPEAT + ", будет\n" +
+                                                                "равномерно-последовательно увеличено недостающее число повторений, если таковые имеются,\n" +
+                                                                "однако если среди вопросов нет ни одного вопроса\n" +
+                                                                " повторяемость которого больше " + QuestionExt.MIN_VALUE_REPEAT +"," +"вопросы будут выбраны равномерно-рандомно.");
+                    throw new RuntimeException(generationConditionException);
+                }
+            } else {
+                for (var entry : entryQuantityNotEnough) {
+                    List<Question2> listRepeatedQuest = mapWrapListQuestRepeatedGroupByLevel.get(entry.getKey());
+                    if (!listRepeatedQuest.isEmpty()) {
+                        int fullPass = entry.getValue() / listRepeatedQuest.size();
+                        int quantityQuestForIncrease = entry.getValue() - fullPass * listRepeatedQuest.size();
+
+                        for (int i = 0; i < listRepeatedQuest.size(); i++) {
+                            Question2 repQuest = listRepeatedQuest.get(i);
+
+                            int rep = fullPass + repQuest.getRepeat();
+                            if (i < quantityQuestForIncrease) {
+                                ++rep;
+                            }
+                            repQuest.setRepeat(rep);
+                        }
+                    }
+                }
+            }
+        } catch (RuntimeException ex) {
+            if (ex.getCause() instanceof GenerationConditionException generationConditionException1) {
+                mapWrapListQuestRepeatedGroupByLevel.values().forEach(listQuest -> {
+                    listQuest.forEach(q -> q.setRepeat(q.getRepeat() + 1));
+                });
+                throw generationConditionException1;
+            } else {
+                throw ex;
             }
         }
     }
@@ -273,12 +284,12 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
             if (!wrapListRepeatQ.hasNext()) wrapListRepeatQ.resetCurIndex();
 
             Question2 q = wrapListRepeatQ.current();
-            q.setRepeat(q.getRepeat() - 1);
 
-            if (q.getRepeat() == 0) {
-                wrapListRepeatQ.remove(); // removed quest with prop:repeat == 0
+            if (q.getRepeat() == QuestionExt.MIN_VALUE_REPEAT) {
+                wrapListRepeatQ.remove(); // removed quest with prop:repeat == MIN_VALUE_REPEAT
                 // but curStatePosRepeatQuest left unchanged
             } else {
+                q.setRepeat(q.getRepeat() - 1);
                 wrapListRepeatQ.next();
             }
             return q;
