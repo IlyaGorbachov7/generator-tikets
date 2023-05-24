@@ -56,12 +56,12 @@ public class SplashScreenPanel extends BasePanel {
                             "информационных систем и технологий";
         String infoDeveloper = "Выполнил: Студент группы 10702419";
         String nameDeveloper = "Горбачёв Илья Дмитриевич";
-        String infoTeacher = "Преподаватель: к.ф.-м.н.,доц.";
-        String nameTeacher = "Ковалёва Ирина Львовна";
-        String courseType = "Курсовая работа";
-        String destipline = "по дисциплине: \"Программирование на языке Java\"";
-        String appName = "Конструктор экзаменационных билетов";
-        String cityYear = "Минск, 2022";
+        String infoTeacher = "Руководитель: к.т.н .доц.";
+        String nameTeacher = "Кункевич Дмитрий Петрович";
+        String courseType = "Дипломный проект";
+        String destipline = "";
+        String appName = "«Приложение для автоматизации компоновки экзаменационных билетов»";
+        String cityYear = "Минск, 2023";
         lbUniversity = new JLabel(university);
         lbFaculty = new JLabel(faculty);
         lbDepartment = new JLabel(department);

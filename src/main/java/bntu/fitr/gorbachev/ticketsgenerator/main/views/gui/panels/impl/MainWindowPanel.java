@@ -206,7 +206,8 @@ public class MainWindowPanel extends BasePanel {
 
         JMenu settingMenu = new JMenu("Парамеры");
         settingMenu.add(recordSettingItem);
-        settingMenu.add(databaseSettingItem);
+        // In the future will be realized DB
+//        settingMenu.add(databaseSettingItem);
 
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
@@ -1106,8 +1107,9 @@ public class MainWindowPanel extends BasePanel {
                                     Произошла ошибка ожидания .
                                     Прошу повторите попытку снова
                                     Причин является: Microsoft Office:
-                                    => Просто закройте окно Мастер активации Microsoft Office""",
+                                    => Одной из причин: Окно Мастер активации Microsoft Office. Закройте окно.""",
                             "ERROR !", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
                     return;
                 }
                 // after generating and conversion enable all components

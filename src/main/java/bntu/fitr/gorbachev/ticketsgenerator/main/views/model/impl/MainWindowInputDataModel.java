@@ -27,17 +27,21 @@ import static java.util.Map.entry;
 @Getter
 @ToString(doNotUseGetters = true)
 public class MainWindowInputDataModel extends AbstractModel {
-    private String institute = "Белорусский национальный технический университет";
-    private String faculty = "Факультет информационных технологий и робототехники";
-    private String department = "Кафедра программного обеспечения и технологий";
-    private String specialization = "Инженер-программист (в проектировании и производстве)";
-    private String discipline = "Программирование на Java";
-    private String teacher = "Фамилия И. О.";
-    private String headDepartment = "Фамилия И. О.";
-    private String protocol = "32432.3423.23";
+    private String institute = "";
+    private String faculty = "";
+    private String department = "";
+    private String specialization = "";
+    private String discipline = "";
+    private String teacher = "";
+    private String headDepartment = "";
+    private String protocol = "";
     private Ticket.SessionType typeSession;
-    private LocalDate dateTime = LocalDate.now().minusDays(20);
-
+    private LocalDate dateTime = LocalDate.now();
+    private GenerationMode generationMode = GenerationMode.MODE_3;
+    private int quantityTickets = 15;
+    private int quantityQuestionTickets = 3;
+    private boolean randomRead = false;
+    private boolean randomWrite = false;
     // -------------------------------------------
     @ToString.Exclude
     private final int minVQuantityTickets = 1;
@@ -48,12 +52,7 @@ public class MainWindowInputDataModel extends AbstractModel {
     @ToString.Exclude
     private final int maxVQuantityQuestionTickets = 100;
 
-    private int quantityTickets = 15;
-    private int quantityQuestionTickets = 2;
     private final List<File> listFilesRsc = new ArrayList<>();
-    private GenerationMode generationMode = GenerationMode.MODE_1;
-    private boolean randomRead = true;
-    private boolean randomWrite = true;
     private GenerationPropertyImpl propertyGeneration;
     private Ticket<Question2> ticket;
     private TicketGeneratorImpl ticketGenerator;
