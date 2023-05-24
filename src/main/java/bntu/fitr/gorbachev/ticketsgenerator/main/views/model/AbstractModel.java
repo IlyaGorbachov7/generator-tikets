@@ -42,7 +42,7 @@ public abstract class AbstractModel {
 
     public void fireActionEvent(String commandName,Object value) {
         listeners.stream()
-                .filter(entity -> entity.getKey() == ChangeFieldModelListener.class)
+                .filter(entity -> entity.getKey() == ActionListener.class)
                 .map(entity -> (ActionListener) entity.getValue())
                 .forEach(lst -> lst.actionPerformed(new ActionEvent(value, Integer.MAX_VALUE, commandName)));
     }

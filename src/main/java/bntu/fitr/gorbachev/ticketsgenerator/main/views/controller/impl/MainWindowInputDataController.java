@@ -37,6 +37,12 @@ public class MainWindowInputDataController extends AbstractController implements
         this.view = view;
         this.model = model;
     }
+
+    @Override
+    public void init() {
+        super.init();
+        super.getModel().addActionListener(this);
+    }
     // callback methods, invoked via view object, when user action occurred
 
     @Override

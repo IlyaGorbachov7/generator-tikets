@@ -973,7 +973,7 @@ public class MainWindowPanel extends BasePanel {
                 try {
                     registerSenderMsg.sendMsg("start...");
                     loadingDialog.showDialog();
-                    controllerInputData.actionStartGenerate();
+                        controllerInputData.actionStartGenerate();
                     // if generation tickets is successfully, then flag saveGenerationFile == true, else always value = false
                     saveGeneratedFile = true;
                     repeat = false;
@@ -1094,8 +1094,12 @@ public class MainWindowPanel extends BasePanel {
                     logger.error("CONVERTOR Xyeta 5min wait that close program");
                     logger.error(e);
 
-                    if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
-                        return;
+                    Throwable course = e.getCause();
+                    while (course != null) {
+                        if (course instanceof InterruptedException) {
+                            return;
+                        }
+                        course = course.getCause();
                     }
                     JOptionPane.showMessageDialog(null,
                             """
@@ -1222,7 +1226,7 @@ public class MainWindowPanel extends BasePanel {
         public void setComponentsListeners() {
             btnCancel.addActionListener(e -> {
                 executionThread.interrupt();
-                closeDialog();
+                closeByInterrupt();
             });
 
         }
@@ -1256,6 +1260,15 @@ public class MainWindowPanel extends BasePanel {
 
         }
 
+        public void closeByInterrupt() {
+            System.out.println(executionThread.getState());
+            System.out.println("----------------");
+            if (executionThread.getState() != Thread.State.RUNNABLE) {
+                closeDialog();
+                System.out.println("\n\n\n");
+            }
+        }
+
         public void closeDialog() {
             this.setModal(false);
             this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
@@ -1267,9 +1280,9 @@ public class MainWindowPanel extends BasePanel {
             isRun = false;
 
             var thread = new Thread(() -> {
-                isRun = true;
-                this.setModal(true);
-                this.setVisible(true);
+                    isRun = true;
+                    this.setModal(true);
+                    this.setVisible(true);
             });
             thread.start();
 
