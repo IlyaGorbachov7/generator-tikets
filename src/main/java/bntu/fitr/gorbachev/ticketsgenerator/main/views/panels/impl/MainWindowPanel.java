@@ -1,18 +1,18 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.GenerationPropertyImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.TicketGeneratorImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.MessageRetriever;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMessage;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.sender.SenderMsgFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetriever;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.threads.tools.constants.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
