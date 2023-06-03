@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;

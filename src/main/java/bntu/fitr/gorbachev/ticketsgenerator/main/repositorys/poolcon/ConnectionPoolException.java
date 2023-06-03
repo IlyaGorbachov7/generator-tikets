@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool;
+package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon;
 
 public class ConnectionPoolException extends Exception{
     public ConnectionPoolException() {
