@@ -66,6 +66,20 @@
     </build>
 
     <dependencies>
+        <!-- dialect for SQLite db-->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>6.0.0.Beta3</version>
+        </dependency>
+
+        <!--Implements Connection Pool
+         https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>6.2.0.CR3</version>
+        </dependency>
 
         <!-- это было добавленно, для работы преобразования -->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-full -->
@@ -177,5 +191,19 @@
             <artifactId>log4j-core</artifactId>
             <version>2.19.0</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.2.3.Final</version>
+        </dependency>
+        <!-- JDBC-driver :  https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.42.0.0</version>
+        </dependency>
+
     </dependencies>
 </project>
