@@ -12,9 +12,6 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
         <property name="hibernate.format_sql">true</property>
         <property name="hibernate.show_sql">true</property>
-        <!--Entity class-->
-
-
         <!--=============Connection Pool==========
         https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->
         <property name="hibernate.c3p0.min_size">1</property>
@@ -22,5 +19,14 @@
         <!-- On the which number will be increase current number connections -->
         <property name="hibernate.c3p0.acquire_increment">1</property>
         <property name="hibernate.c3p0.timeout">2000</property>
+
+        <!--Entity class-->
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipline"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher"/>
     </session-factory>
 </hibernate-configuration>
