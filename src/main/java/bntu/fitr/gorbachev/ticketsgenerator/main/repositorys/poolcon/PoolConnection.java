@@ -24,7 +24,7 @@ public class PoolConnection {
     private PoolConnection() {
     }
 
-    public synchronized Session giveConnection() throws ConnectionPoolException {
+    public synchronized Session openSession() throws ConnectionPoolException {
         try {
             return connectionFactory.openSession();
         } catch (HibernateException ex) {
@@ -32,7 +32,7 @@ public class PoolConnection {
         }
     }
 
-    public synchronized void destroyConnectionPool() throws ConnectionPoolException {
+    public synchronized void destroy() throws ConnectionPoolException {
         try {
             connectionFactory.close();
         } catch (HibernateException ex) {
@@ -43,7 +43,7 @@ public class PoolConnection {
 
     public static class Builder {
 
-        public static synchronized PoolConnection buildConnectionPool() {
+        public static synchronized PoolConnection build() {
             if (connectionFactory == null) {
                 connectionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
                 logger.info("connection factory is build");
