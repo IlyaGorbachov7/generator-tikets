@@ -1,15 +1,24 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created entities is mapping table view
  */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@jakarta.persistence.Entity(name = "university")
 public class University extends Entity{
+    @Column(name = "name", unique = true, nullable = false, length = 100)
     private String name;
+
+    @OneToMany(mappedBy = "university", fetch = FetchType.LAZY)
+    private List<Faculty> faculties = new ArrayList<>();
 }
+

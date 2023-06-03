@@ -1,18 +1,20 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 
-import lombok.Data;
-import lombok.ToString;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import lombok.*;
 
-@Data
+import java.util.UUID;
+
+@Getter
+@Setter
+@RequiredArgsConstructor
 @ToString(doNotUseGetters = true)
+@MappedSuperclass
 public abstract class Entity {
-    protected Integer id = null;
-
-    protected Entity() {
-    }
-
-    public static void main(String[] args) {
-        new Entity() {
-        };
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    protected UUID id;
 }

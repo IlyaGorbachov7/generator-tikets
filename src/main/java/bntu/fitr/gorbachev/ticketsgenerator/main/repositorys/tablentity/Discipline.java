@@ -1,17 +1,21 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 /**
  * Created entities is mapping table view
  */
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class Discipline extends Entity{
+@Getter
+@Setter
+@jakarta.persistence.Entity(name = "discipline")
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name","specialization_id"})})
+public class Discipline extends Entity {
+    @Column(name = "name", nullable = false)
     private String name;
-    private Integer specializationId;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "specialization_id")
+    private Specialization specialization;
 }
