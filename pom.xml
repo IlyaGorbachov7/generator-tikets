@@ -67,11 +67,13 @@
 
     <dependencies>
         <!-- dialect for SQLite db-->
+        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-community-dialects</artifactId>
-            <version>6.0.0.Beta3</version>
+            <version>6.2.4.Final</version>
         </dependency>
+
 
         <!--Implements Connection Pool
          https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->

@@ -5,7 +5,7 @@
 <hibernate-configuration>
     <session-factory>
         <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
-        <property name="hibernate.connection.url">jdbc:sqlite:resources/db/</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:unviresityDB.sqlite</property>
         <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
         <property name="connection.username"/>
         <property name="connection.password"/>
