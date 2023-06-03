@@ -14,24 +14,14 @@ import org.hibernate.cfg.Configuration;
  */
 public class PoolConnection {
     private static final PoolConnection instance = new PoolConnection();
-    private SessionFactory connectionFactory;
-    private final Logger logger = LogManager.getLogger(PoolConnection.class);
+    private static SessionFactory connectionFactory;
+    private static final Logger logger = LogManager.getLogger(PoolConnection.class);
 
-    public static PoolConnection getInstance() {
+    private static PoolConnection getInstance() {
         return instance;
     }
 
     private PoolConnection() {
-    }
-
-    public synchronized PoolConnection buildConnectionPool() {
-        if (connectionFactory == null) {
-            connectionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
-            logger.info("connection factory is build");
-        } else {
-            logger.warn("connection pool already is build");
-        }
-        return this;
     }
 
     public synchronized Session giveConnection() throws ConnectionPoolException {
@@ -47,6 +37,20 @@ public class PoolConnection {
             connectionFactory.close();
         } catch (HibernateException ex) {
             throw new ConnectionPoolException(ex);
+        }
+    }
+
+
+    public static class Builder {
+
+        public static synchronized PoolConnection buildConnectionPool() {
+            if (connectionFactory == null) {
+                connectionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+                logger.info("connection factory is build");
+            } else {
+                logger.warn("connection pool already is build");
+            }
+            return getInstance();
         }
     }
 }
