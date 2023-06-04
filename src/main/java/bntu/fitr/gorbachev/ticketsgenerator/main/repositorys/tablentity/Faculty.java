@@ -22,6 +22,6 @@ public class Faculty extends Entity {
     @JoinColumn(name = "university_id")
     private University university;
 
-    @OneToMany(mappedBy = "faculty", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "faculty", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Department> departments = new ArrayList<>();
 }

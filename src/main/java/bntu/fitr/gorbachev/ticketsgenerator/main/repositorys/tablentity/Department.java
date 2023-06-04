@@ -20,6 +20,6 @@ public class Department extends Entity{
     @JoinColumn(name = "faculty_id")
     private Faculty faculty;
 
-    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Specialization> specializations;
 }
