@@ -40,6 +40,9 @@ public class PoolConnection {
         }
     }
 
+    public SessionFactory getSessionFactory() {
+        return connectionFactory;
+    }
 
     public static class Builder {
 

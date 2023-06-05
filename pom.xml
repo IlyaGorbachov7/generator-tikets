@@ -57,7 +57,6 @@
                  КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
                 <targetPath>resources</targetPath>
             </resource>
-
             <resource>
                 <directory>src/main/META-INF</directory>
                 <targetPath>META-INF</targetPath>
@@ -66,14 +65,28 @@
     </build>
 
     <dependencies>
-        <!-- dialect for SQLite db-->
+
+        <!-- ====================== DATA BASE Connection =====================================-->
+        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.2.3.Final</version>
+        </dependency>
+        <!-- JDBC-driver :  https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.42.0.0</version>
+        </dependency>
+
+        <!-- dialect for SQLite db and JPA-->
         <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-community-dialects</artifactId>
             <version>6.2.4.Final</version>
         </dependency>
-
 
         <!--Implements Connection Pool
          https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->
@@ -82,6 +95,7 @@
             <artifactId>hibernate-c3p0</artifactId>
             <version>6.2.0.CR3</version>
         </dependency>
+        <!--================================================================================================-->
 
         <!-- это было добавленно, для работы преобразования -->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-full -->
@@ -194,18 +208,30 @@
             <version>2.19.0</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
+
+        <!--==================================  Junit 5 Testing ============================================-->
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
         <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-core</artifactId>
-            <version>6.2.3.Final</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
         </dependency>
-        <!-- JDBC-driver :  https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
         <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.42.0.0</version>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.9.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!--==============================================================================-->
     </dependencies>
 </project>
