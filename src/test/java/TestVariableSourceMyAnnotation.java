@@ -1,7 +1,9 @@
 import ann.VariableSource;
 import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
+import jakarta.persistence.Table;
 import model.Person;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -34,6 +36,7 @@ import static org.junit.jupiter.params.ParameterizedTest.*;
  * Condition for test method: observe the type source values and arguments method.
  * For list Arguments.class should match arguments written in Arugments.of(, , ,)
  */
+@Tag(value = "production")
 public class TestVariableSourceMyAnnotation {
 
 
@@ -98,6 +101,7 @@ public class TestVariableSourceMyAnnotation {
 
     @ParameterizedTest()
     @MethodSource(value = "test4MethodSource")
+    @Tag("developed")
     void test4MethodSource(Integer inter) {
         System.out.println(inter);
     }
