@@ -9,7 +9,7 @@ public interface AbstractDAO<T, ID> {
 
     void delete(T entity) throws DAOException;
 
-    boolean update(T entity) throws DAOException;
+    void update(T entity) throws DAOException;
 
     T findById(ID id) throws DAOException;
 
