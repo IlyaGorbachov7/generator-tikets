@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHel
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
 
@@ -67,6 +68,16 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
 
     @Override
     public List<T> findAll() throws DAOException {
-        return null;
+        try (Session session = poolConnection.openSession();) {
+            Transaction tran = session.beginTransaction();
+            Class<?> entityClazz = ReflectionHelperDAO.extractEntityClassFromDao(this.getClass());
+            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s", entityClazz.getSimpleName().toLowerCase()),
+                    entityClazz);
+            tran.commit();
+            return (List<T>) selectionQuery.list();
+        } catch (ConnectionPoolException e) {
+            log.warn(e.getCause().getMessage());
+            throw new DAOException(e);
+        }
     }
 }
