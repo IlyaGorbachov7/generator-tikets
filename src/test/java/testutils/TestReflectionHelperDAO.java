@@ -5,14 +5,14 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO;
-import model.Person;
-import org.apache.xmlbeans.impl.tool.Extension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import testutils.models.UniversityAbstractDAOImpl;
+import testutils.models.UniversityAbstractDAOImpl3;
+import testutils.models.UniversityAbstractDAPImpl2;
 
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;

@@ -10,7 +10,7 @@ import java.beans.Customizer;
 import java.beans.PropertyChangeListener;
 import java.util.UUID;
 
-public class UniversityDAOImpl extends UniversityAbstractDAOImpl<University, UUID> implements UniversityDAO, Customizer {
+public class UniversityDAOImpl extends AbstractDAOImpl<University, UUID> implements UniversityDAO, Customizer {
 
     @Override
     public University findByName(String name) throws DAOException {

@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl;
+package testutils.models;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 
