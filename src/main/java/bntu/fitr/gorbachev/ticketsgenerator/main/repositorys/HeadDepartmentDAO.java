@@ -5,9 +5,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Departme
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface HeadDepartmentDAO extends AbstractDAO<Department> {
+public interface HeadDepartmentDAO extends AbstractDAO<Department, UUID> {
     Teacher findByName(String name) throws DAOException;
 
-    List<Teacher> findByDepartmentId(Integer departmentId) throws DAOException;
+    List<Teacher> findByDepartmentId(UUID departmentId) throws DAOException;
 }
