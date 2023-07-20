@@ -79,6 +79,12 @@ public class ReflectionHelperDAO {
             }
         } else {
             paramType = findSupperGenericClass(classWhere, classThat);
+            if(paramType != null && Arrays.stream(paramType.getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)){
+                if (Arrays.stream(((ParameterizedType) classWhere.getGenericSuperclass()).getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)) {
+                    return paramType;
+                }
+                return (ParameterizedType) classWhere.getGenericSuperclass();
+            }
         }
 
         return paramType;
