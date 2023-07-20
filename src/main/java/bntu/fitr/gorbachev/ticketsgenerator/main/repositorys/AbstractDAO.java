@@ -7,7 +7,7 @@ import java.util.List;
 public interface AbstractDAO<T, ID> {
     ID create(T entity) throws DAOException;
 
-    void delete(ID id) throws DAOException;
+    void delete(T entity) throws DAOException;
 
     boolean update(T entity) throws DAOException;
 
