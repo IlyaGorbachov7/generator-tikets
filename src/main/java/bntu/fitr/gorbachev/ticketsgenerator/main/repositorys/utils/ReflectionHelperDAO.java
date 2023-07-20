@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.AbstractDAOImpl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
@@ -10,11 +9,19 @@ import java.util.Objects;
 
 public class ReflectionHelperDAO {
 
-    public static <T> Class<T> getEntityClazzFromGenericDaoType(Class<? extends AbstractDAO> daoClazz) {
-        ParameterizedType paramType = Objects.requireNonNullElseGet(findSupperGenericClass(daoClazz, AbstractDAOImpl.class),
-                () -> findSupperGenericInterface(daoClazz, AbstractDAO.class));
+    public static <T> Class<T> extractEntityClassFromDao(Class<? extends AbstractDAO> daoClazz) {
+        ParameterizedType paramType = Objects.requireNonNull(findSupperGenericClassOrInterface(daoClazz, AbstractDAO.class));
+        if (paramType.getActualTypeArguments().length == 2) {
+            Arrays.stream(paramType.getActualTypeArguments()).findFirst().ifPresent((type -> {
+                if (type instanceof TypeVariable) {
+                    throw new IllegalArgumentException("DAP class don't have certain definition Entity class");
+                }
+            }));
 
-        return null;
+            return (Class<T>) paramType.getActualTypeArguments()[0]; // position entity class is index = 0
+        } else {
+            throw new IllegalArgumentException("DAO class may be only with 2 generic of type");
+        }
     }
 
 
@@ -61,6 +68,23 @@ public class ReflectionHelperDAO {
         return null;
     }
 
+    /**
+     * This method will be search for the passed type: <i>clazzThat</i> - is generic type, inside <i>classWhere</i>.
+     * Searching will be return ParameterizedType given type or subtype.
+     *
+     * <p>
+     * <b>Return type have several case ParameterizedType:</b>
+     * <p>
+     * 1) Passed type: <i>clazzThat</i> or hir subtype.
+     * <p>
+     * 2) null - if passed type not found or  <i>clazzThat</i> == <i>clazzWhere</i>
+     * <p>
+     * 3) Type: AnyClassName< T,T1 > - if passed type: <i>classThat</i> is found, however certain definintion
+     * generic type absent
+     *
+     * @param classWhere class where will be search given <i>classThat</i>.
+     * @param classThat  may be or class or interface. <b>This class or interface should be generic type</b>
+     */
     public static ParameterizedType findSupperGenericClassOrInterface(Class<?> classWhere, Class<?> classThat) {
         ParameterizedType paramType = null;
         if (classThat.isInterface()) {
@@ -79,7 +103,7 @@ public class ReflectionHelperDAO {
             }
         } else {
             paramType = findSupperGenericClass(classWhere, classThat);
-            if(paramType != null && Arrays.stream(paramType.getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)){
+            if (paramType != null && Arrays.stream(paramType.getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)) {
                 if (Arrays.stream(((ParameterizedType) classWhere.getGenericSuperclass()).getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)) {
                     return paramType;
                 }

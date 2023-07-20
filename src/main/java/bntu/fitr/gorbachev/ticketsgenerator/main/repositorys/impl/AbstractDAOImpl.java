@@ -56,7 +56,7 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     public T findById(ID id) throws DAOException {
         try (Session session = poolConnection.openSession();) {
             Transaction tran = session.beginTransaction();
-            T entity = session.get(ReflectionHelperDAO.getEntityClazzFromGenericDaoType(this.getClass()), id);
+            T entity = session.get(ReflectionHelperDAO.extractEntityClassFromDao(this.getClass()), id);
             tran.commit();
             return entity;
         } catch (ConnectionPoolException e) {
