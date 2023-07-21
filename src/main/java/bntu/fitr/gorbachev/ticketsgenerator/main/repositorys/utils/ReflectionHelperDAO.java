@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
+import jakarta.persistence.Entity;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
@@ -24,6 +25,22 @@ public class ReflectionHelperDAO {
         }
     }
 
+    /**
+     * This method extract entity name from {@link Entity} annotation.
+     * <p>
+     * If annotation don't specified under Entity Class, then return null, because any entity class
+     * should be having {@link Entity}.
+     * <p>
+     * if annotation is specified, however attribute <b>name - don't specified</b>, then return simple name of class,
+     * else return specified value from attribute <i>name</i>
+     */
+    public static String extractEntityNameFromJakartaAnnEntity(Class<?> clazzEntity) {
+        Entity annEntity = clazzEntity.getAnnotation(Entity.class);
+        if (!Objects.isNull(annEntity)) {
+            return annEntity.name().isBlank() ? clazzEntity.getSimpleName() : annEntity.name();
+        }
+        return null;
+    }
 
     public static ParameterizedType findSupperGenericClass(Class<?> clazzWhere, Class<?> clazzThat) {
         if (clazzWhere.isInterface()) {

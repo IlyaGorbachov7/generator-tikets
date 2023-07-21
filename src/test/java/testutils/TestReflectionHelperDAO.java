@@ -1,13 +1,18 @@
 package testutils;
 
+import ann.VariableSource;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO;
+import model.Person;
+import model.PersonAnn;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import testutils.models.UniversityAbstractDAOImpl;
 import testutils.models.UniversityAbstractDAOImpl3;
@@ -16,6 +21,7 @@ import testutils.models.UniversityAbstractDAPImpl2;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class TestReflectionHelperDAO {
@@ -162,5 +168,21 @@ public class TestReflectionHelperDAO {
         ParameterizedType paramType = null;
         paramType = ReflectionHelperDAO.findSupperGenericClassOrInterface(clazz, UniversityAbstractDAOImpl.class);
         System.out.println(paramType);
+    }
+
+
+    // ----------------------------------------------------------------------------------------------------
+    private final static List<Arguments> sourceArgsValue = Stream.of(
+            Arguments.arguments(null, Person.class),
+            Arguments.arguments("PersonAnn", PersonAnn.class),
+            Arguments.arguments("university", University.class) // "university" is matching specified value in attribute of "name"
+    ).toList();
+
+    @ParameterizedTest
+    @VariableSource(value = "sourceArgsValue")
+    void testExtractEntityNameFromEntityClass(String expectedEntityName, Class<?> clazzEntity) {
+        Assertions.assertEquals(
+                expectedEntityName, ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity(clazzEntity)
+        );
     }
 }
