@@ -11,6 +11,11 @@ import org.hibernate.Transaction;
 import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityClassFromDao;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;
 
 @Slf4j
 public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
@@ -57,7 +62,7 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     public T findById(ID id) throws DAOException {
         try (Session session = poolConnection.openSession();) {
             Transaction tran = session.beginTransaction();
-            T entity = session.get(ReflectionHelperDAO.extractEntityClassFromDao(this.getClass()), id);
+            T entity = session.get(extractEntityClassFromDao(this.getClass()), id);
             tran.commit();
             return entity;
         } catch (ConnectionPoolException e) {
@@ -70,11 +75,29 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     public List<T> findAll() throws DAOException {
         try (Session session = poolConnection.openSession();) {
             Transaction tran = session.beginTransaction();
-            Class<?> entityClazz = ReflectionHelperDAO.extractEntityClassFromDao(this.getClass());
-            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s", entityClazz.getSimpleName().toLowerCase()),
-                    entityClazz);
+            Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s",
+                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz));
             tran.commit();
             return (List<T>) selectionQuery.list();
+        } catch (ConnectionPoolException e) {
+            log.warn(e.getCause().getMessage());
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public Optional<T> findAny() throws DAOException {
+        try (Session session = poolConnection.openSession()) {
+            Transaction trans = session.beginTransaction();
+            Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("""
+                            from %s
+                            limit 1
+                            """,
+                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz));
+            trans.commit();
+            return (Optional<T>) selectionQuery.stream().findAny();
         } catch (ConnectionPoolException e) {
             log.warn(e.getCause().getMessage());
             throw new DAOException(e);
