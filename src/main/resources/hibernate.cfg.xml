@@ -19,7 +19,7 @@
         <!-- On the which number will be increase current number connections -->
         <property name="hibernate.c3p0.acquire_increment">1</property>
         <property name="hibernate.c3p0.timeout">2000</property>
-
+        <property name="current_session_context_class">thread</property>
         <!--Entity class-->
         <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University"/>
         <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty"/>

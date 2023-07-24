@@ -47,4 +47,10 @@ public class TestUniversityCRUD {
         Assertions.assertFalse(universities.isEmpty());
         System.out.println(universities.stream().map(University::getName).toList());
     }
+
+    @Test
+    void testFindAny() throws DAOException {
+        University university = universityDao.findAny().get();
+        System.out.println(university);
+    }
 }

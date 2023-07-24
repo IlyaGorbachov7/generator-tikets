@@ -3,10 +3,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
 import jakarta.persistence.Entity;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class ReflectionHelperDAO {
 
@@ -40,6 +42,60 @@ public class ReflectionHelperDAO {
             return annEntity.name().isBlank() ? clazzEntity.getSimpleName() : annEntity.name();
         }
         return null;
+    }
+
+    public static <V> V getValueFromFieldFindByName(Object obj, String fieldName) {
+        Class<?> clazz = obj.getClass();
+        Field field = null;
+        while (!clazz.equals(Object.class)) {
+            Optional<Field> optionalField = Arrays.stream(clazz.getDeclaredFields())
+                    .dropWhile(f -> !f.getName().equals(fieldName))
+                    .findFirst();
+            if (optionalField.isPresent()) {
+                field = optionalField.get();
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        if (Objects.isNull(field)) {
+            throw new NoSuchElementException(
+                    new NoSuchFieldException(String.format("Field with field name:%s  not found", fieldName)));
+        }
+        return getValueFromField(field, obj);
+    }
+
+    public static <V> V getValueFromFieldFindByAnnotation(Object obj, Class<? extends Annotation> clazzAnnotation)
+            throws RuntimeException {
+        Class<?> clazz = obj.getClass();
+        Field field = null;
+        Stream.Builder<Field> streamBuilderFields = Stream.builder();
+        while (!clazz.equals(Object.class)) {
+            Arrays.stream(clazz.getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(clazzAnnotation))
+                    .forEach(streamBuilderFields::add);
+            clazz = clazz.getSuperclass();
+        }
+        List<Field> fields = streamBuilderFields.build().toList();
+        if (fields.isEmpty()) {
+            throw new RuntimeException("Field with given =annotation no found");
+        }
+        if (fields.size() > 1) {
+            throw new RuntimeException(String.format("""
+                    Should be specified only one annotation under field class.
+                    However was found %d fields with given annotation""", fields.size()));
+        }
+        return getValueFromField(fields.get(0), obj);
+    }
+
+    private static <V> V getValueFromField(Field field, Object obj) {
+        field.setAccessible(true);
+        try {
+            @SuppressWarnings("unchecked")
+            V value = (V) field.get(obj);
+            return value;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static ParameterizedType findSupperGenericClass(Class<?> clazzWhere, Class<?> clazzThat) {
