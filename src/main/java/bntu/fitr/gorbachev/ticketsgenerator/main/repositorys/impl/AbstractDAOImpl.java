@@ -21,7 +21,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.Reflec
 public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     protected final PoolConnection poolConnection = PoolConnection.Builder.build();
 
-    protected Session getSession() throws DAOException {
+    public Session getSession() throws DAOException {
         try {
             return poolConnection.getSession();
         } catch (ConnectionPoolException e) {
@@ -30,24 +30,24 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
         }
     }
 
-    protected boolean isActiveTransaction(Session session) {
+    public boolean isActiveTransaction(Session session) {
         return session.getTransaction().isActive();
     }
 
-    protected void beginTransaction(boolean isActiveEarly, Session session) {
+    public void beginTransaction(boolean isActiveEarly, Session session) {
         if (!isActiveEarly) {
             session.beginTransaction();
         }
         session.getTransaction();
     }
 
-    protected void commitTransaction(boolean isActiveEarly, Session session) {
+    public void commitTransaction(boolean isActiveEarly, Session session) {
         if (!isActiveEarly) {
             session.getTransaction().commit();
         }
     }
 
-    protected void rollbackTransaction(boolean isActiveEarly, Session session) {
+    public void rollbackTransaction(boolean isActiveEarly, Session session) {
         if (!isActiveEarly) {
             session.getTransaction().rollback();
         }
