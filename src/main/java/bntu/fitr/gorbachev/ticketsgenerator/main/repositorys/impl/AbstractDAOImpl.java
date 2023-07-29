@@ -4,19 +4,18 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO;
 import jakarta.persistence.Id;
+import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityClassFromDao;
-import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.*;
 
 @Slf4j
 public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
@@ -43,20 +42,12 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     }
 
     protected void commitTransaction(boolean isActiveEarly, Session session) {
-        if (isActiveEarly != session.getTransaction().isActive()) {
-            log.warn("isActiveEarly={} don't matching current transaction", isActiveEarly);
-            throw new IllegalArgumentException(String.format("isActiveEarly=%b don't matching current transaction", isActiveEarly));
-        }
         if (!isActiveEarly) {
             session.getTransaction().commit();
         }
     }
 
     protected void rollbackTransaction(boolean isActiveEarly, Session session) {
-        if (isActiveEarly != session.getTransaction().isActive()) {
-            log.warn("isActiveEarly={} don't matching current transaction", isActiveEarly);
-            throw new IllegalArgumentException(String.format("isActiveEarly=%b don't matching current transaction", isActiveEarly));
-        }
         if (!isActiveEarly) {
             session.getTransaction().rollback();
         }
@@ -67,86 +58,97 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
         Session session = getSession();
         boolean isActiveTrans = isActiveTransaction(session);
         beginTransaction(isActiveTrans, session);
-        session.persist(entity);
-        commitTransaction(isActiveTrans, session);
-        return ReflectionHelperDAO.getValueFromFieldFindByAnnotation(entity, Id.class);
+        try {
+            session.persist(entity);
+            commitTransaction(isActiveTrans, session);
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+        return getValueFromFieldFindByAnnotation(entity, Id.class);
     }
 
     @Override
     public void delete(T entity) throws DAOException {
-        try (Session session = poolConnection.getSession();) {
-            Transaction tran = session.beginTransaction();
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
             session.remove(entity);
-            tran.commit();
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
     }
 
     @Override
     public void update(T entity) throws DAOException {
-        try (Session session = poolConnection.getSession();) {
-            Transaction tran = session.beginTransaction();
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
             session.refresh(entity);
-            tran.commit();
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
+            commitTransaction(isActiveTrans, session);
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
     }
 
     @Override
     public T findById(ID id) throws DAOException {
-        try (Session session = poolConnection.getSession();) {
-            Transaction tran = session.beginTransaction();
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
             T entity = session.get(extractEntityClassFromDao(this.getClass()), id);
-            tran.commit();
+            commitTransaction(isActiveTrans, session);
             return entity;
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
     }
 
     @Override
     public List<T> findAll() throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
         try {
-            Session session = poolConnection.getSession();
-            Transaction tran = session.beginTransaction();
-            Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+            beginTransaction(isActiveTrans, session);
             SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s",
-                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz));
+                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz))));
             @SuppressWarnings("unchecked")
             List<T> resultList = (List<T>) selectionQuery.getResultList();
-            tran.commit();
+            commitTransaction(isActiveTrans, session);
             return resultList;
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
     }
 
     @Override
     public Optional<T> findAny() throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
         try {
-            Session session = poolConnection.getSession();
-            Transaction trans = session.beginTransaction();
-            Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+            beginTransaction(isActiveTrans, session);
             SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("""
                             from %s
-                            order by name
+                            order by %s
                             LIMIT 1 OFFSET 0
                             """,
-                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz));
+                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)),
+                    extractColumnNameFromJakartaAnnColumn(entityClazz, getFieldNameFindByAnnotation(entityClazz, Id.class))));
+            @SuppressWarnings("unchecked")
             Optional<T> res = (Optional<T>) selectionQuery.stream().findAny();
-            trans.commit();
-            if (session.isOpen()) {
-                session.close();
-            }
+            commitTransaction(isActiveTrans, session);
             return res;
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
+        } catch (HibernateException e) {
+            rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
     }
