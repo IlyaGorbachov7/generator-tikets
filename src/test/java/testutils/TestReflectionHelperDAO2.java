@@ -6,7 +6,10 @@ import com.sun.istack.NotNull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import model.Person;
+import model.PersonAnn;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -57,5 +60,24 @@ public class TestReflectionHelperDAO2 {
             university.setId(UUID.randomUUID());
             return Stream.of(Arguments.of(university));
         }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = PersonAnn.class)
+    void testExtractColumnNameFromJakartaAnnColumn(Class<PersonAnn> clazz) {
+        Assertions.assertEquals(
+                "primary_key", ReflectionHelperDAO.extractColumnNameFromJakartaAnnColumn(clazz, "id"));
+
+        Assertions.assertEquals(
+                "name", ReflectionHelperDAO.extractColumnNameFromJakartaAnnColumn(clazz, "name")
+        );
+
+        Assertions.assertEquals(
+                "age", ReflectionHelperDAO.extractColumnNameFromJakartaAnnColumn(clazz, "age")
+        );
+
+        Assertions.assertThrows(RuntimeException.class, ()->{
+            ReflectionHelperDAO.extractColumnNameFromJakartaAnnColumn(clazz, "NpFoundField");
+        });
     }
 }

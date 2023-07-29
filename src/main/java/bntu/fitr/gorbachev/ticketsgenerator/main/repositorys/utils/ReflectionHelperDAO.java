@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 
 import java.lang.annotation.Annotation;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 
 public class ReflectionHelperDAO {
 
+    @SuppressWarnings("unchecked")
     public static <T> Class<T> extractEntityClassFromDao(Class<? extends AbstractDAO> daoClazz) {
         ParameterizedType paramType = Objects.requireNonNull(findSupperGenericClassOrInterface(daoClazz, AbstractDAO.class));
         if (paramType.getActualTypeArguments().length == 2) {
@@ -44,8 +46,52 @@ public class ReflectionHelperDAO {
         return null;
     }
 
+    /**
+     * Extracting <b>column name of table</b> from {@link Column} annotation specified under field the entity class. If {@link Column} annotation don't specified, then return fieldName
+     * in corresponding with JPA specification.
+     */
+    public static String extractColumnNameFromJakartaAnnColumn(Class<?> clazzEntity, String fieldName) {
+        Field field = getFieldFoundByFieldName(clazzEntity, fieldName);
+        Column annColumn = field.getAnnotation(Column.class);
+        return !Objects.isNull(annColumn) ? !annColumn.name().isBlank() ? annColumn.name()
+                : field.getName() : field.getName();
+    }
+
     public static <V> V getValueFromFieldFindByName(Object obj, String fieldName) {
         Class<?> clazz = obj.getClass();
+        Field field = getFieldFoundByFieldName(clazz, fieldName);
+        return getValueFromField(field, obj);
+    }
+
+    public static <V> V getValueFromFieldFindByAnnotation(Object obj, Class<? extends Annotation> clazzAnnotation)
+            throws RuntimeException {
+        Class<?> clazz = obj.getClass();
+        List<Field> fields = getFieldsFoundByAnnotation(clazz, clazzAnnotation);
+        if (fields.isEmpty()) {
+            throw new RuntimeException("Field with given =annotation no found");
+        }
+        if (fields.size() > 1) {
+            throw new RuntimeException(String.format("""
+                    Should be specified only one annotation under field class.
+                    However was found %d fields with given annotation""", fields.size()));
+        }
+        return getValueFromField(fields.get(0), obj);
+    }
+
+    public static String getFieldNameFindByAnnotation(Class<?> entityClazz, Class<? extends Annotation> annClazz) {
+        List<Field> fields = getFieldsFoundByAnnotation(entityClazz, annClazz);
+        if (fields.isEmpty()) {
+            throw new RuntimeException("Field with given =annotation no found");
+        }
+        if (fields.size() > 1) {
+            throw new RuntimeException(String.format("""
+                    Should be specified only one annotation under field class.
+                    However was found %d fields with given annotation""", fields.size()));
+        }
+        return fields.get(0).getName();
+    }
+
+    private static Field getFieldFoundByFieldName(Class<?> clazz, String fieldName) {
         Field field = null;
         while (!clazz.equals(Object.class)) {
             Optional<Field> optionalField = Arrays.stream(clazz.getDeclaredFields())
@@ -61,30 +107,18 @@ public class ReflectionHelperDAO {
             throw new NoSuchElementException(
                     new NoSuchFieldException(String.format("Field with field name:%s  not found", fieldName)));
         }
-        return getValueFromField(field, obj);
+        return field;
     }
 
-    public static <V> V getValueFromFieldFindByAnnotation(Object obj, Class<? extends Annotation> clazzAnnotation)
-            throws RuntimeException {
-        Class<?> clazz = obj.getClass();
-        Field field = null;
-        Stream.Builder<Field> streamBuilderFields = Stream.builder();
+    private static List<Field> getFieldsFoundByAnnotation(Class<?> clazz, Class<? extends Annotation> clazzAnn) {
+        Stream.Builder<Field> streamBuilder = Stream.builder();
         while (!clazz.equals(Object.class)) {
             Arrays.stream(clazz.getDeclaredFields())
-                    .filter(f -> f.isAnnotationPresent(clazzAnnotation))
-                    .forEach(streamBuilderFields::add);
+                    .filter(f -> f.isAnnotationPresent(clazzAnn))
+                    .forEach(streamBuilder);
             clazz = clazz.getSuperclass();
         }
-        List<Field> fields = streamBuilderFields.build().toList();
-        if (fields.isEmpty()) {
-            throw new RuntimeException("Field with given =annotation no found");
-        }
-        if (fields.size() > 1) {
-            throw new RuntimeException(String.format("""
-                    Should be specified only one annotation under field class.
-                    However was found %d fields with given annotation""", fields.size()));
-        }
-        return getValueFromField(fields.get(0), obj);
+        return streamBuilder.build().toList();
     }
 
     private static <V> V getValueFromField(Field field, Object obj) {
@@ -159,7 +193,7 @@ public class ReflectionHelperDAO {
      * @param classThat  may be or class or interface. <b>This class or interface should be generic type</b>
      */
     public static ParameterizedType findSupperGenericClassOrInterface(Class<?> classWhere, Class<?> classThat) {
-        ParameterizedType paramType = null;
+        ParameterizedType paramType;
         if (classThat.isInterface()) {
             if (classWhere == Object.class) {
                 return null;

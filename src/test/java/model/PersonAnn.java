@@ -5,10 +5,15 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class PersonAnn extends Person{
+public class PersonAnn extends Person {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "primary_key", nullable = false)
     private Long id;
+
+    @Column
+    private String name;
+
+    private String age;
 
     public Long getId() {
         return id;
