@@ -8,8 +8,6 @@ import lombok.*;
 @jakarta.persistence.Entity(name = "headDepartment")
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name", "department_id"})})
 public class HeadDepartment extends Entity {
-    @Column(name = "name", nullable = false)
-    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")

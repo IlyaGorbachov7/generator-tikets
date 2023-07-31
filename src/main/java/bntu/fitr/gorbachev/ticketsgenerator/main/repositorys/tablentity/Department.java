@@ -13,8 +13,6 @@ import java.util.List;
 @jakarta.persistence.Entity(name = "department")
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name","faculty_id"})})
 public class Department extends Entity{
-    @Column(name = "name", nullable = false)
-    private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faculty_id")

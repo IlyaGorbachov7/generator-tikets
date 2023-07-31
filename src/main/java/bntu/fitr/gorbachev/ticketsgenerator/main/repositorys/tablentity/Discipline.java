@@ -12,6 +12,7 @@ import lombok.*;
 @jakarta.persistence.Entity(name = "discipline")
 @Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"name","specialization_id"})})
 public class Discipline extends Entity {
+
     @Column(name = "name", nullable = false)
     private String name;
 

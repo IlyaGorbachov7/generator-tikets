@@ -6,9 +6,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 
 import java.beans.Customizer;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
 public interface UniversityDAO extends AbstractDAO<University, UUID> {
-    University findByName(String name) throws DAOException;
 }

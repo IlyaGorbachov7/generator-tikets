@@ -9,6 +9,7 @@ import jakarta.persistence.PersistenceException;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
@@ -17,6 +18,12 @@ import java.util.Optional;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.*;
 
+/**
+ * <b>Learn note: </b> When compose HQL query we should use entityName.
+ * HQL query: from 'entityName' - in HQL queries Hibernate automatically replace EntityName to particular
+ * TableName of DB. If you're going to execute SQL query, then combine SQL query you should use particular table name or
+ * DB.
+ */
 @Slf4j
 public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
     protected final PoolConnection poolConnection = PoolConnection.Builder.build();
@@ -117,6 +124,9 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
         Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
         try {
             beginTransaction(isActiveTrans, session);
+            /* When compose HQL query we should use entityName.
+             HQL query: from 'entityName' - in HQL queries Hibernate automatically replace EntityName to particular
+             TableName of DB*/
             SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s",
                     Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz))));
             @SuppressWarnings("unchecked")
@@ -151,5 +161,52 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
             rollbackTransaction(isActiveTrans, session);
             throw new DAOException(e);
         }
+    }
+
+    // ------------------------ DAO methods, that using only int within  objects area this application -------------
+    public Optional<T> findByName(String name) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+        try {
+            beginTransaction(isActiveTrans, session);
+            Query<?> query = session.createQuery(String.format("""
+                    from %s r
+                    where lower(r.name)=lower(:name_arg)
+                    """, extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz);
+            @SuppressWarnings("unchecked")
+            T entity = (T) query
+                    .setParameter("name_arg", name)
+                    .getSingleResultOrNull();
+            commitTransaction(isActiveTrans, session);
+            return Optional.ofNullable(entity);
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+    }
+
+
+    public List<T> findLikeByName(String name) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
+        try {
+            beginTransaction(isActiveTrans, session);
+            Query<?> query = session.createQuery(String.format("""
+                    from %s r
+                    where lower(r.name) like lower(:name_arg)
+                    """, extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz);
+            @SuppressWarnings("unchecked")
+            List<T> resultList = (List<T>) query
+                    .setParameter("name_arg", String.join("", "%", name, "%"))
+                    .getResultList();
+            commitTransaction(isActiveTrans, session);
+            return resultList;
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+
     }
 }

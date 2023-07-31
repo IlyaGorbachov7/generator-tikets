@@ -5,11 +5,17 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FacultyDAOImpl extends AbstractDAOImpl<Faculty, UUID> implements FacultyDAO {
     @Override
-    public Faculty findByName(String name) throws DAOException {
+    public Optional<Faculty> findByName(String name) throws DAOException {
+        return null;
+    }
+
+    @Override
+    public List<Faculty> findLikeByName(String name) throws DAOException {
         return null;
     }
 

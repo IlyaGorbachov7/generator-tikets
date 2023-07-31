@@ -6,7 +6,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOI
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,7 +17,7 @@ import java.util.stream.Stream;
 
 public class TestUniversityCRUD {
 
-    AbstractDAOImpl<University, UUID> universityDao = new UniversityDAOImpl();
+    UniversityDAOImpl universityDao = new UniversityDAOImpl();
 
     @Test
     void testCreate1() throws DAOException {
@@ -52,5 +55,33 @@ public class TestUniversityCRUD {
     void testFindAny() throws DAOException {
         University university = universityDao.findAny().get();
         System.out.println(university);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Беларусский национальный технический университет",
+    })
+    void testFindByName(String name) throws DAOException {
+        University university = universityDao.findByName(name).orElse(null);
+        // if result university = null, then full DB necessary records
+        Assertions.assertNotNull(university);
+        System.out.println(university.getName());
+
+        Assertions.assertNull(
+                universityDao.findByName("Бераусский национальный технический университет")
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Беларусский национальный технический университет",
+            "Беларусский",
+            "техни",
+            "униве"
+    })
+    void testFindLikeByName(String name) throws DAOException {
+        List<University> universityList = universityDao.findLikeByName(name);
+        System.out.println(universityList);
+        Assumptions.assumeFalse(universityList.isEmpty());
     }
 }

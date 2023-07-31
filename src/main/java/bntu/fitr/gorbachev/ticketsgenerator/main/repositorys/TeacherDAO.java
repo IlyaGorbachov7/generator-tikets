@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface TeacherDAO extends AbstractDAO<Teacher, UUID> {
-    Teacher findByName(String name) throws DAOException;
 
     List<Teacher> findByFacultyId(UUID facultyId) throws DAOException;
 }

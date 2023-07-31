@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -30,6 +31,24 @@ public class ReflectionHelperDAO {
     }
 
     /**
+     * This method extract TABLE NAME from {@link Table} annotation.
+     * <p>
+     * if annotation don't specified under Entity Class, then return result from {@link #extractEntityNameFromJakartaAnnEntity(Class)}
+     * method, even if Table annotation is specified, however attribute name - don't specified.
+     *
+     * @return value from attribute name of Table annotation.
+     * @apiNote This using for SQL queries when should be using particular TableName of DB by combine query.
+     */
+    public static String extractTableNameFromJakartaAnnTableOrEntity(Class<?> clazzEntity) {
+        Table annTable = clazzEntity.getAnnotation(Table.class);
+        if (!Objects.isNull(annTable)) {
+            return annTable.name().isBlank() ? extractEntityNameFromJakartaAnnEntity(clazzEntity)
+                    : annTable.name();
+        }
+        return extractEntityNameFromJakartaAnnEntity(clazzEntity);
+    }
+
+    /**
      * This method extract entity name from {@link Entity} annotation.
      * <p>
      * If annotation don't specified under Entity Class, then return null, because any entity class
@@ -37,6 +56,8 @@ public class ReflectionHelperDAO {
      * <p>
      * if annotation is specified, however attribute <b>name - don't specified</b>, then return simple name of class,
      * else return specified value from attribute <i>name</i>
+     *
+     * @apiNote This using for HQL queries Hibernate automatically replace EntityName to particular TableName of DB
      */
     public static String extractEntityNameFromJakartaAnnEntity(Class<?> clazzEntity) {
         Entity annEntity = clazzEntity.getAnnotation(Entity.class);
