@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface FacultyDAO extends AbstractDAO<Faculty, UUID> {
 
     List<Faculty> findByUniversityId(UUID universityId) throws DAOException;
+
+    List<Faculty> findByUniversityName(String universityName) throws DAOException;
 }
