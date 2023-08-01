@@ -14,6 +14,9 @@ import java.util.stream.Stream;
 
 public class ReflectionHelperDAO {
 
+    /**
+     * Simply put, this method extract defined generic type from given DAO class.
+     */
     @SuppressWarnings("unchecked")
     public static <T> Class<T> extractEntityClassFromDao(Class<? extends AbstractDAO> daoClazz) {
         ParameterizedType paramType = Objects.requireNonNull(findSupperGenericClassOrInterface(daoClazz, AbstractDAO.class));
@@ -78,12 +81,21 @@ public class ReflectionHelperDAO {
                 : field.getName() : field.getName();
     }
 
+    /**
+     * This method extract value from field of the object by field name.
+     * If this fieldName don't found, then throw exception, else return value of the field a class
+     */
     public static <V> V getValueFromFieldFindByName(Object obj, String fieldName) {
         Class<?> clazz = obj.getClass();
         Field field = getFieldFoundByFieldName(clazz, fieldName);
         return getValueFromField(field, obj);
     }
 
+    /**
+     * This method return value from field of the class found by given annotation.
+     * Assumed that given annotation is unique within given object class.
+     * For example: Id.class annotation from Hibernate - specified only under the one field of the entity class.
+     */
     public static <V> V getValueFromFieldFindByAnnotation(Object obj, Class<? extends Annotation> clazzAnnotation)
             throws RuntimeException {
         Class<?> clazz = obj.getClass();
@@ -99,6 +111,11 @@ public class ReflectionHelperDAO {
         return getValueFromField(fields.get(0), obj);
     }
 
+    /**
+     * This method return field name of the given entity class found by annotation.
+     * Assumed that given annotation is unique within given object class. For example: Id.class annotation
+     * from Hibernate - specified only under the one field of the entity class.
+     */
     public static String getFieldNameFindByAnnotation(Class<?> entityClazz, Class<? extends Annotation> annClazz) {
         List<Field> fields = getFieldsFoundByAnnotation(entityClazz, annClazz);
         if (fields.isEmpty()) {
@@ -110,90 +127,6 @@ public class ReflectionHelperDAO {
                     However was found %d fields with given annotation""", fields.size()));
         }
         return fields.get(0).getName();
-    }
-
-    private static Field getFieldFoundByFieldName(Class<?> clazz, String fieldName) {
-        Field field = null;
-        while (!clazz.equals(Object.class)) {
-            Optional<Field> optionalField = Arrays.stream(clazz.getDeclaredFields())
-                    .dropWhile(f -> !f.getName().equals(fieldName))
-                    .findFirst();
-            if (optionalField.isPresent()) {
-                field = optionalField.get();
-                break;
-            }
-            clazz = clazz.getSuperclass();
-        }
-        if (Objects.isNull(field)) {
-            throw new NoSuchElementException(
-                    new NoSuchFieldException(String.format("Field with field name:%s  not found", fieldName)));
-        }
-        return field;
-    }
-
-    private static List<Field> getFieldsFoundByAnnotation(Class<?> clazz, Class<? extends Annotation> clazzAnn) {
-        Stream.Builder<Field> streamBuilder = Stream.builder();
-        while (!clazz.equals(Object.class)) {
-            Arrays.stream(clazz.getDeclaredFields())
-                    .filter(f -> f.isAnnotationPresent(clazzAnn))
-                    .forEach(streamBuilder);
-            clazz = clazz.getSuperclass();
-        }
-        return streamBuilder.build().toList();
-    }
-
-    private static <V> V getValueFromField(Field field, Object obj) {
-        field.setAccessible(true);
-        try {
-            @SuppressWarnings("unchecked")
-            V value = (V) field.get(obj);
-            return value;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static ParameterizedType findSupperGenericClass(Class<?> clazzWhere, Class<?> clazzThat) {
-        if (clazzWhere.isInterface()) {
-            throw new IllegalArgumentException("args: (clazzWhere) should be class of type");
-        }
-        if (clazzThat.getTypeParameters().length == 0) {
-            throw new IllegalArgumentException("arg: clazzThat should be generic of type");
-        }
-        while (clazzWhere != Object.class) {
-            Class<?> superclass = clazzWhere.getSuperclass();
-            if (superclass == clazzThat) {
-                return (ParameterizedType) clazzWhere.getGenericSuperclass();
-            }
-            clazzWhere = superclass;
-        }
-
-        return null;
-    }
-
-    public static ParameterizedType findSupperGenericInterface(Class<?> clazzOrInterfaceWhere, Class<?> interfaceThat) {
-        if (interfaceThat.getTypeParameters().length == 0) {
-            throw new IllegalArgumentException("arg: interfaceThat should be generic of type");
-        }
-        if (!interfaceThat.isInterface()) {
-            throw new IllegalArgumentException("arg: interfaceThat should be interface of type");
-        }
-        Class<?>[] clazzInterfaces = clazzOrInterfaceWhere.getInterfaces();
-        int i = 0;
-        for (var interfaceWhere : clazzInterfaces) {
-            ParameterizedType paramType = findSupperGenericInterface(interfaceWhere, interfaceThat);
-            if (paramType != null) {
-                return paramType;
-            }
-            // assume that paramType is null
-            if (interfaceWhere == interfaceThat) {// interfaceThat == interfaceWhere == getGenericInterfaces()[i]
-                return (ParameterizedType) clazzOrInterfaceWhere.getGenericInterfaces()[i];
-            }
-            ++i;
-        }
-
-
-        return null;
     }
 
     /**
@@ -240,5 +173,95 @@ public class ReflectionHelperDAO {
         }
 
         return paramType;
+    }
+
+    private static Field getFieldFoundByFieldName(Class<?> clazz, String fieldName) {
+        Field field = null;
+        while (!clazz.equals(Object.class)) {
+            Optional<Field> optionalField = Arrays.stream(clazz.getDeclaredFields())
+                    .dropWhile(f -> !f.getName().equals(fieldName))
+                    .findFirst();
+            if (optionalField.isPresent()) {
+                field = optionalField.get();
+                break;
+            }
+            clazz = clazz.getSuperclass();
+        }
+        if (Objects.isNull(field)) {
+            throw new NoSuchElementException(
+                    new NoSuchFieldException(String.format("Field with field name:%s  not found", fieldName)));
+        }
+        return field;
+    }
+
+    private static List<Field> getFieldsFoundByAnnotation(Class<?> clazz, Class<? extends Annotation> clazzAnn) {
+        Stream.Builder<Field> streamBuilder = Stream.builder();
+        while (!clazz.equals(Object.class)) {
+            Arrays.stream(clazz.getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(clazzAnn))
+                    .forEach(streamBuilder);
+            clazz = clazz.getSuperclass();
+        }
+        return streamBuilder.build().toList();
+    }
+
+    private static <V> V getValueFromField(Field field, Object obj) {
+        field.setAccessible(true);
+        try {
+            @SuppressWarnings("unchecked")
+            V value = (V) field.get(obj);
+            return value;
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Soon this method should have private access.
+     */
+    public static ParameterizedType findSupperGenericClass(Class<?> clazzWhere, Class<?> clazzThat) {
+        if (clazzWhere.isInterface()) {
+            throw new IllegalArgumentException("args: (clazzWhere) should be class of type");
+        }
+        if (clazzThat.getTypeParameters().length == 0) {
+            throw new IllegalArgumentException("arg: clazzThat should be generic of type");
+        }
+        while (clazzWhere != Object.class) {
+            Class<?> superclass = clazzWhere.getSuperclass();
+            if (superclass == clazzThat) {
+                return (ParameterizedType) clazzWhere.getGenericSuperclass();
+            }
+            clazzWhere = superclass;
+        }
+
+        return null;
+    }
+
+    /**
+     * Soon this method should have private access.
+     */
+    public static ParameterizedType findSupperGenericInterface(Class<?> clazzOrInterfaceWhere, Class<?> interfaceThat) {
+        if (interfaceThat.getTypeParameters().length == 0) {
+            throw new IllegalArgumentException("arg: interfaceThat should be generic of type");
+        }
+        if (!interfaceThat.isInterface()) {
+            throw new IllegalArgumentException("arg: interfaceThat should be interface of type");
+        }
+        Class<?>[] clazzInterfaces = clazzOrInterfaceWhere.getInterfaces();
+        int i = 0;
+        for (var interfaceWhere : clazzInterfaces) {
+            ParameterizedType paramType = findSupperGenericInterface(interfaceWhere, interfaceThat);
+            if (paramType != null) {
+                return paramType;
+            }
+            // assume that paramType is null
+            if (interfaceWhere == interfaceThat) {// interfaceThat == interfaceWhere == getGenericInterfaces()[i]
+                return (ParameterizedType) clazzOrInterfaceWhere.getGenericInterfaces()[i];
+            }
+            ++i;
+        }
+
+
+        return null;
     }
 }

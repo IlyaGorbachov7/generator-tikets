@@ -9,10 +9,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class DisciplineDAOImpl extends AbstractDAOImpl<Discipline, UUID> implements DisciplineDAO {
-    @Override
-    public Optional<Discipline> findByName(String name) throws DAOException {
-        return null;
-    }
 
     @Override
     public List<Discipline> findBySpecializationId(UUID specializationId) throws DAOException {
