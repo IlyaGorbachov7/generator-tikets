@@ -4,7 +4,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.FacultyDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
-import org.bouncycastle.cert.dane.DANEException;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 
