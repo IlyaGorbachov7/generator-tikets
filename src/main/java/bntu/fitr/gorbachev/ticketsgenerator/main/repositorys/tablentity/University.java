@@ -13,11 +13,13 @@ import java.util.List;
 @Setter
 @jakarta.persistence.Entity(name = "university")
 @Table(name = "univ") // in HQL queries Hibernate automatically replace EntityName to particular TableName of DB
-public class University extends Entity{
-    @Column(name = "name", unique = true, nullable = false, length = 100)
-    private String name;
+@AttributeOverrides(value = { //
+        @AttributeOverride(
+                name = "name",
+                column = @Column(name = "name", unique = true, nullable = false, length = 100))
+})
+public class University extends Entity {
 
     @OneToMany(mappedBy = "university", fetch = FetchType.LAZY, cascade = {CascadeType.ALL})
     private List<Faculty> faculties = new ArrayList<>();
 }
-
