@@ -68,4 +68,30 @@ public class DepartmentDAOImpl extends AbstractDAOImpl<Department, UUID> impleme
 
 
     }
+
+    @Override
+    public List<Department> findByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
+            SelectionQuery<Department> selectionQuery = session.createSelectionQuery(String.format("""
+                                    from %s as d
+                                    where d.faculty.id=:%s and
+                                          lower(d.name) like lower(:%s)
+                                    """,
+                            extractEntityNameFromJakartaAnnEntity(Department.class),
+                            FACULTY_ID_ARG,
+                            FACULTY_NAME_ARG),
+                    Department.class);
+            selectionQuery.setParameter(FACULTY_ID_ARG, facultyId)
+                    .setParameter(FACULTY_NAME_ARG, String.join("", "%", name, "%"));
+            List<Department> res = selectionQuery.getResultList();
+            commitTransaction(isActiveTrans, session);
+            return res;
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+    }
 }

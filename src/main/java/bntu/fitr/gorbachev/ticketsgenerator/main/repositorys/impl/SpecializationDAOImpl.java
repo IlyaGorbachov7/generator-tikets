@@ -13,24 +13,24 @@ import java.util.UUID;
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;
 
 public class SpecializationDAOImpl extends AbstractDAOImpl<Specialization, UUID> implements SpecializationDAO {
-    protected final String FACULTY_ID_ARG = "facultyId_arg";
+    protected final String DEPARTMENT_ID_ARG = "departmentId_arg";
 
-    protected final String FACULTY_NAME_ARG = "facultyName_arg";
+    protected final String DEPARTMENT_NAME_ARG = "departmentName_arg";
 
     @Override
-    public List<Specialization> findByFacultyId(UUID facultyId) throws DAOException {
+    public List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException {
         Session session = getSession();
         boolean isActiveTrans = isActiveTransaction(session);
         try {
             beginTransaction(isActiveTrans, session);
             SelectionQuery<Specialization> selectionQuery = session.createSelectionQuery(String.format("""
                                     from %s as s
-                                    where s.faculty.id=:%s
+                                    where s.department.id=:%s
                                     """,
                             extractEntityNameFromJakartaAnnEntity(Specialization.class),
-                            FACULTY_ID_ARG)
+                            DEPARTMENT_ID_ARG)
                     , Specialization.class);
-            selectionQuery.setParameter(FACULTY_ID_ARG, facultyId);
+            selectionQuery.setParameter(DEPARTMENT_ID_ARG, departmentId);
             List<Specialization> res = selectionQuery.getResultList();
             commitTransaction(isActiveTrans, session);
             return res;
@@ -41,19 +41,45 @@ public class SpecializationDAOImpl extends AbstractDAOImpl<Specialization, UUID>
     }
 
     @Override
-    public List<Specialization> findByFacultyName(String facultyName) throws DAOException {
+    public List<Specialization> findByDepartmentName(String departmentName) throws DAOException {
         Session session = getSession();
         boolean isActiveTrans = isActiveTransaction(session);
         try {
             beginTransaction(isActiveTrans, session);
             SelectionQuery<Specialization> selectionQuery = session.createSelectionQuery(String.format("""
                                     from %s as s
-                                    where s.faculty.name=:%s
+                                    where s.department.name=:%s
                                     """,
                             extractEntityNameFromJakartaAnnEntity(Specialization.class),
-                            FACULTY_NAME_ARG)
-                    , Specialization.class);
-            selectionQuery.setParameter(FACULTY_NAME_ARG, facultyName);
+                            DEPARTMENT_NAME_ARG),
+                    Specialization.class);
+            selectionQuery.setParameter(DEPARTMENT_NAME_ARG, departmentName);
+            List<Specialization> res = selectionQuery.getResultList();
+            commitTransaction(isActiveTrans, session);
+            return res;
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public List<Specialization> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
+            SelectionQuery<Specialization> selectionQuery = session.createSelectionQuery(String.format("""
+                                    from %s as s
+                                    where s.department.id=:%s
+                                    and lower(f.name) like lower(:%s)
+                                    """,
+                            extractEntityNameFromJakartaAnnEntity(Specialization.class),
+                            DEPARTMENT_ID_ARG,
+                            DEPARTMENT_NAME_ARG),
+                    Specialization.class);
+            selectionQuery.setParameter(DEPARTMENT_ID_ARG, departmentId)
+                    .setParameter(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"));
             List<Specialization> res = selectionQuery.getResultList();
             commitTransaction(isActiveTrans, session);
             return res;

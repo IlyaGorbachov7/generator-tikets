@@ -18,6 +18,8 @@ import org.hibernate.Transaction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Map;
@@ -25,11 +27,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TestDepartmentDAO {
-    DepartmentDAO departmentDAO = new DepartmentDAOImpl();
+    DepartmentDAOImpl departmentDAO = new DepartmentDAOImpl();
     static UniversityDAO universityDAO = new UniversityDAOImpl();
 
     //    @BeforeAll
-    static void init() throws DAOException, ConnectionPoolException {
+    @Test
+    void init() throws DAOException, ConnectionPoolException {
         Session session = PoolConnection.Builder.build().getSession();
         Transaction trans = session.beginTransaction();
         try {
@@ -162,5 +165,22 @@ public class TestDepartmentDAO {
 
         Assertions.assertArrayEquals(departments.toArray(), departmentDAO.findByFacultyId(faculty.getId()).toArray());
         trans.commit();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "Горные",
+            "работы",
+            "пидо"
+
+    })
+    void testFindByLikeNameAndFacultyId(String departmentNamePattern) throws DAOException, ConnectionPoolException {
+        FacultyDAOImpl facultyDAO = new FacultyDAOImpl();
+        Faculty faculty = facultyDAO.findByName("Факультет горного дело и инженерной экологии").orElseThrow();
+
+        List<Department> departments = departmentDAO.findByLikeNameAndFacultyId(departmentNamePattern, faculty.getId());
+        System.out.println("---------------RESULT---------------------");
+        System.out.println(departments.stream().map(Department::getName).collect(Collectors.joining(", ")));
+
     }
 }

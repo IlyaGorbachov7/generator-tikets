@@ -8,7 +8,9 @@ import java.util.UUID;
 
 public interface SpecializationDAO extends AbstractDAO<Specialization, UUID> {
 
-    List<Specialization> findByFacultyId(UUID facultyId) throws DAOException;
+    List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException;
 
-    List<Specialization> findByFacultyName(String facultyName) throws DAOException;
+    List<Specialization> findByDepartmentName(String departmentName) throws DAOException;
+
+    List<Specialization> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 }

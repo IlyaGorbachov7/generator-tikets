@@ -71,4 +71,29 @@ public class FacultyDAOImpl extends AbstractDAOImpl<Faculty, UUID> implements Fa
             throw new DAOException(e);
         }
     }
+
+    @Override
+    public List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
+            SelectionQuery<Faculty> selectionQuery = session.createSelectionQuery(String.format("""
+                            from %s as f
+                            where f.university.id=:%s
+                                    and lower(f.name) like lower(:%s)
+                            """,
+                    extractEntityNameFromJakartaAnnEntity(Faculty.class),
+                    UNIVERSITY_ID_ARG, UNIVERSITY_NAME_ARG
+            ), Faculty.class);
+            selectionQuery.setParameter(UNIVERSITY_ID_ARG, universityId)
+                    .setParameter(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%"));
+            List<Faculty> res = selectionQuery.getResultList();
+            commitTransaction(isActiveTrans, session);
+            return res;
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }
+    }
 }
