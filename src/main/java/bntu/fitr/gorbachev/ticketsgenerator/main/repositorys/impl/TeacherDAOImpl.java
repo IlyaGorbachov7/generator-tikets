@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.TeacherDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import jakarta.persistence.PersistenceException;
@@ -65,4 +66,29 @@ public class TeacherDAOImpl extends AbstractDAOImpl<Teacher, UUID> implements Te
             throw new DAOException(e);
         }
     }
+
+    @Override
+    public List<Teacher> findByNameAndFacultyId(String name, UUID facultyId) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTrans = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTrans, session);
+            SelectionQuery<Teacher> selectionQuery = session.createSelectionQuery(String.format("""
+                                    from %s as t
+                                    where t.faculty.id=:%s and
+                                          lower(t.name) like lower(:%s)
+                                    """,
+                            extractEntityNameFromJakartaAnnEntity(Teacher.class),
+                            FACULTY_ID_ARG,
+                            FACULTY_NAME_ARG),
+                    Teacher.class);
+            selectionQuery.setParameter(FACULTY_ID_ARG, facultyId)
+                    .setParameter(FACULTY_NAME_ARG, String.join("", "%", name, "%"));
+            List<Teacher> res = selectionQuery.getResultList();
+            commitTransaction(isActiveTrans, session);
+            return res;
+        } catch (PersistenceException e) {
+            rollbackTransaction(isActiveTrans, session);
+            throw new DAOException(e);
+        }    }
 }

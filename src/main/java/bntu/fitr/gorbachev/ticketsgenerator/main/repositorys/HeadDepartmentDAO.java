@@ -14,4 +14,6 @@ public interface HeadDepartmentDAO extends AbstractDAO<HeadDepartment, UUID> {
     List<HeadDepartment> findByDepartmentId(UUID departmentId) throws DAOException;
 
     List<HeadDepartment> findByDepartmentName(String departmentName) throws DAOException;
+
+    List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException;
 }
