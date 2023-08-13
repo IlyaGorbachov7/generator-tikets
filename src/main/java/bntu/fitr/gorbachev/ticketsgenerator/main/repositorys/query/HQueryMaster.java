@@ -15,11 +15,11 @@ public abstract class HQueryMaster<T> {
 
     @SuppressWarnings("unchecked")
     public abstract <R> List<T> executeQuery(String query, Class<R> resultClass,
-                                         Map.Entry<String, Object>... params) throws DAOException;
+                                             Map.Entry<String, Object>... params) throws DAOException;
 
     @SuppressWarnings("unchecked")
     public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
-                                                         Map.Entry<String, Object>... params) throws DAOException;
+                                                             Map.Entry<String, Object>... params) throws DAOException;
 
     public abstract <ID> ID persist(T entity) throws DAOException;
 
@@ -40,20 +40,21 @@ public abstract class HQueryMaster<T> {
         }
     }
 
-    public void beginTransaction(Session session) {
-        if (!isActiveTransaction(session)) {
+    public void beginTransaction(boolean isActiveEarly, Session session) {
+        if (!isActiveEarly) {
             session.beginTransaction();
         }
+        session.getTransaction();
     }
 
-    public void commitTransaction(Session session) {
-        if (!isActiveTransaction(session)) {
+    public void commitTransaction(boolean isActiveEarly, Session session) {
+        if (!isActiveEarly) {
             session.getTransaction().commit();
         }
     }
 
-    public void rollbackTransaction(Session session) {
-        if (!isActiveTransaction(session)) {
+    public void rollbackTransaction(boolean isActiveEarly, Session session) {
+        if (!isActiveEarly) {
             session.getTransaction().rollback();
         }
     }
@@ -61,4 +62,5 @@ public abstract class HQueryMaster<T> {
     public boolean isActiveTransaction(Session session) {
         return session.getTransaction().isActive();
     }
+
 }

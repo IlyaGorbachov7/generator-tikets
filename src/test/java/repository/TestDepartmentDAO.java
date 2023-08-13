@@ -1,7 +1,11 @@
 package repository;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.DepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.RepositoryFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.AppAreaAbstractDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.DepartmentDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.FacultyDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
@@ -29,59 +33,59 @@ public class TestDepartmentDAO {
     DepartmentDAOImpl departmentDAO = new DepartmentDAOImpl();
     static UniversityDAO universityDAO = new UniversityDAOImpl();
 
-    //    @BeforeAll
-    @Test
-    void init() throws DAOException, ConnectionPoolException {
-        Session session = PoolConnection.Builder.build().getSession();
-        Transaction trans = session.beginTransaction();
-        try {
-            University u = new University();
-            u.setName("Беларусский национальный технический университет");
-
-            Faculty f1 = new Faculty();
-            f1.setName("Факультет информационных технологий и робототехники");
-            f1.setUniversity(u);
-            u.getFaculties().add(f1);
-
-            Department d = new Department();
-            d.setName("Кафедра математики");
-            d.setFaculty(f1);
-            f1.getDepartments().add(d);
-
-            d = new Department();
-            d.setName("Кафедра информационных технологий");
-            d.setFaculty(f1);
-            f1.getDepartments().add(d);
-
-            // --------------------------------------------------------------------------
-            f1 = new Faculty();
-            f1.setName("Факультет горного дело и инженерной экологии");
-            f1.setUniversity(u);
-            u.getFaculties().add(f1);
-
-            d = new Department();
-            d.setName("Горные машины");
-            d.setFaculty(f1);
-            f1.getDepartments().add(d);
-
-            d = new Department();
-            d.setName("Горные работы");
-            d.setFaculty(f1);
-            f1.getDepartments().add(d);
-
-            d = new Department();
-            d.setName("Инженерная экология");
-            d.setFaculty(f1);
-            f1.getDepartments().add(d);
-            // -----------------------------------------------------------------------------
-
-            universityDAO.create(u);
-            trans.commit();
-        } catch (PersistenceException e) {
-            trans.rollback();
-            throw new DAOException(e);
-        }
-    }
+//    //    @BeforeAll
+//    @Test
+//    void init() throws DAOException, ConnectionPoolException {
+//        Session session = PoolConnection.Builder.build().getSession();
+//        Transaction trans = session.beginTransaction();
+//        try {
+//            University u = new University();
+//            u.setName("Беларусский национальный технический университет");
+//
+//            Faculty f1 = new Faculty();
+//            f1.setName("Факультет информационных технологий и робототехники");
+//            f1.setUniversity(u);
+//            u.getFaculties().add(f1);
+//
+//            Department d = new Department();
+//            d.setName("Кафедра математики");
+//            d.setFaculty(f1);
+//            f1.getDepartments().add(d);
+//
+//            d = new Department();
+//            d.setName("Кафедра информационных технологий");
+//            d.setFaculty(f1);
+//            f1.getDepartments().add(d);
+//
+//            // --------------------------------------------------------------------------
+//            f1 = new Faculty();
+//            f1.setName("Факультет горного дело и инженерной экологии");
+//            f1.setUniversity(u);
+//            u.getFaculties().add(f1);
+//
+//            d = new Department();
+//            d.setName("Горные машины");
+//            d.setFaculty(f1);
+//            f1.getDepartments().add(d);
+//
+//            d = new Department();
+//            d.setName("Горные работы");
+//            d.setFaculty(f1);
+//            f1.getDepartments().add(d);
+//
+//            d = new Department();
+//            d.setName("Инженерная экология");
+//            d.setFaculty(f1);
+//            f1.getDepartments().add(d);
+//            // -----------------------------------------------------------------------------
+//
+//            universityDAO.create(u);
+//            trans.commit();
+//        } catch (PersistenceException e) {
+//            trans.rollback();
+//            throw new DAOException(e);
+//        }
+//    }
 
     @Test
     void testFindAny() throws DAOException, ConnectionPoolException {
@@ -181,5 +185,14 @@ public class TestDepartmentDAO {
         System.out.println("---------------RESULT---------------------");
         System.out.println(departments.stream().map(Department::getName).collect(Collectors.joining(", ")));
 
+    }
+
+    @Test
+    void testCheckingTransaction() throws DAOException, ConnectionPoolException {
+        DepartmentDAO departmentDAO = RepositoryFactoryImpl.getInstance().repositoryDepartment();
+        departmentDAO.findAny().get();
+
+        Session session = PoolConnection.Builder.build().getSession();
+        Assertions.assertFalse(session.getTransaction().isActive());
     }
 }

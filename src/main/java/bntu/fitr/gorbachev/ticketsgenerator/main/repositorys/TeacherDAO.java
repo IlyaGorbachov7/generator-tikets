@@ -6,7 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import java.util.List;
 import java.util.UUID;
 
-public interface TeacherDAO extends AbstractDAO<Teacher, UUID> {
+public interface TeacherDAO extends AppAreaAbstractDAO<Teacher, UUID> {
 
     List<Teacher> findByFacultyId(UUID facultyId) throws DAOException;
 

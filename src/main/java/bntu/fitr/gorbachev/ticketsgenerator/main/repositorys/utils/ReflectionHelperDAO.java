@@ -251,7 +251,11 @@ public class ReflectionHelperDAO {
         int i = 0;
         for (var interfaceWhere : clazzInterfaces) {
             ParameterizedType paramType = findSupperGenericInterface(interfaceWhere, interfaceThat);
+
             if (paramType != null) {
+                if (Arrays.stream(paramType.getActualTypeArguments()).anyMatch(type -> type instanceof TypeVariable)) {
+                    return (ParameterizedType) clazzOrInterfaceWhere.getGenericInterfaces()[i];
+                }
                 return paramType;
             }
             // assume that paramType is null

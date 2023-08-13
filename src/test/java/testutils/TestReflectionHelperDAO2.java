@@ -1,5 +1,9 @@
 package testutils;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AppAreaAbstractDAO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO;
 import com.sun.istack.NotNull;
@@ -13,8 +17,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
-import testutils.models.UniversityAbstractDAOImpl;
+import testutils.models.*;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -79,5 +84,46 @@ public class TestReflectionHelperDAO2 {
         Assertions.assertThrows(RuntimeException.class, ()->{
             ReflectionHelperDAO.extractColumnNameFromJakartaAnnColumn(clazz, "NpFoundField");
         });
+    }
+
+    @Test
+    void testfindSupperGenericClassOrInterface1(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract1DAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+
+
+    @Test
+    void testfindSupperGenericClassOrInterface2(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract2DAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+    @Test
+    void testfindSupperGenericClassOrInterface3(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(UniversityDAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+
+    @Test
+    void testfindSupperGenericClassOrInterface4(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract1DAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+
+    @Test
+    void testfindSupperGenericClassOrInterface5(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract3DAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+
+    @Test
+    void testfindSupperGenericClassOrInterface6(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract4DAO.class, AbstractDAO.class);
+        System.out.println(d);
+    }
+    @Test
+    void testfindSupperGenericClassOrInterface7(){
+        var d =  ReflectionHelperDAO.findSupperGenericClassOrInterface(Abstract5DAO.class, AbstractDAO.class);
+        System.out.println(d);
     }
 }

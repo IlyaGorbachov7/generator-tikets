@@ -6,7 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Speciali
 import java.util.List;
 import java.util.UUID;
 
-public interface SpecializationDAO extends AbstractDAO<Specialization, UUID> {
+public interface SpecializationDAO extends AppAreaAbstractDAO<Specialization, UUID> {
 
     List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException;
 
