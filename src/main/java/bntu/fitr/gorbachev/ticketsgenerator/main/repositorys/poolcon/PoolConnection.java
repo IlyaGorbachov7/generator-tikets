@@ -62,12 +62,16 @@ public class PoolConnection {
 
     public static class Builder {
 
-        public static synchronized PoolConnection build() {
+        public static PoolConnection build() {
             if (connectionFactory == null) {
-                connectionFactory = new Configuration().configure("resources/hibernate.cfg.xml").buildSessionFactory();
-                logger.info("connection factory is build");
-            } else {
-                logger.warn("connection pool already is build");
+                synchronized (PoolConnection.Builder.class) {
+                    if (connectionFactory == null) {
+                        connectionFactory = new Configuration().configure("resources/hibernate.cfg.xml").buildSessionFactory();
+                        logger.info("connection factory is build");
+                    } else {
+                        logger.warn("connection pool already is build");
+                    }
+                }
             }
             return getInstance();
         }
