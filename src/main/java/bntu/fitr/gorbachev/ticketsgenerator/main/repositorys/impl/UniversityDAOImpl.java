@@ -4,6 +4,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import java.util.UUID;
 
-public class UniversityDAOImpl extends AbstractDAOImpl<University, UUID> implements UniversityDAO {
+public class UniversityDAOImpl extends AppAreaAbstractDAOImpl<University, UUID> implements UniversityDAO {
 
 }

@@ -6,26 +6,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.hibernate.query.SelectionQuery;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Optional;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.*;
 
 public class HQueryMasterImpl<T> extends HQueryMaster<T> {
 
     @Override
-    public List<T> executeQuery(String query, Class<?> resultClass,
-                                Map.Entry<String, Object>... params) throws DAOException {
+    @SuppressWarnings("unchecked")
+    public <R> List<T> executeQuery(String queryStr, Class<R> resultClass,
+                                    Map.Entry<String, Object>... params) throws DAOException {
         Session session = getSession();
         try {
             beginTransaction(session);
-            Query<?> selectionQuery = session.createQuery(query, resultClass);
+            Query<?> query = session.createQuery(queryStr, resultClass);
+            setStatementParams((Query<T>) query, params);
             @SuppressWarnings("unchecked")
-            List<T> resultList = (List<T>) selectionQuery.getResultList();
+            List<T> resultList = (List<T>) query.getResultList();
             commitTransaction(session);
             return resultList;
         } catch (PersistenceException e) {
@@ -35,16 +36,18 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public List<T> executeSelectionQuery(String selectQuery, Class<?> resultClass,
-                                         Map.Entry<String, Object>... params) throws DAOException {
+    @SuppressWarnings("unchecked")
+    public <R> Optional<T> executeSingleEntityQuery(String queryStr, Class<R> resultClass,
+                                                Map.Entry<String, Object>... params) throws DAOException {
         Session session = getSession();
         try {
             beginTransaction(session);
-            SelectionQuery<?> selectionQuery = session.createSelectionQuery(selectQuery, resultClass);
+            Query<?> query = session.createQuery(queryStr, resultClass);
+                    setStatementParams((Query<T>) query, params);
             @SuppressWarnings("unchecked")
-            List<T> resultList = (List<T>) selectionQuery.getResultList();
+            T entity = (T) query.getSingleResultOrNull();
             commitTransaction(session);
-            return resultList;
+            return Optional.ofNullable(entity);
         } catch (PersistenceException e) {
             rollbackTransaction(session);
             throw new DAOException(e);
@@ -91,13 +94,8 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public <R> void setStatementParams(Query<R> query, Map.Entry<String, Object>... mappedParams) {
-        Arrays.stream(mappedParams).forEach(mappedParam ->
-                query.setParameter(mappedParam.getKey(), mappedParam.getValue()));
-    }
-
-    @Override
-    public <R> void setStatementParams(SelectionQuery<R> query, Map.Entry<String, Object>... mappedParams) {
+    @SuppressWarnings("unchecked")
+    public void setStatementParams(Query<T> query, Map.Entry<String, Object>... mappedParams) {
         Arrays.stream(mappedParams).forEach(mappedParam ->
                 query.setParameter(mappedParam.getKey(), mappedParam.getValue()));
     }

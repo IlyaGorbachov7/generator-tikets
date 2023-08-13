@@ -9,14 +9,17 @@ import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public abstract class HQueryMaster<T> {
 
-    public abstract List<T> executeQuery(String query, Class<?> resultClass,
+    @SuppressWarnings("unchecked")
+    public abstract <R> List<T> executeQuery(String query, Class<R> resultClass,
                                          Map.Entry<String, Object>... params) throws DAOException;
 
-    public abstract List<T> executeSelectionQuery(String selectionQuery, Class<?> resultClass,
-                                                  Map.Entry<String, Object>... params) throws DAOException;
+    @SuppressWarnings("unchecked")
+    public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
+                                                         Map.Entry<String, Object>... params) throws DAOException;
 
     public abstract <ID> ID persist(T entity) throws DAOException;
 
@@ -24,9 +27,10 @@ public abstract class HQueryMaster<T> {
 
     public abstract void update(T entity) throws DAOException;
 
-    protected abstract <R> void setStatementParams(Query<R> query, Map.Entry<String, Object>... mappedParams);
+    @SuppressWarnings("unchecked")
+    protected abstract void setStatementParams(Query<T> query, Map.Entry<String, Object>... mappedParams);
 
-    protected abstract <R> void setStatementParams(SelectionQuery<R> query, Map.Entry<String, Object>... mappedParams);
+    // ------------ Helper methods ---------------------
 
     public Session getSession() throws DAOException {
         try {
@@ -36,18 +40,16 @@ public abstract class HQueryMaster<T> {
         }
     }
 
-    public HQueryMaster<T> beginTransaction(Session session) {
+    public void beginTransaction(Session session) {
         if (!isActiveTransaction(session)) {
             session.beginTransaction();
         }
-        return this;
     }
 
-    public HQueryMaster<T> commitTransaction(Session session) {
+    public void commitTransaction(Session session) {
         if (!isActiveTransaction(session)) {
             session.getTransaction().commit();
         }
-        return this;
     }
 
     public void rollbackTransaction(Session session) {

@@ -3,91 +3,73 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.HeadDepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
-import jakarta.persistence.PersistenceException;
-import org.hibernate.Session;
-import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
-import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;
 
-public class HeadDepartmentDAOImpl extends AbstractDAOImpl<HeadDepartment, UUID> implements HeadDepartmentDAO {
+public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment, UUID> implements HeadDepartmentDAO {
     protected final String DEPARTMENT_ID_ARG = "departmentId_arg";
 
     protected final String DEPARTMENT_NAME_ARG = "departmentName_arg";
 
+    // ------------ HQL entry ------------------------ //
+
+    private final String HQL_FIND_BY_departmentId = String.format("""
+                    %s
+                    where %s.department.id=:%s
+                    """,
+            HQL_SELECT,
+            ALLIES_TABLE,
+            DEPARTMENT_ID_ARG);
+
+    private final String HQL_FIND_BY_departmentName = String.format("""
+                    %s
+                    where %s.department.name=:%s
+                    """,
+            HQL_SELECT,
+            ALLIES_TABLE,
+            DEPARTMENT_NAME_ARG);
+
+    private final String HQL_FIND_BY_NAME_AND_departmentId = String.format("""
+                    %s
+                    where %s.department.id=:%s
+                    and lower(%s.name) like lower(:%s)
+                    """,
+            HQL_SELECT,
+            ALLIES_TABLE,
+            DEPARTMENT_ID_ARG,
+            ALLIES_TABLE,
+            DEPARTMENT_NAME_ARG);
+
+
     @Override
+    @SuppressWarnings("unchecked")
     public List<HeadDepartment> findByDepartmentId(UUID departmentId) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            SelectionQuery<HeadDepartment> selectionQuery = session.createSelectionQuery(String.format("""
-                                    from %s as hd
-                                    where hd.department.id=:%s
-                                    """,
-                            extractEntityNameFromJakartaAnnEntity(HeadDepartment.class),
-                            DEPARTMENT_ID_ARG)
-                    , HeadDepartment.class);
-            selectionQuery.setParameter(DEPARTMENT_ID_ARG, departmentId);
-            List<HeadDepartment> res = selectionQuery.getResultList();
-            commitTransaction(isActiveTrans, session);
-            return res;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        return executor.executeQuery(
+                HQL_FIND_BY_departmentId,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<HeadDepartment> findByDepartmentName(String departmentName) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            SelectionQuery<HeadDepartment> selectionQuery = session.createSelectionQuery(String.format("""
-                                    from %s as hd
-                                    where hd.department.name=:%s
-                                    """,
-                            extractEntityNameFromJakartaAnnEntity(HeadDepartment.class),
-                            DEPARTMENT_NAME_ARG)
-                    , HeadDepartment.class);
-            selectionQuery.setParameter(DEPARTMENT_NAME_ARG, departmentName);
-            List<HeadDepartment> res = selectionQuery.getResultList();
-            commitTransaction(isActiveTrans, session);
-            return res;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        return executor.executeQuery(
+                HQL_FIND_BY_departmentName,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_NAME_ARG, departmentName));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            SelectionQuery<HeadDepartment> selectionQuery = session.createSelectionQuery(String.format("""
-                                    from %s as hd
-                                    where hd.department.id=:%s
-                                    and lower(f.name) like lower(:%s)
-                                    """,
-                            extractEntityNameFromJakartaAnnEntity(HeadDepartment.class),
-                            DEPARTMENT_ID_ARG,
-                            DEPARTMENT_NAME_ARG),
-                    HeadDepartment.class);
-            selectionQuery.setParameter(DEPARTMENT_ID_ARG, departmentId)
-                    .setParameter(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"));
-            List<HeadDepartment> res = selectionQuery.getResultList();
-            commitTransaction(isActiveTrans, session);
-            return res;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        return executor.executeQuery(
+                HQL_FIND_BY_NAME_AND_departmentId,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(DEPARTMENT_NAME_ARG, name));
     }
 
 

@@ -1,6 +1,5 @@
 package repository;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.DepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.DepartmentDAOImpl;
@@ -105,10 +104,10 @@ public class TestDepartmentDAO {
         Transaction trans = session.beginTransaction();
         Department department = departmentDAO.findAny().orElseThrow();
 
-        Department depClone = departmentDAO.findById(department.getId());
+        Department depClone = departmentDAO.findById(department.getId()).get();
         Assertions.assertSame(department, depClone);
 
-        Department depClone1 = departmentDAO.findById(department.getId());
+        Department depClone1 = departmentDAO.findById(department.getId()).get();
         Assertions.assertSame(depClone, depClone1);
 
         trans.commit();

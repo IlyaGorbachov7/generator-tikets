@@ -2,18 +2,14 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.impl.HQueryMasterImpl;
 import jakarta.persistence.Id;
-import jakarta.persistence.PersistenceException;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
-import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.Optional;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.*;
@@ -26,187 +22,80 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.Reflec
  */
 @Slf4j
 public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
-    protected final PoolConnection poolConnection = PoolConnection.Builder.build();
+    @Getter
+    protected HQueryMaster<T> executor = new HQueryMasterImpl<>();
 
-    public Session getSession() throws DAOException {
-        try {
-            return poolConnection.getSession();
-        } catch (ConnectionPoolException e) {
-            log.warn(e.getCause().getMessage());
-            throw new DAOException(e);
-        }
-    }
+    protected final Class<?> ENTITY_CLAZZ = extractEntityClassFromDao(this.getClass());
 
-    public boolean isActiveTransaction(Session session) {
-        return session.getTransaction().isActive();
-    }
+    protected final String ENTITY_NAME = extractEntityNameFromJakartaAnnEntity(ENTITY_CLAZZ);
 
-    public void beginTransaction(boolean isActiveEarly, Session session) {
-        if (!isActiveEarly) {
-            session.beginTransaction();
-        }
-        session.getTransaction();
-    }
+    protected final String ALLIES_TABLE = "tbl";
 
-    public void commitTransaction(boolean isActiveEarly, Session session) {
-        if (!isActiveEarly) {
-            session.getTransaction().commit();
-        }
-    }
+    private final String ENTITY_ID_ARG = "entityId_arg";
 
-    public void rollbackTransaction(boolean isActiveEarly, Session session) {
-        if (!isActiveEarly) {
-            session.getTransaction().rollback();
-        }
-    }
+    // ------------ HQL entry ------------------------ //
+
+    protected final String HQL_SELECT = String.format("""
+                    from %s as %s
+                    """,
+            ENTITY_NAME,
+            ALLIES_TABLE);
+
+    private final String HQL_FIND_BY_ID = String.format("""
+                    %s
+                    where %s.%s=:%s
+                    """,
+            HQL_SELECT,
+            ALLIES_TABLE,
+            getFieldNameFindByAnnotation(ENTITY_CLAZZ, Id.class),
+            ENTITY_ID_ARG);
+
+
+    private final String HQL_FIND_ANY = String.format("""
+                    %s
+                    order by %s
+                    LIMIT 1 OFFSET 0
+                    """,
+            HQL_SELECT,
+            getFieldNameFindByAnnotation(ENTITY_CLAZZ, Id.class));
 
     @Override
     public ID create(T entity) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        beginTransaction(isActiveTrans, session);
-        try {
-            session.persist(entity);
-            commitTransaction(isActiveTrans, session);
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
-        return getValueFromFieldFindByAnnotation(entity, Id.class);
+        return executor.persist(entity);
     }
 
     @Override
     public void delete(T entity) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            session.remove(entity);
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        executor.delete(entity);
     }
 
     @Override
     public void update(T entity) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            session.refresh(entity);
-            commitTransaction(isActiveTrans, session);
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        executor.update(entity);
     }
 
     @Override
-    public T findById(ID id) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        try {
-            beginTransaction(isActiveTrans, session);
-            T entity = session.get(extractEntityClassFromDao(this.getClass()), id);
-            commitTransaction(isActiveTrans, session);
-            return entity;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+    @SuppressWarnings("unchecked")
+    public Optional<T> findById(ID id) throws DAOException {
+        return executor.executeSingleEntityQuery(
+                HQL_FIND_BY_ID,
+                ENTITY_CLAZZ,
+                Map.entry(ENTITY_ID_ARG, id));
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<T> findAll() throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
-        try {
-            beginTransaction(isActiveTrans, session);
-            /* When compose HQL query we should use entityName.
-             HQL query: from 'entityName' - in HQL queries Hibernate automatically replace EntityName to particular
-             TableName of DB*/
-            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("from %s",
-                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz))));
-            @SuppressWarnings("unchecked")
-            List<T> resultList = (List<T>) selectionQuery.getResultList();
-            commitTransaction(isActiveTrans, session);
-            return resultList;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
+        return executor.executeQuery(
+                HQL_SELECT,
+                ENTITY_CLAZZ);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<T> findAny() throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
-        try {
-            beginTransaction(isActiveTrans, session);
-            SelectionQuery<?> selectionQuery = session.createSelectionQuery(String.format("""
-                            from %s
-                            order by %s
-                            LIMIT 1 OFFSET 0
-                            """,
-                    Objects.requireNonNull(extractEntityNameFromJakartaAnnEntity(entityClazz)),
-                    extractColumnNameFromJakartaAnnColumn(entityClazz, getFieldNameFindByAnnotation(entityClazz, Id.class))));
-            @SuppressWarnings("unchecked")
-            Optional<T> res = (Optional<T>) selectionQuery.stream().findAny();
-            commitTransaction(isActiveTrans, session);
-            return res;
-        } catch (HibernateException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
-    }
-
-    // ------------------------ DAO methods, that using only int within  objects area this application -------------
-    public Optional<T> findByName(String name) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
-        try {
-            beginTransaction(isActiveTrans, session);
-            Query<?> query = session.createQuery(String.format("""
-                    from %s r
-                    where lower(r.name)=lower(:name_arg)
-                    """, extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz);
-            @SuppressWarnings("unchecked")
-            T entity = (T) query
-                    .setParameter("name_arg", name)
-                    .getSingleResultOrNull();
-            commitTransaction(isActiveTrans, session);
-            return Optional.ofNullable(entity);
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
-    }
-
-
-    public List<T> findLikeByName(String name) throws DAOException {
-        Session session = getSession();
-        boolean isActiveTrans = isActiveTransaction(session);
-        Class<?> entityClazz = extractEntityClassFromDao(this.getClass());
-        try {
-            beginTransaction(isActiveTrans, session);
-            Query<?> query = session.createQuery(String.format("""
-                    from %s r
-                    where lower(r.name) like lower(:name_arg)
-                    """, extractEntityNameFromJakartaAnnEntity(entityClazz)), entityClazz);
-            @SuppressWarnings("unchecked")
-            List<T> resultList = (List<T>) query
-                    .setParameter("name_arg", String.join("", "%", name, "%"))
-                    .getResultList();
-            commitTransaction(isActiveTrans, session);
-            return resultList;
-        } catch (PersistenceException e) {
-            rollbackTransaction(isActiveTrans, session);
-            throw new DAOException(e);
-        }
-
+        return executor.executeSingleEntityQuery(
+                HQL_FIND_ANY,
+                ENTITY_CLAZZ);
     }
 }

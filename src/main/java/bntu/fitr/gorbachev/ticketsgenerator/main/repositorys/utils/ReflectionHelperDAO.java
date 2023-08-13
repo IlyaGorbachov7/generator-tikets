@@ -67,7 +67,7 @@ public class ReflectionHelperDAO {
         if (!Objects.isNull(annEntity)) {
             return annEntity.name().isBlank() ? clazzEntity.getSimpleName() : annEntity.name();
         }
-        return null;
+        throw new RuntimeException(String.format("Class: %s should be entity class. Under this class should be specified JPA annotation: Entity.class", clazzEntity));
     }
 
     /**

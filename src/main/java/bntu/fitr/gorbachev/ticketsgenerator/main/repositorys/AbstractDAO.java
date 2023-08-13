@@ -5,6 +5,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Basic apparition for any repositories independent of the application subject
+ */
 public interface AbstractDAO<T, ID> {
     ID create(T entity) throws DAOException;
 
@@ -12,7 +15,7 @@ public interface AbstractDAO<T, ID> {
 
     void update(T entity) throws DAOException;
 
-    T findById(ID id) throws DAOException;
+    Optional<T> findById(ID id) throws DAOException;
 
     List<T> findAll() throws DAOException;
 
