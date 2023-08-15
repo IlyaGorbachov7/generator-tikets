@@ -2,7 +2,6 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityCreateDto;
@@ -12,6 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.univ.Univers
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.UniversityMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -48,11 +48,26 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public void delete(UniversityDTO universityDTO) throws ServiceException {
-        universityRepository.delete(universityMapper.universityDtoToUniversity(universityDTO));
+        universityRepository.getExecutor()
+                .executeSupplierQuery(() -> {
+                    University university = universityRepository.findById(universityDTO.getId())
+                            .orElseThrow(UniversityNoFoundById::new);
+                    universityRepository.delete(university);
+                });
     }
 
     @Override
     public Optional<UniversityDTO> getAny() throws ServiceException {
         return universityRepository.findAny().map(universityMapper::universityToUniversityDto);
+    }
+
+    @Override
+    public List<UniversityDTO> getAll() throws ServiceException {
+        return universityMapper.universityToUniversityDto(universityRepository.findAll());
+    }
+
+    @Override
+    public List<UniversityDTO> getLimitedQuantity(int page, int quantity) throws ServiceException {
+        return null;
     }
 }

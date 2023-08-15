@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityCreateDt
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
+import java.util.List;
 import java.util.Optional;
 
 // Hibernate Validator same should be used !!!!!!!!!
@@ -18,4 +19,7 @@ public interface UniversityService {
 
     Optional<UniversityDTO> getAny() throws ServiceException;
 
+    List<UniversityDTO> getAll() throws ServiceException;
+
+    List<UniversityDTO> getLimitedQuantity(int page, int quantity) throws ServiceException;
 }

@@ -32,6 +32,18 @@ public class UniversityServiceTest {
         Assertions.assertEquals(un.getName(), res.getName());
     }
 
+    @Test
+    void testDelete(){
+        UniversityDTO universityDTO = serviceUniv.getAny().orElseThrow();
+        serviceUniv.delete(universityDTO);
+    }
+
+
+    @Test
+    void testGetAll(){
+
+    }
+
     private static class ArgumentProviderTestCreate implements ArgumentsProvider {
 
         @Override

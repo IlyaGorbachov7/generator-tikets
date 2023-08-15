@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper
 public interface UniversityMapper {
 
@@ -15,6 +17,10 @@ public interface UniversityMapper {
     University universityDtoToUniversity(UniversityCreateDto universityCreateDto);
 
     University universityDtoToUniversity(UniversityDTO universityDTO);
+
+    List<UniversityDTO> universityToUniversityDto(List<University> entities);
+
+    List<University> universityDtoToUniversity(List<UniversityDTO> universityDTOList);
 
     @Mapping(target = "id", ignore = true)
     void update(@MappingTarget University target, UniversityDTO source);
