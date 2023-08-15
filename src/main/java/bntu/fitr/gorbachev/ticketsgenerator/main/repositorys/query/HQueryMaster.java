@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 
@@ -21,9 +22,11 @@ public abstract class HQueryMaster<T> {
     public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
                                                              Map.Entry<String, Object>... params) throws DAOException;
 
-    public abstract <R> List<R> executeSupplierQuery(Supplier<List<R>> runner) throws DAOException;
+    public abstract <R> List<R> executeListQuerySupplierQuery(Supplier<List<R>> runner) throws DAOException;
 
-    public abstract  <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException;
+    public abstract <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException;
+
+    public abstract void executeSupplierQuery(Runnable runner) throws ServiceException;
 
     public abstract <ID> ID persist(T entity) throws DAOException;
 

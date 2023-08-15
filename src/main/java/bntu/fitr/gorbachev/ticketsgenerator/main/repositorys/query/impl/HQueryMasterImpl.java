@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import jakarta.persistence.Id;
 import jakarta.persistence.PersistenceException;
 import org.hibernate.Session;
@@ -58,7 +59,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public <R> List<R> executeSupplierQuery(Supplier<List<R>> runner) throws DAOException {
+    public <R> List<R> executeListQuerySupplierQuery(Supplier<List<R>> runner) throws DAOException {
         Session session = getSession();
         boolean isActiveTransactionEarly = isActiveTransaction(session);
         try {
@@ -81,6 +82,20 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
             R res = runner.get();
             commitTransaction(isActiveTransactionEarly, session);
             return res;
+        } catch (Exception e) {
+            rollbackTransaction(isActiveTransactionEarly, session);
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public void executeSupplierQuery(Runnable runner) throws ServiceException {
+        Session session = getSession();
+        boolean isActiveTransactionEarly = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTransactionEarly, session);
+            runner.run();
+            commitTransaction(isActiveTransactionEarly, session);
         } catch (Exception e) {
             rollbackTransaction(isActiveTransactionEarly, session);
             throw new DAOException(e);
