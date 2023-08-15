@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.*;
 
@@ -57,6 +58,36 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
+    public <R> List<R> executeSupplierQuery(Supplier<List<R>> runner) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTransactionEarly = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTransactionEarly, session);
+            List<R> res = runner.get();
+            commitTransaction(isActiveTransactionEarly, session);
+            return res;
+        } catch (Exception e) {
+            rollbackTransaction(isActiveTransactionEarly, session);
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
+    public <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException {
+        Session session = getSession();
+        boolean isActiveTransactionEarly = isActiveTransaction(session);
+        try {
+            beginTransaction(isActiveTransactionEarly, session);
+            R res = runner.get();
+            commitTransaction(isActiveTransactionEarly, session);
+            return res;
+        } catch (Exception e) {
+            rollbackTransaction(isActiveTransactionEarly, session);
+            throw new DAOException(e);
+        }
+    }
+
+    @Override
     public <ID> ID persist(T entity) throws DAOException {
         Session session = getSession();
         boolean isActiveTransactionEarly = isActiveTransaction(session);
@@ -90,7 +121,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
         boolean isActiveTransactionEarly = isActiveTransaction(session);
         try {
             beginTransaction(isActiveTransactionEarly, session);
-            session.refresh(entity);
+            session.persist(entity);
             commitTransaction(isActiveTransactionEarly, session);
         } catch (PersistenceException e) {
             rollbackTransaction(isActiveTransactionEarly, session);

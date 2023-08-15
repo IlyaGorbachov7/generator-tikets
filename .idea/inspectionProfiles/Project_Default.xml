@@ -37,5 +37,14 @@
       <option name="IGNORE_POINT_TO_ITSELF" value="false" />
       <option name="myAdditionalJavadocTags" value="versin" />
     </inspection_tool>
+    <inspection_tool class="MavenPackageUpdate" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="excludeList">
+        <list>
+          <option value="com.mysql:mysql-connector-j" />
+          <option value="com.formdev:flatlaf" />
+          <option value="com.documents4j:documents4j-local" />
+        </list>
+      </option>
+    </inspection_tool>
   </profile>
 </component>

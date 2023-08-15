@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,4 +22,5 @@ public interface AbstractDAO<T, ID> {
 
     Optional<T> findAny() throws DAOException;
 
+    HQueryMaster<T> getExecutor();
 }

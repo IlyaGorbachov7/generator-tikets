@@ -5,11 +5,11 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionP
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.hibernate.query.SelectionQuery;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public abstract class HQueryMaster<T> {
 
@@ -20,6 +20,10 @@ public abstract class HQueryMaster<T> {
     @SuppressWarnings("unchecked")
     public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
                                                              Map.Entry<String, Object>... params) throws DAOException;
+
+    public abstract <R> List<R> executeSupplierQuery(Supplier<List<R>> runner) throws DAOException;
+
+    public abstract  <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException;
 
     public abstract <ID> ID persist(T entity) throws DAOException;
 
