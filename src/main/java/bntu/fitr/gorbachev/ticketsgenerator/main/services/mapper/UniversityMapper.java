@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityCreateDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityDTO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;

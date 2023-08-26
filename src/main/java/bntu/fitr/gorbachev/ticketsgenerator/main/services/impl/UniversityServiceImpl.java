@@ -4,10 +4,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityCreateDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityDTO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.univ.UniversityNoFoundById;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.univ.UniversityNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.UniversityMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
 
@@ -38,7 +38,7 @@ public class UniversityServiceImpl implements UniversityService {
         University entity = universityRepository.getExecutor()
                 .executeSingleEntitySupplierQuery(() -> {
                     University en = universityRepository.findById(universityDto.getId())
-                            .orElseThrow(UniversityNoFoundById::new);
+                            .orElseThrow(UniversityNoFoundByIdException::new);
                     universityMapper.update(en, universityDto);
                     universityRepository.update(en);
                     return en;
@@ -51,7 +51,7 @@ public class UniversityServiceImpl implements UniversityService {
         universityRepository.getExecutor()
                 .executeSupplierQuery(() -> {
                     University university = universityRepository.findById(universityDTO.getId())
-                            .orElseThrow(UniversityNoFoundById::new);
+                            .orElseThrow(UniversityNoFoundByIdException::new);
                     universityRepository.delete(university);
                 });
     }

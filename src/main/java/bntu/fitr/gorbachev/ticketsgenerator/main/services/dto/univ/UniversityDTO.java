@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.services.dto;
+package bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Entity;
 import lombok.*;

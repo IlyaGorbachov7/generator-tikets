@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityCreateDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.UniversityDTO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
