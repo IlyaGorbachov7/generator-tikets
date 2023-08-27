@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.FacultyMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
 
@@ -27,7 +28,11 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public FacultyDto update(FacultyDto facultyDto) throws ServiceException {
-        return null;
+        Faculty faculty = facultyRepo.findById(facultyDto.getId())
+                .orElseThrow(FacultyNoFoundByIdException::new);
+        facultyMapper.update(faculty, facultyDto);
+        facultyRepo.update(faculty);
+        return facultyMapper.facultyToFacultyDto(faculty);
     }
 
     @Override
@@ -37,7 +42,8 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public Optional<FacultyDto> getAny() throws ServiceException {
-        return Optional.empty();
+        return facultyRepo.getExecutor()
+                .executeSingleEntitySupplierQuery(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
     }
 
     @Override

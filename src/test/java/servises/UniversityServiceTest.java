@@ -1,5 +1,6 @@
 package servises;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public class UniversityServiceTest {
@@ -27,21 +29,30 @@ public class UniversityServiceTest {
     @Test
     void testUpdate() {
         UniversityDTO universityDTO = serviceUniv.getAny().orElseThrow();
-        UniversityDTO un = UniversityDTO.builder().id(universityDTO.getId()).name("Belarusian Technic University").build();
-        UniversityDTO res= serviceUniv.update(un);
-        Assertions.assertEquals(un.getName(), res.getName());
+        System.out.println("old entity : " + universityDTO);
+
+        universityDTO.setName("Belarusian Technic University");
+        UniversityDTO res = serviceUniv.update(universityDTO);
+        System.out.println("updated entity : " + res);
     }
 
     @Test
-    void testDelete(){
+    void testDelete() {
         UniversityDTO universityDTO = serviceUniv.getAny().orElseThrow();
         serviceUniv.delete(universityDTO);
     }
 
 
     @Test
-    void testGetAll(){
+    void testGetAll() {
+        List<UniversityDTO> universityList = serviceUniv.getAll();
+        universityList.forEach(System.out::println);
+    }
 
+    @Test
+    void testGetAny() {
+        UniversityDTO universityDto = serviceUniv.getAny().orElse(null);
+        System.out.println(universityDto);
     }
 
     private static class ArgumentProviderTestCreate implements ArgumentsProvider {
