@@ -15,7 +15,7 @@ import java.util.List;
 public class Department extends Entity{
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "faculty_id")
+    @JoinColumn(name = "faculty_id", nullable = false)
     private Faculty faculty;
 
     @OneToMany(mappedBy = "department", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

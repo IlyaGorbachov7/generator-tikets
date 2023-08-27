@@ -10,6 +10,6 @@ import lombok.*;
 public class HeadDepartment extends Entity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 }
