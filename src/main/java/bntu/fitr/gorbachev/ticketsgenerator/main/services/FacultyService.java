@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface FacultyService {
 
-    FacultyDto create(FacultyCreateDto universityCreateDto) throws ServiceException;
+    FacultyDto create(FacultyCreateDto facultyCreateDto) throws ServiceException;
 
     FacultyDto update(FacultyDto facultyDto) throws ServiceException;
 
