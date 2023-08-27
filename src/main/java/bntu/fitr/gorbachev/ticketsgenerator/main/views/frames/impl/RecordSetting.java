@@ -1,6 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.WriterTicketProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
