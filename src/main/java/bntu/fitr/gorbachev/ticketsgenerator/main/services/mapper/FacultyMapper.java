@@ -12,12 +12,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper
 public abstract class FacultyMapper {
 
     private final UniversityDAO universityRepo = RepositoryFactoryImpl.getInstance().repositoryUniversity();
-
-    private final HQueryMaster<University> executor = universityRepo.getExecutor();
 
     public Faculty facultyDtoToFaculty(FacultyDto facultyDto) {
         return assembleToEntity(universityRepo.findById(facultyDto.getUniversityDto().getId())
@@ -29,21 +29,27 @@ public abstract class FacultyMapper {
                 .orElseThrow(UniversityNoFoundByIdException::new), facultyCreateDto);
     }
 
+    @Mapping(target = "universityDto", source = "university")
+    public abstract FacultyDto facultyToFacultyDto(Faculty faculty);
+
+    public abstract List<FacultyDto> facultyToFacultyDto(List<Faculty> faculties);
+
+    public abstract List<Faculty> facultyDtoToFaculty(List<FacultyDto> facultyDto);
+
     @Mapping(target = "id", ignore = true)
     public void update(@MappingTarget Faculty faculty, FacultyDto facultyDto) {
         Faculty entitySource = facultyDtoToFaculty(facultyDto);
         update(faculty, entitySource);
     }
 
-    @Mapping(target = "universityDto", source = "university")
-    public abstract FacultyDto facultyToFacultyDto(Faculty faculty);
-
     @Mapping(target = "id", source = "facultyDto.id")
     @Mapping(target = "name", source = "facultyDto.name")
+    @Mapping(target = "departments", ignore = true)
     protected abstract Faculty assembleToEntity(University university, FacultyDto facultyDto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "facultyCreateDto.name")
+    @Mapping(target = "departments", ignore = true)
     protected abstract Faculty assembleToEntity(University university, FacultyCreateDto facultyCreateDto);
 
 

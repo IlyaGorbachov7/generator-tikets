@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public class FacultyServiceTest {
@@ -30,10 +31,23 @@ public class FacultyServiceTest {
     }
 
     @Test
-    void update(){
+    void update() {
         FacultyDto facultyDto = facultyService.getAny().orElseThrow();
         facultyDto.setName("RuSAAAAAOOOO");
         facultyService.update(facultyDto);
+        System.out.println(facultyDto);
+    }
+
+    @Test
+    void delete() {
+        FacultyDto facultyDto = facultyService.getAny().orElseThrow();
+        facultyService.delete(facultyDto);
+    }
+
+    @Test
+    void getAll() {
+        List<FacultyDto> facultyDtos = facultyService.getAll();
+        System.out.println(facultyDtos);
     }
 
     static class ProviderArgumentsForCreateTest implements ArgumentsProvider {

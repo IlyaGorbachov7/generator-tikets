@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.FacultyDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
@@ -18,6 +19,7 @@ public class FacultyServiceImpl implements FacultyService {
 
     private final FacultyDAO facultyRepo = RepositoryFactoryImpl.getInstance().repositoryFaculty();
     private final FacultyMapper facultyMapper = MapperFactoryImpl.getInstance().facultyMapper();
+    private final HQueryMaster<Faculty> executor = facultyRepo.getExecutor();
 
     @Override
     public FacultyDto create(FacultyCreateDto facultyCreateDto) throws ServiceException {
@@ -28,26 +30,32 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public FacultyDto update(FacultyDto facultyDto) throws ServiceException {
-        Faculty faculty = facultyRepo.findById(facultyDto.getId())
-                .orElseThrow(FacultyNoFoundByIdException::new);
-        facultyMapper.update(faculty, facultyDto);
-        facultyRepo.update(faculty);
-        return facultyMapper.facultyToFacultyDto(faculty);
+        return facultyMapper.facultyToFacultyDto(
+                executor.executeSingleEntitySupplierQuery(() -> {
+                    Faculty faculty = facultyRepo.findById(facultyDto.getId())
+                            .orElseThrow(FacultyNoFoundByIdException::new);
+                    facultyMapper.update(faculty, facultyDto);
+                    facultyRepo.update(faculty);
+                    return faculty;
+                }));
     }
 
     @Override
     public void delete(FacultyDto facultyDto) throws ServiceException {
-
+        executor.executeSupplierQuery(() -> {
+            Faculty faculty = facultyRepo.findById(facultyDto.getId())
+                    .orElseThrow(FacultyNoFoundByIdException::new);
+            facultyRepo.delete(faculty);
+        });
     }
 
     @Override
     public Optional<FacultyDto> getAny() throws ServiceException {
-        return facultyRepo.getExecutor()
-                .executeSingleEntitySupplierQuery(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
+        return executor.executeSingleEntitySupplierQuery(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
     }
 
     @Override
     public List<FacultyDto> getAll() throws ServiceException {
-        return null;
+        return executor.executeListQuerySupplierQuery(() -> facultyMapper.facultyToFacultyDto(facultyRepo.findAll()));
     }
 }
