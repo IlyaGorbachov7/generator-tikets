@@ -1,12 +1,12 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools;
 
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.Question2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.TicketsGeneratorWay;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.impl.TicketsGeneratorWayImpl1;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.impl.TicketsGeneratorWayImpl2;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.impl.generatway.impl.TicketsGeneratorWayImpl3;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGeneratorWay;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl1;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl3;
 
 /**
  * Mode enum will define generation tickets algorithm.

@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,5 +20,5 @@ public class Specialization extends Entity {
     private Department department;
 
     @OneToMany(mappedBy = "specialization", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Discipline> disciplines;
+    private List<Discipline> disciplines = new ArrayList<>();
 }

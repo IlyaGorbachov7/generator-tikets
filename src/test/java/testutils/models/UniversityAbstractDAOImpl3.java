@@ -1,6 +1,6 @@
 package testutils.models;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import model.Person;
 

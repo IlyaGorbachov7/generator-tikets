@@ -18,5 +18,5 @@ public class Discipline extends Entity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "specialization_id", nullable = false)
-    private Specialization specialization;
+    private Specialization specialization = new Specialization();
 }
