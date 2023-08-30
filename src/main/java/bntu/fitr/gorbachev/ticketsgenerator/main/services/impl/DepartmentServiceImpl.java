@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DepartmentMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
 
@@ -30,21 +31,31 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto update(DepartmentDto departmentDto) throws ServiceException {
-        return null;
+        return executor.executeSingleEntitySupplierQuery(() -> {
+            Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
+            departmentMapper.update(entity, departmentDto);
+            return departmentMapper.departmentToDepartmentDto(entity);
+        });
     }
 
     @Override
-    public void delete(DepartmentDto facultyDto) throws ServiceException {
-
+    public void delete(DepartmentDto departmentDto) throws ServiceException {
+        executor.executeSupplierQuery(() -> {
+            Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
+            departmentRepo.delete(entity);
+        });
     }
 
     @Override
     public Optional<DepartmentDto> getAny() throws ServiceException {
-        return Optional.empty();
+        return executor.executeSingleEntitySupplierQuery(() ->
+                departmentRepo.findAny().map(departmentMapper::departmentToDepartmentDto)
+        );
     }
 
     @Override
     public List<DepartmentDto> getAll() throws ServiceException {
-        return null;
+        return executor.executeListQuerySupplierQuery(() -> departmentRepo.findAll()
+                .stream().map(departmentMapper::departmentToDepartmentDto).toList());
     }
 }

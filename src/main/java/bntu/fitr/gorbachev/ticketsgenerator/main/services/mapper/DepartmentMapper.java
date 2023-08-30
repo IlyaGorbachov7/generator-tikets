@@ -9,6 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDt
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
@@ -31,6 +32,11 @@ public abstract class DepartmentMapper {
     @Mapping(target = "facultyDto", source = "faculty")
     public abstract DepartmentDto departmentToDepartmentDto(Department department);
 
+    public void update(Department department, DepartmentDto departmentDto) {
+        Department departmentSource = departmentDtoToDepartment(departmentDto);
+        update(department, departmentSource);
+    }
+
     public abstract List<DepartmentDto> departmentToDepartmentDto(List<Department> departmentList);
 
     public abstract List<Department> departmentDtoToDepartment(List<DepartmentDto> departmentDtoList);
@@ -39,7 +45,11 @@ public abstract class DepartmentMapper {
     @Mapping(target = "name", source = "departmentCreateDto.name")
     protected abstract Department assembleEntity(Faculty faculty, DepartmentCreateDto departmentCreateDto);
 
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "id", source = "departmentDto.id")
     @Mapping(target = "name", source = "departmentDto.name")
     protected abstract Department assembleEntity(Faculty faculty, DepartmentDto departmentDto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "specializations", ignore = true)
+    protected abstract void update(@MappingTarget Department target, Department source);
 }
