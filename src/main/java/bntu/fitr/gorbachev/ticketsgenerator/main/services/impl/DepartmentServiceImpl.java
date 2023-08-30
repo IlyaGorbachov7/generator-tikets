@@ -21,8 +21,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto create(DepartmentCreateDto departmentCreateDto) throws ServiceException {
-        Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
-        return null;
+        return executor.executeSingleEntitySupplierQuery(() -> {
+            Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
+            departmentRepo.create(entity);
+            return departmentMapper.departmentToDepartmentDto(entity);
+        });
     }
 
     @Override

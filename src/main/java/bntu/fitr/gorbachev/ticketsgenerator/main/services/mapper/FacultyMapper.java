@@ -14,7 +14,7 @@ import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
-@Mapper
+@Mapper(uses = UniversityMapper.class)
 public abstract class FacultyMapper {
 
     private final UniversityDAO universityRepo = RepositoryFactoryImpl.getInstance().repositoryUniversity();

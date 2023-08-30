@@ -10,7 +10,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.Faculty
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper
+import java.util.List;
+
+@Mapper(uses = FacultyMapper.class)
 public abstract class DepartmentMapper {
     private final FacultyDAO facultyRepo = RepositoryFactoryImpl.getInstance().repositoryFaculty();
 
@@ -25,6 +27,13 @@ public abstract class DepartmentMapper {
                 facultyRepo.findById(departmentDto.getFacultyDto().getId()).orElseThrow(FacultyNoFoundByIdException::new),
                 departmentDto);
     }
+
+    @Mapping(target = "facultyDto", source = "faculty")
+    public abstract DepartmentDto departmentToDepartmentDto(Department department);
+
+    public abstract List<DepartmentDto> departmentToDepartmentDto(List<Department> departmentList);
+
+    public abstract List<Department> departmentDtoToDepartment(List<DepartmentDto> departmentDtoList);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "departmentCreateDto.name")
