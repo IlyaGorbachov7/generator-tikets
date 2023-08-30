@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.ServiceFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.DepartmentServiceImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.FacultyServiceImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.SpecializationServiceImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.UniversityServiceImpl;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,8 @@ public class ServiceFactoryImpl implements ServiceFactory {
     private final FacultyService facultyService = new FacultyServiceImpl();
 
     private final DepartmentService departmentService = new DepartmentServiceImpl();
+
+    private final SpecializationService specializationService = new SpecializationServiceImpl();
 
     public static ServiceFactory getInstance() {
         if (serviceFactory == null) {
@@ -48,7 +51,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     @Override
     public SpecializationService specializationService() {
-        return null;
+        return specializationService;
     }
 
     @Override
