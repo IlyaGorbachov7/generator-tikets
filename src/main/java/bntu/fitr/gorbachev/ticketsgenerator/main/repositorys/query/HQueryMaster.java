@@ -22,11 +22,11 @@ public abstract class HQueryMaster<T> {
     public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
                                                              Map.Entry<String, Object>... params) throws DAOException;
 
-    public abstract <R> List<R> executeListQuerySupplierQuery(Supplier<List<R>> runner) throws DAOException;
+    public abstract <R> List<R> wrapTransactionalResultList(Supplier<List<R>> runner) throws DAOException;
 
-    public abstract <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException;
+    public abstract <R> R wrapTransactionalEntitySingle(Supplier<R> runner) throws DAOException;
 
-    public abstract void executeSupplierQuery(Runnable runner) throws ServiceException;
+    public abstract void wrapTransactional(Runnable runner) throws ServiceException;
 
     public abstract <ID> ID persist(T entity) throws DAOException;
 

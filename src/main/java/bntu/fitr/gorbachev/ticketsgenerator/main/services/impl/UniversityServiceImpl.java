@@ -36,7 +36,7 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public UniversityDTO update(UniversityDTO universityDto) throws ServiceException {
         University entity = universityRepository.getExecutor()
-                .executeSingleEntitySupplierQuery(() -> {
+                .wrapTransactionalEntitySingle(() -> {
                     University en = universityRepository.findById(universityDto.getId())
                             .orElseThrow(UniversityNoFoundByIdException::new);
                     universityMapper.update(en, universityDto);
@@ -49,7 +49,7 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public void delete(UniversityDTO universityDTO) throws ServiceException {
         universityRepository.getExecutor()
-                .executeSupplierQuery(() -> {
+                .wrapTransactional(() -> {
                     University university = universityRepository.findById(universityDTO.getId())
                             .orElseThrow(UniversityNoFoundByIdException::new);
                     universityRepository.delete(university);

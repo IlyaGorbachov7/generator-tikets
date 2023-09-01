@@ -59,7 +59,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public <R> List<R> executeListQuerySupplierQuery(Supplier<List<R>> runner) throws DAOException {
+    public <R> List<R> wrapTransactionalResultList(Supplier<List<R>> runner) throws DAOException {
         Session session = getSession();
         boolean isActiveTransactionEarly = isActiveTransaction(session);
         try {
@@ -74,7 +74,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public <R> R executeSingleEntitySupplierQuery(Supplier<R> runner) throws DAOException {
+    public <R> R wrapTransactionalEntitySingle(Supplier<R> runner) throws DAOException {
         Session session = getSession();
         boolean isActiveTransactionEarly = isActiveTransaction(session);
         try {
@@ -89,7 +89,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
     }
 
     @Override
-    public void executeSupplierQuery(Runnable runner) throws ServiceException {
+    public void wrapTransactional(Runnable runner) throws ServiceException {
         Session session = getSession();
         boolean isActiveTransactionEarly = isActiveTransaction(session);
         try {
