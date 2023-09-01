@@ -15,7 +15,7 @@ public interface ServiceFactory {
 
     DisciplineService disciplineService();
 
-    HeadDepartment headDepartmentService();
+    HeadDepartmentService headDepartmentService();
 
     TeacherService teacherService();
 }

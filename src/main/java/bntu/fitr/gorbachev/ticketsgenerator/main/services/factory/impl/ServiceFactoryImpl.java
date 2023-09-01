@@ -22,6 +22,10 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     private final DisciplineService disciplineService = new DisciplineServiceImpl();
 
+    private final HeadDepartmentService headDepartmentService = new HeadDepartmentServiceImpl();
+
+    private final TeacherService teacherService = new TeacherServiceImpl();
+
     public static ServiceFactory getInstance() {
         if (serviceFactory == null) {
             synchronized (ServiceFactory.class) {
@@ -59,12 +63,12 @@ public class ServiceFactoryImpl implements ServiceFactory {
     }
 
     @Override
-    public HeadDepartment headDepartmentService() {
-        return null;
+    public HeadDepartmentService headDepartmentService() {
+        return headDepartmentService;
     }
 
     @Override
     public TeacherService teacherService() {
-        return null;
+        return teacherService;
     }
 }
