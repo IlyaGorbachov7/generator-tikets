@@ -22,7 +22,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto create(DepartmentCreateDto departmentCreateDto) throws ServiceException {
-        return executor.executeSingleEntitySupplierQuery(() -> {
+        return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
             departmentRepo.create(entity);
             return departmentMapper.departmentToDepartmentDto(entity);
@@ -31,7 +31,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public DepartmentDto update(DepartmentDto departmentDto) throws ServiceException {
-        return executor.executeSingleEntitySupplierQuery(() -> {
+        return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentMapper.update(entity, departmentDto);
             return departmentMapper.departmentToDepartmentDto(entity);
@@ -40,7 +40,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public void delete(DepartmentDto departmentDto) throws ServiceException {
-        executor.executeSupplierQuery(() -> {
+        executor.wrapTransactional(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentRepo.delete(entity);
         });
@@ -48,14 +48,14 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Optional<DepartmentDto> getAny() throws ServiceException {
-        return executor.executeSingleEntitySupplierQuery(() ->
+        return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findAny().map(departmentMapper::departmentToDepartmentDto)
         );
     }
 
     @Override
     public List<DepartmentDto> getAll() throws ServiceException {
-        return executor.executeListQuerySupplierQuery(() -> departmentRepo.findAll()
+        return executor.wrapTransactionalResultList(() -> departmentRepo.findAll()
                 .stream().map(departmentMapper::departmentToDepartmentDto).toList());
     }
 }

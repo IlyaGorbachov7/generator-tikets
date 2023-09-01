@@ -31,7 +31,7 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public FacultyDto update(FacultyDto facultyDto) throws ServiceException {
         return facultyMapper.facultyToFacultyDto(
-                executor.executeSingleEntitySupplierQuery(() -> {
+                executor.wrapTransactionalEntitySingle(() -> {
                     Faculty faculty = facultyRepo.findById(facultyDto.getId())
                             .orElseThrow(FacultyNoFoundByIdException::new);
                     facultyMapper.update(faculty, facultyDto);
@@ -42,7 +42,7 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public void delete(FacultyDto facultyDto) throws ServiceException {
-        executor.executeSupplierQuery(() -> {
+        executor.wrapTransactional(() -> {
             Faculty faculty = facultyRepo.findById(facultyDto.getId())
                     .orElseThrow(FacultyNoFoundByIdException::new);
             facultyRepo.delete(faculty);
@@ -51,11 +51,11 @@ public class FacultyServiceImpl implements FacultyService {
 
     @Override
     public Optional<FacultyDto> getAny() throws ServiceException {
-        return executor.executeSingleEntitySupplierQuery(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
+        return executor.wrapTransactionalEntitySingle(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
     }
 
     @Override
     public List<FacultyDto> getAll() throws ServiceException {
-        return executor.executeListQuerySupplierQuery(() -> facultyMapper.facultyToFacultyDto(facultyRepo.findAll()));
+        return executor.wrapTransactionalResultList(() -> facultyMapper.facultyToFacultyDto(facultyRepo.findAll()));
     }
 }

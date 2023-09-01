@@ -21,7 +21,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public SpecializationDto create(SpecializationCreateDto specializationCreateDto) {
-        return executor.executeSingleEntitySupplierQuery(() -> {
+        return executor.wrapTransactionalEntitySingle(() -> {
             Specialization entity = specializationMapper.specializationDtoToEntity(specializationCreateDto);
             specializationRepo.create(entity);
             return specializationMapper.specializationToDto(entity);
@@ -30,7 +30,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public SpecializationDto update(SpecializationDto specializationDto) {
-        return executor.executeSingleEntitySupplierQuery(() -> {
+        return executor.wrapTransactionalEntitySingle(() -> {
             Specialization entityTarget = specializationRepo.findById(specializationDto.getId())
                     .orElseThrow(SpecializationNoFoundByIdException::new);
             specializationMapper.update(entityTarget, specializationDto);
@@ -41,7 +41,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public void delete(SpecializationDto specializationDto) {
-        executor.executeSupplierQuery(() -> {
+        executor.wrapTransactional(() -> {
             Specialization entity = specializationRepo.findById(specializationDto.getId())
                     .orElseThrow(SpecializationNoFoundByIdException::new);
             specializationRepo.delete(entity);
@@ -50,13 +50,13 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public Optional<SpecializationDto> getAny() {
-        return executor.executeSingleEntitySupplierQuery(() ->
+        return executor.wrapTransactionalEntitySingle(() ->
                 specializationRepo.findAny().map(specializationMapper::specializationToDto));
     }
 
     @Override
     public List<SpecializationDto> getAll() {
-        return executor.executeListQuerySupplierQuery(() -> specializationRepo.findAll()
+        return executor.wrapTransactionalResultList(() -> specializationRepo.findAll()
                 .stream().map(specializationMapper::specializationToDto).toList());
     }
 }
