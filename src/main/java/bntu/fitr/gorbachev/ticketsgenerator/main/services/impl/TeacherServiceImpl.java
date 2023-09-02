@@ -14,6 +14,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.Ma
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class TeacherServiceImpl implements TeacherService {
 
@@ -60,5 +61,26 @@ public class TeacherServiceImpl implements TeacherService {
     public List<TeacherDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findAll().stream().map(teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(facultyId).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherDto> getByFacultyName(String facultyName) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.finByFacultyName(facultyName).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByNameAndFacultyId(likeName, facultyId).stream().map(
+                        teacherMapper::teacherToDto).toList());
     }
 }

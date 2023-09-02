@@ -14,6 +14,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.Ma
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class FacultyServiceImpl implements FacultyService {
 
@@ -57,5 +58,26 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public List<FacultyDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() -> facultyMapper.facultyToFacultyDto(facultyRepo.findAll()));
+    }
+
+    @Override
+    public List<FacultyDto> getByUniversityId(UUID universityId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                facultyMapper.facultyToFacultyDto(
+                        facultyRepo.findByUniversityId(universityId)));
+    }
+
+    @Override
+    public List<FacultyDto> getByUniversityName(String universityName) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                facultyMapper.facultyToFacultyDto(
+                        facultyRepo.findByUniversityName(universityName)));
+    }
+
+    @Override
+    public List<FacultyDto> getByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                facultyMapper.facultyToFacultyDto(
+                        facultyRepo.findByLikeNameAndUniversityId(likeName, universityId)));
     }
 }

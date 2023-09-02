@@ -70,4 +70,9 @@ public class UniversityServiceImpl implements UniversityService {
     public List<UniversityDTO> getLimitedQuantity(int page, int quantity) throws ServiceException {
         return null;
     }
+
+    @Override
+    public List<UniversityDTO> getByLikeName(String likeName) {
+        return universityMapper.universityToUniversityDto(universityRepository.findLikeByName(likeName));
+    }
 }

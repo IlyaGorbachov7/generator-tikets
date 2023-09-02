@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceExcep
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface DisciplineService {
 
@@ -18,4 +19,10 @@ public interface DisciplineService {
     Optional<DisciplineDto> getAny() throws ServiceException;
 
     List<DisciplineDto> getAll() throws ServiceException;
+
+    List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException;
+
+    List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException;
+
+    List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID speciliazationId) throws ServiceException;
 }

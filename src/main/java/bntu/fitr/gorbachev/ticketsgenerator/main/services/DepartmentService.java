@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceExcep
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface DepartmentService {
 
@@ -18,4 +19,10 @@ public interface DepartmentService {
     Optional<DepartmentDto> getAny() throws ServiceException;
 
     List<DepartmentDto> getAll() throws ServiceException;
+
+    List<DepartmentDto> getByFacultyId(UUID facultyId) throws ServiceException;
+
+    List<DepartmentDto> getByFacultyName(String facultyName) throws ServiceException;
+
+    List<DepartmentDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 }

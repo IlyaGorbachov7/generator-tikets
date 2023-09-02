@@ -13,6 +13,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.Ma
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class SpecializationServiceImpl implements SpecializationService {
     private final SpecializationDAO specializationRepo = RepositoryFactoryImpl.getInstance().repositorySpecialization();
@@ -58,5 +59,26 @@ public class SpecializationServiceImpl implements SpecializationService {
     public List<SpecializationDto> getAll() {
         return executor.wrapTransactionalResultList(() -> specializationRepo.findAll()
                 .stream().map(specializationMapper::specializationToDto).toList());
+    }
+
+    @Override
+    public List<SpecializationDto> getByDepartmentId(UUID departmentId) {
+        return executor.wrapTransactionalResultList(() ->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByDepartmentId(departmentId)));
+    }
+
+    @Override
+    public List<SpecializationDto> getByDepartmentName(String departmentName) {
+        return executor.wrapTransactionalResultList(() ->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByDepartmentName(departmentName)));
+    }
+
+    @Override
+    public List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) {
+        return executor.wrapTransactionalResultList(() ->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId)));
     }
 }

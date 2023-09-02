@@ -14,6 +14,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.Ma
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class DisciplineServiceImpl implements DisciplineService {
 
@@ -60,7 +61,28 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public List<DisciplineDto> getAll() throws ServiceException {
-        return executor.wrapTransactionalResultList(()->disciplineRepo.findAll().stream()
+        return executor.wrapTransactionalResultList(() -> disciplineRepo.findAll().stream()
                 .map(disciplineMapper::disciplineToDto).toList());
+    }
+
+    @Override
+    public List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToDto(
+                        disciplineRepo.findBySpecializationId(specializationId)));
+    }
+
+    @Override
+    public List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                disciplineMapper.disciplineToDto(
+                        disciplineRepo.finBySpecializationName(specializationName)));
+    }
+
+    @Override
+    public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID speciliazationId) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                disciplineMapper.disciplineToDto(
+                        disciplineRepo.findByLikeNameAndSpecializationId(likeName, speciliazationId)));
     }
 }

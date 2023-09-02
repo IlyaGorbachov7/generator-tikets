@@ -14,6 +14,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.Ma
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
@@ -62,5 +63,29 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     public List<HeadDepartmentDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 headDepartmentRepo.findAll().stream().map(headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public List<HeadDepartmentDto> getByDepartmentId(UUID departmentId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByDepartmentId(
+                        departmentId).stream().map(
+                        headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public List<HeadDepartmentDto> getByDepartmentName(String departmentName) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByDepartmentName(
+                        departmentName).stream().map(
+                        headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByLikeNameAndDepartmentName(
+                        likeName, departmentId).stream().map(
+                        headDepartmentMapper::headDepartmentToDto).toList());
     }
 }

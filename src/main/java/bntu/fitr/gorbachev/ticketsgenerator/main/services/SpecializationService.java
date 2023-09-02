@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface SpecializationService {
     SpecializationDto create(SpecializationCreateDto specializationCreateDto);
@@ -16,4 +17,10 @@ public interface SpecializationService {
     Optional<SpecializationDto> getAny();
 
     List<SpecializationDto> getAll();
+
+    List<SpecializationDto> getByDepartmentId(UUID departmentId);
+
+    List<SpecializationDto> getByDepartmentName(String departmentName);
+
+    List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 }
