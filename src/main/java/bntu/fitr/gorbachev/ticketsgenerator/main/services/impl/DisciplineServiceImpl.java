@@ -76,7 +76,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     public List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException {
         return executor.wrapTransactionalResultList(()->
                 disciplineMapper.disciplineToDto(
-                        disciplineRepo.finBySpecializationName(specializationName)));
+                        disciplineRepo.findBySpecializationName(specializationName)));
     }
 
     @Override

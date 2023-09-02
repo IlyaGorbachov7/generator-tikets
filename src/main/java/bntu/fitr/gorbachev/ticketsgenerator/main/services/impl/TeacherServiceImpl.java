@@ -73,14 +73,14 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<TeacherDto> getByFacultyName(String facultyName) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
-                teacherRepo.finByFacultyName(facultyName).stream().map(
+                teacherRepo.findByFacultyName(facultyName).stream().map(
                         teacherMapper::teacherToDto).toList());
     }
 
     @Override
     public List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
-                teacherRepo.findByNameAndFacultyId(likeName, facultyId).stream().map(
+                teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId).stream().map(
                         teacherMapper::teacherToDto).toList());
     }
 }
