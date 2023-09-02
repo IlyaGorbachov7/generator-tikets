@@ -54,7 +54,7 @@ public class DisciplineDAOImpl extends AppAreaAbstractDAOImpl<Discipline, UUID> 
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Discipline> finBySpecializationName(String specializationName) throws DAOException {
+    public List<Discipline> findBySpecializationName(String specializationName) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_specializationName,
                 ENTITY_CLAZZ,
