@@ -51,7 +51,7 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Teacher> finByFacultyName(String facultyName) throws DAOException {
+    public List<Teacher> findByFacultyName(String facultyName) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_facultyName,
                 ENTITY_CLAZZ,
@@ -60,7 +60,7 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Teacher> findByNameAndFacultyId(String name, UUID facultyId) throws DAOException {
+    public List<Teacher> findByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_facultyId,
                 ENTITY_CLAZZ,
