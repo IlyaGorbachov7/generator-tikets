@@ -1,21 +1,22 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
-import sun.reflect.misc.MethodUtil;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalComboBoxEditor;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
-import java.lang.reflect.Method;
+import java.util.function.Function;
 
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;
 
-    public MyMetalComboBoxEditor() {
-        super();
+    Function<Object, String> mapper;
 
+    public MyMetalComboBoxEditor(Function<Object, String> mapper) {
+        super();
+        this.mapper = mapper;
     }
 
     @Override
@@ -34,6 +35,7 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
         if (anObject instanceof String) {
             oldValue = anObject;
             editor.setText((String) oldValue);
+            System.out.println("setItem: " + oldValue);
             return;
         }
         if (anObject != null) {
@@ -42,23 +44,26 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
                 text = "";
             }
             oldValue = anObject;
+            System.out.println("setItem: " + oldValue);
             editor.setText(text);
         } else {
             oldValue = editor.getText();
+            System.out.println("setItem: " + oldValue);
         }
     }
 
     @Override
     public Object getItem() {
         Object newValue = editor.getText();
-
         if (oldValue != null && !(oldValue instanceof String)) {
             // The original value is not a string. Should return the value in it's
             // original type.
-            if (newValue.equals(((UniversityDTO) oldValue).getName())) {
+            if (newValue.equals(mapper.apply(oldValue))) {
+                System.out.println("getItem: " + oldValue);
                 return oldValue;
             }
         }
+        System.out.println("getItem: " + oldValue);
         return newValue;
     }
 

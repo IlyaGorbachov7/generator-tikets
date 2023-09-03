@@ -4,11 +4,14 @@ import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.metal.MetalComboBoxUI;
 
-public class MyComboBoxUI<E> extends MetalComboBoxUI {
-    public MyComboBoxUI() {
+public class MyComboBoxUI extends MetalComboBoxUI {
+    private MyJCompoBox jCompoBox;
+    public MyComboBoxUI(MyJCompoBox jCompoBox) {
         super();
+        this.jCompoBox = jCompoBox;
     }
-    public JList<E> getJList(){
-        return (JList<E>) listBox;
+
+    public JList<Object> getJList() {
+        return listBox;
     }
 }

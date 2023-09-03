@@ -1,19 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.SpecializationDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
-import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.util.List;
+import java.util.function.Function;
 
 //TODO:: Как мы знаем при кажом commit-е произдайет автоматическая закрытие Session
 //TODO:: то есть Connection-ы закрыты не будут, однако будет новый объект Session с пустым hash-ом - это приведет к лишним или
@@ -23,11 +15,10 @@ import java.util.List;
 //TODO:: которые не вносят никакие изменения -- такие не нужно commit-ить, так как может обратиться повторный раз.
 
 public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
-    UniversityService universityService = ServiceFactoryImpl.getInstance().universityService();
-    DefaultComboBoxModel<UniversityDTO> model;
+    private final Function<Object, String> mapper;
 
-    public MyBasicComboBoxRenderer(DefaultComboBoxModel<UniversityDTO> model) {
-        this.model = model;
+    public MyBasicComboBoxRenderer(Function<Object, String> mapper) {
+        this.mapper = mapper;
     }
 
     @Override
@@ -35,7 +26,7 @@ public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
         if (isSelected) {
             setBackground(Color.LIGHT_GRAY);
             setForeground(Color.BLACK);
-        }else{
+        } else {
             setBackground(Color.white);
             setForeground(Color.BLACK);
         }
@@ -45,42 +36,12 @@ public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
         if (value instanceof Icon) {
             setIcon((Icon) value);
         } else {
-            setText((value == null) ? "" : ((UniversityDTO) value).getName());
+            setText((value == null) ? "" : mapper.apply(value));
         }
         return this;
     }
 
-    private JList<? extends UniversityDTO> defineUniversityDto(JList<?> list) {
-        try {
-            return (JList<? extends UniversityDTO>) list;
-        } catch (ClassCastException ex) {
-            return null;
-        }
-    }
 
-    private JList<? extends FacultyDto> defineFacultyDto(JList<?> list) {
-        try {
-            return (JList<? extends FacultyDto>) list;
-        } catch (ClassCastException ex) {
-            return null;
-        }
-    }
-
-    private JList<? extends DepartmentDto> defineDepartmentDto(JList<?> list) {
-        try {
-            return (JList<? extends DepartmentDto>) list;
-        } catch (ClassCastException ex) {
-            return null;
-        }
-    }
-
-    private JList<? extends SpecializationDto> defineSpecializationDto(JList<?> list) {
-        try {
-            return (JList<? extends SpecializationDto>) list;
-        } catch (ClassCastException ex) {
-            return null;
-        }
-    }
 }
 
 
