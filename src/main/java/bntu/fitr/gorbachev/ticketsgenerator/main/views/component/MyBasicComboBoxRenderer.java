@@ -8,10 +8,12 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import lombok.Getter;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
+import java.util.List;
 
 //TODO:: Как мы знаем при кажом commit-е произдайет автоматическая закрытие Session
 //TODO:: то есть Connection-ы закрыты не будут, однако будет новый объект Session с пустым hash-ом - это приведет к лишним или
@@ -30,14 +32,12 @@ public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
 
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-
-
         if (isSelected) {
-            setBackground(list.getSelectionBackground());
-            setForeground(list.getSelectionForeground());
-        } else {
-            setBackground(list.getBackground());
-            setForeground(list.getForeground());
+            setBackground(Color.LIGHT_GRAY);
+            setForeground(Color.BLACK);
+        }else{
+            setBackground(Color.white);
+            setForeground(Color.BLACK);
         }
 
         setFont(list.getFont());

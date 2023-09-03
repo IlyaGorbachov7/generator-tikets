@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyBasicComboBoxRenderer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyMetalComboBoxEditor;
 
 import java.awt.*;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 import javax.swing.plaf.metal.MetalComboBoxEditor;
+import javax.swing.plaf.metal.MetalComboBoxUI;
 
 public class Answer extends JFrame {
 
@@ -26,7 +28,8 @@ public class Answer extends JFrame {
     public static final int MAXITEMS = 100;
     BorderLayout layout = new BorderLayout();
     JPanel panel = new JPanel(layout);
-    JComboBox<UniversityDTO> box = new JComboBox<>();
+    MyJCompoBox<UniversityDTO> box = new MyJCompoBox<>();
+    DefaultComboBoxModel<UniversityDTO> model = ((DefaultComboBoxModel<UniversityDTO>) box.getModel());
 
     public Answer() {
         this.add(panel);
@@ -45,41 +48,29 @@ public class Answer extends JFrame {
         box.setEnabled(true);
 
         box.setEditable(true);
-        box.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-//                System.out.println(box.getEditor().getItem());
-//                System.out.println(box.getEditor().getItem().getClass());
-            }
-        });
-        box.getEditor().addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-//                System.out.println("-----------------------------------------");
-//                box.setPopupVisible(false);
-
-            }
-        });
 
 
 //        box.setSelectedIndex(-1);
         box.setRenderer(new MyBasicComboBoxRenderer((DefaultComboBoxModel<UniversityDTO>) box.getModel()));
 
         box.setEditor(new MyMetalComboBoxEditor());
-        var model = box.getModel();
+        var model = ((DefaultComboBoxModel<UniversityDTO>) box.getModel());
+        var jList = box.getJList();
+
         JTextField editorCom = (JTextField) box.getEditor().getEditorComponent();
-//        editorCom.setBackground(Color.GREEN);
+
         editorCom.addKeyListener(new KeyListener() {
+            boolean keyPressedCtrl;
+
             @Override
             public void keyTyped(KeyEvent e) {
-
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-//                System.out.println(KeyEvent.getKeyText(e.getKeyCode()));
-//                System.out.println(editorCom.getText());
-
+                if (!keyPressedCtrl) {
+                    keyPressedCtrl = KeyEvent.getKeyText(e.getKeyCode()).equals("Ctrl");
+                }
             }
 
             @Override
@@ -93,29 +84,65 @@ public class Answer extends JFrame {
                     || e.getKeyCode() == KeyEvent.VK_BACK_QUOTE
                     || e.getKeyCode() == KeyEvent.VK_QUOTE
                     || e.getKeyCode() == KeyEvent.VK_DELETE
-                    || e.getKeyCode() == KeyEvent.VK_BACK_SPACE) {
+                    || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
+                    || e.getKeyChar() == 'ё' || e.getKeyChar() == 'б' || e.getKeyChar() == 'ю' || e.getKeyChar() == 'х'
+                    || e.getKeyChar() == 'ъ' || e.getKeyChar() == 'э' || e.getKeyChar() == 'ж') {
 
-                    ((DefaultComboBoxModel<UniversityDTO>) box.getModel()).removeAllElements();
+                    model.removeAllElements();
                     System.out.println("+++++++++++++++++++++++++++++++++++++");
                     System.out.println("search text: " + editorCom.getText());
                     var list = universityService.getByLikeName(editorCom.getText());
                     System.out.println(list.stream().map(UniversityDTO::getName).collect(Collectors.joining("\n")));
                     System.out.println(" - -- - -- - --  -- - - - - - -  -- -");
-                    ((DefaultComboBoxModel<UniversityDTO>) box.getModel()).addAll(list);
-//                editorCom.requestFocus();
-//                editorCom.selectAll();
+                    model.addAll(list);
+                    box.setMaximumRowCount(Math.min(list.size(), 5));
+                    box.showPopup();
+                    if (box.getModel().getSize() > 0) {
+//                        jList.setSelectedIndex(0);
+                        jList.setSelectedIndex(0);
+                    }
+//                    editorCom.select();
+//                    editorCom.requestFocus();
+                }
+
+                if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
                     box.showPopup();
                 }
 
+                if (keyPressedCtrl && KeyEvent.getKeyText(e.getKeyCode()).equals("Ctrl")) {
+                    keyPressedCtrl = false;
+                    if (box.getModel().getSize() > 0) {
+                        jList.setSelectedIndex(0);
+                    }
+                }
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     box.hidePopup();
                 }
                 if (box.getModel().getSize() <= 0) {
                     box.hidePopup();
+
                 }
 
             }
         });
+
+        box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//                System.out.println(box.getEditor().getItem());
+//                System.out.println(box.getEditor().getItem().getClass());
+            }
+        });
+
+        box.getEditor().addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+//                System.out.println("-----------------------------------------");
+//                box.setPopupVisible(false);
+
+            }
+        });
+
 
     }
 

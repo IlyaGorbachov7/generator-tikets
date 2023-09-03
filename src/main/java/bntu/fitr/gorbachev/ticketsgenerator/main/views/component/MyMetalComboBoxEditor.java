@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;
+
     public MyMetalComboBoxEditor() {
         super();
 
@@ -30,33 +31,31 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     @Override
     public void setItem(Object anObject) {
         String text;
-        if(anObject instanceof String){
+        if (anObject instanceof String) {
             oldValue = anObject;
+            editor.setText((String) oldValue);
             return;
         }
-        if ( anObject != null )  {
-            text = ((UniversityDTO)anObject).getName();
+        if (anObject != null) {
+            text = ((UniversityDTO) anObject).getName();
             if (text == null) {
                 text = "";
             }
             oldValue = anObject;
+            editor.setText(text);
         } else {
-            text = "";
+            oldValue = editor.getText();
         }
-        // workaround for 4530952
-//        if (! text.equals(editor.getText())) {
-//            editor.setText(text);
-//        }
     }
 
     @Override
     public Object getItem() {
         Object newValue = editor.getText();
 
-        if (oldValue != null && !(oldValue instanceof String))  {
+        if (oldValue != null && !(oldValue instanceof String)) {
             // The original value is not a string. Should return the value in it's
             // original type.
-            if (newValue.equals(((UniversityDTO)oldValue).getName()))  {
+            if (newValue.equals(((UniversityDTO) oldValue).getName())) {
                 return oldValue;
             }
         }
