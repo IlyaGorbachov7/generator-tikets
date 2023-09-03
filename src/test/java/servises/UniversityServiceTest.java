@@ -14,6 +14,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class UniversityServiceTest {
@@ -55,11 +56,22 @@ public class UniversityServiceTest {
         System.out.println(universityDto);
     }
 
+    @Test
+    void testFindByLikeName(){
+        System.out.println(serviceUniv.getByLikeName("бело").stream().map(UniversityDTO::getName).collect(Collectors.joining("\n")));
+    }
+
     private static class ArgumentProviderTestCreate implements ArgumentsProvider {
 
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) throws Exception {
-            return Stream.of(Arguments.arguments(UniversityCreateDto.builder().name("Белорусский университет право и руководства").build()));
+            return Stream.of(
+                    Arguments.arguments(UniversityCreateDto.builder().name("Белорусский государственный университет информатики и радиоэлектроники").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Белорусский национальный технический университет").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Белорусский государственный университет").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Беларусский аграрно-технический университет").build())
+
+            );
         }
     }
 }

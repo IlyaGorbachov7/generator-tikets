@@ -17,4 +17,9 @@
       </profile>
     </annotationProcessing>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="ConstructorTickets" options="--add-exports java.base/sun.reflect.misc=ALL-UNNAMED" />
+    </option>
+  </component>
 </project>
