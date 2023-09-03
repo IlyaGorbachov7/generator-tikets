@@ -89,9 +89,7 @@ public class MyJCompoBox extends JComboBox<Object> {
                     || e.getKeyChar() == 'ё' || e.getKeyChar() == 'б' || e.getKeyChar() == 'ю' || e.getKeyChar() == 'х'
                     || e.getKeyChar() == 'ъ' || e.getKeyChar() == 'э' || e.getKeyChar() == 'ж') {
 
-                    model.removeAllElements();
-                    model.addAll(supplierListElem.get());
-                    setMaximumRowCount(Math.min(model.getSize(), 5));
+                    updateDropDownList();
                     showPopup();
                 }
                 if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
@@ -113,20 +111,28 @@ public class MyJCompoBox extends JComboBox<Object> {
         this.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                System.out.println(this.getEditor().getItem());
-//                System.out.println(this.getEditor().getItem().getClass());
+                System.out.println("++++++++++ " + MyJCompoBox.this.getSelectedItem());
+                if (MyJCompoBox.this.getSelectedItem() != null) {
+//                    updateDropDownList();
+//                    hidePopup();
+                }
             }
         });
 
         this.getEditor().addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                System.out.println("-----------------------------------------");
-//                this.setPopupVisible(false);
+                System.out.println("-----------------------------------------");
+                hidePopup();
 
             }
         });
+    }
 
+    protected void updateDropDownList() {
+        model.removeAllElements();
+        model.addAll(supplierListElem.get());
+        setMaximumRowCount(Math.min(model.getSize(), 5));
     }
 
 }
