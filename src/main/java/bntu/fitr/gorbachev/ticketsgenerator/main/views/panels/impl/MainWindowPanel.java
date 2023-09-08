@@ -7,6 +7,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -113,6 +116,12 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher = new JTextField(30);
         tfHeadDepartment = new JTextField(30);
         tfProtocol = new JTextField(5);
+
+        cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
+                .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
+                        .getByLikeName(textField)).source(ServiceFactoryImpl.getInstance().universityService().getAll().toArray())
+                .build();
+
         boxTypeSession = new JComboBox<>(
                 new Ticket.SessionType[]{Ticket.SessionType.WINTER, Ticket.SessionType.SUMMER
                 });
@@ -511,6 +520,8 @@ public class MainWindowPanel extends BasePanel {
     private final JComboBox<Ticket.SessionType> boxTypeSession;
     private final DatePicker datePicDecision;
 
+    private final MyJCompoBox cbInstitute;
+
     /**
      * This method created data input panel
      *
@@ -533,7 +544,8 @@ public class MainWindowPanel extends BasePanel {
         gbc1.weightx = 1;
         gbc1.weighty = 0.5;
         gbc1.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfInstitute, gbc1);
+//        panelLEFT.add(tfInstitute, gbc1);
+        panelLEFT.add(cbInstitute, gbc1);
 
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 0;

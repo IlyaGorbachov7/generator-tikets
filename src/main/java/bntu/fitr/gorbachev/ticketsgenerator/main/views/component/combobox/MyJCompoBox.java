@@ -25,11 +25,11 @@ public class MyJCompoBox extends JComboBox<Object> {
 
     @Setter
     @Getter
-    private Supplier<List<?>> supplierListElem;
+    private Function<String, List<?>> supplierListElem;
 
 
     @Builder
-    private MyJCompoBox(Object[] source, Supplier<List<?>> supplierListElem, Function<Object, String> mapperViewElem) {
+    private MyJCompoBox(Object[] source, Function<String,List<?>> supplierListElem, Function<Object, String> mapperViewElem) {
         super(source);
         this.mapper = mapperViewElem;
         this.supplierListElem = supplierListElem;
@@ -107,7 +107,7 @@ public class MyJCompoBox extends JComboBox<Object> {
 
     protected void updateDropDownList() {
         model.removeAllElements();
-        model.addAll(supplierListElem.get());
+        model.addAll(supplierListElem.apply(editorTextField.getText()));
         setMaximumRowCount(Math.min(model.getSize(), 5));
     }
 

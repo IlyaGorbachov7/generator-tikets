@@ -23,8 +23,8 @@ public class Answer extends JFrame {
         box = MyJCompoBox.builder()
                 .source(universityService.getAll().toArray(new UniversityDTO[0]))
                 .mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
-                .supplierListElem(() ->
-                        ServiceFactoryImpl.getInstance().universityService().getByLikeName(box.getEditorTextField().getText())).build();
+                .supplierListElem((textField) ->
+                        ServiceFactoryImpl.getInstance().universityService().getByLikeName(textField)).build();
     }
 
     public Answer() {
