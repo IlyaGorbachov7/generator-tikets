@@ -3,18 +3,9 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyBasicComboBoxRenderer;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyJCompoBox;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.MyMetalComboBoxEditor;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.swing.*;
 
@@ -41,7 +32,6 @@ public class Answer extends JFrame {
         panel.setPreferredSize(new Dimension(500, 300));
         panel.add(box, BorderLayout.NORTH);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        box.getEditor().setItem("");
     }
 
     public static void main(String[] args) {

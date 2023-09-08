@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.component;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 

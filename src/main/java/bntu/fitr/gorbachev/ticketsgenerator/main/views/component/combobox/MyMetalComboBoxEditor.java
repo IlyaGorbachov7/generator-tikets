@@ -1,6 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.component;
-
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalComboBoxEditor;
@@ -39,32 +37,52 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
             return;
         }
         if (anObject != null) {
-            text = ((UniversityDTO) anObject).getName();
+            text = mapper.apply(anObject);
             if (text == null) {
                 text = "";
             }
-            oldValue = anObject;
-            System.out.println("setItem: " + oldValue);
+            oldValue = text;
             editor.setText(text);
+            System.out.println("setItem: " + oldValue);
         } else {
             oldValue = editor.getText();
             System.out.println("setItem: " + oldValue);
         }
     }
 
+    public void setItemByPassedKeyEnter(Object anObject) {
+        String text;
+        if (anObject instanceof String) {
+            oldValue = anObject;
+            System.out.println("setItem: " + oldValue);
+            return;
+        }
+        if (anObject != null) {
+            text = mapper.apply(anObject);
+            if (text == null) {
+                text = "";
+            }
+            oldValue = text;
+            System.out.println("setItem: " + oldValue);
+        } else {
+            oldValue = editor.getText();
+            System.out.println("setItem: " + oldValue);
+        }
+    }
+
+    public void setRealListItem() {
+        editor.setText((String) oldValue);
+        System.out.println("setRealListItem: " + oldValue);
+    }
+
+    public void setRealValue() {
+        oldValue = editor.getText();
+    }
+
     @Override
     public Object getItem() {
-        Object newValue = editor.getText();
-        if (oldValue != null && !(oldValue instanceof String)) {
-            // The original value is not a string. Should return the value in it's
-            // original type.
-            if (newValue.equals(mapper.apply(oldValue))) {
-                System.out.println("getItem: " + oldValue);
-                return oldValue;
-            }
-        }
         System.out.println("getItem: " + oldValue);
-        return newValue;
+        return oldValue;
     }
 
     @Override
