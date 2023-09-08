@@ -49,7 +49,7 @@ public class MyJCompoBox extends JComboBox<Object> {
     }
 
     private void config() {
-        this.setMaximumRowCount(5);
+        setMaximumRowCount(Math.min(model.getSize(), 5));
         this.setSelectedIndex(-1);
         this.getEditorTextField().setText("");
     }

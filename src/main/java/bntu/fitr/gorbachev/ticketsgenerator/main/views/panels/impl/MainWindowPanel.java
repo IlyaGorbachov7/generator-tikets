@@ -7,6 +7,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
@@ -116,11 +119,6 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher = new JTextField(30);
         tfHeadDepartment = new JTextField(30);
         tfProtocol = new JTextField(5);
-
-        cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
-                .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
-                        .getByLikeName(textField)).source(ServiceFactoryImpl.getInstance().universityService().getAll().toArray())
-                .build();
 
         boxTypeSession = new JComboBox<>(
                 new Ticket.SessionType[]{Ticket.SessionType.WINTER, Ticket.SessionType.SUMMER
@@ -520,7 +518,34 @@ public class MainWindowPanel extends BasePanel {
     private final JComboBox<Ticket.SessionType> boxTypeSession;
     private final DatePicker datePicDecision;
 
-    private final MyJCompoBox cbInstitute;
+
+    // TODO : delete constructor param: "source", with purpose lazy initialization for MyJCompoBox
+    private final MyJCompoBox cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
+            .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
+                    .getByLikeName(textField)).source(ServiceFactoryImpl.getInstance().universityService().getAll().toArray())
+            .build();
+
+    // TODO : delete constructor param: "source", with purpose lazy initialization
+    private final MyJCompoBox cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
+            .supplierListElem(textField -> ServiceFactoryImpl.getInstance().facultyService()
+                    .getByLikeNameAndUniversity(textField, (cbInstitute.getSelectedIndex() > 0) ? ((FacultyDto) cbInstitute.getSelectedItem()).getId() : null))
+            .source(ServiceFactoryImpl.getInstance().facultyService().getAll().toArray(new FacultyDto[0]))
+            .build();
+
+    private final MyJCompoBox cbDepartment = MyJCompoBox.builder().mapperViewElem(obj->((DepartmentDto)obj).getName())
+            .supplierListElem(text -> ServiceFactoryImpl.getInstance().departmentService()
+                    .getByLikeNameAndFacultyId(text, (cbFaculty.getSelectedIndex()>0)? ((SpecializationDto) cbFaculty.getSelectedItem()).getId() : null))
+            .source(ServiceFactoryImpl.getInstance().departmentService().getAll().toArray(new DepartmentDto[0]))
+            .build();
+
+    private final MyJCompoBox cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj-> ((SpecializationDto) obj).getName())
+            .source(ServiceFactoryImpl.getInstance().specializationService().getAll().toArray(new SpecializationDto[0]))
+            .supplierListElem((text)-> ServiceFactoryImpl.getInstance().specializationService()
+                    .getByLikeNameAndDepartmentId(text, (cbDepartment.getSelectedIndex()>0)? ((SpecializationDto) cbDepartment.getSelectedItem()).getId() : null))
+            .build();
+
+
+
 
     /**
      * This method created data input panel
@@ -563,7 +588,8 @@ public class MainWindowPanel extends BasePanel {
         gbc3.weightx = 1;
         gbc3.weighty = 0.5;
         gbc3.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfFaculty, gbc3);
+//        panelLEFT.add(tfFaculty, gbc3);
+        panelLEFT.add(cbFaculty, gbc3);
 
         GridBagConstraints gbc4 = new GridBagConstraints();
         gbc4.gridx = 0;
@@ -581,7 +607,8 @@ public class MainWindowPanel extends BasePanel {
         gbc5.weightx = 1;
         gbc5.weighty = 0.5;
         gbc5.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfDepartment, gbc5);
+//        panelLEFT.add(tfDepartment, gbc5);
+        panelLEFT.add(cbDepartment, gbc5);
 
         GridBagConstraints gbc6 = new GridBagConstraints();
         gbc6.gridx = 0;
@@ -599,7 +626,8 @@ public class MainWindowPanel extends BasePanel {
         gbc7.weightx = 1;
         gbc7.weighty = 0.5;
         gbc7.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfSpecialization, gbc7);
+//        panelLEFT.add(tfSpecialization, gbc7);
+        panelLEFT.add(cbSpecialization, gbc7);
 
         GridBagConstraints gbc8 = new GridBagConstraints();
         gbc8.gridx = 0;
