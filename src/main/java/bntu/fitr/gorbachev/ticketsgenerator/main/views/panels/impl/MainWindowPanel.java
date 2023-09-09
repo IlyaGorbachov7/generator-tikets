@@ -64,6 +64,8 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem aboutProgramItem;
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
+    private final JButton tglAppTheme;
+    private boolean nightLightModeAppTheme;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -74,6 +76,7 @@ public class MainWindowPanel extends BasePanel {
     private final FileViewer viewFileDialog;
     private final RecordSetting recordSettingDialog;
 
+    // TODO: add toggle dark or lite mode window
     {
         menuBar = new JMenuBar();
         loadItem = new JMenuItem("Загрузить",
@@ -95,6 +98,8 @@ public class MainWindowPanel extends BasePanel {
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
         databaseSettingItem = new JMenuItem("Параметры ввода",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
+        tglAppTheme = new JButton("Color mode");
+
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
 
@@ -205,6 +210,10 @@ public class MainWindowPanel extends BasePanel {
         JMenu settingMenu = new JMenu("Парамеры");
         settingMenu.add(recordSettingItem);
         settingMenu.add(databaseSettingItem);
+        settingMenu.addSeparator();
+        JPanel pnlForBtnMode = new JPanel(new BorderLayout());
+        pnlForBtnMode.add(tglAppTheme, BorderLayout.CENTER);
+        settingMenu.add(pnlForBtnMode);
 
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
@@ -264,6 +273,11 @@ public class MainWindowPanel extends BasePanel {
     public void setConfigComponents() {
         // init MenuBar
         saveItem.setEnabled(false);
+
+        tglAppTheme.setIcon((nightLightModeAppTheme)
+                ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+        tglAppTheme.setFocusable(false);
 
         // createDataInputPanel
         tfInstitute.setFont(new Font("Serif", Font.BOLD, 17));
@@ -386,6 +400,7 @@ public class MainWindowPanel extends BasePanel {
         rdiBtnSequence.addActionListener(handler);
         rdiBtnWriteRandom.addActionListener(handler);
         rdiBtnWriteSequence.addActionListener(handler);
+        tglAppTheme.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -532,19 +547,17 @@ public class MainWindowPanel extends BasePanel {
             .source(ServiceFactoryImpl.getInstance().facultyService().getAll().toArray(new FacultyDto[0]))
             .build();
 
-    private final MyJCompoBox cbDepartment = MyJCompoBox.builder().mapperViewElem(obj->((DepartmentDto)obj).getName())
+    private final MyJCompoBox cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
             .supplierListElem(text -> ServiceFactoryImpl.getInstance().departmentService()
-                    .getByLikeNameAndFacultyId(text, (cbFaculty.getSelectedIndex()>0)? ((SpecializationDto) cbFaculty.getSelectedItem()).getId() : null))
+                    .getByLikeNameAndFacultyId(text, (cbFaculty.getSelectedIndex() > 0) ? ((SpecializationDto) cbFaculty.getSelectedItem()).getId() : null))
             .source(ServiceFactoryImpl.getInstance().departmentService().getAll().toArray(new DepartmentDto[0]))
             .build();
 
-    private final MyJCompoBox cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj-> ((SpecializationDto) obj).getName())
+    private final MyJCompoBox cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
             .source(ServiceFactoryImpl.getInstance().specializationService().getAll().toArray(new SpecializationDto[0]))
-            .supplierListElem((text)-> ServiceFactoryImpl.getInstance().specializationService()
-                    .getByLikeNameAndDepartmentId(text, (cbDepartment.getSelectedIndex()>0)? ((SpecializationDto) cbDepartment.getSelectedItem()).getId() : null))
+            .supplierListElem((text) -> ServiceFactoryImpl.getInstance().specializationService()
+                    .getByLikeNameAndDepartmentId(text, (cbDepartment.getSelectedIndex() > 0) ? ((SpecializationDto) cbDepartment.getSelectedItem()).getId() : null))
             .build();
-
-
 
 
     /**
@@ -1341,6 +1354,12 @@ public class MainWindowPanel extends BasePanel {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
                 //TODO:
+            } else if (e.getSource() == tglAppTheme) {
+                nightLightModeAppTheme = !nightLightModeAppTheme;
+                tglAppTheme.setIcon((nightLightModeAppTheme)
+                        ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                        : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+                tglAppTheme.updateUI();
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {
