@@ -7,6 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
@@ -29,6 +31,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.hibernate.Session;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -64,7 +67,7 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem aboutProgramItem;
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
-    private final JButton tglAppTheme;
+    private final JMenuItem tglAppTheme;
     private boolean nightLightModeAppTheme;
 
     private final JFileChooser chooserUpLoad;
@@ -98,7 +101,7 @@ public class MainWindowPanel extends BasePanel {
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
         databaseSettingItem = new JMenuItem("Параметры ввода",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
-        tglAppTheme = new JButton("Color mode");
+        tglAppTheme = new JMenuItem("Color mode");
 
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
@@ -211,9 +214,9 @@ public class MainWindowPanel extends BasePanel {
         settingMenu.add(recordSettingItem);
         settingMenu.add(databaseSettingItem);
         settingMenu.addSeparator();
-        JPanel pnlForBtnMode = new JPanel(new BorderLayout());
-        pnlForBtnMode.add(tglAppTheme, BorderLayout.CENTER);
-        settingMenu.add(pnlForBtnMode);
+//        JPanel pnlForBtnMode = new JPanel(new BorderLayout());
+//        pnlForBtnMode.add(tglAppTheme);
+        settingMenu.add(tglAppTheme);
 
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
@@ -537,24 +540,21 @@ public class MainWindowPanel extends BasePanel {
     // TODO : delete constructor param: "source", with purpose lazy initialization for MyJCompoBox
     private final MyJCompoBox cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
             .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
-                    .getByLikeName(textField)).source(ServiceFactoryImpl.getInstance().universityService().getAll().toArray())
+                    .getByLikeName(textField))
             .build();
 
     // TODO : delete constructor param: "source", with purpose lazy initialization
     private final MyJCompoBox cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
             .supplierListElem(textField -> ServiceFactoryImpl.getInstance().facultyService()
                     .getByLikeNameAndUniversity(textField, (cbInstitute.getSelectedIndex() > 0) ? ((FacultyDto) cbInstitute.getSelectedItem()).getId() : null))
-            .source(ServiceFactoryImpl.getInstance().facultyService().getAll().toArray(new FacultyDto[0]))
             .build();
 
     private final MyJCompoBox cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
             .supplierListElem(text -> ServiceFactoryImpl.getInstance().departmentService()
                     .getByLikeNameAndFacultyId(text, (cbFaculty.getSelectedIndex() > 0) ? ((SpecializationDto) cbFaculty.getSelectedItem()).getId() : null))
-            .source(ServiceFactoryImpl.getInstance().departmentService().getAll().toArray(new DepartmentDto[0]))
             .build();
 
     private final MyJCompoBox cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
-            .source(ServiceFactoryImpl.getInstance().specializationService().getAll().toArray(new SpecializationDto[0]))
             .supplierListElem((text) -> ServiceFactoryImpl.getInstance().specializationService()
                     .getByLikeNameAndDepartmentId(text, (cbDepartment.getSelectedIndex() > 0) ? ((SpecializationDto) cbDepartment.getSelectedItem()).getId() : null))
             .build();

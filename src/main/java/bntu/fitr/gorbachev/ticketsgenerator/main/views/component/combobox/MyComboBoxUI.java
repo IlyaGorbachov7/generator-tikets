@@ -1,7 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
+import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
+import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.plaf.metal.MetalComboBoxUI;
 import java.awt.event.*;
 
@@ -25,6 +27,8 @@ public class MyComboBoxUI extends MetalComboBoxUI {
                 if (comboBox.isEditable() && editor != null) {
                     ((MyMetalComboBoxEditor) comboBox.getEditor())
                             .setItemByPassedKeyEnter(comboBox.getSelectedItem());
+                    System.out.println("Selected item : " + comboBox.getSelectedItem());
+                    System.out.println("Selected item : " + comboBox.getSelectedItem().getClass());
                 }
                 comboBox.repaint();
             }
@@ -48,5 +52,11 @@ public class MyComboBoxUI extends MetalComboBoxUI {
         };
     }
 
+    public JButton getArrowButton() {
+        return arrowButton;
+    }
 
+    public ComboPopup getPopup() {
+        return popup;
+    }
 }

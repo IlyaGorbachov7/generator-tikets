@@ -5,14 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.*;
+import javax.swing.plaf.basic.ComboPopup;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 public class MyJCompoBox extends JComboBox<Object> {
     @Getter
-    private MyComboBoxUI compoBoxUI = new MyComboBoxUI(this);
+    private final MyComboBoxUI compoBoxUI = new MyComboBoxUI(this);
 
     private DefaultComboBoxModel<Object> model;
 
@@ -28,13 +29,20 @@ public class MyJCompoBox extends JComboBox<Object> {
     private Function<String, List<?>> supplierListElem;
 
 
+    @Getter
+    JButton arrowButton;
+
+    @Getter
+    ComboPopup popup;
+
     @Builder
-    private MyJCompoBox(Object[] source, Function<String,List<?>> supplierListElem, Function<Object, String> mapperViewElem) {
-        super(source);
+    private MyJCompoBox(Function<String, List<?>> supplierListElem, Function<Object, String> mapperViewElem) {
+        super(new Object[0]);
         this.mapper = mapperViewElem;
         this.supplierListElem = supplierListElem;
         setUI(compoBoxUI);
         initField();
+        initListener();
         config();
     }
 
@@ -45,7 +53,8 @@ public class MyJCompoBox extends JComboBox<Object> {
         this.setEditor(new MyMetalComboBoxEditor(mapper));
         model = (DefaultComboBoxModel<Object>) super.getModel();
         editorTextField = (JTextField) this.getEditor().getEditorComponent();
-        initListener();
+        arrowButton = compoBoxUI.getArrowButton();
+        popup = compoBoxUI.getPopup();
     }
 
     private void config() {
@@ -84,6 +93,7 @@ public class MyJCompoBox extends JComboBox<Object> {
                     showPopup();
                 }
                 if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    updateDropDownList();
                     showPopup();
                 }
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
@@ -95,20 +105,39 @@ public class MyJCompoBox extends JComboBox<Object> {
                 if (getModel().getSize() <= 0) {
                     hidePopup();
                 }
-
             }
         });
 
         editorTextField.addKeyListener(this.compoBoxUI.createKeyListener());
 
-        this.addMouseListener(new MouseAdapter() {
+        arrowButton.removeMouseListener(popup.getMouseListener());
+
+        arrowButton.addActionListener((e) -> {
+            updateDropDownList();
+            if (model.getSize() > 0) {
+                // toggle to show/hide dropList
+                popup.getMouseListener().mousePressed(new MouseEvent((Component) e.getSource(), 1, 0, InputEvent.BUTTON1_DOWN_MASK, 1, 1, 1, false));
+            }
         });
     }
 
-    protected void updateDropDownList() {
+    public void updateDropDownList() {
         model.removeAllElements();
         model.addAll(supplierListElem.apply(editorTextField.getText()));
         setMaximumRowCount(Math.min(model.getSize(), 5));
     }
 
+    public void enableElements(Element elem, boolean enable) {
+        switch (elem) {
+            case ARROW_BUTTON -> this.getArrowButton().setEnabled(enable);
+            case TEXT_FIELD -> this.getEditorTextField().setEnabled(enable);
+            case ALL -> this.setEnabled(enable);
+        }
+    }
+
+    public enum Element {
+        ARROW_BUTTON,
+        TEXT_FIELD,
+        ALL
+    }
 }
