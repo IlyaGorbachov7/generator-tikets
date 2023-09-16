@@ -67,6 +67,11 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
+    public Optional<UniversityDTO> getByName(String name) throws ServiceException {
+        return universityRepository.findByName(name).map(universityMapper::universityToUniversityDto);
+    }
+
+    @Override
     public List<UniversityDTO> getLimitedQuantity(int page, int quantity) throws ServiceException {
         return null;
     }

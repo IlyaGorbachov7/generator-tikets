@@ -21,6 +21,8 @@ public interface UniversityService {
 
     List<UniversityDTO> getAll() throws ServiceException;
 
+    Optional<UniversityDTO> getByName(String name) throws ServiceException;
+
     List<UniversityDTO> getLimitedQuantity(int page, int quantity) throws ServiceException;
 
     List<UniversityDTO> getByLikeName(String likeName);
