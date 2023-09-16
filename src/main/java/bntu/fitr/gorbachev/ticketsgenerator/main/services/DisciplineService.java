@@ -20,9 +20,15 @@ public interface DisciplineService {
 
     List<DisciplineDto> getAll() throws ServiceException;
 
+    Optional<DisciplineDto> getByName(String name) throws ServiceException;
+
     List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException;
 
     List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException;
 
-    List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID speciliazationId) throws ServiceException;
+    List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
+
+    int getCountByName(String name) throws ServiceException;
+
+    int getCountByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 }

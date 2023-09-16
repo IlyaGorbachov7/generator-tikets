@@ -80,4 +80,20 @@ public class FacultyServiceImpl implements FacultyService {
                 facultyMapper.facultyToFacultyDto(
                         facultyRepo.findByLikeNameAndUniversityId(likeName, universityId)));
     }
+
+    @Override
+    public Optional<FacultyDto> getByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                facultyRepo.findByName(name).map(facultyMapper::facultyToFacultyDto));
+    }
+
+    @Override
+    public int getCountByName(String name) throws ServiceException {
+        return 0;
+    }
+
+    @Override
+    public int getCountByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
+        return 0;
+    }
 }

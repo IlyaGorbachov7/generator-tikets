@@ -66,6 +66,12 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public Optional<HeadDepartmentDto> getByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->
+                headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToDto));
+    }
+
+    @Override
     public List<HeadDepartmentDto> getByDepartmentId(UUID departmentId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 headDepartmentRepo.findByDepartmentId(
@@ -87,5 +93,15 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
                 headDepartmentRepo.findByLikeNameAndDepartmentName(
                         likeName, departmentId).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public int getCountByName() throws ServiceException {
+        return 0;
+    }
+
+    @Override
+    public int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
+        return 0;
     }
 }

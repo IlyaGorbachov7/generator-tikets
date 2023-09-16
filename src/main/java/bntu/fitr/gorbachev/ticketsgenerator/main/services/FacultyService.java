@@ -16,6 +16,8 @@ public interface FacultyService {
 
     void delete(FacultyDto facultyDto) throws ServiceException;
 
+    Optional<FacultyDto> getByName(String name) throws ServiceException;
+
     Optional<FacultyDto> getAny() throws ServiceException;
 
     List<FacultyDto> getAll() throws ServiceException;
@@ -25,4 +27,8 @@ public interface FacultyService {
     List<FacultyDto> getByUniversityName(String universityName) throws ServiceException;
 
     List<FacultyDto> getByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException;
+
+    int getCountByName(String name) throws ServiceException;
+
+    int getCountByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException;
 }

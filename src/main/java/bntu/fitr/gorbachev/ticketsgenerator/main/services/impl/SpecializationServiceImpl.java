@@ -62,6 +62,12 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public Optional<SpecializationDto> getByName(String name) {
+        return executor.wrapTransactionalEntitySingle(()->
+                specializationRepo.findByName(name).map(specializationMapper::specializationToDto));
+    }
+
+    @Override
     public List<SpecializationDto> getByDepartmentId(UUID departmentId) {
         return executor.wrapTransactionalResultList(() ->
                 specializationMapper.specializationToDto(
@@ -80,5 +86,15 @@ public class SpecializationServiceImpl implements SpecializationService {
         return executor.wrapTransactionalResultList(() ->
                 specializationMapper.specializationToDto(
                         specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId)));
+    }
+
+    @Override
+    public int getCountByName(String name) {
+        return 0;
+    }
+
+    @Override
+    public int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId) {
+        return 0;
     }
 }
