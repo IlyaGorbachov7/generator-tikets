@@ -19,6 +19,7 @@ public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
         this.mapper = mapper;
     }
 
+    // TODO: You should will be fixing  color mode related with view item of list. black | light
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         if (isSelected) {

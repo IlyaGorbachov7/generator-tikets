@@ -425,6 +425,7 @@ public class MainWindowPanel extends BasePanel {
             MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             System.out.println(" ************** * * * *  : " + instituteComboBox.getSelectedItem());
 
+
         });
 
         modelListFilesRsc.addListDataListener(new ListDataListener() {

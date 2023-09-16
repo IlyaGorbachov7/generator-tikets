@@ -11,8 +11,12 @@ import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class MyJCompoBox extends JComboBox<Object> {
     @Getter
@@ -31,6 +35,8 @@ public class MyJCompoBox extends JComboBox<Object> {
     @Getter
     private Function<String, List<?>> supplierListElem;
 
+    @Getter
+    private JList<?> jList;
 
     @Getter
     JButton arrowButton;
@@ -60,6 +66,7 @@ public class MyJCompoBox extends JComboBox<Object> {
         editorTextField = (JTextField) this.getEditor().getEditorComponent();
         arrowButton = compoBoxUI.getArrowButton();
         popup = compoBoxUI.getPopup();
+        jList = popup.getList();
     }
 
     private void config() {
@@ -96,7 +103,9 @@ public class MyJCompoBox extends JComboBox<Object> {
 
                     updateDropDownList();
                     showPopup();
+                    selectItemListSimilar();
                     fireRelatedComponentListener(new RelatedComponentEvent(MyJCompoBox.this));
+
                 }
                 if (getModel().getSize() <= 0) {
                     if (popup.isVisible()) {
@@ -109,6 +118,7 @@ public class MyJCompoBox extends JComboBox<Object> {
                 }
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     MyJCompoBox.this.setSelectedItem(null);
+                    ((MyMetalComboBoxEditor) getEditor()).setRealValue();
                 }
                 if (keyPressedCtrl && KeyEvent.getKeyText(e.getKeyCode()).equals("Ctrl")) {
                     keyPressedCtrl = false;
@@ -128,6 +138,22 @@ public class MyJCompoBox extends JComboBox<Object> {
                 popup.getMouseListener().mousePressed(new MouseEvent((Component) e.getSource(), 1, 0, InputEvent.BUTTON1_DOWN_MASK, 1, 1, 1, false));
             }
         });
+    }
+
+    private void selectItemListSimilar() {
+        if (model.getSize() > 0) {
+            Optional<Object> similarItem = IntStream.range(0, model.getSize())
+                    .mapToObj(model::getElementAt)
+                    .min((elem, elem2) -> {
+                        String name = mapper.apply(elem);
+                        String name2 = mapper.apply(elem2);
+                        return Integer.min(name.length(), name2.length());
+                    });
+
+            int indexOfSimilarItem = model.getIndexOf(similarItem.orElseThrow());
+            jList.setSelectedIndex(indexOfSimilarItem);
+            ((MyMetalComboBoxEditor) getEditor()).setItemByPassedKeyEnter(jList.getSelectedValue());
+        }
     }
 
     public void updateDropDownList() {

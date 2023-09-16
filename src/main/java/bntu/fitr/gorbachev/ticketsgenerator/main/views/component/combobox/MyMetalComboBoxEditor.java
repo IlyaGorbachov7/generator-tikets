@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.util.function.Function;
 
+// TODO: needed fixing logging mechanism
 @Slf4j
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;
@@ -44,7 +45,8 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
             if (text == null) {
                 text = "";
             }
-            oldValue = text;
+//            oldValue = text;
+            oldValue = anObject;
             editor.setText(text);
             log.debug("SelectedItem: {}", oldValue);
         } else {
@@ -65,7 +67,8 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
             if (text == null) {
                 text = "";
             }
-            oldValue = text;
+//            oldValue = text;
+            oldValue = anObject;
             log.debug("setItem: {}", oldValue);
         } else {
             oldValue = editor.getText();
@@ -74,7 +77,11 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     }
 
     public void setRealListItem() {
-        editor.setText((String) oldValue);
+        if(oldValue instanceof String){
+            editor.setText((String) oldValue);
+        }else{
+            editor.setText(mapper.apply(oldValue));
+        }
         log.debug("setRealListItem: {}", oldValue);
     }
 

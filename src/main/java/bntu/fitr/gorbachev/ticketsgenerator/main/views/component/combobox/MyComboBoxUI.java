@@ -48,6 +48,12 @@ public class MyComboBoxUI extends MetalComboBoxUI {
                 log.debug("Count item: {}", comboBox.getItemCount());
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (comboBox.getItemCount() > 0) {
+                        JList<?> list = myCompoBox.getJList();
+                        if (list.getSelectedIndex() != myCompoBox.getSelectedIndex()) {
+                            ((MyMetalComboBoxEditor) comboBox.getEditor())
+                                    .setItemByPassedKeyEnter(comboBox.getSelectedItem());
+                            log.debug("Selected Item : {}", comboBox.getSelectedItem());
+                        }
                         ((MyMetalComboBoxEditor) MyComboBoxUI.this.comboBox.getEditor()).setRealListItem();
                     } else {
                         ((MyMetalComboBoxEditor) MyComboBoxUI.this.comboBox.getEditor()).setRealValue();
