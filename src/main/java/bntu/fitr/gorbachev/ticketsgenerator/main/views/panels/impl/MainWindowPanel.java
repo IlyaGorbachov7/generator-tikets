@@ -14,7 +14,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyComboBoxUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -416,6 +419,13 @@ public class MainWindowPanel extends BasePanel {
         tfProtocol.addFocusListener(tfFocusListener);
         tfQuantityTickets.addFocusListener(tfFocusListener);
         tfQuantityQuestionTickets.addFocusListener(tfFocusListener);
+
+
+        cbInstitute.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            System.out.println(" ************** * * * *  : " + instituteComboBox.getSelectedItem());
+
+        });
 
         modelListFilesRsc.addListDataListener(new ListDataListener() {
             @Override

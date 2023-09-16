@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +10,7 @@ import javax.swing.*;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -35,6 +38,8 @@ public class MyJCompoBox extends JComboBox<Object> {
     @Getter
     ComboPopup popup;
 
+    List<RelatedComponentListener> subscribersRelatedComponent = new ArrayList<>();
+
     @Builder
     private MyJCompoBox(Function<String, List<?>> supplierListElem, Function<Object, String> mapperViewElem) {
         super(new Object[0]);
@@ -49,7 +54,7 @@ public class MyJCompoBox extends JComboBox<Object> {
     private void initField() {
         this.setEnabled(true);
         this.setEditable(true);
-        this.setRenderer(new MyBasicComboBoxRenderer(mapper));
+        this.setRenderer(new MyBasicComboBoxRenderer(mapper, this));
         this.setEditor(new MyMetalComboBoxEditor(mapper));
         model = (DefaultComboBoxModel<Object>) super.getModel();
         editorTextField = (JTextField) this.getEditor().getEditorComponent();
@@ -64,6 +69,13 @@ public class MyJCompoBox extends JComboBox<Object> {
     }
 
     private void initListener() {
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                System.out.println("АЗАЗАЗЗАЗАЗАЗАЗА");
+            }
+        });
+
         editorTextField.addKeyListener(new KeyAdapter() {
             boolean keyPressedCtrl;
 
@@ -133,6 +145,21 @@ public class MyJCompoBox extends JComboBox<Object> {
             case TEXT_FIELD -> this.getEditorTextField().setEnabled(enable);
             case ALL -> this.setEnabled(enable);
         }
+    }
+
+    // -------------------- Listeners -----------------------------
+    public void addRelatedComponentListener(RelatedComponentListener listener) {
+        subscribersRelatedComponent.add(listener);
+    }
+
+    public void removeRelatedComponentListener(RelatedComponentListener listener) {
+        subscribersRelatedComponent.remove(listener);
+    }
+
+    public void fireRelatedComponentListener(RelatedComponentEvent event) {
+        subscribersRelatedComponent.forEach((handler) -> {
+            handler.perform(event);
+        });
     }
 
     public enum Element {

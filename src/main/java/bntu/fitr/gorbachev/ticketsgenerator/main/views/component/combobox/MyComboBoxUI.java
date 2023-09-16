@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
+
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -8,9 +10,11 @@ import javax.swing.plaf.metal.MetalComboBoxUI;
 import java.awt.event.*;
 
 public class MyComboBoxUI extends MetalComboBoxUI {
+    private final MyJCompoBox myCompoBox;
 
     public MyComboBoxUI(MyJCompoBox jCompoBox) {
-        super();
+        myCompoBox = jCompoBox;
+        comboBox = jCompoBox;
         installUI(jCompoBox);
         jCompoBox.getEditor().getEditorComponent().addKeyListener(this.createKeyListener());
     }
@@ -47,9 +51,16 @@ public class MyComboBoxUI extends MetalComboBoxUI {
                     } else {
                         ((MyMetalComboBoxEditor) MyComboBoxUI.this.comboBox.getEditor()).setRealValue();
                     }
+                    System.out.println("keyRES UI ENTER event");
+                    myCompoBox.fireRelatedComponentListener(new RelatedComponentEvent(myCompoBox));
                 }
             }
         };
+    }
+
+    @Override
+    protected ComboPopup createPopup() {
+        return new MyPopup(myCompoBox);
     }
 
     public JButton getArrowButton() {
