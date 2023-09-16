@@ -9,6 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFact
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
@@ -24,6 +25,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -81,6 +83,17 @@ public class MainWindowPanel extends BasePanel {
     private final AboutProgram aboutProgramDialog;
     private final FileViewer viewFileDialog;
     private final RecordSetting recordSettingDialog;
+
+    private final UniversityService universityService = ServiceFactoryImpl.getInstance().universityService();
+    private final FacultyService facultyService = ServiceFactoryImpl.getInstance().facultyService();
+    private final DepartmentService departmentService = ServiceFactoryImpl.getInstance().departmentService();
+    private final SpecializationService specializationService = ServiceFactoryImpl.getInstance().specializationService();
+    private final DisciplineService disciplineService = ServiceFactoryImpl.getInstance().disciplineService();
+    private final HeadDepartmentService headDepartmentService = ServiceFactoryImpl.getInstance().headDepartmentService();
+    private final TeacherService teacherService = ServiceFactoryImpl.getInstance().teacherService();
+
+    private final InputSearchFieldsData inputSearchFieldsData;
+
 
     // TODO: add toggle dark or lite mode window
     {
@@ -182,6 +195,26 @@ public class MainWindowPanel extends BasePanel {
         loadingDialog = new LoadingDialog();
 
         registerSenderMsg = SenderMsgFactory.getInstance().getSenderMsg();
+
+
+        inputSearchFieldsData = InputSearchFieldsData.builder().build();
+
+        cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
+                .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
+                        .getByLikeName(textField))
+                .build();
+
+        cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
+                .supplierListElem(textField -> facultyService.getByLikeNameAndUniversity(textField, inputSearchFieldsData.getUniversityDto().getId()))
+                .build();
+
+        cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
+                .supplierListElem(text -> departmentService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
+                .build();
+
+        cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
+                .supplierListElem((text) -> specializationService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()))
+                .build();
     }
 
 
@@ -420,13 +453,31 @@ public class MainWindowPanel extends BasePanel {
         tfQuantityTickets.addFocusListener(tfFocusListener);
         tfQuantityQuestionTickets.addFocusListener(tfFocusListener);
 
-
+        //  Search Text Field Listeners -------------------------
         cbInstitute.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
-            System.out.println(" ************** * * * *  : " + instituteComboBox.getSelectedItem());
+            if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
+                inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
+            } else {
+                String text = instituteComboBox.getEditorTextField().getText();
+//                FacultyDto facultyDto = universityService.getByName(text);
+            }
+            cbFaculty.updateDropDownList();
+        });
 
+        cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
 
         });
+        cbDepartment.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+
+        });
+        cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+
+        });
+        // -----------------------------------
 
         modelListFilesRsc.addListDataListener(new ListDataListener() {
             @Override
@@ -549,26 +600,14 @@ public class MainWindowPanel extends BasePanel {
 
 
     // TODO : delete constructor param: "source", with purpose lazy initialization for MyJCompoBox
-    private final MyJCompoBox cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
-            .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
-                    .getByLikeName(textField))
-            .build();
+    private final MyJCompoBox cbInstitute;
 
     // TODO : delete constructor param: "source", with purpose lazy initialization
-    private final MyJCompoBox cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
-            .supplierListElem(textField -> ServiceFactoryImpl.getInstance().facultyService()
-                    .getByLikeNameAndUniversity(textField, (cbInstitute.getSelectedIndex() > 0) ? ((FacultyDto) cbInstitute.getSelectedItem()).getId() : null))
-            .build();
+    private final MyJCompoBox cbFaculty;
 
-    private final MyJCompoBox cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
-            .supplierListElem(text -> ServiceFactoryImpl.getInstance().departmentService()
-                    .getByLikeNameAndFacultyId(text, (cbFaculty.getSelectedIndex() > 0) ? ((SpecializationDto) cbFaculty.getSelectedItem()).getId() : null))
-            .build();
+    private final MyJCompoBox cbDepartment;
 
-    private final MyJCompoBox cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
-            .supplierListElem((text) -> ServiceFactoryImpl.getInstance().specializationService()
-                    .getByLikeNameAndDepartmentId(text, (cbDepartment.getSelectedIndex() > 0) ? ((SpecializationDto) cbDepartment.getSelectedItem()).getId() : null))
-            .build();
+    private final MyJCompoBox cbSpecialization;
 
 
     /**
