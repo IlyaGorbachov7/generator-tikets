@@ -1,13 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
-
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.function.Function;
 
 //TODO:: Как мы знаем при кажом commit-е произдайет автоматическая закрытие Session
@@ -20,14 +15,8 @@ import java.util.function.Function;
 public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
     private final Function<Object, String> mapper;
 
-    public MyBasicComboBoxRenderer(Function<Object, String> mapper, MyJCompoBox myJCompoBox) {
+    public MyBasicComboBoxRenderer(Function<Object, String> mapper) {
         this.mapper = mapper;
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                myJCompoBox.fireRelatedComponentListener(new RelatedComponentEvent(myJCompoBox));
-            }
-        });
     }
 
     @Override

@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalComboBoxEditor;
 import java.awt.*;
@@ -7,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.util.function.Function;
 
+@Slf4j
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;
 
@@ -33,7 +36,7 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
         if (anObject instanceof String) {
             oldValue = anObject;
             editor.setText((String) oldValue);
-            System.out.println("setItem: " + oldValue);
+            log.debug("setItem : {}", oldValue);
             return;
         }
         if (anObject != null) {
@@ -43,10 +46,10 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
             }
             oldValue = text;
             editor.setText(text);
-            System.out.println("setItem: " + oldValue);
+            log.debug("SelectedItem: {}", oldValue);
         } else {
             oldValue = editor.getText();
-            System.out.println("setItem: " + oldValue);
+            log.debug("setItem: {}", oldValue);
         }
     }
 
@@ -54,7 +57,7 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
         String text;
         if (anObject instanceof String) {
             oldValue = anObject;
-            System.out.println("setItem: " + oldValue);
+            log.debug("setItem: {}", oldValue);
             return;
         }
         if (anObject != null) {
@@ -63,16 +66,16 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
                 text = "";
             }
             oldValue = text;
-            System.out.println("setItem: " + oldValue);
+            log.debug("setItem: {}", oldValue);
         } else {
             oldValue = editor.getText();
-            System.out.println("setItem: " + oldValue);
+            log.debug("setItem: {}", oldValue);
         }
     }
 
     public void setRealListItem() {
         editor.setText((String) oldValue);
-        System.out.println("setRealListItem: " + oldValue);
+        log.debug("setRealListItem: {}", oldValue);
     }
 
     public void setRealValue() {
@@ -81,7 +84,7 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
 
     @Override
     public Object getItem() {
-        System.out.println("getItem: " + oldValue);
+        log.debug("getItem: {}", oldValue);
         return oldValue;
     }
 

@@ -54,7 +54,7 @@ public class MyJCompoBox extends JComboBox<Object> {
     private void initField() {
         this.setEnabled(true);
         this.setEditable(true);
-        this.setRenderer(new MyBasicComboBoxRenderer(mapper, this));
+        this.setRenderer(new MyBasicComboBoxRenderer(mapper));
         this.setEditor(new MyMetalComboBoxEditor(mapper));
         model = (DefaultComboBoxModel<Object>) super.getModel();
         editorTextField = (JTextField) this.getEditor().getEditorComponent();
@@ -69,13 +69,6 @@ public class MyJCompoBox extends JComboBox<Object> {
     }
 
     private void initListener() {
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                System.out.println("АЗАЗАЗЗАЗАЗАЗАЗА");
-            }
-        });
-
         editorTextField.addKeyListener(new KeyAdapter() {
             boolean keyPressedCtrl;
 
@@ -103,6 +96,12 @@ public class MyJCompoBox extends JComboBox<Object> {
 
                     updateDropDownList();
                     showPopup();
+                    fireRelatedComponentListener(new RelatedComponentEvent(MyJCompoBox.this));
+                }
+                if (getModel().getSize() <= 0) {
+                    if (popup.isVisible()) {
+                        hidePopup();
+                    }
                 }
                 if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
                     updateDropDownList();
@@ -114,9 +113,7 @@ public class MyJCompoBox extends JComboBox<Object> {
                 if (keyPressedCtrl && KeyEvent.getKeyText(e.getKeyCode()).equals("Ctrl")) {
                     keyPressedCtrl = false;
                 }
-                if (getModel().getSize() <= 0) {
-                    hidePopup();
-                }
+
             }
         });
 

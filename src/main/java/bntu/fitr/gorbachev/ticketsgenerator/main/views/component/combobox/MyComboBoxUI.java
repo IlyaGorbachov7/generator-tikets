@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
@@ -9,6 +10,7 @@ import javax.swing.plaf.basic.ComboPopup;
 import javax.swing.plaf.metal.MetalComboBoxUI;
 import java.awt.event.*;
 
+@Slf4j
 public class MyComboBoxUI extends MetalComboBoxUI {
     private final MyJCompoBox myCompoBox;
 
@@ -31,8 +33,7 @@ public class MyComboBoxUI extends MetalComboBoxUI {
                 if (comboBox.isEditable() && editor != null) {
                     ((MyMetalComboBoxEditor) comboBox.getEditor())
                             .setItemByPassedKeyEnter(comboBox.getSelectedItem());
-                    System.out.println("Selected item : " + comboBox.getSelectedItem());
-                    System.out.println("Selected item : " + comboBox.getSelectedItem().getClass());
+                    log.debug("Selected Item : {}", comboBox.getSelectedItem());
                 }
                 comboBox.repaint();
             }
@@ -44,14 +45,13 @@ public class MyComboBoxUI extends MetalComboBoxUI {
         return new KeyAdapter() {
             @Override
             public void keyReleased(KeyEvent e) {
-                System.out.println(comboBox.getItemCount());
+                log.debug("Count item: {}", comboBox.getItemCount());
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (comboBox.getItemCount() > 0) {
                         ((MyMetalComboBoxEditor) MyComboBoxUI.this.comboBox.getEditor()).setRealListItem();
                     } else {
                         ((MyMetalComboBoxEditor) MyComboBoxUI.this.comboBox.getEditor()).setRealValue();
                     }
-                    System.out.println("keyRES UI ENTER event");
                     myCompoBox.fireRelatedComponentListener(new RelatedComponentEvent(myCompoBox));
                 }
             }
