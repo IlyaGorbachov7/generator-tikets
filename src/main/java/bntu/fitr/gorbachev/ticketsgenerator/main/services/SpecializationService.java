@@ -18,9 +18,15 @@ public interface SpecializationService {
 
     List<SpecializationDto> getAll();
 
+    Optional<SpecializationDto> getByName(String name);
+
     List<SpecializationDto> getByDepartmentId(UUID departmentId);
 
     List<SpecializationDto> getByDepartmentName(String departmentName);
 
     List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
+
+    int getCountByName(String name);
+
+    int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 }

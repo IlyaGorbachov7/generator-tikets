@@ -19,9 +19,15 @@ public interface HeadDepartmentService {
 
     List<HeadDepartmentDto> getAll() throws ServiceException;
 
+    Optional<HeadDepartmentDto> getByName(String name) throws ServiceException;
+
     List<HeadDepartmentDto> getByDepartmentId(UUID DepartmentId) throws ServiceException;
 
     List<HeadDepartmentDto> getByDepartmentName(String departmentName) throws ServiceException;
 
     List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
+
+    int getCountByName() throws ServiceException;
+
+    int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 }

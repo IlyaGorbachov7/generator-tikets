@@ -19,10 +19,15 @@ public interface TeacherService {
 
     List<TeacherDto> getAll() throws ServiceException;
 
+    Optional<TeacherDto> getByName(String name) throws ServiceException;
+
     List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException;
 
     List<TeacherDto> getByFacultyName(String facultyName) throws ServiceException;
 
     List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
+    int getCountByName(String name) throws ServiceException;
+
+    int getCountByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 }

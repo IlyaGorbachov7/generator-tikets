@@ -66,6 +66,12 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public Optional<DisciplineDto> getByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->
+                disciplineRepo.findByName(name).map(disciplineMapper::disciplineToDto));
+    }
+
+    @Override
     public List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
@@ -80,9 +86,19 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
-    public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID speciliazationId) throws ServiceException {
+    public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
         return executor.wrapTransactionalResultList(()->
                 disciplineMapper.disciplineToDto(
-                        disciplineRepo.findByLikeNameAndSpecializationId(likeName, speciliazationId)));
+                        disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId)));
+    }
+
+    @Override
+    public int getCountByName(String name) throws ServiceException {
+        return 0;
+    }
+
+    @Override
+    public int getCountByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
+        return 0;
     }
 }

@@ -64,6 +64,12 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public Optional<TeacherDto> getByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                teacherRepo.findByName(name).map(teacherMapper::teacherToDto));
+    }
+
+    @Override
     public List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findByFacultyId(facultyId).stream().map(
@@ -82,5 +88,15 @@ public class TeacherServiceImpl implements TeacherService {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId).stream().map(
                         teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public int getCountByName(String name) throws ServiceException {
+        return 0;
+    }
+
+    @Override
+    public int getCountByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
+        return 0;
     }
 }
