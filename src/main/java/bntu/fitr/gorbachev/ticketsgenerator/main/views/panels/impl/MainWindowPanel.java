@@ -7,18 +7,14 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyComboBoxUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -36,7 +32,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.hibernate.Session;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -52,6 +47,7 @@ import java.time.Month;
 import java.time.temporal.ValueRange;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
@@ -94,6 +90,7 @@ public class MainWindowPanel extends BasePanel {
 
     private final InputSearchFieldsData inputSearchFieldsData;
 
+    private final UUID NO_FUND_ID = UUID.randomUUID();
 
     // TODO: add toggle dark or lite mode window
     {
@@ -457,25 +454,79 @@ public class MainWindowPanel extends BasePanel {
         cbInstitute.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
+                System.out.println("++ setUniversityDto");
                 inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
+                cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
             } else {
                 String text = instituteComboBox.getEditorTextField().getText();
-//                FacultyDto facultyDto = universityService.getByName(text);
+                System.out.println("++ text : " + text);
+                universityService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setUniversityDto(elm);
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+                }, () -> {
+                    inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                });
             }
             cbFaculty.updateDropDownList();
         });
 
         cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
-            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
-
+            MyJCompoBox facultyComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (facultyComboBox.getSelectedItem() instanceof FacultyDto) {
+                System.out.println("++ setFacultyDto");
+                inputSearchFieldsData.setFacultyDto((FacultyDto) facultyComboBox.getSelectedItem());
+                cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+            } else {
+                String text = facultyComboBox.getEditorTextField().getText();
+                System.out.println("++ text : " + text);
+                facultyService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setFacultyDto(elm);
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                }, () -> {
+                    inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                });
+            }
+            cbDepartment.updateDropDownList();
         });
         cbDepartment.addRelatedComponentListener(relatedComponentEvent -> {
-            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
-
+            MyJCompoBox departmentComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (departmentComboBox.getSelectedItem() instanceof DepartmentDto) {
+                inputSearchFieldsData.setDepartmentDto((DepartmentDto) departmentComboBox.getSelectedItem());
+                cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+            } else {
+                String text = departmentComboBox.getEditorTextField().getText();
+                departmentService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setDepartmentDto(elm);
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                }, () -> {
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                });
+            }
+            cbDepartment.updateDropDownList();
         });
         cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
-            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (specComboBox.getSelectedItem() instanceof DepartmentDto) {
 
+            } else {
+                String text = specComboBox.getEditorTextField().getText();
+                specializationService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setSpecializationDto(elm);
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                }, () -> {
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+                    // uncommenting down line
+//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                });
+            }
+            cbSpecialization.updateDropDownList();
         });
         // -----------------------------------
 
