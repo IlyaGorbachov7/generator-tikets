@@ -11,12 +11,10 @@ import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class MyJCompoBox extends JComboBox<Object> {
     @Getter
@@ -107,15 +105,19 @@ public class MyJCompoBox extends JComboBox<Object> {
                     fireRelatedComponentListener(new RelatedComponentEvent(MyJCompoBox.this));
 
                 }
-                if (getModel().getSize() <= 0) {
+                if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    updateDropDownList();
+                    if (getModel().getSize() > 0) {
+                        showPopup();
+                    }
+                }
+
+                if (getModel().getSize() == 0) {
                     if (popup.isVisible()) {
                         hidePopup();
                     }
                 }
-                if (keyPressedCtrl && e.getKeyCode() == KeyEvent.VK_SPACE) {
-                    updateDropDownList();
-                    showPopup();
-                }
+
                 if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
                     MyJCompoBox.this.setSelectedItem(null);
                     ((MyMetalComboBoxEditor) getEditor()).setRealValue();
@@ -159,10 +161,11 @@ public class MyJCompoBox extends JComboBox<Object> {
     public void updateDropDownList() {
         model.removeAllElements();
         model.addAll(supplierListElem.apply(editorTextField.getText()));
+        System.out.println("Model count : " + model.getSize());
         setMaximumRowCount(Math.min(model.getSize(), 5));
     }
 
-    public void enableElements(Element elem, boolean enable) {
+    public void setEnableElements(Element elem, boolean enable) {
         switch (elem) {
             case ARROW_BUTTON -> this.getArrowButton().setEnabled(enable);
             case TEXT_FIELD -> this.getEditorTextField().setEnabled(enable);
