@@ -53,7 +53,7 @@ public class SpeciationServiceTest {
     void getByNameAndDeoId(){
         DepartmentDto departmentDto = ServiceFactoryImpl.getInstance().departmentService().getAny().orElseThrow();
         System.out.println(departmentDto);
-        List<SpecializationDto> list = specializationService.getByLikeNameAndDepartmentId("инж", departmentDto.getId());
+        List<SpecializationDto> list = specializationService.getByLikeNameAndDepartmentId("", departmentDto.getId());
         System.out.println(list);
         list= specializationService.getByDepartmentId(departmentDto.getId());
         System.out.println(list);

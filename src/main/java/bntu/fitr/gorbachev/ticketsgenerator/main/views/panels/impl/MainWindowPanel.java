@@ -25,6 +25,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchF
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
@@ -456,13 +458,23 @@ public class MainWindowPanel extends BasePanel {
             if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
                 System.out.println("++ setUniversityDto");
                 inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
-                cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+//                if(facultyService.getCountByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+//                        inputSearchFieldsData.getUniversityDto().getId()) > 0){
+//                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+//                }else{
+//                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+//                }
             } else {
                 String text = instituteComboBox.getEditorTextField().getText();
                 System.out.println("++ text : " + text);
                 universityService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setUniversityDto(elm);
-                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+//                    if(facultyService.getCountByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+//                            inputSearchFieldsData.getUniversityDto().getId()) > 0){
+//                        cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+//                    }else{
+//                        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+//                    }
                 }, () -> {
                     inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
@@ -1459,6 +1471,21 @@ public class MainWindowPanel extends BasePanel {
                 //TODO:
             } else if (e.getSource() == tglAppTheme) {
                 nightLightModeAppTheme = !nightLightModeAppTheme;
+                if(nightLightModeAppTheme){
+                    try {
+                        UIManager.setLookAndFeel(new FlatLightLaf());
+                    } catch (UnsupportedLookAndFeelException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }else{
+                    try {
+                        UIManager.setLookAndFeel(new FlatDarkLaf());
+                    } catch (UnsupportedLookAndFeelException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+                MainWindowPanel.this.getRootPane().updateUI();
+
                 tglAppTheme.setIcon((nightLightModeAppTheme)
                         ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                         : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
