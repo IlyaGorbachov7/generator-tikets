@@ -65,6 +65,6 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
                 HQL_FIND_BY_NAME_AND_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),
-                Map.entry(DEPARTMENT_NAME_ARG, name));
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%")));
     }
 }
