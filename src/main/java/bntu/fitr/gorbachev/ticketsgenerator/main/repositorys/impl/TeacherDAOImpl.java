@@ -65,6 +65,6 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
                 HQL_FIND_BY_NAME_AND_facultyId,
                 ENTITY_CLAZZ,
                 Map.entry(FACULTY_ID_ARG, facultyId),
-                Map.entry(FACULTY_NAME_ARG, name));
+                Map.entry(FACULTY_NAME_ARG, String.join("", "%", name, "%")));
     }
 }
