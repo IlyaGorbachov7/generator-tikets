@@ -508,17 +508,19 @@ public class MainWindowPanel extends BasePanel {
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
-            cbDepartment.updateDropDownList();
+            cbSpecialization.updateDropDownList();
         });
         cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
-            if (specComboBox.getSelectedItem() instanceof DepartmentDto) {
-
+            if (specComboBox.getSelectedItem() instanceof SpecializationDto) {
+                inputSearchFieldsData.setSpecializationDto((SpecializationDto) specComboBox.getSelectedItem());
+                // uncommenting down line
+//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
             } else {
                 String text = specComboBox.getEditorTextField().getText();
                 specializationService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setSpecializationDto(elm);
-                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
                 }, () -> {
                     inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
@@ -526,7 +528,7 @@ public class MainWindowPanel extends BasePanel {
 //                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
-            cbSpecialization.updateDropDownList();
+//            cbDiscipline.updateDropDownList();
         });
         // -----------------------------------
 
