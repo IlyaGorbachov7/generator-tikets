@@ -37,7 +37,7 @@ public abstract class HQueryMaster<T> {
     public abstract void update(T entity) throws DAOException;
 
     @SuppressWarnings("unchecked")
-    protected abstract void setStatementParams(Query<T> query, Map.Entry<String, Object>... mappedParams);
+    protected abstract void setStatementParams(Query<?> query, Map.Entry<String, Object>... mappedParams);
 
     // ------------ Helper methods ---------------------
 
