@@ -35,10 +35,20 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
                                                     Map.Entry<String, Object>... params) throws DAOException {
         return wrapTransactionalEntitySingle(() -> {
             Query<?> query = getSession().createQuery(queryStr, resultClass);
-            setStatementParams((Query<T>) query, params);
+            setStatementParams(query, params);
             @SuppressWarnings("unchecked")
             T entity = (T) query.getSingleResultOrNull();
             return Optional.ofNullable(entity);
+        });
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long executeLongResult(String queryStr, Map.Entry<String, Object>... params) throws DAOException {
+        return wrapTransactionalEntitySingle(() -> {
+            Query<Long> query = getSession().createQuery(queryStr, Long.class);
+            setStatementParams(query, params);
+            return query.getSingleResult();
         });
     }
 
@@ -130,7 +140,7 @@ public class HQueryMasterImpl<T> extends HQueryMaster<T> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public void setStatementParams(Query<T> query, Map.Entry<String, Object>... mappedParams) {
+    public void setStatementParams(Query<?> query, Map.Entry<String, Object>... mappedParams) {
         Arrays.stream(mappedParams).forEach(mappedParam ->
                 query.setParameter(mappedParam.getKey(), mappedParam.getValue()));
     }
