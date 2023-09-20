@@ -77,10 +77,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public long countByFacultyId(UUID facultyId) throws ServiceException {
+        return teacherRepo.countByFacultyId(facultyId);
+    }
+
+    @Override
     public List<TeacherDto> getByFacultyName(String facultyName) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findByFacultyName(facultyName).stream().map(
                         teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public long countByFacultyName(String facultyName) throws ServiceException {
+        return teacherRepo.countByFacultyName(facultyName);
     }
 
     @Override
@@ -91,12 +101,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public int getCountByName(String name) throws ServiceException {
-        return 0;
-    }
-
-    @Override
-    public int getCountByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
-        return 0;
+    public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
+        return teacherRepo.countByLikeNameAndFacultyId(likeName, facultyId);
     }
 }

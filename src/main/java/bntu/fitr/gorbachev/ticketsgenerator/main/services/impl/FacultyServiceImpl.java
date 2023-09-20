@@ -61,6 +61,11 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public long count() throws ServiceException {
+        return facultyRepo.count();
+    }
+
+    @Override
     public List<FacultyDto> getByUniversityId(UUID universityId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 facultyMapper.facultyToFacultyDto(
@@ -68,10 +73,21 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public long countByUniversityId(UUID universityId) throws ServiceException {
+        return facultyRepo.countByUniversityId(universityId);
+    }
+
+    @Override
     public List<FacultyDto> getByUniversityName(String universityName) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 facultyMapper.facultyToFacultyDto(
                         facultyRepo.findByUniversityName(universityName)));
+    }
+
+    @Override
+    public long countByUniversityName(String universityName) throws ServiceException {
+        return facultyRepo.countByUniversityName(universityName);
+
     }
 
     @Override
@@ -88,12 +104,12 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    public int getCountByName(String name) throws ServiceException {
-        return 0;
+    public long countByName(String name) throws ServiceException {
+        return facultyRepo.countLikeByName(name);
     }
 
     @Override
-    public int getCountByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
-        return 0;
+    public long countByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
+        return facultyRepo.countByLikeNameAndUniversityId(likeName, universityId);
     }
 }

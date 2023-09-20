@@ -22,5 +22,7 @@ public interface AbstractDAO<T, ID> {
 
     Optional<T> findAny() throws DAOException;
 
+    long count() throws DAOException;
+
     HQueryMaster<T> getExecutor();
 }

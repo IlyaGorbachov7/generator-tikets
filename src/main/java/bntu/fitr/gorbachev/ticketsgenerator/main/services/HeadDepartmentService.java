@@ -23,11 +23,13 @@ public interface HeadDepartmentService {
 
     List<HeadDepartmentDto> getByDepartmentId(UUID DepartmentId) throws ServiceException;
 
+    long countByDepartmentId(UUID DepartmentId) throws ServiceException;
+
     List<HeadDepartmentDto> getByDepartmentName(String departmentName) throws ServiceException;
+
+    long countByDepartmentName(String departmentName) throws ServiceException;
 
     List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 
-    int getCountByName() throws ServiceException;
-
-    int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
+    long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 }

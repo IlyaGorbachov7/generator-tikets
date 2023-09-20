@@ -79,10 +79,20 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public long countBySpecializationId(UUID specializationId) throws ServiceException {
+        return disciplineRepo.countBySpecializationId(specializationId);
+    }
+
+    @Override
     public List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException {
         return executor.wrapTransactionalResultList(()->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findBySpecializationName(specializationName)));
+    }
+
+    @Override
+    public long countBySpecializationName(String specializationName) throws ServiceException {
+        return disciplineRepo.countBySpecializationName(specializationName);
     }
 
     @Override
@@ -93,12 +103,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
-    public int getCountByName(String name) throws ServiceException {
-        return 0;
-    }
-
-    @Override
-    public int getCountByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
-        return 0;
+    public long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
+        return disciplineRepo.ByLikeNameAndSpecializationId(likeName, specializationId);
     }
 }

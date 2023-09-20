@@ -29,7 +29,13 @@ public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, I
             ALLIES_TABLE,
             ENTITY_NAME_ARG);
 
+    private final String HQL_COUNT_FIND_LIKE_BY_NAME = String.format("""
+            select count(*)
+            %s
+            """, HQL_FIND_LIKE_BY_NAME);
+
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<T> findByName(String name) throws DAOException {
         return executor.executeSingleEntityQuery(
                 HQL_FIND_BY_NAME,
@@ -38,11 +44,19 @@ public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, I
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<T> findLikeByName(String name) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_LIKE_BY_NAME,
                 ENTITY_CLAZZ,
                 Map.entry(ENTITY_NAME_ARG, String.join("", "%", name, "%"))
         );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countLikeByName(String name) throws DAOException {
+        return  executor.executeLongResult(HQL_COUNT_FIND_LIKE_BY_NAME,
+                Map.entry(ENTITY_NAME_ARG, String.join("", "%", name, "%")));
     }
 }

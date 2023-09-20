@@ -24,11 +24,13 @@ public interface DisciplineService {
 
     List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException;
 
+    long countBySpecializationId(UUID specializationId) throws ServiceException;
+
     List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException;
+
+    long countBySpecializationName(String specializationName) throws ServiceException;
 
     List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 
-    int getCountByName(String name) throws ServiceException;
-
-    int getCountByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
+    long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 }

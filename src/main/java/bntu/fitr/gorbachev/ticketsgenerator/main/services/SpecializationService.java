@@ -22,11 +22,13 @@ public interface SpecializationService {
 
     List<SpecializationDto> getByDepartmentId(UUID departmentId);
 
+    long countByDepartmentId(UUID departmentId);
+
     List<SpecializationDto> getByDepartmentName(String departmentName);
+
+    long countByDepartmentName(String departmentName);
 
     List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 
-    int getCountByName(String name);
-
-    int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId);
+    long countByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 }

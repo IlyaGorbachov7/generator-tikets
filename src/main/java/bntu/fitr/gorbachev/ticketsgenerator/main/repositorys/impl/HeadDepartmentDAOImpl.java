@@ -24,6 +24,12 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
             ALLIES_TABLE,
             DEPARTMENT_ID_ARG);
 
+    private final String HQL_COUNT_BY_departmentId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_departmentId);
+
     private final String HQL_FIND_BY_departmentName = String.format("""
                     %s
                     where %s.department.name=:%s
@@ -31,6 +37,12 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
             HQL_SELECT,
             ALLIES_TABLE,
             DEPARTMENT_NAME_ARG);
+
+    private final String HQL_COUNT_BY_departmentName = String.format("""
+                    select count(*)
+                    %s
+                     """,
+            HQL_FIND_BY_departmentName);
 
     private final String HQL_FIND_BY_NAME_AND_departmentId = String.format("""
                     %s
@@ -43,6 +55,11 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
             ALLIES_TABLE,
             DEPARTMENT_NAME_ARG);
 
+    private final String HQL_COUNT_BY_NAME_AND_departmentId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_NAME_AND_departmentId);
 
     @Override
     @SuppressWarnings("unchecked")
@@ -51,6 +68,12 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
                 HQL_FIND_BY_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByDepartmentId(UUID departmentId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_BY_departmentId, Map.entry(DEPARTMENT_ID_ARG, departmentId));
     }
 
     @Override
@@ -64,12 +87,28 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
 
     @Override
     @SuppressWarnings("unchecked")
+    public long countByDepartmentName(String departmentName) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_BY_departmentId, Map.entry(DEPARTMENT_NAME_ARG, departmentName));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),
                 Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%")));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
+        return executor.executeLongResult(
+                HQL_COUNT_BY_departmentName,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"))
+        );
     }
 
 
