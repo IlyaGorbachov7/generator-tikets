@@ -22,6 +22,8 @@ public abstract class HQueryMaster<T> {
     public abstract <R> Optional<T> executeSingleEntityQuery(String query, Class<R> resultClass,
                                                              Map.Entry<String, Object>... params) throws DAOException;
 
+    public abstract long executeLongResult(String query, Map.Entry<String, Object>... params) throws DAOException;
+
     public abstract <R> List<R> wrapTransactionalResultList(Supplier<List<R>> runner) throws DAOException;
 
     public abstract <R> R wrapTransactionalEntitySingle(Supplier<R> runner) throws DAOException;

@@ -1,5 +1,5 @@
 import ann.VariableSource;
-import bntu.fitr.gorbachev.ticketsgenerator.main.models.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
 import jakarta.persistence.Table;
 import model.Person;
 import org.junit.jupiter.api.DisplayName;

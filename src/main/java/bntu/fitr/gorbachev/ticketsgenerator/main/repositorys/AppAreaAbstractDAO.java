@@ -12,4 +12,6 @@ public interface AppAreaAbstractDAO<T, ID> extends AbstractDAO<T, ID> {
     Optional<T> findByName(String name) throws DAOException;
 
     List<T> findLikeByName(String name) throws DAOException;
+
+    long countLikeByName(String name) throws DAOException;
 }

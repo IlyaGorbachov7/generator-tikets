@@ -10,7 +10,13 @@ public interface SpecializationDAO extends AppAreaAbstractDAO<Specialization, UU
 
     List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException;
 
+    long countByDepartmentId(UUID departmentId) throws DAOException;
+
     List<Specialization> findByDepartmentName(String departmentName) throws DAOException;
 
+    long countByDepartmentName(String departmentName) throws DAOException;
+
     List<Specialization> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
+
+    long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 }

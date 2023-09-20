@@ -41,6 +41,11 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
             ENTITY_NAME,
             ALLIES_TABLE);
 
+    protected final String HQL_COUNT_SELECT = String.format("""
+            select count(*)
+            %s
+            """, HQL_SELECT);
+
     private final String HQL_FIND_BY_ID = String.format("""
                     %s
                     where %s.%s=:%s
@@ -97,5 +102,11 @@ public abstract class AbstractDAOImpl<T, ID> implements AbstractDAO<T, ID> {
         return executor.executeSingleEntityQuery(
                 HQL_FIND_ANY,
                 ENTITY_CLAZZ);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long count() throws DAOException {
+        return  executor.executeLongResult(HQL_COUNT_SELECT);
     }
 }

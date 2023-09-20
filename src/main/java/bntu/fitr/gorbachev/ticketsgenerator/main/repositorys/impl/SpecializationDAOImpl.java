@@ -21,6 +21,11 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
             ALLIES_TABLE,
             DEPARTMENT_ID_ARG);
 
+    private final String HQL_COUNT_FIND_BY_departmentId = String.format("""
+            select count(*)
+            %s
+            """, HQL_FIND_BY_departmentId);
+
     private final String HQL_FIND_BY_departmentName = String.format("""
                     %s
                     where %s.department.name=:%s
@@ -29,7 +34,12 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
             ALLIES_TABLE,
             DEPARTMENT_NAME_ARG);
 
-    private final String HQL_FIND_BY_NAME_AND_departmentId = String.format("""
+    private final String HQL_COUNT_FIND_BY_departmentName = String.format("""
+            select count(*)
+            %s
+            """, HQL_FIND_BY_departmentName);
+
+    private final String HQL_FIND_BY_LIKE_NAME_AND_departmentId = String.format("""
                     %s
                     where %s.department.id=:%s
                     and lower(%s.name) like lower(:%s)
@@ -40,13 +50,27 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
             ALLIES_TABLE,
             DEPARTMENT_NAME_ARG);
 
+    private final String HQL_COUNT_FIND_BY_LIKE_NAME_AND_departmentId = String.format("""
+            select count(*)
+            %s
+            """, HQL_FIND_BY_LIKE_NAME_AND_departmentId);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_departmentId,
                 ENTITY_CLAZZ,
-                Map.entry(DEPARTMENT_ID_ARG, departmentId));
+                Map.entry(DEPARTMENT_ID_ARG, departmentId)
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByDepartmentId(UUID departmentId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_FIND_BY_departmentId,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId)
+        );
     }
 
     @Override
@@ -55,16 +79,36 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
         return executor.executeQuery(
                 HQL_FIND_BY_departmentName,
                 ENTITY_CLAZZ,
-                Map.entry(DEPARTMENT_NAME_ARG, departmentName));
+                Map.entry(DEPARTMENT_NAME_ARG, departmentName)
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByDepartmentName(String departmentName) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_FIND_BY_departmentName,
+                Map.entry(DEPARTMENT_NAME_ARG, departmentName)
+        );
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<Specialization> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
         return executor.executeQuery(
-                HQL_FIND_BY_NAME_AND_departmentId,
+                HQL_FIND_BY_LIKE_NAME_AND_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),
-                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%")));
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"))
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
+        return executor.executeLongResult(
+                HQL_COUNT_FIND_BY_LIKE_NAME_AND_departmentId,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"))
+        );
     }
 }

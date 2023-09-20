@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Universi
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;
@@ -27,6 +28,12 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
             ALLIES_TABLE,
             UNIVERSITY_ID_ARG);
 
+    private final String HQL_COUNT_FIND_BY_universityId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_universityId);
+
     private final String HQL_FIND_BY_universityName = String.format("""
                     %s
                     where %s.university.id in
@@ -38,6 +45,12 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
             ALLIES_TABLE,
             extractEntityNameFromJakartaAnnEntity(University.class),
             UNIVERSITY_NAME_ARG);
+
+    private final String HQL_COUNT_FIND_BY_universityName = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_universityName);
 
     private final String HQL_FIND_BY_NAME_AND_universityId = String.format("""
                     %s
@@ -51,6 +64,12 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
             UNIVERSITY_NAME_ARG
     );
 
+    private final String HQL_COUNT_FIND_BY_LIKE_NAME_AND_universityId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_NAME_AND_universityId);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Faculty> findByUniversityId(UUID universityId) throws DAOException {
@@ -58,6 +77,12 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
                 HQL_FIND_BY_universityId,
                 ENTITY_CLAZZ,
                 Map.entry(UNIVERSITY_ID_ARG, universityId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByUniversityId(UUID universityId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_FIND_BY_universityId, Map.entry(UNIVERSITY_ID_ARG, universityId));
     }
 
     @Override
@@ -71,6 +96,12 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
 
     @Override
     @SuppressWarnings("unchecked")
+    public long countByUniversityName(String universityName) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_FIND_BY_universityName, Map.entry(UNIVERSITY_NAME_ARG, universityName));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_universityId,
@@ -78,5 +109,13 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
                 Map.entry(UNIVERSITY_ID_ARG, universityId),
                 Map.entry(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%"))
         );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndUniversityId(String name, UUID universityId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_FIND_BY_LIKE_NAME_AND_universityId,
+                Map.entry(UNIVERSITY_ID_ARG, universityId),
+                Map.entry(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%")));
     }
 }
