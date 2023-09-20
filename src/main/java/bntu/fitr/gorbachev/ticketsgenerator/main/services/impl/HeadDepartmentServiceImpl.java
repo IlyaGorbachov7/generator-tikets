@@ -80,11 +80,21 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public long countByDepartmentId(UUID DepartmentId) throws ServiceException {
+        return headDepartmentRepo.countByDepartmentId(DepartmentId);
+    }
+
+    @Override
     public List<HeadDepartmentDto> getByDepartmentName(String departmentName) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 headDepartmentRepo.findByDepartmentName(
                         departmentName).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public long countByDepartmentName(String departmentName) throws ServiceException {
+        return headDepartmentRepo.countByDepartmentName(departmentName);
     }
 
     @Override
@@ -96,12 +106,7 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
-    public int getCountByName() throws ServiceException {
-        return 0;
-    }
-
-    @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
-        return 0;
+        return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
     }
 }
