@@ -24,11 +24,13 @@ public interface DepartmentService {
 
     List<DepartmentDto> getByFacultyId(UUID facultyId) throws ServiceException;
 
+    long countByFacultyId(UUID facultyId) throws ServiceException;
+
     List<DepartmentDto> getByFacultyName(String facultyName) throws ServiceException;
+
+    long countByFacultyName(String facultyName) throws ServiceException;
 
     List<DepartmentDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
-    int getCountByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
-
-    int getCountByName(String name) throws ServiceException;
+    long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 }

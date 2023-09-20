@@ -74,10 +74,20 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public long countByFacultyId(UUID facultyId) throws ServiceException {
+        return departmentRepo.countByFacultyId(facultyId);
+    }
+
+    @Override
     public List<DepartmentDto> getByFacultyName(String facultyName) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 departmentMapper.departmentToDepartmentDto(
                         departmentRepo.findByFacultyName(facultyName)));
+    }
+
+    @Override
+    public long countByFacultyName(String facultyName) throws ServiceException {
+        return departmentRepo.countByFacultyName(facultyName);
     }
 
     @Override
@@ -88,12 +98,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
-    public int getCountByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
-        return 0;
-    }
-
-    @Override
-    public int getCountByName(String name) throws ServiceException {
-        return 0;
+    public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
+        return departmentRepo.countByLikeNameAndFacultyId(likeName, facultyId);
     }
 }

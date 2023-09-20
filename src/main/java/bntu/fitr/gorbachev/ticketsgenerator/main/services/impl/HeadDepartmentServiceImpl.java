@@ -101,7 +101,7 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
-    public int getCountByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
+    public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return 0;
     }
 }

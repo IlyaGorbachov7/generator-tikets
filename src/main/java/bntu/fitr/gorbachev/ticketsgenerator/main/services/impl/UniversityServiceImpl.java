@@ -67,6 +67,11 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
+    public long count() throws ServiceException {
+        return universityRepository.count();
+    }
+
+    @Override
     public Optional<UniversityDTO> getByName(String name) throws ServiceException {
         return universityRepository.findByName(name).map(universityMapper::universityToUniversityDto);
     }
@@ -79,5 +84,10 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public List<UniversityDTO> getByLikeName(String likeName) {
         return universityMapper.universityToUniversityDto(universityRepository.findLikeByName(likeName));
+    }
+
+    @Override
+    public long countByLikeName(String likeName) {
+        return universityRepository.countLikeByName(likeName);
     }
 }
