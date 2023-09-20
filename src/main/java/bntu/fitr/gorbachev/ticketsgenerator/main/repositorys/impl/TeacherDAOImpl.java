@@ -21,6 +21,12 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
             ALLIES_TABLE,
             FACULTY_ID_ARG);
 
+    private final String HQL_COUNT_BY_facultyId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_facultyId);
+
     private final String HQL_FIND_BY_facultyName = String.format("""
                     %s
                     where %s.faculty.name=:%s
@@ -28,6 +34,12 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
             HQL_SELECT,
             ALLIES_TABLE,
             FACULTY_NAME_ARG);
+
+    private final String HQL_COUNT_BY_facultyName = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_facultyName);
 
     private final String HQL_FIND_BY_NAME_AND_facultyId = String.format("""
                     %s
@@ -40,12 +52,25 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
             ALLIES_TABLE,
             FACULTY_NAME_ARG);
 
+    private final String HQL_COUNT_BY_NAME_AND_facultyId = String.format("""
+                    select count(*)
+                    %s
+                    """,
+            HQL_FIND_BY_NAME_AND_facultyId);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Teacher> findByFacultyId(UUID facultyId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_facultyId,
                 ENTITY_CLAZZ,
+                Map.entry(FACULTY_ID_ARG, facultyId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByFacultyId(UUID facultyId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_BY_facultyId,
                 Map.entry(FACULTY_ID_ARG, facultyId));
     }
 
@@ -60,10 +85,25 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
 
     @Override
     @SuppressWarnings("unchecked")
+    public long countByFacultyName(String facultyName) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_BY_facultyName,
+                Map.entry(FACULTY_NAME_ARG, facultyName));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public List<Teacher> findByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_facultyId,
                 ENTITY_CLAZZ,
+                Map.entry(FACULTY_ID_ARG, facultyId),
+                Map.entry(FACULTY_NAME_ARG, String.join("", "%", name, "%")));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException {
+        return executor.executeLongResult(HQL_COUNT_BY_NAME_AND_facultyId,
                 Map.entry(FACULTY_ID_ARG, facultyId),
                 Map.entry(FACULTY_NAME_ARG, String.join("", "%", name, "%")));
     }

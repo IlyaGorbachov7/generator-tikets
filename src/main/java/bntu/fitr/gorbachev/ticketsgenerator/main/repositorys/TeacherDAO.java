@@ -10,7 +10,13 @@ public interface TeacherDAO extends AppAreaAbstractDAO<Teacher, UUID> {
 
     List<Teacher> findByFacultyId(UUID facultyId) throws DAOException;
 
+    long countByFacultyId(UUID facultyId) throws DAOException;
+
     List<Teacher> findByFacultyName(String facultyName) throws DAOException;
 
+    long countByFacultyName(String facultyName) throws DAOException;
+
     List<Teacher> findByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException;
+
+    long countByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException;
 }

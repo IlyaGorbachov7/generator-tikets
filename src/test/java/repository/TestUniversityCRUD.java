@@ -84,4 +84,16 @@ public class TestUniversityCRUD {
         System.out.println(universityList);
         Assumptions.assumeFalse(universityList.isEmpty());
     }
+
+    @Test
+    void testCount() throws DAOException{
+        long res = universityDao.count();
+        Assertions.assertTrue(res > 0);
+    }
+
+    @Test
+    void testCountLikeByName() throws DAOException{
+        long res = universityDao.countLikeByName("Бел1");
+        System.out.println(res);;
+    }
 }
