@@ -11,10 +11,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -213,6 +216,18 @@ public class MainWindowPanel extends BasePanel {
 
         cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
                 .supplierListElem((text) -> specializationService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()))
+                .build();
+
+        cbDiscipline = MyJCompoBox.builder().mapperViewElem(obj -> ((DisciplineDto) obj).getName())
+                .supplierListElem(text -> disciplineService.getByLikeNameAndSpecializationId(text, inputSearchFieldsData.getDisciplineDto().getId()))
+                .build();
+
+        cbHeadDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((HeadDepartmentDto) obj).getName())
+                .supplierListElem(text -> headDepartmentService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getHeadDepartmentDto().getId()))
+                .build();
+
+        cbTeacher = MyJCompoBox.builder().mapperViewElem(obj -> ((TeacherDto) obj).getName())
+                .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getTeacherDto().getId()))
                 .build();
     }
 
@@ -458,23 +473,23 @@ public class MainWindowPanel extends BasePanel {
             if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
                 System.out.println("++ setUniversityDto");
                 inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
-//                if(facultyService.getCountByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
-//                        inputSearchFieldsData.getUniversityDto().getId()) > 0){
-//                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
-//                }else{
-//                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
-//                }
+                if (facultyService.countByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+                        inputSearchFieldsData.getUniversityDto().getId()) > 0) {
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = instituteComboBox.getEditorTextField().getText();
                 System.out.println("++ text : " + text);
                 universityService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setUniversityDto(elm);
-//                    if(facultyService.getCountByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
-//                            inputSearchFieldsData.getUniversityDto().getId()) > 0){
-//                        cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
-//                    }else{
-//                        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
-//                    }
+                    if (facultyService.countByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+                            inputSearchFieldsData.getUniversityDto().getId()) > 0) {
+                        cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
@@ -482,6 +497,7 @@ public class MainWindowPanel extends BasePanel {
                 });
             }
             cbFaculty.updateDropDownList();
+//            cbFaculty.fireRelatedComponentListener(new RelatedComponentEvent(cbInstitute));
         });
 
         cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
@@ -489,13 +505,23 @@ public class MainWindowPanel extends BasePanel {
             if (facultyComboBox.getSelectedItem() instanceof FacultyDto) {
                 System.out.println("++ setFacultyDto");
                 inputSearchFieldsData.setFacultyDto((FacultyDto) facultyComboBox.getSelectedItem());
-                cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getEditorTextField().getText(),
+                        inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = facultyComboBox.getEditorTextField().getText();
                 System.out.println("++ text : " + text);
                 facultyService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setFacultyDto(elm);
-                    cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getEditorTextField().getText(),
+                            inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                        cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
@@ -508,12 +534,22 @@ public class MainWindowPanel extends BasePanel {
             MyJCompoBox departmentComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (departmentComboBox.getSelectedItem() instanceof DepartmentDto) {
                 inputSearchFieldsData.setDepartmentDto((DepartmentDto) departmentComboBox.getSelectedItem());
-                cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getEditorTextField().getText(),
+                        inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = departmentComboBox.getEditorTextField().getText();
                 departmentService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setDepartmentDto(elm);
-                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getEditorTextField().getText(),
+                            inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                        cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
@@ -526,21 +562,29 @@ public class MainWindowPanel extends BasePanel {
             MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (specComboBox.getSelectedItem() instanceof SpecializationDto) {
                 inputSearchFieldsData.setSpecializationDto((SpecializationDto) specComboBox.getSelectedItem());
-                // uncommenting down line
-//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getEditorTextField().getText(),
+                        inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = specComboBox.getEditorTextField().getText();
                 specializationService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setSpecializationDto(elm);
-//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getEditorTextField().getText(),
+                            inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
+                        cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
-                    // uncommenting down line
-//                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
-//            cbDiscipline.updateDropDownList();
+            cbDiscipline.updateDropDownList();
         });
         // -----------------------------------
 
@@ -664,16 +708,19 @@ public class MainWindowPanel extends BasePanel {
     private final DatePicker datePicDecision;
 
 
-    // TODO : delete constructor param: "source", with purpose lazy initialization for MyJCompoBox
     private final MyJCompoBox cbInstitute;
 
-    // TODO : delete constructor param: "source", with purpose lazy initialization
     private final MyJCompoBox cbFaculty;
 
     private final MyJCompoBox cbDepartment;
 
     private final MyJCompoBox cbSpecialization;
 
+    private final MyJCompoBox cbDiscipline;
+
+    private final MyJCompoBox cbHeadDepartment;
+
+    private final MyJCompoBox cbTeacher;
 
     /**
      * This method created data input panel
@@ -1471,13 +1518,13 @@ public class MainWindowPanel extends BasePanel {
                 //TODO:
             } else if (e.getSource() == tglAppTheme) {
                 nightLightModeAppTheme = !nightLightModeAppTheme;
-                if(nightLightModeAppTheme){
+                if (nightLightModeAppTheme) {
                     try {
                         UIManager.setLookAndFeel(new FlatLightLaf());
                     } catch (UnsupportedLookAndFeelException ex) {
                         throw new RuntimeException(ex);
                     }
-                }else{
+                } else {
                     try {
                         UIManager.setLookAndFeel(new FlatDarkLaf());
                     } catch (UnsupportedLookAndFeelException ex) {
