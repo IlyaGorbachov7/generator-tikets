@@ -219,15 +219,15 @@ public class MainWindowPanel extends BasePanel {
                 .build();
 
         cbDiscipline = MyJCompoBox.builder().mapperViewElem(obj -> ((DisciplineDto) obj).getName())
-                .supplierListElem(text -> disciplineService.getByLikeNameAndSpecializationId(text, inputSearchFieldsData.getDisciplineDto().getId()))
+                .supplierListElem(text -> disciplineService.getByLikeNameAndSpecializationId(text, inputSearchFieldsData.getSpecializationDto().getId()))
                 .build();
 
         cbHeadDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((HeadDepartmentDto) obj).getName())
-                .supplierListElem(text -> headDepartmentService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getHeadDepartmentDto().getId()))
+                .supplierListElem(text -> headDepartmentService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()))
                 .build();
 
         cbTeacher = MyJCompoBox.builder().mapperViewElem(obj -> ((TeacherDto) obj).getName())
-                .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getTeacherDto().getId()))
+                .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
                 .build();
     }
 
@@ -341,6 +341,14 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher.setFont(new Font("Serif", Font.PLAIN, 17));
         tfHeadDepartment.setFont(new Font("Serif", Font.PLAIN, 17));
         tfProtocol.setFont(new Font("Serif", Font.PLAIN, 17));
+
+        cbInstitute.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, universityService.count() > 0);
+        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
 
         tfTeacher.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
         tfHeadDepartment.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
@@ -511,6 +519,12 @@ public class MainWindowPanel extends BasePanel {
                 } else {
                     cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 }
+                if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getEditorTextField().getText(),
+                        inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = facultyComboBox.getEditorTextField().getText();
                 System.out.println("++ text : " + text);
@@ -522,13 +536,22 @@ public class MainWindowPanel extends BasePanel {
                     } else {
                         cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     }
+                    if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getEditorTextField().getText(),
+                            inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                        cbTeacher.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID).build());
                     cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
             cbDepartment.updateDropDownList();
+            cbTeacher.updateDropDownList();
         });
         cbDepartment.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox departmentComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
@@ -540,6 +563,12 @@ public class MainWindowPanel extends BasePanel {
                 } else {
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 }
+                if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getEditorTextField().getText(),
+                        inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
             } else {
                 String text = departmentComboBox.getEditorTextField().getText();
                 departmentService.getByName(text).ifPresentOrElse((elm) -> {
@@ -550,13 +579,22 @@ public class MainWindowPanel extends BasePanel {
                     } else {
                         cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     }
+                    if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getEditorTextField().getText(),
+                            inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
                 }, () -> {
                     inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
             cbSpecialization.updateDropDownList();
+            cbHeadDepartment.updateDropDownList();
         });
         cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
@@ -585,6 +623,28 @@ public class MainWindowPanel extends BasePanel {
                 });
             }
             cbDiscipline.updateDropDownList();
+        });
+        cbHeadDepartment.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox headDepComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (headDepComboBox.getSelectedItem() instanceof HeadDepartmentDto) {
+                inputSearchFieldsData.setHeadDepartmentDto((HeadDepartmentDto) headDepComboBox.getSelectedItem());
+            } else {
+                String text = headDepComboBox.getEditorTextField().getText();
+                headDepartmentService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setHeadDepartmentDto,
+                        () -> inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID)
+                                .build()));
+            }
+        });
+        cbTeacher.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox teacherCompoBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (teacherCompoBox.getSelectedItem() instanceof TeacherDto) {
+                inputSearchFieldsData.setTeacherDto((TeacherDto) teacherCompoBox.getSelectedItem());
+            } else {
+                String text = teacherCompoBox.getEditorTextField().getText();
+                teacherService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setTeacherDto,
+                        () -> inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID)
+                                .build()));
+            }
         });
         // -----------------------------------
 
@@ -820,7 +880,9 @@ public class MainWindowPanel extends BasePanel {
         gbc9.weightx = 1;
         gbc9.weighty = 0.5;
         gbc9.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfDiscipline, gbc9);
+//        panelLEFT.add(tfDiscipline, gbc9);
+        panelLEFT.add(cbDiscipline, gbc9);
+
         GridBagConstraints gbc10 = new GridBagConstraints();
         gbc10.gridx = 0;
         gbc10.gridy = 5;
@@ -838,7 +900,8 @@ public class MainWindowPanel extends BasePanel {
         gbc11.weighty = 1;
         gbc11.weightx = 0.5;
         gbc11.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfTeacher, gbc11);
+//        panelLEFT.add(tfTeacher, gbc11);
+        panelLEFT.add(cbTeacher, gbc11);
 
         GridBagConstraints gbc12 = new GridBagConstraints();
         gbc12.gridx = 0;
@@ -858,7 +921,8 @@ public class MainWindowPanel extends BasePanel {
         gbc13.weightx = 1;
         gbc13.weighty = 0.5;
         gbc13.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfHeadDepartment, gbc13);
+//        panelLEFT.add(tfHeadDepartment, gbc13);
+        panelLEFT.add(cbHeadDepartment, gbc13);
 
 
         GridBagConstraints gbc14 = new GridBagConstraints();
