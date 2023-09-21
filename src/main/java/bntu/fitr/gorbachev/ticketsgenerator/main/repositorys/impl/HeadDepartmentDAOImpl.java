@@ -105,7 +105,7 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
     @SuppressWarnings("unchecked")
     public long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
         return executor.executeLongResult(
-                HQL_COUNT_BY_departmentName,
+                HQL_COUNT_BY_NAME_AND_departmentId,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),
                 Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"))
         );
