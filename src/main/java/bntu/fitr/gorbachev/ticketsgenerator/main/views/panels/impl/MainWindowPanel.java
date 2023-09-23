@@ -54,7 +54,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
-
+// TODO: Сделать UI для вненсия изминней в базу данных отделов образования
+// TODO: После того, как DAO слой будет готов, по работе с сохранением состаяния приложения, тогда можно сделать настрофку сохраниня, а так же измиения темы слетлой/темной
 /**
  * The class represent main window panel
  *
