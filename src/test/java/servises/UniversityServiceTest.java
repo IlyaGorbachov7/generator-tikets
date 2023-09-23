@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCre
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -37,7 +38,7 @@ public class UniversityServiceTest {
         System.out.println("updated entity : " + res);
     }
 
-    @Test
+    @RepeatedTest(value = 4)
     void testDelete() {
         UniversityDTO universityDTO = serviceUniv.getAny().orElseThrow();
         serviceUniv.delete(universityDTO);
@@ -69,7 +70,12 @@ public class UniversityServiceTest {
                     Arguments.arguments(UniversityCreateDto.builder().name("Белорусский государственный университет информатики и радиоэлектроники").build()),
                     Arguments.arguments(UniversityCreateDto.builder().name("Белорусский национальный технический университет").build()),
                     Arguments.arguments(UniversityCreateDto.builder().name("Белорусский государственный университет").build()),
-                    Arguments.arguments(UniversityCreateDto.builder().name("Беларусский аграрно-технический университет").build())
+                    Arguments.arguments(UniversityCreateDto.builder().name("Беларусский аграрно-технический университет").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Академия управления при Президенте Республики Беларуси").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Университет гражданской защиты Министерства по чрезвычайным ситуациям Республики Беларусь").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Университет Национальной академии наук Беларуси").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Институт пограничной службы Республики Беларусь").build()),
+                    Arguments.arguments(UniversityCreateDto.builder().name("Воинское академия Республики Белорусь").build())
 
             );
         }

@@ -17,7 +17,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -28,8 +27,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchF
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.FlatLightLaf;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
@@ -54,6 +51,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 
@@ -230,7 +228,28 @@ public class MainWindowPanel extends BasePanel {
                 .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
                 .build();
     }
-
+//
+//
+//    private void updateAllComponents() {
+//        updateComponent(this);
+////        var executorServices = Executors.newFixedThreadPool(2);
+//    }
+//
+//
+//    private void updateComponent(JComponent component) {
+//        Component[] components = component.getComponents();
+//        System.out.println(components.length);
+//        for (var c : components) {
+//            if(c instanceof JComponent jc){
+//                updateComponent(jc);
+//                try{
+//                    jc.setBackground(Color.WHITE);
+//                    jc.setForeground(Color.BLACK);
+//                }catch (Exception ignore){
+//                }
+//            }
+//        }
+//    }
 
     /**
      * The constructor creates a panel
@@ -264,8 +283,6 @@ public class MainWindowPanel extends BasePanel {
         settingMenu.add(recordSettingItem);
         settingMenu.add(databaseSettingItem);
         settingMenu.addSeparator();
-//        JPanel pnlForBtnMode = new JPanel(new BorderLayout());
-//        pnlForBtnMode.add(tglAppTheme);
         settingMenu.add(tglAppTheme);
 
         menuBar.add(fileMenu);
@@ -502,6 +519,12 @@ public class MainWindowPanel extends BasePanel {
                     inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
                     cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
             cbFaculty.updateDropDownList();
@@ -548,6 +571,10 @@ public class MainWindowPanel extends BasePanel {
                     inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID).build());
                     cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
             cbDepartment.updateDropDownList();
@@ -590,6 +617,9 @@ public class MainWindowPanel extends BasePanel {
                     inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 });
             }
@@ -1581,22 +1611,19 @@ public class MainWindowPanel extends BasePanel {
             } else if (e.getSource() == databaseSettingItem) {
                 //TODO:
             } else if (e.getSource() == tglAppTheme) {
+                int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
+                                                                           "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
+                if (selected == JOptionPane.OK_OPTION) {
+                    System.out.println("Вносим изминение в базе данных, что пользователь выбрал темную/свлетлую тему. Перезагружаем приложение полностю, но не завершаем программу, показываем уже нужнут тему");
+                } else {
+                    System.out.println("Просто вносим зимения в базу данных, Но не выходим из приложения.");
+                }
                 nightLightModeAppTheme = !nightLightModeAppTheme;
                 if (nightLightModeAppTheme) {
-                    try {
-                        UIManager.setLookAndFeel(new FlatLightLaf());
-                    } catch (UnsupportedLookAndFeelException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                } else {
-                    try {
-                        UIManager.setLookAndFeel(new FlatDarkLaf());
-                    } catch (UnsupportedLookAndFeelException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-                MainWindowPanel.this.getRootPane().updateUI();
 
+                } else {
+
+                }
                 tglAppTheme.setIcon((nightLightModeAppTheme)
                         ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                         : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
