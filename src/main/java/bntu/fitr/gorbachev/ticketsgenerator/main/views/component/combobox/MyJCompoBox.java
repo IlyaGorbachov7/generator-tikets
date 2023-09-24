@@ -163,6 +163,11 @@ public class MyJCompoBox extends JComboBox<Object> {
         model.addAll(supplierListElem.apply(editorTextField.getText()));
         System.out.println("Model count : " + model.getSize());
         setMaximumRowCount(Math.min(model.getSize(), 5));
+        setEnableElements(Element.ARROW_BUTTON, model.getSize() > 0);
+    }
+
+    public String getFieldText(){
+        return editorTextField.getText();
     }
 
     public void setEnableElements(Element elem, boolean enable) {
@@ -183,9 +188,9 @@ public class MyJCompoBox extends JComboBox<Object> {
     }
 
     public void fireRelatedComponentListener(RelatedComponentEvent event) {
-        subscribersRelatedComponent.forEach((handler) -> {
-            handler.perform(event);
-        });
+        subscribersRelatedComponent.forEach(handler -> handler.beforePerform(event));
+        subscribersRelatedComponent.forEach((handler) -> handler.perform(event));
+        subscribersRelatedComponent.forEach(handler -> handler.afterPerform(event));
     }
 
     public enum Element {

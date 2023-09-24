@@ -17,6 +17,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
@@ -56,6 +57,7 @@ import java.util.concurrent.Executors;
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 // TODO: Сделать UI для вненсия изминней в базу данных отделов образования
 // TODO: После того, как DAO слой будет готов, по работе с сохранением состаяния приложения, тогда можно сделать настрофку сохраниня, а так же измиения темы слетлой/темной
+
 /**
  * The class represent main window panel
  *
@@ -506,11 +508,11 @@ public class MainWindowPanel extends BasePanel {
                     cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 }
             } else {
-                String text = instituteComboBox.getEditorTextField().getText();
+                String text = instituteComboBox.getFieldText();
                 System.out.println("++ text : " + text);
                 universityService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setUniversityDto(elm);
-                    if (facultyService.countByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+                    if (facultyService.countByLikeNameAndUniversity(cbFaculty.getFieldText(),
                             inputSearchFieldsData.getUniversityDto().getId()) > 0) {
                         cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
@@ -520,16 +522,31 @@ public class MainWindowPanel extends BasePanel {
                     inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
                     inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
                     cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbFaculty.setSelectedItem(null);
 
                     cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbSpecialization.setSelectedItem(null);
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+
                     cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedItem(null);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
+
                     cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbTeacher.setSelectedItem(null);
+                    inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID).build());
                 });
             }
             cbFaculty.updateDropDownList();
-//            cbFaculty.fireRelatedComponentListener(new RelatedComponentEvent(cbInstitute));
+            cbFaculty.fireRelatedComponentListener(new RelatedComponentEvent(cbFaculty));
         });
 
         cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
@@ -551,16 +568,19 @@ public class MainWindowPanel extends BasePanel {
                 }
             } else {
                 String text = facultyComboBox.getEditorTextField().getText();
+                if (facultyService.countByLikeNameAndUniversity(text, inputSearchFieldsData.getUniversityDto().getId()) == 0) {
+                    text = "";
+                }
                 System.out.println("++ text : " + text);
                 facultyService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setFacultyDto(elm);
-                    if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getEditorTextField().getText(),
+                    if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getFieldText(),
                             inputSearchFieldsData.getFacultyDto().getId()) > 0) {
                         cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
                         cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     }
-                    if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getEditorTextField().getText(),
+                    if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getFieldText(),
                             inputSearchFieldsData.getFacultyDto().getId()) > 0) {
                         cbTeacher.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
@@ -574,40 +594,53 @@ public class MainWindowPanel extends BasePanel {
                     cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
 
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbSpecialization.setSelectedItem(null);
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+
                     cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedItem(null);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
                 });
             }
             cbDepartment.updateDropDownList();
             cbTeacher.updateDropDownList();
+            cbDepartment.fireRelatedComponentListener(new RelatedComponentEvent(cbDepartment));
+            cbTeacher.fireRelatedComponentListener(new RelatedComponentEvent(cbTeacher));
         });
         cbDepartment.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox departmentComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (departmentComboBox.getSelectedItem() instanceof DepartmentDto) {
                 inputSearchFieldsData.setDepartmentDto((DepartmentDto) departmentComboBox.getSelectedItem());
-                if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getEditorTextField().getText(),
+                if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getFieldText(),
                         inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
                 } else {
                     cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 }
-                if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getEditorTextField().getText(),
+                if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getFieldText(),
                         inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
                 } else {
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                 }
             } else {
-                String text = departmentComboBox.getEditorTextField().getText();
+                String text = departmentComboBox.getFieldText();
+                if (departmentService.countByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()) == 0) {
+                    text = "";
+                }
                 departmentService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setDepartmentDto(elm);
-                    if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getEditorTextField().getText(),
+                    if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getFieldText(),
                             inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
                         cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
                         cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
                     }
-                    if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getEditorTextField().getText(),
+                    if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getFieldText(),
                             inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
                         cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
@@ -621,17 +654,23 @@ public class MainWindowPanel extends BasePanel {
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
 
                     cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedIndex(-1);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
                     cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedIndex(-1);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
                 });
             }
             cbSpecialization.updateDropDownList();
             cbHeadDepartment.updateDropDownList();
+            cbSpecialization.fireRelatedComponentListener(new RelatedComponentEvent(cbSpecialization));
+            cbHeadDepartment.fireRelatedComponentListener(new RelatedComponentEvent(cbHeadDepartment));
         });
         cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (specComboBox.getSelectedItem() instanceof SpecializationDto) {
                 inputSearchFieldsData.setSpecializationDto((SpecializationDto) specComboBox.getSelectedItem());
-                if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getEditorTextField().getText(),
+                if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getFieldText(),
                         inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
                     cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
                 } else {
@@ -639,9 +678,12 @@ public class MainWindowPanel extends BasePanel {
                 }
             } else {
                 String text = specComboBox.getEditorTextField().getText();
+                if (specializationService.countByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()) == 0) {
+                    text = "";
+                }
                 specializationService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setSpecializationDto(elm);
-                    if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getEditorTextField().getText(),
+                    if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getFieldText(),
                             inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
                         cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
                     } else {
@@ -654,7 +696,19 @@ public class MainWindowPanel extends BasePanel {
                 });
             }
             cbDiscipline.updateDropDownList();
+            cbDiscipline.fireRelatedComponentListener(new RelatedComponentEvent(cbDepartment));
         });
+        cbDiscipline.addRelatedComponentListener((relatedComponentEvent -> {
+            MyJCompoBox disciplineComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (disciplineComboBox.getSelectedItem() instanceof DisciplineDto) {
+                inputSearchFieldsData.setDisciplineDto((DisciplineDto) disciplineComboBox.getSelectedItem());
+            } else {
+                String text = disciplineComboBox.getEditorTextField().getText();
+                disciplineService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setDisciplineDto,
+                        () -> inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build()));
+            }
+        }));
+
         cbHeadDepartment.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox headDepComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (headDepComboBox.getSelectedItem() instanceof HeadDepartmentDto) {
