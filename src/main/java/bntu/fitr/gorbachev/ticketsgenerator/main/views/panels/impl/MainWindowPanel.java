@@ -85,6 +85,7 @@ public class MainWindowPanel extends BasePanel {
     private final AboutProgram aboutProgramDialog;
     private final FileViewer viewFileDialog;
     private final RecordSetting recordSettingDialog;
+    private final InputParametersDialog dataBaseDialog;
 
     private final UniversityService universityService = ServiceFactoryImpl.getInstance().universityService();
     private final FacultyService facultyService = ServiceFactoryImpl.getInstance().facultyService();
@@ -270,7 +271,8 @@ public class MainWindowPanel extends BasePanel {
                 .createJDialog(frame, PanelType.FILE_VIEWER);
         recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
                 .createJDialog(frame, PanelType.RECORD_SETTING);
-
+        dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()
+                .createJDialog(frame,PanelType.INPUT_PARAM_DB);
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
         fileMenu.add(loadItem);
@@ -1665,6 +1667,7 @@ public class MainWindowPanel extends BasePanel {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
                 //TODO:
+                dataBaseDialog.setVisible(true);
             } else if (e.getSource() == tglAppTheme) {
                 int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
                                                                            "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
