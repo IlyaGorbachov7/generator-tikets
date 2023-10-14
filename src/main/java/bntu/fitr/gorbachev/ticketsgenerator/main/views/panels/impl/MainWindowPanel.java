@@ -19,6 +19,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFa
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
@@ -264,15 +265,15 @@ public class MainWindowPanel extends BasePanel {
         super(frame);
         frameRoot = getRootFrame();
         aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.ABOUT_AUTHOR);
+                .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR);
         aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.ABOUT_PROGRAM);
+                .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM);
         viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.FILE_VIEWER);
+                .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
         recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.RECORD_SETTING);
+                .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING);
         dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()
-                .createJDialog(frame,PanelType.INPUT_PARAM_DB);
+                .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB);
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
         fileMenu.add(loadItem);
