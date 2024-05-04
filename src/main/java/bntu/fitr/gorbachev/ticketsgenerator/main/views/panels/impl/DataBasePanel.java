@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.JListDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
@@ -16,6 +17,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -40,9 +42,15 @@ public class DataBasePanel extends BasePanel {
     private JButton btnNext;
     private JButton btnBack;
 
-    JTableDataBase tblUniversity;
-    JTableDataBase tblFaculty;
-    JTableDataBase tblDepartment;
+    private JListDataBase jListTables;
+
+    private JTableDataBase tblUniversity;
+    private JTableDataBase tblFaculty;
+    private JTableDataBase tblDepartment;
+    private JTableDataBase tblSpecialization;
+    private JTableDataBase tblDiscipline;
+    private JTableDataBase tblHeadDepartment;
+    private JTableDataBase tblTeacher;
 
     private final InputSearchFieldsData inputSearchFieldsData = InputSearchFieldsData.builder().build();
 
@@ -66,36 +74,51 @@ public class DataBasePanel extends BasePanel {
     protected void initUIFormComponents() {
         this.setLayout(new BorderLayout());
         this.add(rootPanel, BorderLayout.CENTER);
-
-        listTables.setFixedCellHeight(36);
-        this.addComponentListener(new ComponentAdapter() {
-            // this handler needed for correct rendering UI components related with list and his stretching by height
-            @Override
-            public void componentResized(ComponentEvent e) {
-                Rectangle rect = pnlList.getVisibleRect();
-                int quantityElems = listTables.getModel().getSize();
-                int heightElem = rect.height / quantityElems;
-                listTables.setFixedCellHeight(heightElem);
-            }
-        });
     }
 
     protected void initCustomComponents() {
         tfFilter = new HintTextField("Searching");
+
+        jListTables = JListDataBase.builder().listData(
+                Arrays.asList("Университеты", "Факультеты", "Кафедры", "Специальности",
+                        "Заведующий кафедрой", "Преподаватели", "Илья Горбачёв 03052024").toArray(String[]::new)).build();
+
         tblUniversity = JTableDataBase.builder().build();
         tblFaculty = JTableDataBase.builder().build();
         tblDepartment = JTableDataBase.builder().build();
+        tblSpecialization = JTableDataBase.builder().build();
+        tblDiscipline = JTableDataBase.builder().build();
+        tblHeadDepartment = JTableDataBase.builder().build();
+        tblTeacher = JTableDataBase.builder().build();
 
     }
 
     protected void addingCustomComponents() {
-        pnlTbls.add(tfFilter, BorderLayout.NORTH);
+        pnlTbls.add(tblTeacher, BorderLayout.CENTER);
+        pnlTbls.add(tblHeadDepartment, BorderLayout.CENTER);
+        pnlTbls.add(tblDiscipline, BorderLayout.CENTER);
+        pnlTbls.add(tblSpecialization, BorderLayout.CENTER);
+        pnlTbls.add(tblDepartment, BorderLayout.CENTER);
+        pnlTbls.add(tfFilter, BorderLayout.CENTER);
         pnlTbls.add(tblUniversity, BorderLayout.CENTER);
+
+        pnlList.add(jListTables);
     }
 
 
     @Override
     public void setConfigComponents() {
+        jListTables.setFixedCellHeight(36);
+        this.addComponentListener(new ComponentAdapter() {
+            // this handler needed for correct rendering UI components related with list and his stretching by height
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Rectangle rect = pnlList.getVisibleRect();
+                int quantityElems = jListTables.getModel().getSize();
+                int heightElem = rect.height / quantityElems;
+                jListTables.setFixedCellHeight(heightElem);
+            }
+        });
 
     }
 
