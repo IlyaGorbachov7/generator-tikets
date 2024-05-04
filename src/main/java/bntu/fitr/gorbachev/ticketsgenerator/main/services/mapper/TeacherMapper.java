@@ -6,6 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -28,6 +29,10 @@ public abstract class TeacherMapper {
 
     @Mapping(target = "facultyDto", source = "faculty")
     public abstract TeacherDto teacherToDto(Teacher teacher);
+
+    @Mapping(target = "facultyId", source = "faculty.id")
+    @Mapping(target = "facultyName", source = "faculty.name")
+    public abstract TeacherSimpleDto teacherToSimpleDto(Teacher teacher);
 
     public void update(Teacher target, TeacherDto source) {
         Teacher sourceEntity = headDepartmentDtoToEntity(source);

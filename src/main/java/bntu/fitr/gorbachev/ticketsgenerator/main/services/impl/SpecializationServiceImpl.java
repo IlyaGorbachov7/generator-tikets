@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Speciali
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.SpecializationService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.specl.SpecializationNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.SpecializationMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
@@ -56,6 +57,12 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public Optional<SpecializationSimpleDto> getSmplAny() {
+        return executor.wrapTransactionalEntitySingle(() ->
+                specializationRepo.findAny().map(specializationMapper::specializationToSimpleDto));
+    }
+
+    @Override
     public List<SpecializationDto> getAll() {
         return executor.wrapTransactionalResultList(() -> specializationRepo.findAll()
                 .stream().map(specializationMapper::specializationToDto).toList());
@@ -65,6 +72,12 @@ public class SpecializationServiceImpl implements SpecializationService {
     public Optional<SpecializationDto> getByName(String name) {
         return executor.wrapTransactionalEntitySingle(() ->
                 specializationRepo.findByName(name).map(specializationMapper::specializationToDto));
+    }
+
+    @Override
+    public Optional<SpecializationSimpleDto> getSmplByName(String name) {
+        return executor.wrapTransactionalEntitySingle(() ->
+                specializationRepo.findByName(name).map(specializationMapper::specializationToSimpleDto));
     }
 
     @Override

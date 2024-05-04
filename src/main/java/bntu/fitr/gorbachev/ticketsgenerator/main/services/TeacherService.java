@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -17,9 +18,13 @@ public interface TeacherService {
 
     Optional<TeacherDto> getAny() throws ServiceException;
 
+    Optional<TeacherSimpleDto> getSmplAny() throws ServiceException;
+
     List<TeacherDto> getAll() throws ServiceException;
 
     Optional<TeacherDto> getByName(String name) throws ServiceException;
+
+    Optional<TeacherSimpleDto> getSmplByName(String name) throws  ServiceException;
 
     List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException;
 

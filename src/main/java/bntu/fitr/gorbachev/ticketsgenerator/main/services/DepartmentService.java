@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -18,7 +19,11 @@ public interface DepartmentService {
 
     Optional<DepartmentDto> getByName(String name) throws ServiceException;
 
+    Optional<DepartmentSimpleDto> getSmplDtoByName(String name) throws ServiceException;
+
     Optional<DepartmentDto> getAny() throws ServiceException;
+
+    Optional<DepartmentSimpleDto> getSmplAny() throws ServiceException;
 
     List<DepartmentDto> getAll() throws ServiceException;
 

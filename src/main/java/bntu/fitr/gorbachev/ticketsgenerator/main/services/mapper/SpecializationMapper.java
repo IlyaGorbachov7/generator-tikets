@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Speciali
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -37,7 +38,13 @@ public abstract class SpecializationMapper {
     @Mapping(target = "departmentDto", source = "department")
     public abstract SpecializationDto specializationToDto(Specialization specialization);
 
+    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
+    public abstract SpecializationSimpleDto specializationToSimpleDto(Specialization specialization);
+
     public abstract List<SpecializationDto> specializationToDto(List<Specialization> specializations);
+
+    public abstract List<SpecializationSimpleDto> specializationToSimpleDto(List<Specialization> specializations);
 
     public void update(Specialization target, SpecializationDto sourceDto) {
         Specialization sourceEntity = specializationDtoToEntity(sourceDto);

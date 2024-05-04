@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.TeacherService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.tchr.TeacherNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.TeacherMapper;
@@ -58,6 +59,12 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public Optional<TeacherSimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                teacherRepo.findAny().map(teacherMapper::teacherToSimpleDto));
+    }
+
+    @Override
     public List<TeacherDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findAll().stream().map(teacherMapper::teacherToDto).toList());
@@ -67,6 +74,12 @@ public class TeacherServiceImpl implements TeacherService {
     public Optional<TeacherDto> getByName(String name) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 teacherRepo.findByName(name).map(teacherMapper::teacherToDto));
+    }
+
+    @Override
+    public Optional<TeacherSimpleDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                teacherRepo.findByName(name).map(teacherMapper::teacherToSimpleDto));
     }
 
     @Override

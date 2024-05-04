@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Departme
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DepartmentMapper;
@@ -49,8 +50,17 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Optional<DepartmentDto> getByName(String name) throws ServiceException {
+        // Why we were give operation : findByName inside wrap transaction operation?
+        // Answer: When mapper used, mapper invoke method: getFaculty of the database object, this method is LAZY initialization
+        // then it does request to database for receive data. But for this, a transaction and session must be opened.
         return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findByName(name).map(departmentMapper::departmentToDepartmentDto));
+    }
+
+    @Override
+    public Optional<DepartmentSimpleDto> getSmplDtoByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                departmentRepo.findByName(name).map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
     @Override
@@ -58,6 +68,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findAny().map(departmentMapper::departmentToDepartmentDto)
         );
+    }
+
+    @Override
+    public Optional<DepartmentSimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->
+                departmentRepo.findAny().map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
     @Override

@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.FacultyMapper;
@@ -51,8 +52,19 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public Optional<FacultySimpleDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                facultyRepo.findByName(name).map(facultyMapper::facultyToFacultySmplDto));
+    }
+
+    @Override
     public Optional<FacultyDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultyDto));
+    }
+
+    @Override
+    public Optional<FacultySimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> facultyRepo.findAny().map(facultyMapper::facultyToFacultySmplDto));
     }
 
     @Override

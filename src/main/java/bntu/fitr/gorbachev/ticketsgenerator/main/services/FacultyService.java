@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -16,9 +17,13 @@ public interface FacultyService {
 
     void delete(FacultyDto facultyDto) throws ServiceException;
 
+    Optional<FacultySimpleDto> getSmplByName(String name) throws ServiceException;
+
     Optional<FacultyDto> getByName(String name) throws ServiceException;
 
     long countByName(String name) throws ServiceException;
+
+    Optional<FacultySimpleDto> getSmplAny() throws ServiceException;
 
     Optional<FacultyDto> getAny() throws ServiceException;
 

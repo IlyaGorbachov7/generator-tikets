@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.univ.UniversityNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -31,6 +32,12 @@ public abstract class FacultyMapper {
 
     @Mapping(target = "universityDto", source = "university")
     public abstract FacultyDto facultyToFacultyDto(Faculty faculty);
+
+    @Mapping(target = "universityId", source = "university.id")
+    @Mapping(target = "universityName", source = "university.name")
+    public abstract FacultySimpleDto facultyToFacultySmplDto(Faculty faculty);
+
+    public abstract List<FacultySimpleDto> facultyToFacultySimpleDto(List<Faculty> faculties);
 
     public abstract List<FacultyDto> facultyToFacultyDto(List<Faculty> faculties);
 

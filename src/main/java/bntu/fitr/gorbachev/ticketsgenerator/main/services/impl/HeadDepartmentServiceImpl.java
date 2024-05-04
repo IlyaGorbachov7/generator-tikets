@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepa
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.HeadDepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.headdep.HeadDepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.HeadDepartmentMapper;
@@ -60,6 +61,12 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public Optional<HeadDepartmentSimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->
+                headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToSimpleDto));
+    }
+
+    @Override
     public List<HeadDepartmentDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 headDepartmentRepo.findAll().stream().map(headDepartmentMapper::headDepartmentToDto).toList());
@@ -69,6 +76,12 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     public Optional<HeadDepartmentDto> getByName(String name) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(()->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToDto));
+    }
+
+    @Override
+    public Optional<HeadDepartmentSimpleDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->
+                headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
     @Override

@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,13 @@ public interface SpecializationService {
 
     Optional<SpecializationDto> getAny();
 
+    Optional<SpecializationSimpleDto> getSmplAny();
+
     List<SpecializationDto> getAll();
 
     Optional<SpecializationDto> getByName(String name);
+
+    Optional<SpecializationSimpleDto> getSmplByName(String name);
 
     List<SpecializationDto> getByDepartmentId(UUID departmentId);
 

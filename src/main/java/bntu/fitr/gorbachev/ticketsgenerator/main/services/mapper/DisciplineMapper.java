@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipli
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.displn.DisciplineNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.specl.SpecializationNoFoundByIdException;
 import org.mapstruct.Mapper;
@@ -34,7 +35,13 @@ public abstract class DisciplineMapper {
     @Mapping(target = "specializationDto", source = "specialization")
     public abstract DisciplineDto disciplineToDto(Discipline discipline);
 
+    @Mapping(target = "specializationId", source = "specialization.id")
+    @Mapping(target = "specializationName", source = "specialization.name")
+    public abstract DisciplineSimpledDto disciplineToSimpleDto(Discipline discipline);
+
     public abstract List<DisciplineDto> disciplineToDto(List<Discipline> disciplines);
+
+    public abstract List<DisciplineSimpledDto> disciplineToSimpleDto(List<Discipline> disciplines);
 
     public void update(Discipline target, DisciplineDto sourceDto) {
         Discipline source = disciplineDtoToEntity(sourceDto);

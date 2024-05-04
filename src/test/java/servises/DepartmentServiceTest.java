@@ -6,7 +6,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -15,7 +15,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
-import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,6 +41,12 @@ public class DepartmentServiceTest {
     void createfitr(DepartmentCreateDto depCreateDto) {
         DepartmentDto departmentDto = departmentService.create(depCreateDto);
         System.out.println(departmentDto);
+    }
+
+    @Test
+    void textGetAny(){
+        DepartmentSimpleDto deps = departmentService.getSmplAny().get();
+        System.out.println(deps);
     }
 
     @Test

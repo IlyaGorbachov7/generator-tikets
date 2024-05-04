@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipli
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DisciplineService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.displn.DisciplineNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DisciplineMapper;
@@ -60,6 +61,12 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public Optional<DisciplineSimpledDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                disciplineRepo.findAny().map(disciplineMapper::disciplineToSimpleDto));
+    }
+
+    @Override
     public List<DisciplineDto> getAll() throws ServiceException {
         return executor.wrapTransactionalResultList(() -> disciplineRepo.findAll().stream()
                 .map(disciplineMapper::disciplineToDto).toList());
@@ -67,8 +74,14 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public Optional<DisciplineDto> getByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 disciplineRepo.findByName(name).map(disciplineMapper::disciplineToDto));
+    }
+
+    @Override
+    public Optional<DisciplineSimpledDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                disciplineRepo.findByName(name).map(disciplineMapper::disciplineToSimpleDto));
     }
 
     @Override
@@ -85,7 +98,7 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException {
-        return executor.wrapTransactionalResultList(()->
+        return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findBySpecializationName(specializationName)));
     }
@@ -97,7 +110,7 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
-        return executor.wrapTransactionalResultList(()->
+        return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId)));
     }
