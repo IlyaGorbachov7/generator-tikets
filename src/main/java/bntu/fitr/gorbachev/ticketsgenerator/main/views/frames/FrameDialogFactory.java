@@ -30,11 +30,11 @@ public class FrameDialogFactory {
      * @return Frame
      * @throws IllegalArgumentException in case frame is not define for the type, which defines {@link PanelType}:
      */
-    public JFrame createJFrame(PanelType type) {
-        return switch (type) {
-            case SPLASH_SCREEN -> new LaunchFrame(type);
-            case MAIN_WINDOW -> new MainWindowFrame(type);
-            default -> throw new IllegalArgumentException("The frame is not define for the type: " + type);
+    public JFrame createJFrame(FrameType frameType, PanelType rootPanelType) {
+        return switch (frameType) {
+            case SPLASH_SCREEN -> new LaunchFrame(rootPanelType);
+            case MAIN_WINDOW -> new MainWindowFrame(rootPanelType);
+            default -> throw new IllegalArgumentException("The frame is not define for the type: " + frameType);
         };
     }
 
@@ -44,12 +44,13 @@ public class FrameDialogFactory {
      * @return {@link BaseDialog}
      * @throws IllegalArgumentException in case dialog is not define for the type, which defines {@link PanelType}:
      */
-    public BaseDialog createJDialog(Window root, PanelType type) {
+    public BaseDialog createJDialog(Window root, FrameType type, PanelType rootPanelType) {
         return switch (type) {
-            case ABOUT_AUTHOR -> new AboutAuthor(root, type);
-            case ABOUT_PROGRAM -> new AboutProgram(root, type);
+            case ABOUT_AUTHOR -> new AboutAuthor(root, rootPanelType);
+            case ABOUT_PROGRAM -> new AboutProgram(root, rootPanelType);
             case FILE_VIEWER -> new FileViewer(root);
-            case RECORD_SETTING -> new RecordSetting(root, type);
+            case RECORD_SETTING -> new RecordSetting(root, rootPanelType);
+            case INPUT_PARAM_DB -> new InputParametersDialog(root, rootPanelType);
             default -> throw new IllegalArgumentException("The dialog is not define for the type: " + type);
         };
     }

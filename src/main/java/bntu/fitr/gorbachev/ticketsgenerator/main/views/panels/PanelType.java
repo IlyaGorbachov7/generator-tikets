@@ -6,5 +6,6 @@ public enum PanelType {
     MAIN_WINDOW,
     SPLASH_SCREEN,
     FILE_VIEWER,
-    RECORD_SETTING;
+    RECORD_SETTING,
+    INPUT_PARAM_DB
 }

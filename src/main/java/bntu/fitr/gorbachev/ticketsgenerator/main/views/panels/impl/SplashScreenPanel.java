@@ -1,8 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.connectionpool.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
@@ -195,6 +197,11 @@ public class SplashScreenPanel extends BasePanel {
             public void windowClosing(WindowEvent e) {
                 System.out.println(SplashScreenPanel.class + " window Closing");
 //                PoolConnection.getInstance().destroyConnectionPool();
+                try {
+                    PoolConnection.Builder.build().destroy();
+                } catch (ConnectionPoolException ex) {
+                    throw new RuntimeException(ex);
+                }
                 threadProcess.interrupt();
                 /* There are cases when throw NullPointerException.
                  * This event happening, if this thread trying
@@ -219,7 +226,8 @@ public class SplashScreenPanel extends BasePanel {
         @Override
         public void run() {
             System.out.println("Start init Main Window...<");
-            mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
+            PoolConnection.Builder.build();
+            mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
             threadProcess.interrupt();
             System.out.println("mainWindow created is success");
         }

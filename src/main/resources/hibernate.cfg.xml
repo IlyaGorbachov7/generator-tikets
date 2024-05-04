@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="data-app-area">
+        <property name="hibernate.connection.driver_class">org.sqlite.JDBC</property>
+        <property name="hibernate.connection.url">jdbc:sqlite:unviresityDB.sqlite</property>
+        <property name="hibernate.dialect">org.hibernate.community.dialect.SQLiteDialect</property>
+        <property name="connection.username"/>
+        <property name="connection.password"/>
+        <property name="hibernate.hbm2ddl.auto">validate</property>
+        <property name="hibernate.format_sql">true</property>
+        <property name="hibernate.show_sql">true</property>
+        <!--=============Connection Pool==========
+        https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->
+        <property name="hibernate.c3p0.min_size">1</property>
+        <property name="hibernate.c3p0.max_size">3</property>
+        <!-- On the which number will be increase current number connections -->
+        <property name="hibernate.c3p0.acquire_increment">1</property>
+        <property name="hibernate.c3p0.timeout">2000</property>
+        <property name="current_session_context_class">thread</property>
+        <!--Entity class-->
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipline"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment"/>
+        <mapping class="bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher"/>
+    </session-factory>
+</hibernate-configuration>

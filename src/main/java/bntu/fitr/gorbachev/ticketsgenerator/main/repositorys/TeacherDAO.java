@@ -4,9 +4,19 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface TeacherDAO extends AbstractDAO<Teacher> {
-    Teacher findByName(String name) throws DAOException;
+public interface TeacherDAO extends AppAreaAbstractDAO<Teacher, UUID> {
 
-    List<Teacher> findByFacultyId(Integer facultyId) throws DAOException;
+    List<Teacher> findByFacultyId(UUID facultyId) throws DAOException;
+
+    long countByFacultyId(UUID facultyId) throws DAOException;
+
+    List<Teacher> findByFacultyName(String facultyName) throws DAOException;
+
+    long countByFacultyName(String facultyName) throws DAOException;
+
+    List<Teacher> findByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException;
+
+    long countByLikeNameAndFacultyId(String name, UUID facultyId) throws DAOException;
 }
