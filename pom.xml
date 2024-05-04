@@ -12,60 +12,54 @@
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <org.projectlombok.version>1.18.26</org.projectlombok.version>
+
+        <org.hibernate-core.version>6.2.3.Final</org.hibernate-core.version>
+        <org.hibernate-c3pO-connectionPool.version>6.2.0.CR3</org.hibernate-c3pO-connectionPool.version>
+        <org.sqlite-jdbc-driver.version>3.42.0.0</org.sqlite-jdbc-driver.version>
+        <org.hibernate-cmmunity-dialects.version>6.2.4.Final</org.hibernate-cmmunity-dialects.version>
     </properties>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>bntu.fitr.gorbachev.ticketsgenerator.main.Main</mainClass>
-                        </manifest>
-                    </archive>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>17</source>
-                    <target>17</target>
-                </configuration>
-            </plugin>
-        </plugins>
-
-        <resources>
-            <resource>
-                <!--ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)-->
-                <directory>src/main/resources</directory>
-                <!--А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
-                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
-                <targetPath>resources</targetPath>
-            </resource>
-
-            <resource>
-                <directory>src/main/META-INF</directory>
-                <targetPath>META-INF</targetPath>
-            </resource>
-        </resources>
-    </build>
-
     <dependencies>
+
+        <!-- ====================== DATA BASE Connection =====================================-->
+        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${org.hibernate-core.version}</version>
+        </dependency>
+        <!-- JDBC-driver :  https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>${org.sqlite-jdbc-driver.version}</version>
+        </dependency>
+
+        <!-- dialect for SQLite db and JPA-->
+        <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-community-dialects -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-community-dialects</artifactId>
+            <version>${org.hibernate-cmmunity-dialects.version}</version>
+        </dependency>
+
+        <!--Implements Connection Pool
+         https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/-->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-c3p0</artifactId>
+            <version>${org.hibernate-c3pO-connectionPool.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct.version}</version>
+        </dependency>
+
+        <!--================================================================================================-->
 
         <!-- это было добавленно, для работы преобразования -->
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-full -->
@@ -122,12 +116,12 @@
         <dependency>
             <groupId>com.documents4j</groupId>
             <artifactId>documents4j-local</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.10</version>
         </dependency>
         <dependency>
             <groupId>com.documents4j</groupId>
             <artifactId>documents4j-transformer-msoffice-word</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.10</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.icepdf.os/icepdf-core
@@ -135,7 +129,7 @@
         <dependency>
             <groupId>org.icepdf.os</groupId>
             <artifactId>icepdf-viewer</artifactId>
-            <version>6.1.2</version>
+            <version>6.2.2</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.media</groupId>
@@ -162,7 +156,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>${org.projectlombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -170,12 +164,122 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.19.0</version>
+            <version>2.20.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.19.0</version>
+            <version>2.20.0</version>
         </dependency>
+
+
+        <!--==================================  Junit 5 Testing ============================================-->
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-suite -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-suite</artifactId>
+            <version>1.9.3</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.9.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.9.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--==============================================================================-->
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>bntu.fitr.gorbachev.ticketsgenerator.main.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>17</source>
+                    <target>17</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${org.projectlombok.version}</version>
+                        </path>
+                        <!-- This is needed when using Lombok 1.18.16 and above -->
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok-mapstruct-binding</artifactId>
+                            <version>0.2.0</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct.version}</version>
+                        </path>
+                        <!-- other annotation processors -->
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <resources>
+            <resource>
+                <!--ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)-->
+                <directory>src/main/resources</directory>
+                <!--А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
+                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
+                <targetPath>resources</targetPath>
+            </resource>
+            <resource>
+                <directory>src/main/META-INF</directory>
+                <targetPath>META-INF</targetPath>
+            </resource>
+        </resources>
+    </build>
+
 </project>

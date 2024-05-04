@@ -1,5 +1,6 @@
 # ingore folder .idea
-.idea
-
+.idea/*
+target/*
 src/~$apiska.docx
 src/~WRL0773.tmp
+unviresityDB.sqlite
