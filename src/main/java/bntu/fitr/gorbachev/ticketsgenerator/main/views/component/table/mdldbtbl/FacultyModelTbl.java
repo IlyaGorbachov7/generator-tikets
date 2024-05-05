@@ -13,11 +13,11 @@ import java.util.UUID;
 public class FacultyModelTbl {
     private UUID id;
 
-    @ColumnViewUI
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String name;
 
     private UUID universityId;
 
-    @ColumnViewUI
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String universityName;
 }

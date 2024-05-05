@@ -1,14 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.JListDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
@@ -17,7 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -33,7 +28,7 @@ public class DataBasePanel extends BasePanel {
     private JPanel pnlList;
     private JList<String> listTables;
 
-    private JPanel pnlTbls;
+    private JPanel rootPnlTbls;
     private HintTextField tfFilter;
     private JTable tableData;
     private JLabel lbCurrentPage;
@@ -77,30 +72,24 @@ public class DataBasePanel extends BasePanel {
     }
 
     protected void initCustomComponents() {
-        tfFilter = new HintTextField("Searching");
 
-        jListTables = JListDataBase.builder().listData(
-                Arrays.asList("Университеты", "Факультеты", "Кафедры", "Специальности",
-                        "Заведующий кафедрой", "Преподаватели", "Илья Горбачёв 03052024").toArray(String[]::new)).build();
+        jListTables = JListDataBase.builder().classesTableView(
+                Arrays.asList(UniversityModelTbl.class, FacultyModelTbl.class, DepartmentModelTbl.class,
+                                SpecializationModelTbl.class, DisciplineModelTbl.class, HeadDepartmentModelTbl.class,
+                                TeacherModelTbl.class)
+                        .toArray(Class<?>[]::new)).rootPnl(rootPnlTbls).build();
 
-        tblUniversity = JTableDataBase.builder().build();
-        tblFaculty = JTableDataBase.builder().build();
-        tblDepartment = JTableDataBase.builder().build();
-        tblSpecialization = JTableDataBase.builder().build();
-        tblDiscipline = JTableDataBase.builder().build();
-        tblHeadDepartment = JTableDataBase.builder().build();
-        tblTeacher = JTableDataBase.builder().build();
+        tblUniversity = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(UniversityModelTbl.class).build()));
+        tblFaculty = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(FacultyModelTbl.class).build()));
+        tblDepartment = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(DepartmentModelTbl.class).build()));
+        tblSpecialization = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(SpecializationModelTbl.class).build()));
+        tblDiscipline = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(DisciplineModelTbl.class).build()));
+        tblHeadDepartment =Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(HeadDepartmentModelTbl.class).build()));
+        tblTeacher = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(TeacherModelTbl.class).build()));
 
     }
 
     protected void addingCustomComponents() {
-        pnlTbls.add(tblTeacher, BorderLayout.CENTER);
-        pnlTbls.add(tblHeadDepartment, BorderLayout.CENTER);
-        pnlTbls.add(tblDiscipline, BorderLayout.CENTER);
-        pnlTbls.add(tblSpecialization, BorderLayout.CENTER);
-        pnlTbls.add(tblDepartment, BorderLayout.CENTER);
-        pnlTbls.add(tfFilter, BorderLayout.CENTER);
-        pnlTbls.add(tblUniversity, BorderLayout.CENTER);
 
         pnlList.add(jListTables);
     }
@@ -125,6 +114,10 @@ public class DataBasePanel extends BasePanel {
     @Override
     public void setComponentsListeners() {
 
+    }
+
+    private void createUIComponents() {
+        // TODO: place custom component creation code here
     }
 
     private final class ActionHandler implements ActionListener {

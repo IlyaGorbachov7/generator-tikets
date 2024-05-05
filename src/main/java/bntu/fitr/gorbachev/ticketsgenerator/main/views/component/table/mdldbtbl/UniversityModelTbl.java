@@ -14,6 +14,6 @@ public class UniversityModelTbl {
 
     private UUID id;
 
-    @ColumnViewUI
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String name;
 }

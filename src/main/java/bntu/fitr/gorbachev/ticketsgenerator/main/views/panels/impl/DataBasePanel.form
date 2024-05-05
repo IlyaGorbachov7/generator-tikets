@@ -151,7 +151,7 @@
           </grid>
         </children>
       </grid>
-      <grid id="85fc6" binding="pnlTbls" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="85fc6" binding="rootPnlTbls" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="Center"/>
         <properties>
           <background color="-12959471"/>
@@ -273,7 +273,7 @@
               <selectionBackground color="-5356625"/>
             </properties>
           </component>
-          <component id="94516" class="javax.swing.JTextField" default-binding="true">
+          <component id="94516" class="bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField" binding="tfFilter">
             <constraints border-constraint="North"/>
             <properties>
               <text value="FilterTxtField"/>
