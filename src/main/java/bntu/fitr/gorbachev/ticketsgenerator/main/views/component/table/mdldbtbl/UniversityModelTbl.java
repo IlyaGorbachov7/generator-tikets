@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.ColumnViewUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;
@@ -9,15 +9,11 @@ import java.util.UUID;
 
 @Data
 @Builder
-@TableViewUI(name = "Дисциплина")
-public class DisciplineModelTbl {
+@TableViewUI(name = "Университет")
+public class UniversityModelTbl {
+
     private UUID id;
 
     @ColumnViewUI
     private String name;
-
-    private UUID specializationId;
-
-    @ColumnViewUI
-    private String specializationName;
 }

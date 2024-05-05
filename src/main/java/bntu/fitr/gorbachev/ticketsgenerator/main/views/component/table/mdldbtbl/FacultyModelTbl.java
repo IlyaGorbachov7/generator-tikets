@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.ColumnViewUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;

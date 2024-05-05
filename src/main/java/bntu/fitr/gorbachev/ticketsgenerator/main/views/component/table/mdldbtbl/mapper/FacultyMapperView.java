@@ -1,7 +1,7 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl.mapper;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl.FacultyModelTbl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.FacultyModelTbl;
 import org.mapstruct.Mapper;
 
 import java.util.List;

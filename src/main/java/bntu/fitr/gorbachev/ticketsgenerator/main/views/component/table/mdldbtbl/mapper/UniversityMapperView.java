@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl.mapper;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl.UniversityModelTbl;
