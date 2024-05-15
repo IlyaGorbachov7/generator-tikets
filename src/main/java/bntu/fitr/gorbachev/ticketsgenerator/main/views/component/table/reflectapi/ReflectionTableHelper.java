@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflecta
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.ColumnViewUI;
+import lombok.NonNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ public class ReflectionTableHelper {
          * Так же проверить, что это примитивные типы данных, а не какой-нибудь класс, потому что не возможно его как-то обработать*/
     }
 
-    public static String[] extractColumnName(Class<?> clazz) {
+    public static String[] extractColumnName(@NonNull Class<?> clazz) {
         Field[] fields = getFieldsByAnn(clazz, ColumnViewUI.class);
         return Arrays.stream(fields).map(field -> {
             ColumnViewUI ann = field.getDeclaredAnnotation(ColumnViewUI.class);

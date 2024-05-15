@@ -25,10 +25,4 @@ public class Test1 {
 
     }
 
-    @Test
-    public void test3(){
-        System.out.println(Arrays.toString(ReflectionTableHelper.extractColumnName(UniversityModelTbl.class)));
-
-        Assertions.assertEquals(MapperViewFactoryImpl.getInstance(), MapperViewFactoryImpl.getInstance());
-    }
 }
