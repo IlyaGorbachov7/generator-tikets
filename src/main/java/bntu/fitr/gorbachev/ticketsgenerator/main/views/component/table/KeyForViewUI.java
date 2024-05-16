@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,20 +13,24 @@ import java.util.Objects;
 @Builder
 public final class KeyForViewUI {
 
-    private Class<?> clazzModelTbl;
+    @Setter(value = AccessLevel.PRIVATE)
+    private int index;
 
-    private JPanel pnlTbl;
+    private JButton btn;
+
+    private JTableDataBase tbl;
+
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         KeyForViewUI that = (KeyForViewUI) o;
-        return clazzModelTbl.equals(that.clazzModelTbl);
+        return index == that.index;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clazzModelTbl);
+        return Objects.hash(index);
     }
 }

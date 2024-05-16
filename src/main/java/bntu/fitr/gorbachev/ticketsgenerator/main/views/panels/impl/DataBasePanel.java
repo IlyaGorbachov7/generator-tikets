@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.UniversityServiceImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.JListDataBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
@@ -43,6 +44,7 @@ public class DataBasePanel extends BasePanel {
     private JButton btnBack;
 
     private JListDataBase jListTables;
+    private MyListButtons myListButtons;
 
     private JTableDataBase tblUniversity;
     private JTableDataBase tblFaculty;
@@ -83,13 +85,14 @@ public class DataBasePanel extends BasePanel {
                 Class<?> clazzModelView = (Class<?>) o;
 //                if(clazzModelView == UniversityModelTbl.class){
                 // Еще нужно указать объект который будет мапить Object класс в нужный объект.
-                    return MapperViewFactoryImpl.getInstance().universityMapper()
-                            .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
+                return MapperViewFactoryImpl.getInstance().universityMapper()
+                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
 //                }
 //                return null;
             }
         };
-        jListTables = JListDataBase.builder()
+
+        myListButtons = MyListButtons.builder()
                 .modelTableViewSuppliers(Arrays.asList(
                         ModelTableViewSupplier.builder().clazzModelView(UniversityModelTbl.class).supplierData(supplierDataList).build(),
                         ModelTableViewSupplier.builder().clazzModelView(FacultyModelTbl.class).supplierData(supplierDataList).build(),
@@ -101,36 +104,24 @@ public class DataBasePanel extends BasePanel {
                 ).toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();
 
-        tblUniversity = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(UniversityModelTbl.class).build()));
-        tblFaculty = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(FacultyModelTbl.class).build()));
-        tblDepartment = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(DepartmentModelTbl.class).build()));
-        tblSpecialization = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(SpecializationModelTbl.class).build()));
-        tblDiscipline = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(DisciplineModelTbl.class).build()));
-        tblHeadDepartment = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(HeadDepartmentModelTbl.class).build()));
-        tblTeacher = Objects.requireNonNull(jListTables.getJTblsDataTable().get(KeyForViewUI.builder().clazzModelTbl(TeacherModelTbl.class).build()));
+        tblUniversity = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[0]).getTbl());
+        tblFaculty = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[1]).getTbl());
+        tblDepartment = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[2]).getTbl());
+        tblSpecialization = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[3]).getTbl());
+        tblDiscipline = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[4]).getTbl());
+        tblHeadDepartment = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[5]).getTbl());
+        tblTeacher = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[6]).getTbl());
 
     }
 
     protected void addingCustomComponents() {
 
-        pnlList.add(jListTables);
+        pnlList.add(myListButtons);
     }
 
 
     @Override
     public void setConfigComponents() {
-        jListTables.setFixedCellHeight(36);
-        this.addComponentListener(new ComponentAdapter() {
-            // this handler needed for correct rendering UI components related with list and his stretching by height
-            @Override
-            public void componentResized(ComponentEvent e) {
-                Rectangle rect = pnlList.getVisibleRect();
-                int quantityElems = jListTables.getModel().getSize();
-                int heightElem = rect.height / quantityElems;
-                jListTables.setFixedCellHeight(heightElem);
-            }
-        });
-
     }
 
     @Override
