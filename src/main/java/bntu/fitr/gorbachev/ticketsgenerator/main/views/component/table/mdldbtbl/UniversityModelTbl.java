@@ -11,7 +11,6 @@ import java.util.UUID;
 @Builder
 @TableViewUI(name = "Университет")
 public class UniversityModelTbl {
-
     private UUID id;
 
     @ColumnViewUI(typeView = ColumnViewUI.STRING)

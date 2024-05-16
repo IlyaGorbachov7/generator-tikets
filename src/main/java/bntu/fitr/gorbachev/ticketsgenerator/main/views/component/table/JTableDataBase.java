@@ -1,14 +1,14 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.UniversityModelTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ReflectionTableHelper;
 import lombok.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.TableColumnModelEvent;
-import javax.swing.event.TableColumnModelListener;
+import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
@@ -18,24 +18,94 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 @Getter
-@Setter
 public class JTableDataBase extends JTable {
-    private Class<?> classTableView;
+    private final Class<?> classTableView;
 
-    private JPanel pnlTbl;
+    private final JPanel pnlTbl;
 
-    private Function<Object, List<?>> supplierDataList;
+    private final JButton btn;
+
+    private final Function<Object, List<?>> supplierDataList;
+
+    private final List<TableSelectedRowsListener> handlers;
 
     @Builder
-    public JTableDataBase(Class<?> clazz, JPanel p, Function<Object, List<?>> supplierDataList) {
+    public JTableDataBase(Class<?> clazz, JPanel p, JButton btn, Function<Object, List<?>> supplierDataList) {
         super(new RealizeTableModel(clazz, supplierDataList), new RealizeTableColumnModel());
         setAutoCreateColumnsFromModel(true);
         this.classTableView = clazz;
         this.pnlTbl = p;
+        this.btn = btn;
         this.supplierDataList = supplierDataList;
+        handlers = new ArrayList<>();
         combine();
+        this.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
+            @Override
+            public void columnAdded(TableColumnModelEvent e) {
+
+            }
+
+            @Override
+            public void columnRemoved(TableColumnModelEvent e) {
+
+            }
+
+            @Override
+            public void columnMoved(TableColumnModelEvent e) {
+
+            }
+
+            @Override
+            public void columnMarginChanged(ChangeEvent e) {
+
+            }
+
+            @Override
+            public void columnSelectionChanged(ListSelectionEvent e) {
+                System.out.println("___________________________dfsfsf");
+            }
+        });
+        this.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            int iter = 0;
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                ++iter;
+                if (iter < 2) {// iterator for stoping invoking fireSelectedRows 2 раза
+                    fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
+                            .classTableView(classTableView)
+                            .btn(btn).build());
+                } else iter = 0;
+            }
+        });
     }
 
+    private void combine() {
+        pnlTbl.setLayout(new BorderLayout(10, 10));
+        var scroll = new JScrollPane(new JScrollPane(this)); // this is how I made it possible to have a horizontal scroll
+        pnlTbl.add(scroll, BorderLayout.CENTER);
+
+
+        ReflectionTableHelper.checkRuntimeMistakes(classTableView);
+
+        this.setRowMargin(1);
+        this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.setGridColor(new Color(78, 157, 231));
+        this.setShowGrid(true);
+        this.getTableHeader().setReorderingAllowed(false);
+    }
+
+    public void addTableSelectedRowsListener(TableSelectedRowsListener listener) {
+        handlers.add(listener);
+    }
+
+    public void removeTableSelectedRowsListener(TableSelectedRowsListener listener) {
+        handlers.remove(listener);
+    }
+
+    private void fireSelectedRows(TableSelectedRowsEvent event) {
+        handlers.parallelStream().forEach(handler -> handler.perform(event));
+    }
 
     @Override
     protected void createDefaultRenderers() {
@@ -77,21 +147,6 @@ public class JTableDataBase extends JTable {
         ;
     }
 
-
-    private void combine() {
-        pnlTbl.setLayout(new BorderLayout(10, 10));
-        var scroll = new JScrollPane(new JScrollPane(this)); // this is how I made it possible to have a horizontal scroll
-        pnlTbl.add(scroll, BorderLayout.CENTER);
-
-
-        ReflectionTableHelper.checkRuntimeMistakes(classTableView);
-
-        this.setRowMargin(1);
-        this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        this.setGridColor(new Color(78, 157, 231));
-        this.setShowGrid(true);
-        this.getTableHeader().setReorderingAllowed(false);
-    }
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
         public RealizeTableColumnModel() {

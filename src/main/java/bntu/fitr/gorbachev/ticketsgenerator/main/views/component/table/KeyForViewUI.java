@@ -9,7 +9,6 @@ import javax.swing.*;
 import java.util.Objects;
 
 @Getter
-@Setter
 @Builder
 public final class KeyForViewUI {
 
