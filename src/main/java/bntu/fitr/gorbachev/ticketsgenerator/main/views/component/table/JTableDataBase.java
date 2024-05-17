@@ -1,9 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.UniversityModelTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ReflectionTableHelper;
 import lombok.*;
 
@@ -15,7 +13,6 @@ import java.beans.PropertyChangeEvent;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 @Getter
 public class JTableDataBase extends JTable {
@@ -74,6 +71,7 @@ public class JTableDataBase extends JTable {
                 if (iter < 2) {// iterator for stoping invoking fireSelectedRows 2 раза
                     fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
                             .classTableView(classTableView)
+                            .selectedItems(getSelectedObjects(classTableView))
                             .btn(btn).build());
                 } else iter = 0;
             }
@@ -104,7 +102,7 @@ public class JTableDataBase extends JTable {
     }
 
     private void fireSelectedRows(TableSelectedRowsEvent event) {
-        handlers.parallelStream().forEach(handler -> handler.perform(event));
+        handlers.forEach(handler -> handler.perform(event));
     }
 
     @Override
@@ -147,6 +145,22 @@ public class JTableDataBase extends JTable {
         ;
     }
 
+    private Object[] getSelectedObjects(Class<?> clazz) {
+        int[] indexesSelectedRows = getSelectedRows();
+        Object[][] data = new Object[indexesSelectedRows.length][dataModel.getColumnCount()];
+        for (int i = 0; i < data.length; i++) {
+            for (int indexSelectedRow : indexesSelectedRows) {
+                for (int j = 0; j < data[i].length; j++) {
+                    data[i][j] = dataModel.getValueAt(indexSelectedRow, j);
+                }
+            }
+        }
+        return ReflectionTableHelper.convertDataRowsToDataClass(data, clazz);
+    }
+
+    public void performSetData() {
+        ((RealizeTableModel) dataModel).performSetData();
+    }
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
         public RealizeTableColumnModel() {
@@ -305,21 +319,29 @@ public class JTableDataBase extends JTable {
     }
 
     private static class RealizeTableModel extends AbstractTableModel {
+        private final String[] EMPTY = new String[0];
         private final Class<?> classTableView;
 
-        private Function<Object, List<?>> supplierDataList;
+        private final Function<Object, List<?>> supplierDataList;
 
-        private final String[] columnNames;
+        private String[] columnNames;
 
+        @Getter
         private Object[][] data;
 
         private RealizeTableModel(@NonNull Class<?> clazz, Function<Object, List<?>> supplier) {
             classTableView = clazz;
             supplierDataList = supplier;
 
-            columnNames = ReflectionTableHelper.extractColumnName(classTableView);
-            data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(UniversityModelTbl.class),
-                    UniversityModelTbl.class);
+            columnNames = EMPTY;
+            data = new Object[0][0];
+        }
+
+        public void performSetData() {
+            data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(classTableView), classTableView);
+            if(columnNames == EMPTY){
+                columnNames = ReflectionTableHelper.extractColumnName(classTableView);
+            }
         }
         // here don't should be such
 
@@ -340,14 +362,7 @@ public class JTableDataBase extends JTable {
 
         @Override
         public Object getValueAt(int rowIndex, int columnIndex) {
-            try {
-                // This is temporary handler exception by reason, that other model view table contaons by 2-column,
-                // however universityModelView contains only 1-column. Now all tables used output university database rows
-                return data[rowIndex][columnIndex];
-            } catch (RuntimeException ignored) {
-                return ReflectionListDataBaseHelper.extractTableViewName(classTableView);
-            }
-//                return data[rowIndex][columnIndex];
+            return data[rowIndex][columnIndex];
         }
 
     }

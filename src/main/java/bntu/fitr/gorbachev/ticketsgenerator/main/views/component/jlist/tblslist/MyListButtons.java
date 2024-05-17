@@ -78,22 +78,26 @@ public class MyListButtons extends JPanel {
         defaultSelectedBtn();
     }
 
+    private JButton selectedBtn;
+
     private class HandlerButtonActionListener implements ActionListener {
-        KeyForViewUI cur;
-        KeyForViewUI prev;
+        JButton cur;
+        JButton prev;
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("$$$$$$$$$$$$$$$$$$$$$");
+            if (cur == null) cur = arrBtn[0]; // initialization 1 раз
             JButton btnSource = (JButton) e.getSource();
-            KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(btnSource));
             prev = cur;
-            cur = v;
+            cur = btnSource;
+            selectedBtn = cur;
+            KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+            v.getTbl().performSetData();
 
-            if (prev != null) prev.getBtn().setBackground(Color.LIGHT_GRAY);
-            setSelectedColorBtn(cur.getBtn());
+            if (prev != null) prev.setBackground(Color.LIGHT_GRAY);
+            setSelectedColorBtn(cur);
             rootPnlForTable.removeAll();
-            rootPnlForTable.add(cur.getTbl().getPnlTbl());
+            rootPnlForTable.add(v.getTbl().getPnlTbl());
             rootPnlForTable.repaint();
             rootPnlForTable.validate();
         }
@@ -112,13 +116,29 @@ public class MyListButtons extends JPanel {
     }
 
     protected void defaultSelectedBtn() {
-        rootPnlForTable.add((mapBtnForKeyViewUI.get(arrBtn[0]).getTbl().getPnlTbl()));
-        setSelectedColorBtn(arrBtn[0]);
-        arrBtn[0].setEnabled(true);
+        selectedBtn = arrBtn[0];
+        rootPnlForTable.add((mapBtnForKeyViewUI.get(selectedBtn).getTbl().getPnlTbl()));
+        selectedBtn.setEnabled(true);
     }
 
     protected void setSelectedColorBtn(@NonNull JButton btn) {
         btn.setBackground(new Color(84, 151, 213));
+    }
+
+    public void deSelect() {
+        List<JButton> btns = new ArrayList<>(Arrays.asList(arrBtn));
+        Collections.reverse(btns);
+        for(JButton btn : btns){
+            KeyForViewUI value = mapBtnForKeyViewUI.get(btn);
+            if (btn != selectedBtn) {
+                btn.setEnabled(false);
+                btn.setBackground(Color.WHITE);
+                value.getTbl().getSelectionModel().clearSelection();
+            } else {
+                value.getTbl().getSelectionModel().clearSelection();
+                break;
+            }
+        }
     }
 
     @Builder

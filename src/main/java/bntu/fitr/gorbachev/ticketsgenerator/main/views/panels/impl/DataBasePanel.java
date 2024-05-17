@@ -1,11 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.UniversityServiceImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.JListDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper.factory.MapperViewFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
@@ -83,25 +83,37 @@ public class DataBasePanel extends BasePanel {
             @Override
             public List<?> apply(Object o) {
                 Class<?> clazzModelView = (Class<?>) o;
-//                if(clazzModelView == UniversityModelTbl.class){
-                // Еще нужно указать объект который будет мапить Object класс в нужный объект.
-                return MapperViewFactoryImpl.getInstance().universityMapper()
-                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
-//                }
-//                return null;
+                if (clazzModelView == UniversityModelTbl.class) {
+//                 Еще нужно указать объект который будет мапить Object класс в нужный объект.
+                    return MapperViewFactoryImpl.getInstance().universityMapper()
+                            .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
+                } else if (clazzModelView == FacultyModelTbl.class) {
+//                    return MapperViewFactoryImpl.getInstance().facultyMapper()
+//                            .listFacultyDtoDtoModelTbl(
+//                                    MapperViewFactoryImpl.getInstance().facultyMapper()
+//                                            .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance().facultyService().getByUniversityId(inputSearchFieldsData.getUniversity().getId())));
+                }
+                return null;
             }
         };
 
         myListButtons = MyListButtons.builder()
                 .modelTableViewSuppliers(Arrays.asList(
-                        ModelTableViewSupplier.builder().clazzModelView(UniversityModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(FacultyModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(DepartmentModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(SpecializationModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(DisciplineModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(HeadDepartmentModelTbl.class).supplierData(supplierDataList).build(),
-                        ModelTableViewSupplier.builder().clazzModelView(TeacherModelTbl.class).supplierData(supplierDataList).build()
-                ).toArray(ModelTableViewSupplier[]::new))
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(UniversityModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(FacultyModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(DepartmentModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(SpecializationModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(DisciplineModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(HeadDepartmentModelTbl.class).supplierData(supplierDataList).build(),
+                                ModelTableViewSupplier.builder()
+                                        .clazzModelView(TeacherModelTbl.class).supplierData(supplierDataList).build())
+                        .toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();
 
         tblUniversity = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[0]).getTbl());
@@ -115,7 +127,6 @@ public class DataBasePanel extends BasePanel {
     }
 
     protected void addingCustomComponents() {
-
         pnlList.add(myListButtons);
     }
 
@@ -126,7 +137,20 @@ public class DataBasePanel extends BasePanel {
 
     @Override
     public void setComponentsListeners() {
+        ActionHandler handler = new ActionHandler();
+        TableSelectedRowsListener handlerSelection = new HandlerSelectionRows();
 
+        btnDeselect.addActionListener(handler);
+        btnCreate.addActionListener(handler);
+        btnUpdate.addActionListener(handler);
+        btnDelete.addActionListener(handler);
+        btnNext.addActionListener(handler);
+        btnBack.addActionListener(handler);
+
+        myListButtons.getMapBtnForKeyViewUI()
+                .forEach((btn, keyView) -> {
+                    keyView.getTbl().addTableSelectedRowsListener(handlerSelection);
+                });
     }
 
     private void createUIComponents() {
@@ -136,7 +160,37 @@ public class DataBasePanel extends BasePanel {
     private final class ActionHandler implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            JButton source = (JButton) e.getSource();
+            if (source == btnDeselect) {
+                //  обязательно 2 раза нужно вызвать. Я не заню почему не работает если вызвать только один раз
+                myListButtons.deSelect();
+                myListButtons.deSelect();
+            }
+        }
+    }
 
+    private final class HandlerSelectionRows implements TableSelectedRowsListener {
+
+        @Override
+        public void perform(TableSelectedRowsEvent event) {
+            Object[] elemSelected = event.getSelectedItems();
+            if (elemSelected.length == 1) {
+                if (event.getClassTableView() == UniversityModelTbl.class) {
+                    inputSearchFieldsData.setUniversity((UniversityModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == FacultyModelTbl.class) {
+                    inputSearchFieldsData.setFaculty((FacultyModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == DepartmentModelTbl.class) {
+                    inputSearchFieldsData.setDepartment((DepartmentModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == SpecializationModelTbl.class) {
+                    inputSearchFieldsData.setSpecialization((SpecializationModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == HeadDepartmentModelTbl.class) {
+                    inputSearchFieldsData.setHeadDepartment((HeadDepartmentModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == TeacherModelTbl.class) {
+                    inputSearchFieldsData.setTeacher((TeacherModelTbl) elemSelected[0]);
+                } else if (event.getClassTableView() == DisciplineModelTbl.class) {
+                    inputSearchFieldsData.setDiscipline((DisciplineModelTbl) elemSelected[0]);
+                }
+            } else System.out.println("Selected > 1 element rows");
         }
     }
 }

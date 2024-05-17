@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class ReflectionTableHelper {
 
@@ -64,6 +63,25 @@ public class ReflectionTableHelper {
         return listData.toArray(Object[][]::new);
     }
 
+    public static Object[] convertDataRowsToDataClass(Object[][] rows, Class<?> toClazz) throws RuntimeException {
+        Object[] objects = new Object[rows.length];
+        for (int i = 0; i < rows.length; i++) {
+            objects[i] = convertDataRowToDataClass(rows[i], toClazz);
+        }
+        return objects;
+    }
+
+    public static Object convertDataRowToDataClass(Object[] row, Class<?> toClazz) {
+        Object obj = newInstance(toClazz);
+        Field[] fields = toClazz.getDeclaredFields();
+        if (row.length != fields.length)
+            throw new RuntimeException("Amount data of the row should be equals fields of class");
+        for (int i = 0; i < row.length; i++) {
+            setFieldValue(fields[i], obj, row[i]);
+        }
+        return obj;
+    }
+
     private static void checkInstancesComplianceOnTheClass(List<?> data, Class<?> toClazz) throws RuntimeException {
         data.forEach(ins -> {
             if (ins.getClass() != toClazz) {
@@ -72,5 +90,21 @@ public class ReflectionTableHelper {
                                 ins.getClass(), toClazz));
             }
         });
+    }
+
+    private static Object newInstance(Class<?> clazz) {
+        try {
+            return clazz.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void setFieldValue(Field field, Object obj, Object value){
+        try {
+            field.set(obj, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
