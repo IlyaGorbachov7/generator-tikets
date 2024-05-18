@@ -74,7 +74,7 @@ public class ReflectionTableHelper {
 
     public static Object convertDataRowToDataClass(Object[] row, Class<?> toClazz) {
         Object obj = newInstance(toClazz);
-        Field[] fields = toClazz.getDeclaredFields();
+        Field[] fields = getFieldsByAnn(toClazz, ColumnViewUI.class);
         if (row.length != fields.length)
             throw new RuntimeException("Amount data of the row should be equals fields of class");
         for (int i = 0; i < row.length; i++) {
@@ -102,7 +102,7 @@ public class ReflectionTableHelper {
         }
     }
 
-    private static void setFieldValue(Field field, Object obj, Object value){
+    private static void setFieldValue(Field field, Object obj, Object value) {
         try {
             field.setAccessible(true);
             field.set(obj, value);

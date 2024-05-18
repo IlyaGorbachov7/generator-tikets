@@ -124,10 +124,10 @@ public class MyListButtons extends JPanel {
         btn.setBackground(new Color(84, 151, 213));
     }
 
-    public void deSelect() {
+    public void deSelectInclude() {
         List<JButton> btns = new ArrayList<>(Arrays.asList(arrBtn));
         Collections.reverse(btns);
-        for(JButton btn : btns){
+        for (JButton btn : btns) {
             KeyForViewUI value = mapBtnForKeyViewUI.get(btn);
             if (btn != selectedBtn) {
                 btn.setEnabled(false);
@@ -135,6 +135,25 @@ public class MyListButtons extends JPanel {
                 value.getTbl().getSelectionModel().clearSelection();
             } else {
                 value.getTbl().getSelectionModel().clearSelection();
+                break;
+            }
+        }
+    }
+
+    public void deSelectExclude() {
+        List<JButton> btns = new ArrayList<>(Arrays.asList(arrBtn));
+        Collections.reverse(btns);
+        KeyForViewUI selectedValue = mapBtnForKeyViewUI.get(selectedBtn);
+        int selectedIndex = selectedValue.getIndex();
+        for (JButton btn : btns) {
+            KeyForViewUI value = mapBtnForKeyViewUI.get(btn);
+            if (btn != selectedBtn) {
+                if (value.getIndex() != selectedIndex + 1) {
+                    btn.setEnabled(false);
+                }
+                btn.setBackground(Color.WHITE);
+                value.getTbl().getSelectionModel().clearSelection();
+            } else {
                 break;
             }
         }
