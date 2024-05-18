@@ -85,7 +85,6 @@ public class DataBasePanel extends BasePanel {
             public List<?> apply(Object o) {
                 Class<?> clazzModelView = (Class<?>) o;
                 if (clazzModelView == UniversityModelTbl.class) {
-//                 Еще нужно указать объект который будет мапить Object класс в нужный объект.
                     return MapperViewFactoryImpl.getInstance().universityMapper()
                             .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
                 } else if (clazzModelView == FacultyModelTbl.class) {
@@ -97,7 +96,21 @@ public class DataBasePanel extends BasePanel {
                             .listDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
                                     .departmentService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
                 }else if(clazzModelView == SpecializationModelTbl.class){
-
+                    return MapperViewFactoryImpl.getInstance().specializationMapper()
+                            .listSpecializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                    .specializationService().getSmplByDepartmentId(inputSearchFieldsData.getSpecialization().getId()));
+                }else if(clazzModelView == DisciplineModelTbl.class){
+                    return MapperViewFactoryImpl.getInstance().disciplineMapper()
+                            .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                    .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getDiscipline().getId()));
+                } else if(clazzModelView == HeadDepartmentModelTbl.class){
+                    return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
+                            .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
+                                    .headDepartmentService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment().getId()));
+                } else if(clazzModelView == TeacherModelTbl.class){
+                    return MapperViewFactoryImpl.getInstance().teacherMapper()
+                            .listTeacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                    .teacherService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
                 }
                 return null;
             }

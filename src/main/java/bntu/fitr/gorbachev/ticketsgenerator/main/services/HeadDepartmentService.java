@@ -37,4 +37,6 @@ public interface HeadDepartmentService {
     List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
+
+    List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id);
 }

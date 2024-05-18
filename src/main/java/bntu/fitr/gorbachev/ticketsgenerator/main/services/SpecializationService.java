@@ -36,4 +36,6 @@ public interface SpecializationService {
     List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId);
+
+    List<SpecializationSimpleDto> getSmplByDepartmentId(UUID id);
 }

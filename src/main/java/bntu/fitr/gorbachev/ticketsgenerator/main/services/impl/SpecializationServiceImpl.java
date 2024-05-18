@@ -116,4 +116,11 @@ public class SpecializationServiceImpl implements SpecializationService {
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) {
         return specializationRepo.countByLikeNameAndDepartmentId(likeName, departmentId);
     }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByDepartmentId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByDepartmentId(id)));
+    }
 }

@@ -38,4 +38,6 @@ public interface DisciplineService {
     List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 
     long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id);
 }

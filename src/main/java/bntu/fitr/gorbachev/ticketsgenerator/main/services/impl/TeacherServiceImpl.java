@@ -117,4 +117,12 @@ public class TeacherServiceImpl implements TeacherService {
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return teacherRepo.countByLikeNameAndFacultyId(likeName, facultyId);
     }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByFacultyId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(id).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
+
+    }
 }

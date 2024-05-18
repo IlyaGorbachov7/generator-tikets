@@ -122,4 +122,13 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
     }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByDepartmentId(
+                        id).stream().map(
+                        headDepartmentMapper::headDepartmentToSimpleDto).toList());
+
+    }
 }

@@ -37,4 +37,6 @@ public interface TeacherService {
     List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
     long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
+
+    List<TeacherSimpleDto> getSmplByFacultyId(UUID id);
 }

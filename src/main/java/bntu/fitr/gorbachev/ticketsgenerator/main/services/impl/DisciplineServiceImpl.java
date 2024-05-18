@@ -119,4 +119,11 @@ public class DisciplineServiceImpl implements DisciplineService {
     public long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
         return disciplineRepo.ByLikeNameAndSpecializationId(likeName, specializationId);
     }
+
+    @Override
+    public List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToSimpleDto(
+                        disciplineRepo.findBySpecializationId(id)));
+    }
 }
