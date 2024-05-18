@@ -8,9 +8,9 @@ import lombok.Data;
 import java.util.UUID;
 
 @Data
-@Builder
 @TableViewUI(name = "Факультет")
 public class FacultyModelTbl {
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private UUID id;
 
     @ColumnViewUI(typeView = ColumnViewUI.STRING)

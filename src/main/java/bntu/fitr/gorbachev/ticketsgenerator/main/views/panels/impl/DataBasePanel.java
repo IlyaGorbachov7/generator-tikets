@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFa
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.JListDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
@@ -11,7 +12,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
 
 import javax.swing.*;
 import java.awt.*;

@@ -4,13 +4,15 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectap
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
-@Builder
 @TableViewUI(name = "Университет")
+@NoArgsConstructor
 public class UniversityModelTbl {
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private UUID id;
 
     @ColumnViewUI(typeView = ColumnViewUI.STRING)

@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.UniversityModelTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.ColumnViewUI;
 import lombok.NonNull;
 
@@ -93,6 +94,7 @@ public class ReflectionTableHelper {
     }
 
     private static Object newInstance(Class<?> clazz) {
+        UniversityModelTbl model = new UniversityModelTbl();
         try {
             return clazz.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
@@ -102,7 +104,9 @@ public class ReflectionTableHelper {
 
     private static void setFieldValue(Field field, Object obj, Object value){
         try {
+            field.setAccessible(true);
             field.set(obj, value);
+            field.setAccessible(false);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }

@@ -1,15 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import lombok.Builder;
 import lombok.Getter;
 
 import javax.swing.*;
-import java.util.*;
-import java.util.function.Function;
 
 @Getter
 public class JListDataBase extends JList<String> {

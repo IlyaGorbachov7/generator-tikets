@@ -5,7 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDat
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
