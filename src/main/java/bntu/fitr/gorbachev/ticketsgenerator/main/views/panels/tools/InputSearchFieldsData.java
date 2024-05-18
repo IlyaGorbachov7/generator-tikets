@@ -1,6 +1,12 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -10,17 +16,17 @@ import lombok.Setter;
 @Builder
 public class InputSearchFieldsData {
 
-    private UniversityModelTbl university;
+    private UniversityDTO universityDto;
 
-    private FacultyModelTbl faculty;
+    private FacultyDto facultyDto;
 
-    private DepartmentModelTbl department;
+    private DepartmentDto departmentDto;
 
-    private SpecializationModelTbl specialization;
+    private SpecializationDto specializationDto;
 
-    private DisciplineModelTbl discipline;
+    private DisciplineDto disciplineDto;
 
-    private HeadDepartmentModelTbl headDepartment;
+    private HeadDepartmentDto headDepartmentDto;
 
-    private TeacherModelTbl teacher;
+    private TeacherDto teacherDto;
 }

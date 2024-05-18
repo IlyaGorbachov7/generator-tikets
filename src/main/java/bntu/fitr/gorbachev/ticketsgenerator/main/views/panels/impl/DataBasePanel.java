@@ -10,6 +10,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper.factory.MapperViewFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
 
 import javax.swing.*;
@@ -54,7 +55,7 @@ public class DataBasePanel extends BasePanel {
     private JTableDataBase tblHeadDepartment;
     private JTableDataBase tblTeacher;
 
-    private final InputSearchFieldsData inputSearchFieldsData = InputSearchFieldsData.builder().build();
+    private final InputFieldsDataTbl inputSearchFieldsData = InputFieldsDataTbl.builder().build();
 
     public DataBasePanel(Window frame) {
         super(frame);
@@ -88,10 +89,15 @@ public class DataBasePanel extends BasePanel {
                     return MapperViewFactoryImpl.getInstance().universityMapper()
                             .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
                 } else if (clazzModelView == FacultyModelTbl.class) {
-//                    return MapperViewFactoryImpl.getInstance().facultyMapper()
-//                            .listFacultyDtoDtoModelTbl(
-//                                    MapperViewFactoryImpl.getInstance().facultyMapper()
-//                                            .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance().facultyService().getByUniversityId(inputSearchFieldsData.getUniversity().getId())));
+                    return MapperViewFactoryImpl.getInstance().facultyMapper()
+                            .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance()
+                                    .facultyService().getSmplByUniversityId(inputSearchFieldsData.getUniversity().getId()));
+                }else if(clazzModelView == DepartmentModelTbl.class){
+                    return MapperViewFactoryImpl.getInstance().departmentMapper()
+                            .listDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                    .departmentService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
+                }else if(clazzModelView == SpecializationModelTbl.class){
+
                 }
                 return null;
             }

@@ -85,6 +85,14 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public List<FacultySimpleDto> getSmplByUniversityId(UUID universityId) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultySimpleDto(
+                        facultyRepo.findByUniversityId(universityId)
+                ));
+    }
+
+    @Override
     public long countByUniversityId(UUID universityId) throws ServiceException {
         return facultyRepo.countByUniversityId(universityId);
     }

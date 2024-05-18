@@ -33,6 +33,8 @@ public interface FacultyService {
 
     List<FacultyDto> getByUniversityId(UUID universityId) throws ServiceException;
 
+    List<FacultySimpleDto> getSmplByUniversityId(UUID university) throws ServiceException;
+
     long countByUniversityId(UUID universityId) throws ServiceException;
 
     List<FacultyDto> getByUniversityName(String universityName) throws ServiceException;

@@ -93,7 +93,6 @@ public class MyListButtons extends JPanel {
             selectedBtn = cur;
             KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
             v.getTbl().performSetData();
-
             if (prev != null) prev.setBackground(Color.LIGHT_GRAY);
             setSelectedColorBtn(cur);
             rootPnlForTable.removeAll();

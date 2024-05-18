@@ -38,4 +38,6 @@ public interface DepartmentService {
     List<DepartmentDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
     long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
+
+    List<DepartmentSimpleDto> getSmplByFacultyId(UUID id);
 }

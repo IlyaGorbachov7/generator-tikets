@@ -160,6 +160,7 @@ public class JTableDataBase extends JTable {
 
     public void performSetData() {
         ((RealizeTableModel) dataModel).performSetData();
+        createDefaultColumnsFromModel();
     }
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
@@ -339,7 +340,7 @@ public class JTableDataBase extends JTable {
 
         public void performSetData() {
             data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(classTableView), classTableView);
-            if(columnNames == EMPTY){
+            if (columnNames == EMPTY) {
                 columnNames = ReflectionTableHelper.extractColumnName(classTableView);
             }
         }
@@ -376,18 +377,6 @@ public class JTableDataBase extends JTable {
         public void setWidthSimple(int width) {
             this.width = width;
         }
-
-//        @Override
-//        protected TableCellRenderer createDefaultHeaderRenderer() {
-//            TableCellRenderer cellRenderer = new TableCellRenderer() {
-//                @Override
-//                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-//                    System.err.println("-------" + value);
-//                    return null;
-//                }
-//            };
-//            return cellRenderer;
-//        }
     }
 
     private static class RealizedCellRender extends DefaultTableCellRenderer {

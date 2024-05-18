@@ -72,7 +72,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Optional<DepartmentSimpleDto> getSmplAny() throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findAny().map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
@@ -116,5 +116,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return departmentRepo.countByLikeNameAndFacultyId(likeName, facultyId);
+    }
+
+    @Override
+    public List<DepartmentSimpleDto> getSmplByFacultyId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentSimpleDto(
+                        departmentRepo.findByFacultyId(id)));
     }
 }
