@@ -30,12 +30,15 @@ public class JTableDataBase extends JTable {
 
     private final Function<Object, List<?>> supplierDelete;
 
+    private final RelatedTblDataBase relatedMdlTbl;
+
     private final List<TableSelectedRowsListener> handlers;
 
     @Builder
     public JTableDataBase(Class<?> clazz, JPanel p, JButton btn, Function<Object, List<?>> supplierDataList,
                           Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
-                          Function<Object, List<?>> supplierDelete) {
+                          Function<Object, List<?>> supplierDelete,
+                          RelatedTblDataBase relatedMdlTbl) {
         super(new RealizeTableModel(clazz, supplierDataList, supplierCreate, supplierUpdate, supplierDelete),
                 new RealizeTableColumnModel());
         setAutoCreateColumnsFromModel(true);
@@ -46,28 +49,25 @@ public class JTableDataBase extends JTable {
         this.supplierCreate = supplierCreate;
         this.supplierUpdate = supplierUpdate;
         this.supplierDelete = supplierDelete;
+        this.relatedMdlTbl = relatedMdlTbl;
 
         handlers = new ArrayList<>();
         combine();
         this.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
             @Override
             public void columnAdded(TableColumnModelEvent e) {
-
             }
 
             @Override
             public void columnRemoved(TableColumnModelEvent e) {
-
             }
 
             @Override
             public void columnMoved(TableColumnModelEvent e) {
-
             }
 
             @Override
             public void columnMarginChanged(ChangeEvent e) {
-
             }
 
             @Override
@@ -213,6 +213,7 @@ public class JTableDataBase extends JTable {
             columnNames = EMPTY;
             data = new Object[0][0];
         }
+
 
         public void performSetData() {
             data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(classTableView), classTableView);

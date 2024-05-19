@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTblDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
@@ -49,6 +50,7 @@ public class MyListButtons extends JPanel {
                     Function<Object, Object> supplierCreate = modelTableViewSupplier.getSupplierCreate();
                     Function<Object, Object> supplierUpdate = modelTableViewSupplier.getSupplierUpdate();
                     Function<Object, List<?>> supplierDelete = modelTableViewSupplier.getSupplierDelete();
+                    RelatedTblDataBase relatedMdlTbl = modelTableViewSupplier.getRelatedMdlTbl();
 
                     return Map.entry(btn, // key
                             KeyForViewUI.builder() // value
@@ -59,7 +61,8 @@ public class MyListButtons extends JPanel {
                                             .supplierDataList(supplierDataList)
                                             .supplierCreate(supplierCreate)
                                             .supplierUpdate(supplierUpdate)
-                                            .supplierDelete(supplierDelete).build()).build());
+                                            .supplierDelete(supplierDelete)
+                                            .relatedMdlTbl(relatedMdlTbl).build()).build());
                 }).peek(entry -> {
                     arrBtn[iIter.cur()] = entry.getKey();
                 })
@@ -100,7 +103,12 @@ public class MyListButtons extends JPanel {
             selectedBtn = cur;
             KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
             v.getTbl().performSetData();
-            if (prev != null) prev.setBackground(Color.LIGHT_GRAY);
+            if (prev != null) {
+                if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
+                    prev.setBackground(Color.LIGHT_GRAY);
+                } else prev.setBackground(Color.WHITE);
+            }
+
             setSelectedColorBtn(cur);
             rootPnlForTable.removeAll();
             rootPnlForTable.add(v.getTbl().getPnlTbl());
@@ -113,11 +121,24 @@ public class MyListButtons extends JPanel {
 
         @Override
         public void perform(TableSelectedRowsEvent event) {
-            int index = mapBtnForKeyViewUI.get(event.getBtn()).getIndex();
-            if (index < mapBtnForKeyViewUI.size() - 1) {
-                arrBtn[index + 1].setEnabled(true);
+            KeyForViewUI value = mapBtnForKeyViewUI.get(event.getBtn());
+            RelatedTblDataBase relatedMdlTbl = value.getTbl().getRelatedMdlTbl();
+            if (relatedMdlTbl == null) {
+                int index = value.getIndex();
+                if (index < mapBtnForKeyViewUI.size() - 1) {
+                    arrBtn[index + 1].setEnabled(true);
+                }
+            } else {
+                List<RelatedTblDataBase> childs = Objects.requireNonNull(relatedMdlTbl.getChild());
+                for (RelatedTblDataBase child : childs) {
+                    KeyForViewUI valueChild = mapBtnForKeyViewUI.values()
+                            .stream().filter(kv -> {
+                                return kv.getTbl().getClassTableView() == child.getClassMdlTbl();
+                            })
+                            .findFirst().orElseThrow();
+                    arrBtn[valueChild.getIndex()].setEnabled(true);
+                }
             }
-
         }
     }
 
@@ -132,37 +153,44 @@ public class MyListButtons extends JPanel {
     }
 
     public void deSelectInclude() {
-        List<JButton> btns = new ArrayList<>(Arrays.asList(arrBtn));
-        Collections.reverse(btns);
-        for (JButton btn : btns) {
-            KeyForViewUI value = mapBtnForKeyViewUI.get(btn);
-            if (btn != selectedBtn) {
-                btn.setEnabled(false);
-                btn.setBackground(Color.WHITE);
-                value.getTbl().getSelectionModel().clearSelection();
-            } else {
-                value.getTbl().getSelectionModel().clearSelection();
-                break;
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
+        RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
+        if (relatedTblMdl != null) {
+            for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
+                doDes(child);
             }
         }
+        valueSelected.getTbl().getSelectionModel().clearSelection();
     }
 
     public void deSelectExclude() {
-        List<JButton> btns = new ArrayList<>(Arrays.asList(arrBtn));
-        Collections.reverse(btns);
-        KeyForViewUI selectedValue = mapBtnForKeyViewUI.get(selectedBtn);
-        int selectedIndex = selectedValue.getIndex();
-        for (JButton btn : btns) {
-            KeyForViewUI value = mapBtnForKeyViewUI.get(btn);
-            if (btn != selectedBtn) {
-                if (value.getIndex() != selectedIndex + 1) {
-                    btn.setEnabled(false);
-                }
-                btn.setBackground(Color.WHITE);
-                value.getTbl().getSelectionModel().clearSelection();
-            } else {
-                break;
-            }
+
+    }
+
+    private void doDesExclude(RelatedTblDataBase relatedTblDataBase) {
+
+    }
+
+    private void doDes(RelatedTblDataBase relatedTblDataBase) {
+        KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
+                .stream().filter(kv -> {
+                    return kv.getTbl().getClassTableView() == relatedTblDataBase.getClassMdlTbl();
+                })
+                .findFirst().orElseThrow();
+        var root = rootValue.getTbl().getRelatedMdlTbl();
+
+        if (root == null) {
+            arrBtn[rootValue.getIndex()].setEnabled(false);
+            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+            rootValue.getTbl().getSelectionModel().clearSelection();
+            return;
+        }
+
+        for (RelatedTblDataBase child : root.getChild()) {
+            doDes(child);
+            arrBtn[rootValue.getIndex()].setEnabled(false);
+            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+            rootValue.getTbl().getSelectionModel().clearSelection();
         }
     }
 

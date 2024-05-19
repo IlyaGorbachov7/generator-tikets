@@ -11,6 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFa
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTblDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.TransmissionObject;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
@@ -241,6 +242,10 @@ public class DataBasePanel extends BasePanel {
                                         .clazzModelView(UniversityModelTbl.class)
                                         .supplierData(supplierDataList)
                                         .supplierCreate(supplierCreate)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(UniversityModelTbl.class)
+                                                .child(Arrays.asList(
+                                                        RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class).build()
+                                                )).build())
 //                                        .supplierUpdate(supplierUpdate)
 //                                        .supplierDelete(supplierDelete)
                                         .build(),
@@ -248,18 +253,32 @@ public class DataBasePanel extends BasePanel {
                                         .clazzModelView(FacultyModelTbl.class)
                                         .supplierData(supplierDataList)
                                         .supplierCreate(supplierCreate)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class)
+                                                .child(Arrays.asList(
+                                                        RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class).build(),
+                                                        RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build()
+                                                )).build())
 //                                        .supplierUpdate(supplierUpdate)
 //                                        .supplierDelete(supplierDelete)
                                         .build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DepartmentModelTbl.class)
                                         .supplierCreate(supplierCreate)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class)
+                                                .child(Arrays.asList(
+                                                        RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class).build(),
+                                                        RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build()
+                                                )).build())
 //                                        .supplierUpdate(supplierUpdate)
 //                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(SpecializationModelTbl.class)
                                         .supplierCreate(supplierCreate)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
+                                                .child(Arrays.asList(
+                                                        RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build()
+                                                )).build())
 //                                        .supplierUpdate(supplierUpdate)
 //                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
@@ -349,7 +368,6 @@ public class DataBasePanel extends BasePanel {
     }
 
     private final class HandlerSelectionRows implements TableSelectedRowsListener {
-
         @Override
         public void perform(TableSelectedRowsEvent event) {
             Object[] elemSelected = event.getSelectedItems();
@@ -370,7 +388,8 @@ public class DataBasePanel extends BasePanel {
                     inputSearchFieldsData.setDiscipline((DisciplineModelTbl) elemSelected[0]);
                 }
             } else System.out.println("Selected > 1 element rows");
-            myListButtons.deSelectExclude();
+
+            myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
         }
     }
 }

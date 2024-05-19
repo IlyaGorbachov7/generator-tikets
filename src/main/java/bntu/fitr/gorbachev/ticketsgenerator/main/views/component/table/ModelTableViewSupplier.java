@@ -12,6 +12,8 @@ public class ModelTableViewSupplier {
 
     private Class<?> clazzModelView;
 
+    private RelatedTblDataBase relatedMdlTbl;
+
     private Function<Object, List<?>> supplierData;
 
     private Function<Object, Object> supplierCreate;
