@@ -1,9 +1,17 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.TransmissionObject;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
@@ -98,7 +106,7 @@ public class DataBasePanel extends BasePanel {
             } else if (clazzModelView == DisciplineModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().disciplineMapper()
                         .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getDiscipline().getId()));
+                                .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getSpecialization().getId()));
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
                         .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
@@ -112,43 +120,45 @@ public class DataBasePanel extends BasePanel {
         };
 
         Function<Object, Object> supplierCreate = o -> {
-            Class<?> clazzModelView = (Class<?>) o;
+            TransmissionObject transmissionObject = (TransmissionObject) o;
+            Class<?> clazzModelView = transmissionObject.getClazzMdlTbl();
+            String value = (String) transmissionObject.getDataValue()[0];
             if (clazzModelView == UniversityModelTbl.class) {
 
                 return MapperViewFactoryImpl.getInstance().universityMapper()
                         .universityDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .universityService().create(MapperViewFactoryImpl.getInstance().universityMapper()
-                                        .universityModelTblToCreateDto(inputSearchFieldsData.getUniversity())));
+                                .universityService().create(UniversityCreateDto.builder().name(value)
+                                        .build()));
             } else if (clazzModelView == FacultyModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().facultyMapper()
                         .facultyDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .facultyService().createSmpl(MapperViewFactoryImpl.getInstance().facultyMapper()
-                                        .facultyMdlTblToCreateDto(inputSearchFieldsData.getFaculty())));
+                                .facultyService().createSmpl(FacultyCreateDto.builder().name(value)
+                                        .universityId(inputSearchFieldsData.getUniversity().getId()).build()));
             } else if (clazzModelView == DepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().departmentMapper()
                         .departmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .departmentService().createSmpl(MapperViewFactoryImpl.getInstance().departmentMapper()
-                                        .departmentMdlTblToCreateDto(inputSearchFieldsData.getDepartment())));
+                                .departmentService().createSmpl(DepartmentCreateDto.builder().name(value)
+                                        .facultyId(inputSearchFieldsData.getFaculty().getId()).build()));
             } else if (clazzModelView == SpecializationModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().specializationMapper()
                         .specializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .specializationService().createSmpl(MapperViewFactoryImpl.getInstance().specializationMapper()
-                                        .specializationMdlTblToCreateDto(inputSearchFieldsData.getSpecialization())));
+                                .specializationService().createSmpl(SpecializationCreateDto.builder().name(value)
+                                        .departmentId(inputSearchFieldsData.getDepartment().getId()).build()));
             } else if (clazzModelView == DisciplineModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().disciplineMapper()
                         .disciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().createSmpl(MapperViewFactoryImpl.getInstance().disciplineMapper()
-                                        .disciplineMdlTblToCreateDto(inputSearchFieldsData.getDiscipline())));
+                                .disciplineService().createSmpl(DisciplineCreateDto.builder().name(value)
+                                        .specializationId(inputSearchFieldsData.getSpecialization().getId()).build()));
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
                         .headDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .headDepartmentService().createSmpl(MapperViewFactoryImpl.getInstance().headDepartmentMapper()
-                                        .headDepartmentMdlTblToCreateDto(inputSearchFieldsData.getHeadDepartment())));
+                                .headDepartmentService().createSmpl(HeadDepartmentCreateDto.builder().name(value)
+                                        .departmentId(inputSearchFieldsData.getDepartment().getId()).build()));
             } else if (clazzModelView == TeacherModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().teacherMapper()
                         .teacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .teacherService().createSmpl(MapperViewFactoryImpl.getInstance().teacherMapper()
-                                        .teacherMdlTblToCreateDto(inputSearchFieldsData.getTeacher())));
+                                .teacherService().createSmpl(TeacherCreateDto.builder().name(value)
+                                        .facultyId(inputSearchFieldsData.getFaculty().getId()).build()));
             }
             return null;
         };
@@ -324,6 +334,16 @@ public class DataBasePanel extends BasePanel {
                 myListButtons.deSelectInclude();
                 myListButtons.deSelectInclude();
 
+            }
+            if (source == btnCreate) {
+                JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
+                        .get(myListButtons.getSelectedBtn())
+                        .getTbl();
+                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ", "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
+                if (value != null && !value.isBlank()) {
+                    tbl.createItem(value);
+                    tbl.performSetData();
+                }
             }
         }
     }

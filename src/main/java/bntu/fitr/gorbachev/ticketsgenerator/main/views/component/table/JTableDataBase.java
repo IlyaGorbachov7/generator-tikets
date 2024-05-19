@@ -24,16 +24,29 @@ public class JTableDataBase extends JTable {
 
     private final Function<Object, List<?>> supplierDataList;
 
+    private final Function<Object, Object> supplierCreate;
+
+    private final Function<Object, Object> supplierUpdate;
+
+    private final Function<Object, List<?>> supplierDelete;
+
     private final List<TableSelectedRowsListener> handlers;
 
     @Builder
-    public JTableDataBase(Class<?> clazz, JPanel p, JButton btn, Function<Object, List<?>> supplierDataList) {
-        super(new RealizeTableModel(clazz, supplierDataList), new RealizeTableColumnModel());
+    public JTableDataBase(Class<?> clazz, JPanel p, JButton btn, Function<Object, List<?>> supplierDataList,
+                          Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
+                          Function<Object, List<?>> supplierDelete) {
+        super(new RealizeTableModel(clazz, supplierDataList, supplierCreate, supplierUpdate, supplierDelete),
+                new RealizeTableColumnModel());
         setAutoCreateColumnsFromModel(true);
         this.classTableView = clazz;
         this.pnlTbl = p;
         this.btn = btn;
         this.supplierDataList = supplierDataList;
+        this.supplierCreate = supplierCreate;
+        this.supplierUpdate = supplierUpdate;
+        this.supplierDelete = supplierDelete;
+
         handlers = new ArrayList<>();
         combine();
         this.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
@@ -163,6 +176,10 @@ public class JTableDataBase extends JTable {
         createDefaultColumnsFromModel();
     }
 
+    public void createItem(String s) {
+        ((RealizeTableModel) dataModel).performCreateItem(s);
+    }
+
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
     }
 
@@ -172,14 +189,26 @@ public class JTableDataBase extends JTable {
 
         private final Function<Object, List<?>> supplierDataList;
 
+        private final Function<Object, Object> supplierCreate;
+
+        private final Function<Object, Object> supplierUpdate;
+
+        private final Function<Object, List<?>> supplierDelete;
+
+
         private String[] columnNames;
 
         @Getter
         private Object[][] data;
 
-        private RealizeTableModel(@NonNull Class<?> clazz, Function<Object, List<?>> supplier) {
+        private RealizeTableModel(@NonNull Class<?> clazz, Function<Object, List<?>> supplier,
+                                  Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
+                                  Function<Object, List<?>> supplierDelete) {
             classTableView = clazz;
             supplierDataList = supplier;
+            this.supplierCreate = supplierCreate;
+            this.supplierUpdate = supplierUpdate;
+            this.supplierDelete = supplierDelete;
 
             columnNames = EMPTY;
             data = new Object[0][0];
@@ -190,6 +219,11 @@ public class JTableDataBase extends JTable {
             if (columnNames == EMPTY) {
                 columnNames = ReflectionTableHelper.extractColumnName(classTableView);
             }
+        }
+
+        public void performCreateItem(String value) {
+            supplierCreate.apply(TransmissionObject.builder().clazzMdlTbl(classTableView)
+                    .dataValue(new Object[]{value}).build());
         }
         // here don't should be such
 

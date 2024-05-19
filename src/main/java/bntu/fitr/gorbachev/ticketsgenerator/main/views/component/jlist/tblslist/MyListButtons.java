@@ -46,13 +46,20 @@ public class MyListButtons extends JPanel {
                     JButton btn = new JButton(ReflectionListDataBaseHelper.extractTableViewName(modelTableViewSupplier.getClazzModelView()));
                     Class<?> clazzTblView = modelTableViewSupplier.getClazzModelView();
                     Function<Object, List<?>> supplierDataList = modelTableViewSupplier.getSupplierData();
+                    Function<Object, Object> supplierCreate = modelTableViewSupplier.getSupplierCreate();
+                    Function<Object, Object> supplierUpdate = modelTableViewSupplier.getSupplierUpdate();
+                    Function<Object, List<?>> supplierDelete = modelTableViewSupplier.getSupplierDelete();
+
                     return Map.entry(btn, // key
                             KeyForViewUI.builder() // value
                                     .index(iIter.cur()).btn(btn)
                                     .tbl(JTableDataBase.builder()
                                             .clazz(clazzTblView).p(p)
                                             .btn(btn)
-                                            .supplierDataList(supplierDataList).build()).build());
+                                            .supplierDataList(supplierDataList)
+                                            .supplierCreate(supplierCreate)
+                                            .supplierUpdate(supplierUpdate)
+                                            .supplierDelete(supplierDelete).build()).build());
                 }).peek(entry -> {
                     arrBtn[iIter.cur()] = entry.getKey();
                 })
@@ -158,6 +165,7 @@ public class MyListButtons extends JPanel {
             }
         }
     }
+
 
     @Builder
     private static final class IntIterator {
