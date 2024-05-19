@@ -32,6 +32,13 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public DepartmentSimpleDto createSmpl(DepartmentCreateDto departmentCreateDto) throws ServiceException {
+        Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
+        departmentRepo.create(entity);
+        return departmentMapper.departmentToDepartmentSimpleDto(entity);
+    }
+
+    @Override
     public DepartmentDto update(DepartmentDto departmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);

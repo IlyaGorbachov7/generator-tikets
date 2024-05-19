@@ -31,6 +31,13 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public FacultySimpleDto createSmpl(FacultyCreateDto facultyCreateDto) throws ServiceException {
+        Faculty faculty = facultyMapper.facultyDtoToFaculty(facultyCreateDto);
+        facultyRepo.create(faculty);
+        return facultyMapper.facultyToFacultySmplDto(faculty);
+    }
+
+    @Override
     public FacultyDto update(FacultyDto facultyDto) throws ServiceException {
         return facultyMapper.facultyToFacultyDto(
                 executor.wrapTransactionalEntitySingle(() -> {

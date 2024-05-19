@@ -110,41 +110,50 @@ public class DataBasePanel extends BasePanel {
             }
             return null;
         };
-        Function<Object, List<?>> supplierCreate = o -> {
+
+        Function<Object, Object> supplierCreate = o -> {
             Class<?> clazzModelView = (Class<?>) o;
             if (clazzModelView == UniversityModelTbl.class) {
 
                 return MapperViewFactoryImpl.getInstance().universityMapper()
-                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .universityService().create(MapperViewFactoryImpl.getInstance().universityMapper().));
+                        .universityDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .universityService().create(MapperViewFactoryImpl.getInstance().universityMapper()
+                                        .universityModelTblToCreateDto(inputSearchFieldsData.getUniversity())));
             } else if (clazzModelView == FacultyModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().facultyMapper()
-                        .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .facultyService().create());
+                        .facultyDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .facultyService().createSmpl(MapperViewFactoryImpl.getInstance().facultyMapper()
+                                        .facultyMdlTblToCreateDto(inputSearchFieldsData.getFaculty())));
             } else if (clazzModelView == DepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().departmentMapper()
-                        .listDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .departmentService().create());
+                        .departmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .departmentService().createSmpl(MapperViewFactoryImpl.getInstance().departmentMapper()
+                                        .departmentMdlTblToCreateDto(inputSearchFieldsData.getDepartment())));
             } else if (clazzModelView == SpecializationModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().specializationMapper()
-                        .listSpecializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .specializationService().create());
+                        .specializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .specializationService().createSmpl(MapperViewFactoryImpl.getInstance().specializationMapper()
+                                        .specializationMdlTblToCreateDto(inputSearchFieldsData.getSpecialization())));
             } else if (clazzModelView == DisciplineModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().disciplineMapper()
-                        .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().create());
+                        .disciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .disciplineService().createSmpl(MapperViewFactoryImpl.getInstance().disciplineMapper()
+                                        .disciplineMdlTblToCreateDto(inputSearchFieldsData.getDiscipline())));
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
-                        .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .headDepartmentService().create());
+                        .headDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .headDepartmentService().createSmpl(MapperViewFactoryImpl.getInstance().headDepartmentMapper()
+                                        .headDepartmentMdlTblToCreateDto(inputSearchFieldsData.getHeadDepartment())));
             } else if (clazzModelView == TeacherModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().teacherMapper()
-                        .listTeacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .teacherService().create());
+                        .teacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
+                                .teacherService().createSmpl(MapperViewFactoryImpl.getInstance().teacherMapper()
+                                        .teacherMdlTblToCreateDto(inputSearchFieldsData.getTeacher())));
             }
             return null;
         };
 
+/*
         Function<Object, List<?>> supplierUpdate = o -> {
             Class<?> clazzModelView = (Class<?>) o;
             if (clazzModelView == UniversityModelTbl.class) {
@@ -179,6 +188,8 @@ public class DataBasePanel extends BasePanel {
             return null;
         };
 
+*/
+/*
         Function<Object, List<?>> supplierDelete = o -> {
             Class<?> clazzModelView = (Class<?>) o;
             if (clazzModelView == UniversityModelTbl.class) {
@@ -212,6 +223,7 @@ public class DataBasePanel extends BasePanel {
             }
             return null;
         };
+*/
 
         myListButtons = MyListButtons.builder()
                 .modelTableViewSuppliers(Arrays.asList(
@@ -219,45 +231,45 @@ public class DataBasePanel extends BasePanel {
                                         .clazzModelView(UniversityModelTbl.class)
                                         .supplierData(supplierDataList)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(FacultyModelTbl.class)
                                         .supplierData(supplierDataList)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DepartmentModelTbl.class)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(SpecializationModelTbl.class)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DisciplineModelTbl.class)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(HeadDepartmentModelTbl.class)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(TeacherModelTbl.class)
                                         .supplierCreate(supplierCreate)
-                                        .supplierUpdate(supplierUpdate)
-                                        .supplierDelete(supplierDelete)
+//                                        .supplierUpdate(supplierUpdate)
+//                                        .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build())
                         .toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();

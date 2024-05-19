@@ -13,6 +13,8 @@ public interface FacultyService {
 
     FacultyDto create(FacultyCreateDto facultyCreateDto) throws ServiceException;
 
+    FacultySimpleDto createSmpl(FacultyCreateDto facultyCreateDto) throws ServiceException;
+
     FacultyDto update(FacultyDto facultyDto) throws ServiceException;
 
     void delete(FacultyDto facultyDto) throws ServiceException;

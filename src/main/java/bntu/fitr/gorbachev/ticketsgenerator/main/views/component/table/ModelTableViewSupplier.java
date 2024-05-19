@@ -14,9 +14,9 @@ public class ModelTableViewSupplier {
 
     private Function<Object, List<?>> supplierData;
 
-    private Function<Object, List<?>> supplierCreate;
+    private Function<Object, Object> supplierCreate;
 
-    private Function<Object, List<?>> supplierUpdate;
+    private Function<Object, Object> supplierUpdate;
 
     private Function<Object, List<?>> supplierDelete;
 }

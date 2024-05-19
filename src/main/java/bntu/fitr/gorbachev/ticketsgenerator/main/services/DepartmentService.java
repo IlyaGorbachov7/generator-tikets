@@ -13,6 +13,8 @@ public interface DepartmentService {
 
     DepartmentDto create(DepartmentCreateDto departmentCreateDto) throws ServiceException;
 
+    DepartmentSimpleDto createSmpl(DepartmentCreateDto departmentCreateDto) throws ServiceException;
+
     DepartmentDto update(DepartmentDto departmentDto) throws ServiceException;
 
     void delete(DepartmentDto facultyDto) throws ServiceException;

@@ -35,6 +35,15 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public DisciplineSimpledDto createSmpl(DisciplineCreateDto disciplineCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Discipline entity = disciplineMapper.disciplineDtoToEntity(disciplineCreateDto);
+            disciplineRepo.create(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Discipline target = disciplineRepo.findById(disciplineDto.getId())

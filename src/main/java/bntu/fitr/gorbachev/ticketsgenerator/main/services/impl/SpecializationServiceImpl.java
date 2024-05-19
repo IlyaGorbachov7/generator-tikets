@@ -31,6 +31,15 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public SpecializationSimpleDto createSmpl(SpecializationCreateDto specializationCreateDto) {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Specialization entity = specializationMapper.specializationDtoToEntity(specializationCreateDto);
+            specializationRepo.create(entity);
+            return specializationMapper.specializationToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public SpecializationDto update(SpecializationDto specializationDto) {
         return executor.wrapTransactionalEntitySingle(() -> {
             Specialization entityTarget = specializationRepo.findById(specializationDto.getId())

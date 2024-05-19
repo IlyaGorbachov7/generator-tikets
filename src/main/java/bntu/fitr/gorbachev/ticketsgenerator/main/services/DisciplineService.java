@@ -13,6 +13,8 @@ public interface DisciplineService {
 
     DisciplineDto create(DisciplineCreateDto disciplineCreateDto) throws ServiceException;
 
+    DisciplineSimpledDto createSmpl(DisciplineCreateDto disciplineCreateDto) throws ServiceException;
+
     DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException;
 
     void delete(DisciplineDto disciplineDto) throws ServiceException;

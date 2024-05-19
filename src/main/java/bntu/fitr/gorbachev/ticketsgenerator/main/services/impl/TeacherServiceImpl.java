@@ -35,6 +35,15 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public TeacherSimpleDto createSmpl(TeacherCreateDto teacherCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Teacher entity = teacherMapper.teacherDtoToEntity(teacherCreateDto);
+            teacherRepo.create(entity);
+            return teacherMapper.teacherToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public TeacherDto update(TeacherDto teacherDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Teacher target = teacherRepo.findById(teacherDto.getId()).orElseThrow(TeacherNoFoundByIdException::new);

@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface TeacherService {
     TeacherDto create(TeacherCreateDto teacherCreateDto) throws ServiceException;
 
+    TeacherSimpleDto createSmpl(TeacherCreateDto teacherCreateDto) throws ServiceException;
+
     TeacherDto update(TeacherDto teacherDto) throws ServiceException;
 
     void delete(TeacherDto teacherDto) throws ServiceException;

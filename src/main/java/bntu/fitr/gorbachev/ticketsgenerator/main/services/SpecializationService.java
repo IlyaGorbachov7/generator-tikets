@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface SpecializationService {
     SpecializationDto create(SpecializationCreateDto specializationCreateDto);
 
+    SpecializationSimpleDto createSmpl(SpecializationCreateDto specializationCreateDto);
+
     SpecializationDto update(SpecializationDto specializationDto);
 
     void delete(SpecializationDto specializationDto);

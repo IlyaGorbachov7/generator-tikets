@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface HeadDepartmentService {
     HeadDepartmentDto create(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException;
 
+    HeadDepartmentSimpleDto createSmpl(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException;
+
     HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException;
 
     void delete(HeadDepartmentDto headDepartmentDto) throws ServiceException;

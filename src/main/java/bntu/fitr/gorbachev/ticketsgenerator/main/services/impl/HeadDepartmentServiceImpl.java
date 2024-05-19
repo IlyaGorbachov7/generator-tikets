@@ -35,6 +35,15 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public HeadDepartmentSimpleDto createSmpl(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentMapper.headDepartmentDtoToEntity(headDepartmentCreateDto);
+            headDepartmentRepo.create(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             HeadDepartment target = headDepartmentRepo.findById(headDepartmentDto.getId())
