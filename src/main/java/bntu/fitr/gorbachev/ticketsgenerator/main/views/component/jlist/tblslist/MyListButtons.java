@@ -119,9 +119,15 @@ public class MyListButtons extends JPanel {
 
     private class HandlerSelectionRowsListener implements TableSelectedRowsListener {
 
+        /**
+         * This is handler listener was for set enable list of the button.
+         * However, now it is function performed from {@link  #deSelectExclude()}.
+         * It means that method performs same logic, that in the handler.
+         * I don't remove this code, that leave logic in the future with goal using
+         */
         @Override
         public void perform(TableSelectedRowsEvent event) {
-            KeyForViewUI value = mapBtnForKeyViewUI.get(event.getBtn());
+            /*KeyForViewUI value = mapBtnForKeyViewUI.get(event.getBtn());
             RelatedTblDataBase relatedMdlTbl = value.getTbl().getRelatedMdlTbl();
             if (relatedMdlTbl == null) {
                 int index = value.getIndex();
@@ -138,7 +144,7 @@ public class MyListButtons extends JPanel {
                             .findFirst().orElseThrow();
                     arrBtn[valueChild.getIndex()].setEnabled(true);
                 }
-            }
+            }*/
         }
     }
 
@@ -164,11 +170,19 @@ public class MyListButtons extends JPanel {
     }
 
     public void deSelectExclude() {
-
-    }
-
-    private void doDesExclude(RelatedTblDataBase relatedTblDataBase) {
-
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
+        RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
+        if (relatedTblMdl != null) {
+            for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
+                doDes(child);
+                KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
+                        .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
+                        .findFirst().orElseThrow();
+                arrBtn[rootValue.getIndex()].setEnabled(true);
+                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+        }
     }
 
     private void doDes(RelatedTblDataBase relatedTblDataBase) {
