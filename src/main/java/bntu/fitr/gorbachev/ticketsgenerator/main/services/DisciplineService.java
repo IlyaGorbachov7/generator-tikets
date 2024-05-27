@@ -19,6 +19,10 @@ public interface DisciplineService {
 
     void delete(DisciplineDto disciplineDto) throws ServiceException;
 
+    void deleteSmpl(DisciplineSimpledDto dto) throws ServiceException;
+
+    void deleteSmpl(List<DisciplineSimpledDto> dto) throws ServiceException;
+
     Optional<DisciplineDto> getAny() throws ServiceException;
 
     Optional<DisciplineSimpledDto> getSmplAny() throws ServiceException;

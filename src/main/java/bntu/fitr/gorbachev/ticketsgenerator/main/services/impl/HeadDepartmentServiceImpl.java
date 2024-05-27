@@ -64,6 +64,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> headDepartmentRepo.delete(
+                headDepartmentRepo.findById(dto.getId()).orElseThrow(HeadDepartmentNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<HeadDepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<HeadDepartmentDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToDto));
@@ -71,7 +82,7 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public Optional<HeadDepartmentSimpleDto> getSmplAny() throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
@@ -83,13 +94,13 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public Optional<HeadDepartmentDto> getByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToDto));
     }
 
     @Override
     public Optional<HeadDepartmentSimpleDto> getSmplByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 

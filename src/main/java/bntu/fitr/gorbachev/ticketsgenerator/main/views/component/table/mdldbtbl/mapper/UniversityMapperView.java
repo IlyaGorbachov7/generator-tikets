@@ -12,6 +12,10 @@ public interface UniversityMapperView {
 
     UniversityModelTbl universityDtoToModelTbl(UniversityDTO universityDTO);
 
+    UniversityDTO universityMdlTblToDto(UniversityModelTbl universityModelTbl);
+
+    List<UniversityDTO> listUniversityMdlTblToDto(List<UniversityModelTbl> list);
+
     UniversityCreateDto universityModelTblToCreateDto(UniversityModelTbl universityModelTbl);
 
     List<UniversityModelTbl> listUniversityDtoToModelTbl(List<UniversityDTO> list);

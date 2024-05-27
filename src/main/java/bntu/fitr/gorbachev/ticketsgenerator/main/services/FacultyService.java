@@ -19,6 +19,10 @@ public interface FacultyService {
 
     void delete(FacultyDto facultyDto) throws ServiceException;
 
+    void deleteSmpl(FacultySimpleDto facultySimpleDto) throws ServiceException;
+
+    void deleteSmpl(List<FacultySimpleDto> list) throws ServiceException;
+
     Optional<FacultySimpleDto> getSmplByName(String name) throws ServiceException;
 
     Optional<FacultyDto> getByName(String name) throws ServiceException;

@@ -59,6 +59,21 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public void deleteSmpl(FacultySimpleDto facultySimpleDto) throws ServiceException {
+        executor.wrapTransactional(()->{
+            facultyRepo.delete(facultyRepo.findById(facultySimpleDto.getId())
+                    .orElseThrow(FacultyNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<FacultySimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(()->{
+            list.forEach(this::deleteSmpl);
+        });
+    }
+
+    @Override
     public Optional<FacultySimpleDto> getSmplByName(String name) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 facultyRepo.findByName(name).map(facultyMapper::facultyToFacultySmplDto));

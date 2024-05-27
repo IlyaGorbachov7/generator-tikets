@@ -15,4 +15,8 @@ public interface FacultyMapperView {
     FacultyCreateDto facultyMdlTblToCreateDto(FacultyModelTbl facultyDto);
 
     List<FacultyModelTbl> listFacultyDtoDtoModelTbl(List<FacultySimpleDto> list);
+
+    FacultySimpleDto facultyMdlTblToSmpl(FacultyModelTbl facultyModelTbl);
+
+    List<FacultySimpleDto> listFacultyMdlTblToSmpl(List<FacultyModelTbl> list);
 }

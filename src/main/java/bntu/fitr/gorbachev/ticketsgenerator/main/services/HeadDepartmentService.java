@@ -18,6 +18,10 @@ public interface HeadDepartmentService {
 
     void delete(HeadDepartmentDto headDepartmentDto) throws ServiceException;
 
+    void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException;
+
+    void deleteSmpl(List<HeadDepartmentSimpleDto> list) throws ServiceException;
+
     Optional<HeadDepartmentDto> getAny() throws ServiceException;
 
     Optional<HeadDepartmentSimpleDto> getSmplAny() throws ServiceException;

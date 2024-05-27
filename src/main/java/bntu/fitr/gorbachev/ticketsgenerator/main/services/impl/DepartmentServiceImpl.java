@@ -56,6 +56,19 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public void deleteSmpl(DepartmentSimpleDto facultyDto) throws ServiceException {
+        executor.wrapTransactional(() -> {
+            departmentRepo.delete(departmentRepo.findById(facultyDto.getId())
+                    .orElseThrow(DepartmentNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<DepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<DepartmentDto> getByName(String name) throws ServiceException {
         // Why we were give operation : findByName inside wrap transaction operation?
         // Answer: When mapper used, mapper invoke method: getFaculty of the database object, this method is LAZY initialization

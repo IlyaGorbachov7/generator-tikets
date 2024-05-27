@@ -60,6 +60,19 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public void deleteSmpl(SpecializationSimpleDto elem) {
+        executor.wrapTransactional(()->{
+            specializationRepo.delete(specializationRepo.findById(elem.getId())
+                    .orElseThrow(SpecializationNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<SpecializationSimpleDto> list) {
+        executor.wrapTransactional(()-> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<SpecializationDto> getAny() {
         return executor.wrapTransactionalEntitySingle(() ->
                 specializationRepo.findAny().map(specializationMapper::specializationToDto));

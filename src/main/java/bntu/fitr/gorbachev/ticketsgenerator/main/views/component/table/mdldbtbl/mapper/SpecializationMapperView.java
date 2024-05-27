@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.SpecializationModelTbl;
 import org.mapstruct.Mapper;
@@ -15,4 +16,8 @@ public interface SpecializationMapperView {
     SpecializationCreateDto specializationMdlTblToCreateDto(SpecializationModelTbl dto);
 
     List<SpecializationModelTbl> listSpecializationDtoToModelTbl(List<SpecializationSimpleDto> list);
+
+    SpecializationSimpleDto specializationMdlTblToSmpl(SpecializationModelTbl elem);
+
+    List<SpecializationSimpleDto> listSpecializationMdlTblToSmpl(List<SpecializationModelTbl> toList);
 }

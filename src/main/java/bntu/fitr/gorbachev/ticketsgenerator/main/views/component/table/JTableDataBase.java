@@ -84,7 +84,8 @@ public class JTableDataBase extends JTable {
                 if (iter < 2) {// iterator for stoping invoking fireSelectedRows 2 раза
                     fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
                             .classTableView(classTableView)
-                            .selectedItems(getSelectedObjects(classTableView))
+                            .selectedItems(((RealizeTableModel) dataModel)
+                                    .getSelectedObjects(classTableView, getSelectedRows()))
                             .btn(btn).build());
                 } else iter = 0;
             }
@@ -158,19 +159,6 @@ public class JTableDataBase extends JTable {
         ;
     }
 
-    private Object[] getSelectedObjects(Class<?> clazz) {
-        int[] indexesSelectedRows = getSelectedRows();
-        Object[][] data = new Object[indexesSelectedRows.length][dataModel.getColumnCount()];
-        for (int i = 0; i < data.length; i++) {
-            for (int indexSelectedRow : indexesSelectedRows) {
-                for (int j = 0; j < data[i].length; j++) {
-                    data[i][j] = dataModel.getValueAt(indexSelectedRow, j);
-                }
-            }
-        }
-        return ReflectionTableHelper.convertDataRowsToDataClass(data, clazz);
-    }
-
     public void performSetData() {
         ((RealizeTableModel) dataModel).performSetData();
         createDefaultColumnsFromModel();
@@ -178,6 +166,10 @@ public class JTableDataBase extends JTable {
 
     public void createItem(String s) {
         ((RealizeTableModel) dataModel).performCreateItem(s);
+    }
+
+    public void deleteItem() {
+        ((RealizeTableModel) dataModel).deleteItems(getSelectedRows());
     }
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
@@ -226,7 +218,25 @@ public class JTableDataBase extends JTable {
             supplierCreate.apply(TransmissionObject.builder().clazzMdlTbl(classTableView)
                     .dataValue(new Object[]{value}).build());
         }
+
+        public void deleteItems(int[] selectedIndexes) {
+            Object[] selectedObjects = getSelectedObjects(classTableView, selectedIndexes);
+            supplierDelete.apply(TransmissionObject.builder().clazzMdlTbl(classTableView)
+                    .dataValue(selectedObjects).build());
+        }
+
         // here don't should be such
+        private Object[] getSelectedObjects(Class<?> clazz, int[] indexesSelectedRows) {
+            Object[][] data = new Object[indexesSelectedRows.length][getColumnCount()];
+            for (int i = 0; i < data.length; i++) {
+                for (int indexSelectedRow : indexesSelectedRows) {
+                    for (int j = 0; j < data[i].length; j++) {
+                        data[i][j] = getValueAt(indexSelectedRow, j);
+                    }
+                }
+            }
+            return ReflectionTableHelper.convertDataRowsToDataClass(data, clazz);
+        }
 
         @Override
         public int getRowCount() {
@@ -247,7 +257,6 @@ public class JTableDataBase extends JTable {
         public Object getValueAt(int rowIndex, int columnIndex) {
             return data[rowIndex][columnIndex];
         }
-
     }
 
     private static class RealizedTableColumn extends TableColumn {

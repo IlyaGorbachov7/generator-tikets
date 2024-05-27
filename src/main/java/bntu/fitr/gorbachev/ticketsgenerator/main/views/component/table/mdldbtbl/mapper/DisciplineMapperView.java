@@ -15,4 +15,8 @@ public interface DisciplineMapperView {
     DisciplineCreateDto disciplineMdlTblToCreateDto(DisciplineModelTbl disciplineModelTbl);
 
     List<DisciplineModelTbl> listDisciplineDtoToModelTbl(List<DisciplineSimpledDto> list);
+
+    DisciplineSimpledDto disciplineMdlTblToSmpl(DisciplineModelTbl dto);
+
+    List<DisciplineSimpledDto> listDisciplineMdlTblToSmpl(List<DisciplineModelTbl> toList);
 }

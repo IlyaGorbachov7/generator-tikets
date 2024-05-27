@@ -15,4 +15,8 @@ public interface DepartmentMapperView {
     DepartmentCreateDto departmentMdlTblToCreateDto(DepartmentModelTbl departmentModelTbl);
 
     List<DepartmentModelTbl> listDepartmentDtoToModelTbl(List<DepartmentSimpleDto> list);
+
+    DepartmentSimpleDto departmentMdlTblToSmpl(DepartmentModelTbl elem);
+
+    List<DepartmentSimpleDto> listDepartmentMdlTblToSmpl(List<DepartmentModelTbl> toList);
 }

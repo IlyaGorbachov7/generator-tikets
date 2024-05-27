@@ -17,6 +17,10 @@ public interface SpecializationService {
 
     void delete(SpecializationDto specializationDto);
 
+    void deleteSmpl(SpecializationSimpleDto elem);
+
+    void deleteSmpl(List<SpecializationSimpleDto> list);
+
     Optional<SpecializationDto> getAny();
 
     Optional<SpecializationSimpleDto> getSmplAny();

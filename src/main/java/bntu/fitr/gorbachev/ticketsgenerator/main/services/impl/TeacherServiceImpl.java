@@ -62,6 +62,17 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public void deleteSmpl(TeacherSimpleDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> teacherRepo.delete(teacherRepo.findById(dto.getId())
+                .orElseThrow(TeacherNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<TeacherSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(()-> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<TeacherDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 teacherRepo.findAny().map(teacherMapper::teacherToDto));

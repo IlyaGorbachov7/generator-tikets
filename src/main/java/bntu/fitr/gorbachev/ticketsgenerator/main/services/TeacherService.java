@@ -18,6 +18,10 @@ public interface TeacherService {
 
     void delete(TeacherDto teacherDto) throws ServiceException;
 
+    void deleteSmpl(TeacherSimpleDto dto) throws ServiceException;
+
+    void deleteSmpl(List<TeacherSimpleDto> list) throws ServiceException;
+
     Optional<TeacherDto> getAny() throws ServiceException;
 
     Optional<TeacherSimpleDto> getSmplAny() throws ServiceException;
@@ -26,7 +30,7 @@ public interface TeacherService {
 
     Optional<TeacherDto> getByName(String name) throws ServiceException;
 
-    Optional<TeacherSimpleDto> getSmplByName(String name) throws  ServiceException;
+    Optional<TeacherSimpleDto> getSmplByName(String name) throws ServiceException;
 
     List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException;
 

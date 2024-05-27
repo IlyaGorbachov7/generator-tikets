@@ -16,4 +16,8 @@ public interface HeadDepartmentMapperView {
     HeadDepartmentCreateDto headDepartmentMdlTblToCreateDto(HeadDepartmentModelTbl dto);
 
     List<HeadDepartmentModelTbl> listHeadDepartmentDtoModelTbl(List<HeadDepartmentSimpleDto> list);
+
+    HeadDepartmentSimpleDto headDepartmentMdlTblToSmpl(HeadDepartmentModelTbl dt);
+
+    List<HeadDepartmentSimpleDto> listHeadDepartmentMdlTblToSmpl(List<HeadDepartmentModelTbl> toList);
 }
