@@ -3,9 +3,13 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ReflectionTableHelper;
+import com.formdev.flatlaf.ui.FlatBorder;
 import lombok.*;
+import org.icepdf.core.pobjects.annotations.BorderEffect;
+import org.icepdf.core.pobjects.annotations.BorderStyle;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
@@ -101,7 +105,7 @@ public class JTableDataBase extends JTable {
         ReflectionTableHelper.checkRuntimeMistakes(classTableView);
 
         this.setRowMargin(1);
-        this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        this.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         this.setGridColor(new Color(78, 157, 231));
         this.setShowGrid(true);
         this.getTableHeader().setReorderingAllowed(false);
@@ -228,12 +232,12 @@ public class JTableDataBase extends JTable {
         // here don't should be such
         private Object[] getSelectedObjects(Class<?> clazz, int[] indexesSelectedRows) {
             Object[][] data = new Object[indexesSelectedRows.length][getColumnCount()];
-            for (int i = 0; i < data.length; i++) {
-                for (int indexSelectedRow : indexesSelectedRows) {
-                    for (int j = 0; j < data[i].length; j++) {
-                        data[i][j] = getValueAt(indexSelectedRow, j);
-                    }
+            int i = 0;
+            for (int indexSelectedRow : indexesSelectedRows) {
+                for (int j = 0; j < data[i].length; j++) {
+                    data[i][j] = getValueAt(indexSelectedRow, j);
                 }
+                i++;
             }
             return ReflectionTableHelper.convertDataRowsToDataClass(data, clazz);
         }

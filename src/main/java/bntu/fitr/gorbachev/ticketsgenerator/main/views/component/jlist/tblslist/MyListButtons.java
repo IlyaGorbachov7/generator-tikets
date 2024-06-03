@@ -169,6 +169,7 @@ public class MyListButtons extends JPanel {
         valueSelected.getTbl().getSelectionModel().clearSelection();
     }
 
+
     public void deSelectExclude() {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
@@ -178,7 +179,27 @@ public class MyListButtons extends JPanel {
                 KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
-                arrBtn[rootValue.getIndex()].setEnabled(true);
+                arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
+                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+        }
+    }
+
+    /**
+     * This method same #deSelectExecute. However, this method used for setEnable(false) for
+     * all related buttons, then selected more two items in table
+     */
+    public void deEnabledExclude() {
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
+        RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
+        if (relatedTblMdl != null) {
+            for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
+                doDes(child);
+                KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
+                        .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
+                        .findFirst().orElseThrow();
+                arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
                 arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
                 rootValue.getTbl().getSelectionModel().clearSelection();
             }
@@ -207,6 +228,7 @@ public class MyListButtons extends JPanel {
             rootValue.getTbl().getSelectionModel().clearSelection();
         }
     }
+
 
 
     @Builder

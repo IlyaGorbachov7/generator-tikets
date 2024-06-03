@@ -9,10 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreate
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTblDataBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.TransmissionObject;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.*;
@@ -27,7 +24,9 @@ import java.awt.event.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -375,27 +374,61 @@ public class DataBasePanel extends BasePanel {
                 //  обязательно 2 раза нужно вызвать. Я не заню почему не работает если вызвать только один раз
                 myListButtons.deSelectInclude();
                 myListButtons.deSelectInclude();
-
             }
             if (source == btnCreate) {
                 JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
                         .get(myListButtons.getSelectedBtn())
                         .getTbl();
-                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ", "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
+                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ",
+                        "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
                     tbl.performSetData();
                 }
             } else if (source == btnDelete) {
-                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?", "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
-                    JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
-                            .get(myListButtons.getSelectedBtn())
-                            .getTbl();
-                    tbl.deleteItem();
-                    tbl.performSetData();
-                    myListButtons.deSelectInclude();
-                    myListButtons.deSelectInclude();
+                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?",
+                        "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+                    CompletableFuture.runAsync(() -> {
+                        JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
+                                .get(myListButtons.getSelectedBtn())
+                                .getTbl();
+                        tbl.deleteItem();
+                        tbl.performSetData();
+                        myListButtons.deSelectInclude();
+                        myListButtons.deSelectInclude();
+                        setEnableCRUDbtn(true, true, true);
+                    });
                 }
+            } else if (source == btnUpdate) {
+                Supplier<JPanel> pnlSupplier = () -> {
+                    KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
+                    KeyForViewUI subSelectedTblView = myListButtons.getMapBtnForKeyViewUI()
+                            .get(myListButtons.getArrBtn()[selectedTblView.getIndex() >= 0 ? selectedTblView.getIndex() - 1 : 0]);
+                    SpringLayout springLayout = new SpringLayout();
+                    JPanel rootPnl = new JPanel(springLayout);
+
+                    JLabel lblDep = null;
+                    JComboBox<String> comboBox = null;
+                    if (subSelectedTblView != selectedTblView) {
+                        lblDep = new JLabel(subSelectedTblView.getBtn().getText());
+                        comboBox = new JComboBox<>();
+                    }
+                    JLabel lblCur = new JLabel(selectedTblView.getBtn().getText());
+                    JTextField textField = new JTextField("value from jtable");
+                    if (subSelectedTblView != selectedTblView) {
+                        rootPnl.add(lblDep);
+                        rootPnl.add(comboBox);
+                    }
+                    rootPnl.add(lblCur);
+                    rootPnl.add(textField);
+
+                    springLayout.putConstraint(SpringLayout.WEST, lblDep, 10, SpringLayout.NORTH, comboBox);
+                    springLayout.putConstraint(SpringLayout.NORTH, lblCur, 10, SpringLayout.SOUTH, lblDep);
+                    springLayout.putConstraint(SpringLayout.WEST, lblCur, 10, SpringLayout.NORTH, textField);
+                    springLayout.putConstraint(SpringLayout.NORTH, textField, 10, SpringLayout.SOUTH, comboBox);
+                    return rootPnl;
+                };
+                JOptionPane.showConfirmDialog(DataBasePanel.this, pnlSupplier.get(), "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
             }
         }
     }
@@ -411,6 +444,7 @@ public class DataBasePanel extends BasePanel {
         public void perform(TableSelectedRowsEvent event) {
             Object[] elemSelected = event.getSelectedItems();
             if (elemSelected.length == 1) {
+                setEnableCRUDbtn(true, true, true);
                 if (event.getClassTableView() == UniversityModelTbl.class) {
                     inputSearchFieldsData.setUniversity((UniversityModelTbl) elemSelected[0]);
                 } else if (event.getClassTableView() == FacultyModelTbl.class) {
@@ -426,9 +460,12 @@ public class DataBasePanel extends BasePanel {
                 } else if (event.getClassTableView() == DisciplineModelTbl.class) {
                     inputSearchFieldsData.setDiscipline((DisciplineModelTbl) elemSelected[0]);
                 }
-            } else System.out.println("Selected > 1 element rows");
-
-            myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
+                myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
+            } else {
+                System.out.println("Selected > 1 element rows");
+                setEnableCRUDbtn(true, true, false);
+                myListButtons.deEnabledExclude();
+            }
         }
     }
 }
