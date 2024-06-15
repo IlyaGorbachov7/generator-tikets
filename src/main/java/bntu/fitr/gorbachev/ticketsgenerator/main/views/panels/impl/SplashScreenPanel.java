@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
@@ -226,10 +227,11 @@ public class SplashScreenPanel extends BasePanel {
         @Override
         public void run() {
             System.out.println("Start init Main Window...<");
-            PoolConnection.Builder.build();
-            mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
-            threadProcess.interrupt();
-            System.out.println("mainWindow created is success");
+            CompletableFuture.runAsync(PoolConnection.Builder::build);
+            CompletableFuture.runAsync(()->{
+                mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
+                threadProcess.interrupt();
+            });
         }
     }
 

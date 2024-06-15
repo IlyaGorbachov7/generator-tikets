@@ -3,17 +3,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ReflectionTableHelper;
-import com.formdev.flatlaf.ui.FlatBorder;
 import lombok.*;
-import org.icepdf.core.pobjects.annotations.BorderEffect;
-import org.icepdf.core.pobjects.annotations.BorderStyle;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.beans.PropertyChangeEvent;
 import java.util.*;
 import java.util.List;
 import java.util.function.Function;
@@ -86,6 +81,7 @@ public class JTableDataBase extends JTable {
             public void valueChanged(ListSelectionEvent e) {
                 ++iter;
                 if (iter < 2) {// iterator for stoping invoking fireSelectedRows 2 раза
+
                     fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
                             .classTableView(classTableView)
                             .selectedItems(((RealizeTableModel) dataModel)
@@ -109,6 +105,8 @@ public class JTableDataBase extends JTable {
         this.setGridColor(new Color(78, 157, 231));
         this.setShowGrid(true);
         this.getTableHeader().setReorderingAllowed(false);
+        this.setRowHeight(25);
+        this.setPreferredScrollableViewportSize(this.getPreferredSize());
     }
 
     public void addTableSelectedRowsListener(TableSelectedRowsListener listener) {
@@ -176,6 +174,15 @@ public class JTableDataBase extends JTable {
         ((RealizeTableModel) dataModel).deleteItems(getSelectedRows());
     }
 
+    public Object getSelectedItem() {
+        return getSelectedItems()[0];
+    }
+
+    public Object[] getSelectedItems(){
+        return ((RealizeTableModel) dataModel).getSelectedObjects(getSelectedRows());
+    }
+
+
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
     }
 
@@ -227,6 +234,10 @@ public class JTableDataBase extends JTable {
             Object[] selectedObjects = getSelectedObjects(classTableView, selectedIndexes);
             supplierDelete.apply(TransmissionObject.builder().clazzMdlTbl(classTableView)
                     .dataValue(selectedObjects).build());
+        }
+
+        public Object[] getSelectedObjects(int[] selectedIndexes){
+            return getSelectedObjects(classTableView, selectedIndexes);
         }
 
         // here don't should be such

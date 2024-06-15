@@ -17,6 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ public class MyListButtons extends JPanel {
     private final JPanel rootPnlForTable;
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
     private final JButton[] arrBtn;
+    private List<ActionListener> handlersOnChoice = new ArrayList<>(4);
 
     @Builder
     public MyListButtons(ModelTableViewSupplier[] modelTableViewSuppliers,
@@ -88,6 +90,15 @@ public class MyListButtons extends JPanel {
         defaultSelectedBtn();
     }
 
+    public void addChoiceListener(ActionListener listener) {
+        handlersOnChoice.add(listener);
+    }
+
+    public void removeChoiceListener(ActionListener listener) {
+        handlersOnChoice.remove(listener);
+    }
+
+
     private JButton selectedBtn;
 
     private class HandlerButtonActionListener implements ActionListener {
@@ -114,6 +125,13 @@ public class MyListButtons extends JPanel {
             rootPnlForTable.add(v.getTbl().getPnlTbl());
             rootPnlForTable.repaint();
             rootPnlForTable.validate();
+            fireChoiceJTable(new ActionEvent(selectedBtn, mapBtnForKeyViewUI.get(selectedBtn).getIndex(), "choice"));
+        }
+
+        void fireChoiceJTable(ActionEvent event) {
+            CompletableFuture.runAsync(() -> {
+                handlersOnChoice.parallelStream().forEach((h) -> h.actionPerformed(event));
+            });
         }
     }
 
@@ -214,7 +232,7 @@ public class MyListButtons extends JPanel {
                 .findFirst().orElseThrow();
         var root = rootValue.getTbl().getRelatedMdlTbl();
 
-        if (root == null) {
+        if (root == null || root.getChild().isEmpty()) {
             arrBtn[rootValue.getIndex()].setEnabled(false);
             arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
             rootValue.getTbl().getSelectionModel().clearSelection();
@@ -228,7 +246,6 @@ public class MyListButtons extends JPanel {
             rootValue.getTbl().getSelectionModel().clearSelection();
         }
     }
-
 
 
     @Builder

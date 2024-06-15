@@ -8,6 +8,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
@@ -17,16 +19,19 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -56,15 +61,9 @@ public class DataBasePanel extends BasePanel {
 
     private MyListButtons myListButtons;
 
-    private JTableDataBase tblUniversity;
-    private JTableDataBase tblFaculty;
-    private JTableDataBase tblDepartment;
-    private JTableDataBase tblSpecialization;
-    private JTableDataBase tblDiscipline;
-    private JTableDataBase tblHeadDepartment;
-    private JTableDataBase tblTeacher;
-
     private final InputFieldsDataTbl inputSearchFieldsData = InputFieldsDataTbl.builder().build();
+
+    private Function<Object, String> mapper;
 
     public DataBasePanel(Window frame) {
         super(frame);
@@ -89,6 +88,27 @@ public class DataBasePanel extends BasePanel {
     }
 
     protected void initCustomComponents() {
+
+        mapper = o -> {
+            String map = null;
+            if (o instanceof UniversityModelTbl univ) {
+                map = univ.getName();
+            } else if (o instanceof FacultyModelTbl fac) {
+                map = fac.getName();
+            } else if (o instanceof DepartmentModelTbl dep) {
+                map = dep.getName();
+            } else if (o instanceof SpecializationModelTbl sp) {
+                map = sp.getName();
+            } else if (o instanceof DisciplineModelTbl dis) {
+                map = dis.getName();
+            } else if (o instanceof HeadDepartmentModelTbl heddep) {
+                map = heddep.getName();
+            } else if (o instanceof TeacherModelTbl teach) {
+                map = teach.getName();
+            }
+            return map;
+        };
+
         Function<Object, List<?>> supplierDataList = o -> {
             Class<?> clazzModelView = (Class<?>) o;
             if (clazzModelView == UniversityModelTbl.class) {
@@ -265,7 +285,7 @@ public class DataBasePanel extends BasePanel {
                                         .supplierData(supplierDataList)
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(UniversityModelTbl.class)
-                                                .child(Arrays.asList(
+                                                .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class).build()
                                                 )).build())
 //                                        .supplierUpdate(supplierUpdate)
@@ -298,7 +318,7 @@ public class DataBasePanel extends BasePanel {
                                         .clazzModelView(SpecializationModelTbl.class)
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
-                                                .child(Arrays.asList(
+                                                .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build()
                                                 )).build())
 //                                        .supplierUpdate(supplierUpdate)
@@ -306,33 +326,27 @@ public class DataBasePanel extends BasePanel {
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DisciplineModelTbl.class)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
 //                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(HeadDepartmentModelTbl.class)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
 //                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(TeacherModelTbl.class)
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
 //                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build())
                         .toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();
-
-        tblUniversity = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[0]).getTbl());
-        tblFaculty = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[1]).getTbl());
-        tblDepartment = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[2]).getTbl());
-        tblSpecialization = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[3]).getTbl());
-        tblDiscipline = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[4]).getTbl());
-        tblHeadDepartment = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[5]).getTbl());
-        tblTeacher = Objects.requireNonNull(myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getArrBtn()[6]).getTbl());
-
     }
 
     protected void addingCustomComponents() {
@@ -348,6 +362,7 @@ public class DataBasePanel extends BasePanel {
     public void setComponentsListeners() {
         ActionHandler handler = new ActionHandler();
         TableSelectedRowsListener handlerSelection = new HandlerSelectionRows();
+        ActionListener handlerChoice = new HandlerChoiceButtonList();
 
         btnDeselect.addActionListener(handler);
         btnCreate.addActionListener(handler);
@@ -356,6 +371,7 @@ public class DataBasePanel extends BasePanel {
         btnNext.addActionListener(handler);
         btnBack.addActionListener(handler);
 
+        myListButtons.addChoiceListener(handlerChoice);
         myListButtons.getMapBtnForKeyViewUI()
                 .forEach((btn, keyView) -> {
                     keyView.getTbl().addTableSelectedRowsListener(handlerSelection);
@@ -372,7 +388,6 @@ public class DataBasePanel extends BasePanel {
             JButton source = (JButton) e.getSource();
             if (source == btnDeselect) {
                 //  обязательно 2 раза нужно вызвать. Я не заню почему не работает если вызвать только один раз
-                myListButtons.deSelectInclude();
                 myListButtons.deSelectInclude();
             }
             if (source == btnCreate) {
@@ -395,40 +410,16 @@ public class DataBasePanel extends BasePanel {
                         tbl.deleteItem();
                         tbl.performSetData();
                         myListButtons.deSelectInclude();
-                        myListButtons.deSelectInclude();
-                        setEnableCRUDbtn(true, true, true);
                     });
                 }
             } else if (source == btnUpdate) {
-                Supplier<JPanel> pnlSupplier = () -> {
-                    KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
-                    KeyForViewUI subSelectedTblView = myListButtons.getMapBtnForKeyViewUI()
-                            .get(myListButtons.getArrBtn()[selectedTblView.getIndex() >= 0 ? selectedTblView.getIndex() - 1 : 0]);
-                    SpringLayout springLayout = new SpringLayout();
-                    JPanel rootPnl = new JPanel(springLayout);
-
-                    JLabel lblDep = null;
-                    JComboBox<String> comboBox = null;
-                    if (subSelectedTblView != selectedTblView) {
-                        lblDep = new JLabel(subSelectedTblView.getBtn().getText());
-                        comboBox = new JComboBox<>();
+                CompletableFuture.runAsync(() -> {
+                    UpdatePanel panel = new UpdatePanel();
+                    if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
+                            "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
+                        panel.updateRequest();
                     }
-                    JLabel lblCur = new JLabel(selectedTblView.getBtn().getText());
-                    JTextField textField = new JTextField("value from jtable");
-                    if (subSelectedTblView != selectedTblView) {
-                        rootPnl.add(lblDep);
-                        rootPnl.add(comboBox);
-                    }
-                    rootPnl.add(lblCur);
-                    rootPnl.add(textField);
-
-                    springLayout.putConstraint(SpringLayout.WEST, lblDep, 10, SpringLayout.NORTH, comboBox);
-                    springLayout.putConstraint(SpringLayout.NORTH, lblCur, 10, SpringLayout.SOUTH, lblDep);
-                    springLayout.putConstraint(SpringLayout.WEST, lblCur, 10, SpringLayout.NORTH, textField);
-                    springLayout.putConstraint(SpringLayout.NORTH, textField, 10, SpringLayout.SOUTH, comboBox);
-                    return rootPnl;
-                };
-                JOptionPane.showConfirmDialog(DataBasePanel.this, pnlSupplier.get(), "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE);
+                });
             }
         }
     }
@@ -463,9 +454,84 @@ public class DataBasePanel extends BasePanel {
                 myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
             } else {
                 System.out.println("Selected > 1 element rows");
-                setEnableCRUDbtn(true, true, false);
+                setEnableCRUDbtn(true, false, false);
                 myListButtons.deEnabledExclude();
             }
         }
     }
+
+    private final class HandlerChoiceButtonList implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            JButton seletedBtn = (JButton) e.getSource();
+            boolean isSelectedRows = myListButtons.getMapBtnForKeyViewUI()
+                                             .get(seletedBtn).getTbl().getSelectedRowCount() > 0;
+            if (isSelectedRows) {
+                setEnableCRUDbtn(true, true, true);
+            } else setEnableCRUDbtn(true, false, false);
+        }
+    }
+
+    private class UpdatePanel extends Panel {
+        private JTextField field;
+
+        private CombaBoxSupplierView box;
+
+        private Object selectedItem;
+
+        private Object subselectedItem;
+
+        public UpdatePanel() {
+            KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
+            KeyForViewUI subSelectedTblView = myListButtons.getMapBtnForKeyViewUI().values()
+                    .stream().collect(Collectors.collectingAndThen(Collectors.filtering(keyForView -> {
+                        var tbl = keyForView.getTbl();
+                        var node = tbl.getRelatedMdlTbl();
+                        if (node == null || node == selectedTblView.getTbl().getRelatedMdlTbl()) return false;
+                        return node.getChild().contains(selectedTblView.getTbl().getRelatedMdlTbl());
+                    }, Collectors.toUnmodifiableList()), downList -> downList.isEmpty()
+                            ? selectedTblView : downList.get(0)));
+
+
+            JPanel rootPnl = new JPanel(new GridLayout(2, 2, 10, 10));
+
+            JLabel sublbl = null;
+            selectedItem = selectedTblView.getTbl().getSelectedItem();
+            subselectedItem = subSelectedTblView.getTbl().getSelectedItem();
+            if (subSelectedTblView != selectedTblView) {
+                sublbl = new JLabel(subSelectedTblView.getBtn().getText());
+                List<?> dataList = subSelectedTblView.getTbl()
+                        .getSupplierDataList().apply(subSelectedTblView.getTbl().getClassTableView());
+                box = new CombaBoxSupplierView(mapper, dataList);
+                box.setSelectedItem(subselectedItem);
+            }
+            JLabel curlbl = new JLabel(selectedTblView.getBtn().getText());
+            field = new JTextField(mapper.apply(selectedItem));
+            if (subSelectedTblView != selectedTblView) {
+                rootPnl.add(sublbl);
+                rootPnl.add(box);
+            }
+            rootPnl.add(curlbl);
+            rootPnl.add(field);
+            rootPnl.setPreferredSize(new Dimension(500, 50));
+            this.add(rootPnl);
+        }
+
+        public void updateRequest() {
+            String subValueOldBox = mapper.apply(subselectedItem);
+            String subValueSelectedUserBox = mapper.apply(box.getSelectedItem());
+            System.out.println("oldValue : "+ subValueOldBox + " ::: newValue : "+ subValueSelectedUserBox);
+
+
+            String valueOldText = mapper.apply(selectedItem);
+            String valueUserText =  field.getText();
+            System.out.println("oldTextValue : "+ valueOldText + " ::: newTextValue : "+ valueUserText);
+
+
+            myListButtons.deSelectInclude();
+
+        }
+    }
+
 }
