@@ -17,6 +17,8 @@ public interface DisciplineService {
 
     DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException;
 
+    DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException;
+
     void delete(DisciplineDto disciplineDto) throws ServiceException;
 
     void deleteSmpl(DisciplineSimpledDto dto) throws ServiceException;

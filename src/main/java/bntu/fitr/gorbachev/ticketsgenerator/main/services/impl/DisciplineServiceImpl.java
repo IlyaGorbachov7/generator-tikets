@@ -55,6 +55,16 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->{
+            Discipline entity = disciplineRepo.findById(dto.getId()).orElseThrow(DisciplineNoFoundByIdException::new);
+            disciplineMapper.update(entity, dto);
+            disciplineRepo.update(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public void delete(DisciplineDto disciplineDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Discipline entity = disciplineRepo.findById(disciplineDto.getId())
