@@ -30,6 +30,11 @@ public abstract class HeadDepartmentMapper {
                 .orElseThrow(DepartmentNoFoundByIdException::new), headDepartmentDto);
     }
 
+    private HeadDepartment headDepartmentDtoToEntity(HeadDepartmentSimpleDto dto) {
+        return assembleToEntity(departmentRepo.findById(dto.getDepartmentId())
+                .orElseThrow(DepartmentNoFoundByIdException::new), dto);
+    }
+
     @Mapping(target = "departmentDto", source = "department")
     public abstract HeadDepartmentDto headDepartmentToDto(HeadDepartment headDepartment);
 
@@ -46,6 +51,11 @@ public abstract class HeadDepartmentMapper {
         update(target, sourceEntity);
     }
 
+    public void update(HeadDepartment entity, HeadDepartmentSimpleDto dto) {
+        HeadDepartment entitySource = headDepartmentDtoToEntity(dto);
+        update(entity, entitySource);
+    }
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "dto.name")
     protected abstract HeadDepartment assembleToEntity(Department department, HeadDepartmentCreateDto dto);
@@ -53,6 +63,10 @@ public abstract class HeadDepartmentMapper {
     @Mapping(target = "id", source = "dto.id")
     @Mapping(target = "name", source = "dto.name")
     protected abstract HeadDepartment assembleToEntity(Department department, HeadDepartmentDto dto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract HeadDepartment assembleToEntity(Department department, HeadDepartmentSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
     protected abstract void update(@MappingTarget HeadDepartment target, HeadDepartment source);

@@ -55,6 +55,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public HeadDepartmentSimpleDto update(HeadDepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentRepo.findById(dto.getId())
+                    .orElseThrow(HeadDepartmentNoFoundByIdException::new);
+            headDepartmentMapper.update(entity, dto);
+            headDepartmentRepo.update(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public void delete(HeadDepartmentDto headDepartmentDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             HeadDepartment entity = headDepartmentRepo.findById(headDepartmentDto.getId())

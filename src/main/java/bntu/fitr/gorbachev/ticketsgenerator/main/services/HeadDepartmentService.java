@@ -16,6 +16,8 @@ public interface HeadDepartmentService {
 
     HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException;
 
+    HeadDepartmentSimpleDto update(HeadDepartmentSimpleDto dto) throws ServiceException;
+
     void delete(HeadDepartmentDto headDepartmentDto) throws ServiceException;
 
     void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException;
