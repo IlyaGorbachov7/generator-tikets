@@ -17,6 +17,8 @@ public interface DepartmentService {
 
     DepartmentDto update(DepartmentDto departmentDto) throws ServiceException;
 
+    DepartmentSimpleDto updateSmpl(DepartmentSimpleDto dto) throws ServiceException;
+
     void delete(DepartmentDto facultyDto) throws ServiceException;
 
     void deleteSmpl(DepartmentSimpleDto facultyDto) throws ServiceException;

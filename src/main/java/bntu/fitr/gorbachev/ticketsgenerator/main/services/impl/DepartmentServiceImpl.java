@@ -48,6 +48,15 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public DepartmentSimpleDto updateSmpl(DepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Department entity = departmentRepo.findById(dto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
+            departmentMapper.update(entity, dto);
+            return departmentMapper.departmentToDepartmentSimpleDto(entity);
+        });
+    }
+
+    @Override
     public void delete(DepartmentDto departmentDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);

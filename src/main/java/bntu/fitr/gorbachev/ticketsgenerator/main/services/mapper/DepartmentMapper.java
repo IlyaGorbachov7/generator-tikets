@@ -30,6 +30,12 @@ public abstract class DepartmentMapper {
                 departmentDto);
     }
 
+    public Department departmentSmplDtoToDepartment(DepartmentSimpleDto dto) {
+        return assembleEntity(facultyRepo.findById(dto.getFacultyId()).orElseThrow(FacultyNoFoundByIdException::new),
+                dto);
+    }
+
+
     @Mapping(target = "facultyDto", source = "faculty")
     public abstract DepartmentDto departmentToDepartmentDto(Department department);
 
@@ -40,6 +46,12 @@ public abstract class DepartmentMapper {
     public void update(Department department, DepartmentDto departmentDto) {
         Department departmentSource = departmentDtoToDepartment(departmentDto);
         update(department, departmentSource);
+    }
+
+    public void update(Department department, DepartmentSimpleDto dto) {
+        Department departmentSource = departmentSmplDtoToDepartment(dto);
+        update(department, departmentSource);
+
     }
 
     public abstract List<DepartmentDto> departmentToDepartmentDto(List<Department> departmentList);
@@ -55,6 +67,10 @@ public abstract class DepartmentMapper {
     @Mapping(target = "id", source = "departmentDto.id")
     @Mapping(target = "name", source = "departmentDto.name")
     protected abstract Department assembleEntity(Faculty faculty, DepartmentDto departmentDto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Department assembleEntity(Faculty faculty, DepartmentSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "specializations", ignore = true)
