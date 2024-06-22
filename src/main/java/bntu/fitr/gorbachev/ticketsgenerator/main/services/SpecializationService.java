@@ -15,6 +15,8 @@ public interface SpecializationService {
 
     SpecializationDto update(SpecializationDto specializationDto);
 
+    SpecializationSimpleDto update(SpecializationSimpleDto dto);
+
     void delete(SpecializationDto specializationDto);
 
     void deleteSmpl(SpecializationSimpleDto elem);

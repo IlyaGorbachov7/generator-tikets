@@ -35,6 +35,12 @@ public abstract class SpecializationMapper {
         );
     }
 
+    private Specialization specializationDtoToEntity(SpecializationSimpleDto dto) {
+        return assembleEntity(
+                departmentRepo.findById(dto.getDepartmentId()).orElseThrow(DepartmentNoFoundByIdException::new),
+                dto);
+    }
+
     @Mapping(target = "departmentDto", source = "department")
     public abstract SpecializationDto specializationToDto(Specialization specialization);
 
@@ -51,6 +57,11 @@ public abstract class SpecializationMapper {
         update(target, sourceEntity);
     }
 
+    public void update(Specialization target, SpecializationSimpleDto dto) {
+        Specialization entitySource = specializationDtoToEntity(dto);
+        update(target, entitySource);
+    }
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "specializationCreateDto.name")
     protected abstract Specialization assembleEntity(Department department, SpecializationCreateDto specializationCreateDto);
@@ -58,6 +69,10 @@ public abstract class SpecializationMapper {
     @Mapping(target = "id", source = "specializationDto.id")
     @Mapping(target = "name", source = "specializationDto.name")
     protected abstract Specialization assembleEntity(Department department, SpecializationDto specializationDto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Specialization assembleEntity(Department orElseThrow, SpecializationSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "disciplines", ignore = true)

@@ -45,8 +45,30 @@ public class SpecializationServiceImpl implements SpecializationService {
             Specialization entityTarget = specializationRepo.findById(specializationDto.getId())
                     .orElseThrow(SpecializationNoFoundByIdException::new);
             specializationMapper.update(entityTarget, specializationDto);
+           /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
             specializationRepo.update(entityTarget);
             return specializationMapper.specializationToDto(entityTarget);
+        });
+    }
+
+    @Override
+    public SpecializationSimpleDto update(SpecializationSimpleDto dto) {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Specialization entity = specializationRepo.findById(dto.getId()).orElseThrow(SpecializationNoFoundByIdException::new);
+            specializationMapper.update(entity, dto);
+           /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+            specializationRepo.update(entity);
+            return specializationMapper.specializationToSimpleDto(entity);
         });
     }
 
@@ -61,7 +83,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public void deleteSmpl(SpecializationSimpleDto elem) {
-        executor.wrapTransactional(()->{
+        executor.wrapTransactional(() -> {
             specializationRepo.delete(specializationRepo.findById(elem.getId())
                     .orElseThrow(SpecializationNoFoundByIdException::new));
         });
@@ -69,7 +91,7 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public void deleteSmpl(List<SpecializationSimpleDto> list) {
-        executor.wrapTransactional(()-> list.forEach(this::deleteSmpl));
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
     }
 
     @Override
