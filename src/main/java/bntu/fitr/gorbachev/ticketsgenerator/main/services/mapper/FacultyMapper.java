@@ -30,6 +30,13 @@ public abstract class FacultyMapper {
                 .orElseThrow(UniversityNoFoundByIdException::new), facultyCreateDto);
     }
 
+    public Faculty facultyDtoToFaculty(FacultySimpleDto dto) {
+        return assembleToEntity(
+                universityRepo.findById(dto.getUniversityId()).orElseThrow(UniversityNoFoundByIdException::new),
+                dto);
+    }
+
+
     @Mapping(target = "universityDto", source = "university")
     public abstract FacultyDto facultyToFacultyDto(Faculty faculty);
 
@@ -49,6 +56,11 @@ public abstract class FacultyMapper {
         update(faculty, entitySource);
     }
 
+    public void update(Faculty faculty, FacultySimpleDto dto) {
+        Faculty facultySource = facultyDtoToFaculty(dto);
+        update(faculty, facultySource);
+    }
+
     @Mapping(target = "id", source = "facultyDto.id")
     @Mapping(target = "name", source = "facultyDto.name")
     @Mapping(target = "departments", ignore = true)
@@ -58,6 +70,10 @@ public abstract class FacultyMapper {
     @Mapping(target = "name", source = "facultyCreateDto.name")
     @Mapping(target = "departments", ignore = true)
     protected abstract Faculty assembleToEntity(University university, FacultyCreateDto facultyCreateDto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Faculty assembleToEntity(University university, FacultySimpleDto dto);
 
 
     @Mapping(target = "id", ignore = true)

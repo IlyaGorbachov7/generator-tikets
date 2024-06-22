@@ -17,6 +17,8 @@ public interface FacultyService {
 
     FacultyDto update(FacultyDto facultyDto) throws ServiceException;
 
+    FacultySimpleDto update(FacultySimpleDto dto) throws ServiceException;
+
     void delete(FacultyDto facultyDto) throws ServiceException;
 
     void deleteSmpl(FacultySimpleDto facultySimpleDto) throws ServiceException;

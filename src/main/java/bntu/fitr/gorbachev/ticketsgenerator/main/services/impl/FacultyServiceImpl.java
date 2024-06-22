@@ -50,6 +50,15 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public FacultySimpleDto update(FacultySimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->{
+           Faculty entity = facultyRepo.findById(dto.getId()).orElseThrow(FacultyNoFoundByIdException::new);
+           facultyMapper.update(entity, dto);
+           return facultyMapper.facultyToFacultySmplDto(entity);
+        });
+    }
+
+    @Override
     public void delete(FacultyDto facultyDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Faculty faculty = facultyRepo.findById(facultyDto.getId())
