@@ -16,6 +16,8 @@ public interface TeacherService {
 
     TeacherDto update(TeacherDto teacherDto) throws ServiceException;
 
+    TeacherSimpleDto update(TeacherSimpleDto dto) throws ServiceException;
+
     void delete(TeacherDto teacherDto) throws ServiceException;
 
     void deleteSmpl(TeacherSimpleDto dto) throws ServiceException;
