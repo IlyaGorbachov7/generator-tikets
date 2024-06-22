@@ -43,6 +43,13 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentMapper.update(entity, departmentDto);
+            /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+            departmentRepo.update(entity);
             return departmentMapper.departmentToDepartmentDto(entity);
         });
     }
@@ -52,6 +59,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(dto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentMapper.update(entity, dto);
+            departmentRepo.update(entity);
             return departmentMapper.departmentToDepartmentSimpleDto(entity);
         });
     }

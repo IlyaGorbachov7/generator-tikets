@@ -61,12 +61,6 @@ public class SpecializationServiceImpl implements SpecializationService {
         return executor.wrapTransactionalEntitySingle(() -> {
             Specialization entity = specializationRepo.findById(dto.getId()).orElseThrow(SpecializationNoFoundByIdException::new);
             specializationMapper.update(entity, dto);
-           /*
-            I should necessarily perform repo.update, because current transaction still don't committed.
-            However you remember, update will be done after commit of the transaction.
-            However, here directly entity convert to DTO.
-            So I must implicitly perform update of operation, that this reflected on the result mapping.
-            */
             specializationRepo.update(entity);
             return specializationMapper.specializationToSimpleDto(entity);
         });

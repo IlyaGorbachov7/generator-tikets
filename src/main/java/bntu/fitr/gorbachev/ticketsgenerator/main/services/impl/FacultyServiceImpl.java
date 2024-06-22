@@ -54,6 +54,13 @@ public class FacultyServiceImpl implements FacultyService {
         return executor.wrapTransactionalEntitySingle(()->{
            Faculty entity = facultyRepo.findById(dto.getId()).orElseThrow(FacultyNoFoundByIdException::new);
            facultyMapper.update(entity, dto);
+           /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+           facultyRepo.update(entity);
            return facultyMapper.facultyToFacultySmplDto(entity);
         });
     }
