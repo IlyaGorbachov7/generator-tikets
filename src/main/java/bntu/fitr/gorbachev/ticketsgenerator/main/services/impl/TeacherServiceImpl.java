@@ -35,6 +35,15 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public TeacherSimpleDto createSmpl(TeacherCreateDto teacherCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Teacher entity = teacherMapper.teacherDtoToEntity(teacherCreateDto);
+            teacherRepo.create(entity);
+            return teacherMapper.teacherToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public TeacherDto update(TeacherDto teacherDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Teacher target = teacherRepo.findById(teacherDto.getId()).orElseThrow(TeacherNoFoundByIdException::new);
@@ -45,11 +54,32 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public TeacherSimpleDto update(TeacherSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Teacher entity = teacherRepo.findById(dto.getId()).orElseThrow(TeacherNoFoundByIdException::new);
+            teacherMapper.update(entity, dto);
+            teacherRepo.update(entity);
+            return teacherMapper.teacherToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public void delete(TeacherDto teacherDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Teacher entity = teacherRepo.findById(teacherDto.getId()).orElseThrow(TeacherNoFoundByIdException::new);
             teacherRepo.delete(entity);
         });
+    }
+
+    @Override
+    public void deleteSmpl(TeacherSimpleDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> teacherRepo.delete(teacherRepo.findById(dto.getId())
+                .orElseThrow(TeacherNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<TeacherSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
     }
 
     @Override
@@ -116,5 +146,13 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return teacherRepo.countByLikeNameAndFacultyId(likeName, facultyId);
+    }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByFacultyId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(id).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
+
     }
 }

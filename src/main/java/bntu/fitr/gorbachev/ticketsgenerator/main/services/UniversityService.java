@@ -17,6 +17,8 @@ public interface UniversityService {
 
     void delete(UniversityDTO universityDTO) throws ServiceException;
 
+    void delete(List<UniversityDTO> universityDTO) throws ServiceException;
+
     Optional<UniversityDTO> getAny() throws ServiceException;
 
     List<UniversityDTO> getAll() throws ServiceException;

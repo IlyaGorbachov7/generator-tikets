@@ -31,13 +31,38 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public SpecializationSimpleDto createSmpl(SpecializationCreateDto specializationCreateDto) {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Specialization entity = specializationMapper.specializationDtoToEntity(specializationCreateDto);
+            specializationRepo.create(entity);
+            return specializationMapper.specializationToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public SpecializationDto update(SpecializationDto specializationDto) {
         return executor.wrapTransactionalEntitySingle(() -> {
             Specialization entityTarget = specializationRepo.findById(specializationDto.getId())
                     .orElseThrow(SpecializationNoFoundByIdException::new);
             specializationMapper.update(entityTarget, specializationDto);
+           /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
             specializationRepo.update(entityTarget);
             return specializationMapper.specializationToDto(entityTarget);
+        });
+    }
+
+    @Override
+    public SpecializationSimpleDto update(SpecializationSimpleDto dto) {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Specialization entity = specializationRepo.findById(dto.getId()).orElseThrow(SpecializationNoFoundByIdException::new);
+            specializationMapper.update(entity, dto);
+            specializationRepo.update(entity);
+            return specializationMapper.specializationToSimpleDto(entity);
         });
     }
 
@@ -48,6 +73,19 @@ public class SpecializationServiceImpl implements SpecializationService {
                     .orElseThrow(SpecializationNoFoundByIdException::new);
             specializationRepo.delete(entity);
         });
+    }
+
+    @Override
+    public void deleteSmpl(SpecializationSimpleDto elem) {
+        executor.wrapTransactional(() -> {
+            specializationRepo.delete(specializationRepo.findById(elem.getId())
+                    .orElseThrow(SpecializationNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<SpecializationSimpleDto> list) {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
     }
 
     @Override
@@ -115,5 +153,12 @@ public class SpecializationServiceImpl implements SpecializationService {
     @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) {
         return specializationRepo.countByLikeNameAndDepartmentId(likeName, departmentId);
+    }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByDepartmentId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByDepartmentId(id)));
     }
 }

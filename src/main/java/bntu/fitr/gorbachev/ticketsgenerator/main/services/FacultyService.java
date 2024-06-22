@@ -13,9 +13,17 @@ public interface FacultyService {
 
     FacultyDto create(FacultyCreateDto facultyCreateDto) throws ServiceException;
 
+    FacultySimpleDto createSmpl(FacultyCreateDto facultyCreateDto) throws ServiceException;
+
     FacultyDto update(FacultyDto facultyDto) throws ServiceException;
 
+    FacultySimpleDto update(FacultySimpleDto dto) throws ServiceException;
+
     void delete(FacultyDto facultyDto) throws ServiceException;
+
+    void deleteSmpl(FacultySimpleDto facultySimpleDto) throws ServiceException;
+
+    void deleteSmpl(List<FacultySimpleDto> list) throws ServiceException;
 
     Optional<FacultySimpleDto> getSmplByName(String name) throws ServiceException;
 
@@ -32,6 +40,8 @@ public interface FacultyService {
     long count() throws ServiceException;
 
     List<FacultyDto> getByUniversityId(UUID universityId) throws ServiceException;
+
+    List<FacultySimpleDto> getSmplByUniversityId(UUID university) throws ServiceException;
 
     long countByUniversityId(UUID universityId) throws ServiceException;
 

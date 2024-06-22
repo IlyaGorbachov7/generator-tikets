@@ -12,9 +12,17 @@ import java.util.UUID;
 public interface HeadDepartmentService {
     HeadDepartmentDto create(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException;
 
+    HeadDepartmentSimpleDto createSmpl(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException;
+
     HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException;
 
+    HeadDepartmentSimpleDto update(HeadDepartmentSimpleDto dto) throws ServiceException;
+
     void delete(HeadDepartmentDto headDepartmentDto) throws ServiceException;
+
+    void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException;
+
+    void deleteSmpl(List<HeadDepartmentSimpleDto> list) throws ServiceException;
 
     Optional<HeadDepartmentDto> getAny() throws ServiceException;
 
@@ -37,4 +45,6 @@ public interface HeadDepartmentService {
     List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
+
+    List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id);
 }

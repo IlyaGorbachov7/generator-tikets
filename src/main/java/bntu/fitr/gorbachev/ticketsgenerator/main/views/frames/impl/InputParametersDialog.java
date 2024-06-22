@@ -15,7 +15,7 @@ public class InputParametersDialog extends BaseDialog {
     @Override
     public void initDialog() {
         this.setContentPane(PanelFactory.getInstance().createPanel(this,PanelType.INPUT_PARAM_DB));
-        this.setSize(780, 400);
+        this.setSize(1080, 400);
         this.setResizable(true);
     }
 }

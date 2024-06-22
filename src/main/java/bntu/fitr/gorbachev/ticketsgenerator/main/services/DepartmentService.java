@@ -13,9 +13,17 @@ public interface DepartmentService {
 
     DepartmentDto create(DepartmentCreateDto departmentCreateDto) throws ServiceException;
 
+    DepartmentSimpleDto createSmpl(DepartmentCreateDto departmentCreateDto) throws ServiceException;
+
     DepartmentDto update(DepartmentDto departmentDto) throws ServiceException;
 
+    DepartmentSimpleDto updateSmpl(DepartmentSimpleDto dto) throws ServiceException;
+
     void delete(DepartmentDto facultyDto) throws ServiceException;
+
+    void deleteSmpl(DepartmentSimpleDto facultyDto) throws ServiceException;
+
+    void deleteSmpl(List<DepartmentSimpleDto> list) throws ServiceException;
 
     Optional<DepartmentDto> getByName(String name) throws ServiceException;
 
@@ -38,4 +46,6 @@ public interface DepartmentService {
     List<DepartmentDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
     long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
+
+    List<DepartmentSimpleDto> getSmplByFacultyId(UUID id);
 }

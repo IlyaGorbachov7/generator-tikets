@@ -32,6 +32,12 @@ public abstract class DisciplineMapper {
                 disciplineDto);
     }
 
+    public Discipline disciplineDtoToEntity(DisciplineSimpledDto dto) {
+        return assembleToEntity(
+                specRepo.findById(dto.getSpecializationId()).orElseThrow(SpecializationNoFoundByIdException::new),
+                dto);
+    }
+
     @Mapping(target = "specializationDto", source = "specialization")
     public abstract DisciplineDto disciplineToDto(Discipline discipline);
 
@@ -48,6 +54,11 @@ public abstract class DisciplineMapper {
         update(target, source);
     }
 
+    public void update(Discipline entity, DisciplineSimpledDto dto) {
+        Discipline entitySource = disciplineDtoToEntity(dto);
+        update(entity, entitySource);
+    }
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "disciplineCreateDto.name")
     protected abstract Discipline assembleToEntity(Specialization specialization, DisciplineCreateDto disciplineCreateDto);
@@ -55,6 +66,10 @@ public abstract class DisciplineMapper {
     @Mapping(target = "id", source = "disciplineDto.id")
     @Mapping(target = "name", source = "disciplineDto.name")
     protected abstract Discipline assembleToEntity(Specialization specialization, DisciplineDto disciplineDto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Discipline assembleToEntity(Specialization specialization, DisciplineSimpledDto dto);
 
     @Mapping(target = "id", ignore = true)
     protected abstract void update(@MappingTarget Discipline target, Discipline source);

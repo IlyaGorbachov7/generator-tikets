@@ -7,12 +7,23 @@ import java.awt.event.FocusListener;
 
 public class HintTextField extends JTextField implements FocusListener {
 
-    private final String hint;
+    private String hint;
     private boolean showingHint;
-    private final Color colorTxt;
-    private final Font fontTxt;
+    private Color colorTxt;
+    private Font fontTxt;
     private final Color transparentColorTxt = new Color(0, 0, 0, 63);
     private final Font hintFontTxt = new Font("DIALOG", Font.ITALIC, 13);
+
+    // This is constructor very important because Intelige IDE used for assembling project and it's running
+    public HintTextField() {
+        this.showingHint = true;
+        colorTxt = this.getForeground();
+        fontTxt = this.getFont();
+
+        this.setForeground(transparentColorTxt);
+        this.setFont(hintFontTxt);
+        super.addFocusListener(this);
+    }
 
     public HintTextField(final String hint) {
         super(hint);
@@ -26,6 +37,7 @@ public class HintTextField extends JTextField implements FocusListener {
         super.addFocusListener(this);
     }
 
+
     @Override
     public void focusGained(FocusEvent e) {
         this.selectAll();
@@ -34,6 +46,14 @@ public class HintTextField extends JTextField implements FocusListener {
             super.setForeground(colorTxt);
             super.setFont(fontTxt);
             showingHint = false;
+        }
+    }
+
+    @Override
+    public void setText(String t) {
+        super.setText(t);
+        if(hint == null){
+            hint = t;
         }
     }
 

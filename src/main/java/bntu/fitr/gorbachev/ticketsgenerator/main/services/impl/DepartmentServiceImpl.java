@@ -32,11 +32,35 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public DepartmentSimpleDto createSmpl(DepartmentCreateDto departmentCreateDto) throws ServiceException {
+        Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
+        departmentRepo.create(entity);
+        return departmentMapper.departmentToDepartmentSimpleDto(entity);
+    }
+
+    @Override
     public DepartmentDto update(DepartmentDto departmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentMapper.update(entity, departmentDto);
+            /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+            departmentRepo.update(entity);
             return departmentMapper.departmentToDepartmentDto(entity);
+        });
+    }
+
+    @Override
+    public DepartmentSimpleDto updateSmpl(DepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Department entity = departmentRepo.findById(dto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
+            departmentMapper.update(entity, dto);
+            departmentRepo.update(entity);
+            return departmentMapper.departmentToDepartmentSimpleDto(entity);
         });
     }
 
@@ -46,6 +70,19 @@ public class DepartmentServiceImpl implements DepartmentService {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentRepo.delete(entity);
         });
+    }
+
+    @Override
+    public void deleteSmpl(DepartmentSimpleDto facultyDto) throws ServiceException {
+        executor.wrapTransactional(() -> {
+            departmentRepo.delete(departmentRepo.findById(facultyDto.getId())
+                    .orElseThrow(DepartmentNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<DepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
     }
 
     @Override
@@ -72,7 +109,7 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     @Override
     public Optional<DepartmentSimpleDto> getSmplAny() throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findAny().map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
@@ -116,5 +153,12 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return departmentRepo.countByLikeNameAndFacultyId(likeName, facultyId);
+    }
+
+    @Override
+    public List<DepartmentSimpleDto> getSmplByFacultyId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentSimpleDto(
+                        departmentRepo.findByFacultyId(id)));
     }
 }

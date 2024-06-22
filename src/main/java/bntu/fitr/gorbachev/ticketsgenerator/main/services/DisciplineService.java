@@ -13,9 +13,17 @@ public interface DisciplineService {
 
     DisciplineDto create(DisciplineCreateDto disciplineCreateDto) throws ServiceException;
 
+    DisciplineSimpledDto createSmpl(DisciplineCreateDto disciplineCreateDto) throws ServiceException;
+
     DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException;
 
+    DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException;
+
     void delete(DisciplineDto disciplineDto) throws ServiceException;
+
+    void deleteSmpl(DisciplineSimpledDto dto) throws ServiceException;
+
+    void deleteSmpl(List<DisciplineSimpledDto> dto) throws ServiceException;
 
     Optional<DisciplineDto> getAny() throws ServiceException;
 
@@ -38,4 +46,6 @@ public interface DisciplineService {
     List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 
     long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id);
 }

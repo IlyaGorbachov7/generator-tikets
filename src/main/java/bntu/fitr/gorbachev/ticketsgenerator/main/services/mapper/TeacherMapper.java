@@ -22,9 +22,14 @@ public abstract class TeacherMapper {
                 .orElseThrow(FacultyNoFoundByIdException::new), teacherCreateDto);
     }
 
-    public Teacher headDepartmentDtoToEntity(TeacherDto teacherDto) {
+    public Teacher teacherDtoToEntity(TeacherDto teacherDto) {
         return assembleToEntity(facultyRepo.findById(teacherDto.getFacultyDto().getId())
                 .orElseThrow(FacultyNoFoundByIdException::new), teacherDto);
+    }
+
+    private Teacher teacherDtoToEntity(TeacherSimpleDto dto) {
+        return assembleToEntity(facultyRepo.findById(dto.getFacultyId()).orElseThrow(FacultyNoFoundByIdException::new),
+                dto);
     }
 
     @Mapping(target = "facultyDto", source = "faculty")
@@ -35,8 +40,13 @@ public abstract class TeacherMapper {
     public abstract TeacherSimpleDto teacherToSimpleDto(Teacher teacher);
 
     public void update(Teacher target, TeacherDto source) {
-        Teacher sourceEntity = headDepartmentDtoToEntity(source);
+        Teacher sourceEntity = teacherDtoToEntity(source);
         update(target, sourceEntity);
+    }
+
+    public void update(Teacher entity, TeacherSimpleDto dto) {
+        Teacher entitySource = teacherDtoToEntity(dto);
+        update(entity, entitySource);
     }
 
     @Mapping(target = "id", ignore = true)
@@ -46,6 +56,10 @@ public abstract class TeacherMapper {
     @Mapping(target = "id", source = "dto.id")
     @Mapping(target = "name", source = "dto.name")
     protected abstract Teacher assembleToEntity(Faculty faculty, TeacherDto dto);
+
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Teacher assembleToEntity(Faculty faculty, TeacherSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
     protected abstract void update(@MappingTarget Teacher target, Teacher source);

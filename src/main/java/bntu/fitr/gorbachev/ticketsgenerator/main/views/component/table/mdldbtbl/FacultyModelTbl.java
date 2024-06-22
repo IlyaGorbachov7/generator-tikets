@@ -1,23 +1,26 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.mdldbtbl;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.ColumnViewUI;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.UUID;
 
 @Data
-@Builder
 @TableViewUI(name = "Факультет")
 public class FacultyModelTbl {
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private UUID id;
 
-    @ColumnViewUI
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String name;
 
+    @EqualsAndHashCode.Exclude
     private UUID universityId;
 
-    @ColumnViewUI
+    @EqualsAndHashCode.Exclude
+    @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String universityName;
 }

@@ -35,6 +35,15 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public HeadDepartmentSimpleDto createSmpl(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentMapper.headDepartmentDtoToEntity(headDepartmentCreateDto);
+            headDepartmentRepo.create(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             HeadDepartment target = headDepartmentRepo.findById(headDepartmentDto.getId())
@@ -42,6 +51,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
             headDepartmentMapper.update(target, headDepartmentDto);
             headDepartmentRepo.update(target);
             return headDepartmentMapper.headDepartmentToDto(target);
+        });
+    }
+
+    @Override
+    public HeadDepartmentSimpleDto update(HeadDepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentRepo.findById(dto.getId())
+                    .orElseThrow(HeadDepartmentNoFoundByIdException::new);
+            headDepartmentMapper.update(entity, dto);
+            headDepartmentRepo.update(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
         });
     }
 
@@ -55,6 +75,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> headDepartmentRepo.delete(
+                headDepartmentRepo.findById(dto.getId()).orElseThrow(HeadDepartmentNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<HeadDepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<HeadDepartmentDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToDto));
@@ -62,7 +93,7 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public Optional<HeadDepartmentSimpleDto> getSmplAny() throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
@@ -74,13 +105,13 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public Optional<HeadDepartmentDto> getByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToDto));
     }
 
     @Override
     public Optional<HeadDepartmentSimpleDto> getSmplByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
@@ -121,5 +152,14 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByDepartmentId(
+                        id).stream().map(
+                        headDepartmentMapper::headDepartmentToSimpleDto).toList());
+
     }
 }

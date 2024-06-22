@@ -35,6 +35,15 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public DisciplineSimpledDto createSmpl(DisciplineCreateDto disciplineCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Discipline entity = disciplineMapper.disciplineDtoToEntity(disciplineCreateDto);
+            disciplineRepo.create(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Discipline target = disciplineRepo.findById(disciplineDto.getId())
@@ -46,12 +55,33 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->{
+            Discipline entity = disciplineRepo.findById(dto.getId()).orElseThrow(DisciplineNoFoundByIdException::new);
+            disciplineMapper.update(entity, dto);
+            disciplineRepo.update(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public void delete(DisciplineDto disciplineDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Discipline entity = disciplineRepo.findById(disciplineDto.getId())
                     .orElseThrow(DisciplineNoFoundByIdException::new);
             disciplineRepo.delete(entity);
         });
+    }
+
+    @Override
+    public void deleteSmpl(DisciplineSimpledDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> disciplineRepo.delete(disciplineRepo.findById(dto.getId())
+                .orElseThrow(DisciplineNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<DisciplineSimpledDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
     }
 
     @Override
@@ -118,5 +148,12 @@ public class DisciplineServiceImpl implements DisciplineService {
     @Override
     public long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
         return disciplineRepo.ByLikeNameAndSpecializationId(likeName, specializationId);
+    }
+
+    @Override
+    public List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToSimpleDto(
+                        disciplineRepo.findBySpecializationId(id)));
     }
 }

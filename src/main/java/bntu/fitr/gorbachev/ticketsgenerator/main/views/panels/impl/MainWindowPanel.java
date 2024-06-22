@@ -52,6 +52,7 @@ import java.time.temporal.ValueRange;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
@@ -82,11 +83,11 @@ public class MainWindowPanel extends BasePanel {
     private final JFileChooser chooserSave;
 
     private final Window frameRoot;
-    private final AboutAuthor aboutAuthorDialog;
-    private final AboutProgram aboutProgramDialog;
-    private final FileViewer viewFileDialog;
-    private final RecordSetting recordSettingDialog;
-    private final InputParametersDialog dataBaseDialog;
+    private AboutAuthor aboutAuthorDialog;
+    private AboutProgram aboutProgramDialog;
+    private FileViewer viewFileDialog;
+    private RecordSetting recordSettingDialog;
+    private InputParametersDialog dataBaseDialog;
 
     private final UniversityService universityService = ServiceFactoryImpl.getInstance().universityService();
     private final FacultyService facultyService = ServiceFactoryImpl.getInstance().facultyService();
@@ -264,16 +265,21 @@ public class MainWindowPanel extends BasePanel {
     public MainWindowPanel(Window frame) {
         super(frame);
         frameRoot = getRootFrame();
-        aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
-                .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR);
-        aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
-                .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM);
-        viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
-                .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
-        recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
-                .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING);
-        dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()
-                .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB);
+        CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(() -> {
+                recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
+                        .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING);
+                dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()
+                        .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB);
+            });
+            aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR);
+            aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM);
+            viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
+        });
+
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
         fileMenu.add(loadItem);
@@ -303,7 +309,6 @@ public class MainWindowPanel extends BasePanel {
         this.initPanel();
 
         this.setComponentsListeners();
-        this.setVisible(true);
     }
 
     private JPanel pnlData;
@@ -315,27 +320,15 @@ public class MainWindowPanel extends BasePanel {
     @Override
     public void initPanel() {
         this.setLayout(new BorderLayout());
-        // разбил на потоки, чтобы было быстро инициализировалось
-        Thread thread1 = new Thread(() -> {
-            pnlData = this.createDataInputPanel();
-            System.out.println("000");
-        });
-        thread1.start();
 
-        Thread thread2 = new Thread(() -> {
+        CompletableFuture.runAsync(() -> {
+            pnlData = this.createDataInputPanel();
+        });
+        CompletableFuture.runAsync(() -> {
             pnlGenerate = this.createPanelMainActionPanel();
             pnlGenerate.setPreferredSize(new Dimension(430, pnlGenerate.getHeight()));
-            System.out.println("0000");
         });
-        thread2.start();
 
-
-        System.out.println("0");
-        try {
-            thread1.join();
-            thread2.join();
-        } catch (InterruptedException ignored) {
-        }
         this.setConfigComponents();
         this.add(pnlData, BorderLayout.CENTER);
         this.add(pnlGenerate, BorderLayout.EAST);

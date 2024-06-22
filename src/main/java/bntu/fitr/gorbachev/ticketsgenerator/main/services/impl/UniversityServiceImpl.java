@@ -57,6 +57,14 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
+    public void delete(List<UniversityDTO> universityDTO) throws ServiceException {
+        universityRepository.getExecutor().wrapTransactional(() -> {
+            universityDTO.forEach(udto -> universityRepository.delete(universityRepository.findById(udto.getId())
+                    .orElseThrow(UniversityNoFoundByIdException::new)));
+        });
+    }
+
+    @Override
     public Optional<UniversityDTO> getAny() throws ServiceException {
         return universityRepository.findAny().map(universityMapper::universityToUniversityDto);
     }

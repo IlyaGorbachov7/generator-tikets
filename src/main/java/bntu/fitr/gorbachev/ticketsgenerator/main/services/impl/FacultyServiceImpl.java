@@ -31,6 +31,13 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public FacultySimpleDto createSmpl(FacultyCreateDto facultyCreateDto) throws ServiceException {
+        Faculty faculty = facultyMapper.facultyDtoToFaculty(facultyCreateDto);
+        facultyRepo.create(faculty);
+        return facultyMapper.facultyToFacultySmplDto(faculty);
+    }
+
+    @Override
     public FacultyDto update(FacultyDto facultyDto) throws ServiceException {
         return facultyMapper.facultyToFacultyDto(
                 executor.wrapTransactionalEntitySingle(() -> {
@@ -43,11 +50,42 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public FacultySimpleDto update(FacultySimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->{
+           Faculty entity = facultyRepo.findById(dto.getId()).orElseThrow(FacultyNoFoundByIdException::new);
+           facultyMapper.update(entity, dto);
+           /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+           facultyRepo.update(entity);
+           return facultyMapper.facultyToFacultySmplDto(entity);
+        });
+    }
+
+    @Override
     public void delete(FacultyDto facultyDto) throws ServiceException {
         executor.wrapTransactional(() -> {
             Faculty faculty = facultyRepo.findById(facultyDto.getId())
                     .orElseThrow(FacultyNoFoundByIdException::new);
             facultyRepo.delete(faculty);
+        });
+    }
+
+    @Override
+    public void deleteSmpl(FacultySimpleDto facultySimpleDto) throws ServiceException {
+        executor.wrapTransactional(()->{
+            facultyRepo.delete(facultyRepo.findById(facultySimpleDto.getId())
+                    .orElseThrow(FacultyNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<FacultySimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(()->{
+            list.forEach(this::deleteSmpl);
         });
     }
 
@@ -82,6 +120,14 @@ public class FacultyServiceImpl implements FacultyService {
         return executor.wrapTransactionalResultList(() ->
                 facultyMapper.facultyToFacultyDto(
                         facultyRepo.findByUniversityId(universityId)));
+    }
+
+    @Override
+    public List<FacultySimpleDto> getSmplByUniversityId(UUID universityId) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultySimpleDto(
+                        facultyRepo.findByUniversityId(universityId)
+                ));
     }
 
     @Override
