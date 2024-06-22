@@ -9,7 +9,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreate
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
@@ -19,7 +18,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
-import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,10 +25,9 @@ import java.awt.event.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
@@ -63,7 +60,8 @@ public class DataBasePanel extends BasePanel {
 
     private final InputFieldsDataTbl inputSearchFieldsData = InputFieldsDataTbl.builder().build();
 
-    private Function<Object, String> mapper;
+    private Function<Object, String> mapperView;
+    private Function<Object, String> mapperFind;
 
     public DataBasePanel(Window frame) {
         super(frame);
@@ -89,7 +87,7 @@ public class DataBasePanel extends BasePanel {
 
     protected void initCustomComponents() {
 
-        mapper = o -> {
+        mapperView = o -> {
             String map = null;
             if (o instanceof UniversityModelTbl univ) {
                 map = univ.getName();
@@ -105,6 +103,26 @@ public class DataBasePanel extends BasePanel {
                 map = heddep.getName();
             } else if (o instanceof TeacherModelTbl teach) {
                 map = teach.getName();
+            }
+            return map;
+        };
+
+        mapperFind = o -> {
+            String map = null;
+            if (o instanceof UniversityModelTbl univ) {
+                map = univ.getId().toString();
+            } else if (o instanceof FacultyModelTbl fac) {
+                map = fac.getId().toString();
+            } else if (o instanceof DepartmentModelTbl dep) {
+                map = dep.getId().toString();
+            } else if (o instanceof SpecializationModelTbl sp) {
+                map = sp.getId().toString();
+            } else if (o instanceof DisciplineModelTbl dis) {
+                map = dis.getId().toString();
+            } else if (o instanceof HeadDepartmentModelTbl heddep) {
+                map = heddep.getId().toString();
+            } else if (o instanceof TeacherModelTbl teach) {
+                map = teach.getId().toString();
             }
             return map;
         };
@@ -503,11 +521,12 @@ public class DataBasePanel extends BasePanel {
                 sublbl = new JLabel(subSelectedTblView.getBtn().getText());
                 List<?> dataList = subSelectedTblView.getTbl()
                         .getSupplierDataList().apply(subSelectedTblView.getTbl().getClassTableView());
-                box = new CombaBoxSupplierView(mapper, dataList);
+                box = new CombaBoxSupplierView(mapperView, dataList);
+                System.out.println(subselectedItem);
                 box.setSelectedItem(subselectedItem);
             }
             JLabel curlbl = new JLabel(selectedTblView.getBtn().getText());
-            field = new JTextField(mapper.apply(selectedItem));
+            field = new JTextField(mapperView.apply(selectedItem));
             if (subSelectedTblView != selectedTblView) {
                 rootPnl.add(sublbl);
                 rootPnl.add(box);
@@ -519,14 +538,18 @@ public class DataBasePanel extends BasePanel {
         }
 
         public void updateRequest() {
-            String subValueOldBox = mapper.apply(subselectedItem);
-            String subValueSelectedUserBox = mapper.apply(box.getSelectedItem());
-            System.out.println("oldValue : "+ subValueOldBox + " ::: newValue : "+ subValueSelectedUserBox);
+            String subValueOldBox = mapperFind.apply(subselectedItem);
+            String subValueSelectedUserBox = mapperFind.apply(box.getSelectedItem());
+            System.out.println("oldValue : " + subValueOldBox + " ::: newValue : " + subValueSelectedUserBox);
 
 
-            String valueOldText = mapper.apply(selectedItem);
-            String valueUserText =  field.getText();
-            System.out.println("oldTextValue : "+ valueOldText + " ::: newTextValue : "+ valueUserText);
+            String valueOldText = mapperView.apply(selectedItem);
+            String valueUserText = field.getText();
+            System.out.println("oldTextValue : " + valueOldText + " ::: newTextValue : " + valueUserText);
+
+            KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
+            var tbl = selectedTblView.getTbl();
+//            tbl.updateItem(subSelectedItem, selected);
 
 
             myListButtons.deSelectInclude();

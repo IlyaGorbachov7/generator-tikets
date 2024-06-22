@@ -18,7 +18,7 @@ public class CombaBoxSupplierView extends JComboBox<Object> {
 
     public CombaBoxSupplierView(Function<Object, String> mapper, List<?> listData) {
         setModel(new ComboBoxModelSupplierView(listData.toArray()));
-//        setEditor(new MyMetalComboBoxEditor(mapper));
+        setEditor(new MyMetalComboBoxEditor(mapper));
         setRenderer(new MyBasicComboBoxRenderer(mapper));
         this.mapper = mapper;
         this.listData = listData;

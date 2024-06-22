@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectap
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.UUID;
 
@@ -16,8 +17,10 @@ public class TeacherModelTbl {
     @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String name;
 
+    @EqualsAndHashCode.Exclude
     private UUID facultyId;
 
+    @EqualsAndHashCode.Exclude
     @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private String facultyName;
 }
