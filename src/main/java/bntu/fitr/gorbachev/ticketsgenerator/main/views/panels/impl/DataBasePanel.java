@@ -65,6 +65,8 @@ public class DataBasePanel extends BasePanel {
     private Function<Object, String> mapperFind;
     private BiFunction<Object, InputUpdateDataProxy, Object> mapperUpdateItem;
 
+    private KeyForViewUI selectedKeyForViewUI;
+
     public DataBasePanel(Window frame) {
         super(frame);
         initPanel();
@@ -400,6 +402,7 @@ public class DataBasePanel extends BasePanel {
         TableSelectedRowsListener handlerSelection = new HandlerSelectionRows();
         ActionListener handlerChoice = new HandlerChoiceButtonList();
 
+        btnAllDeselect.addActionListener(handler);
         btnDeselect.addActionListener(handler);
         btnCreate.addActionListener(handler);
         btnUpdate.addActionListener(handler);
@@ -422,11 +425,11 @@ public class DataBasePanel extends BasePanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton source = (JButton) e.getSource();
-            if (source == btnDeselect) {
-                //  обязательно 2 раза нужно вызвать. Я не заню почему не работает если вызвать только один раз
+            if (source == btnAllDeselect) {
+                myListButtons.deSelectAll();
+            } else if (source == btnDeselect) {
                 myListButtons.deSelectInclude();
-            }
-            if (source == btnCreate) {
+            } else if (source == btnCreate) {
                 JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
                         .get(myListButtons.getSelectedBtn())
                         .getTbl();
@@ -454,6 +457,10 @@ public class DataBasePanel extends BasePanel {
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
                             "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
                         panel.updateRequest();
+                        KeyForViewUI keyForView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
+                        var tbl = keyForView.getTbl();
+                        myListButtons.deSelectInclude();
+                        tbl.performSetData();
                     }
                 });
             }
@@ -501,8 +508,8 @@ public class DataBasePanel extends BasePanel {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton seletedBtn = (JButton) e.getSource();
-            boolean isSelectedRows = myListButtons.getMapBtnForKeyViewUI()
-                                             .get(seletedBtn).getTbl().getSelectedRowCount() > 0;
+            selectedKeyForViewUI = myListButtons.getMapBtnForKeyViewUI().get(seletedBtn);
+            boolean isSelectedRows = selectedKeyForViewUI.getTbl().getSelectedRowCount() > 0;
             if (isSelectedRows) {
                 setEnableCRUDbtn(true, true, true);
             } else setEnableCRUDbtn(true, false, false);
@@ -510,13 +517,13 @@ public class DataBasePanel extends BasePanel {
     }
 
     private class UpdatePanel extends Panel {
-        private JTextField field;
+        private final JTextField field;
 
         private CombaBoxSupplierView box;
 
-        private Object selectedItem;
+        private final Object selectedItem;
 
-        private Object subselectedItem;
+        private final Object subselectedItem;
 
         public UpdatePanel() {
             KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
@@ -559,23 +566,9 @@ public class DataBasePanel extends BasePanel {
             InputUpdateDataProxy inputupdateData = InputUpdateDataProxy.builder()
                     .comboboxData(mapperFind.apply((box != null) ? Objects.requireNonNull(box).getSelectedItem() : ""))
                     .textFieldData(field.getText()).build();
-            if (box != null) {
-                String subValueOldBox = mapperFind.apply(subselectedItem);
-                String subValueSelectedUserBox = mapperFind.apply(box.getSelectedItem());
-                System.out.println("oldValue : " + subValueOldBox + " ::: newValue : " + subValueSelectedUserBox);
-            }
-
-
-            String valueOldText = mapperView.apply(selectedItem);
-            String valueUserText = field.getText();
-            System.out.println("oldTextValue : " + valueOldText + " ::: newTextValue : " + valueUserText);
-
             KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
             var tbl = selectedTblView.getTbl();
-
             tbl.updateItem(mapperUpdateItem.apply(selectedItem, inputupdateData));
-            System.out.println(selectedItem);
-            tbl.performSetData();
         }
     }
 

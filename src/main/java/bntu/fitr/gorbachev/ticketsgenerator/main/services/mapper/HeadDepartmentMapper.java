@@ -69,5 +69,6 @@ public abstract class HeadDepartmentMapper {
     protected abstract HeadDepartment assembleToEntity(Department department, HeadDepartmentSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "department", expression = "java(source.getDepartment())")
     protected abstract void update(@MappingTarget HeadDepartment target, HeadDepartment source);
 }

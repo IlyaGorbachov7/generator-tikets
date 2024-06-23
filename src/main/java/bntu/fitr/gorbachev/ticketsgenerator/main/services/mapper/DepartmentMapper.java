@@ -74,5 +74,6 @@ public abstract class DepartmentMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "specializations", ignore = true)
+    @Mapping(target = "faculty", expression = "java(source.getFaculty())")
     protected abstract void update(@MappingTarget Department target, Department source);
 }

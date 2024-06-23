@@ -27,7 +27,7 @@ public class MyListButtons extends JPanel {
     private final JPanel rootPnlForTable;
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
     private final JButton[] arrBtn;
-    private List<ActionListener> handlersOnChoice = new ArrayList<>(4);
+    private final List<ActionListener> handlersOnChoice = new ArrayList<>(4);
 
     @Builder
     public MyListButtons(ModelTableViewSupplier[] modelTableViewSuppliers,
@@ -40,7 +40,7 @@ public class MyListButtons extends JPanel {
         this.rootPnlForTable = rootPnl;
         this.arrBtn = new JButton[modelTableViewSuppliers.length];
         ActionListener handlerBtnAction = this.new HandlerButtonActionListener();
-        TableSelectedRowsListener handlerSelection = this.new HandlerSelectionRowsListener();
+        TableSelectedRowsListener handlerSelection = new HandlerSelectionRowsListener();
 
         IntIterator iIter = IntIterator.builder().build();
         mapBtnForKeyViewUI = Arrays.stream(modelTableViewSuppliers)
@@ -65,9 +65,7 @@ public class MyListButtons extends JPanel {
                                             .supplierUpdate(supplierUpdate)
                                             .supplierDelete(supplierDelete)
                                             .relatedMdlTbl(relatedMdlTbl).build()).build());
-                }).peek(entry -> {
-                    arrBtn[iIter.cur()] = entry.getKey();
-                })
+                }).peek(entry -> arrBtn[iIter.cur()] = entry.getKey())
                 .peek(entry -> { // initialization GUI bloke
                     GridBagConstraints gbc = new GridBagConstraints();
                     gbc.fill = GridBagConstraints.BOTH;
@@ -107,8 +105,9 @@ public class MyListButtons extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (cur == null) cur = arrBtn[0]; // initialization 1 раз
             JButton btnSource = (JButton) e.getSource();
+            if (btnSource == cur) return;
+            if (cur == null) cur = arrBtn[0]; // initialization 1 раз
             prev = cur;
             cur = btnSource;
             selectedBtn = cur;
@@ -129,13 +128,11 @@ public class MyListButtons extends JPanel {
         }
 
         void fireChoiceJTable(ActionEvent event) {
-            CompletableFuture.runAsync(() -> {
-                handlersOnChoice.parallelStream().forEach((h) -> h.actionPerformed(event));
-            });
+            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.actionPerformed(event)));
         }
     }
 
-    private class HandlerSelectionRowsListener implements TableSelectedRowsListener {
+    private static class HandlerSelectionRowsListener implements TableSelectedRowsListener {
 
         /**
          * This is handler listener was for set enable list of the button.
@@ -174,6 +171,21 @@ public class MyListButtons extends JPanel {
 
     protected void setSelectedColorBtn(@NonNull JButton btn) {
         btn.setBackground(new Color(84, 151, 213));
+    }
+
+    public void deSelectAll() {
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(arrBtn[0]);
+        RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
+        if (relatedTblMdl != null) {
+            for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
+                doDes(child);
+            }
+        }
+        valueSelected.getTbl().getSelectionModel().clearSelection();
+        rootPnlForTable.removeAll();
+        rootPnlForTable.repaint();
+        rootPnlForTable.revalidate();
+        valueSelected.getBtn().setBackground(Color.WHITE);
     }
 
     public void deSelectInclude() {
