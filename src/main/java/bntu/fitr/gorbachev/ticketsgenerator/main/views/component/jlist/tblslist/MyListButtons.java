@@ -250,6 +250,7 @@ public class MyListButtons extends JPanel {
 
     @Builder
     private static final class IntIterator {
+        @Builder.Default
         int i = 0;
 
         public int incr() {

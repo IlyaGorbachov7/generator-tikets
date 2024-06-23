@@ -18,15 +18,16 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,7 @@ public class DataBasePanel extends BasePanel {
 
     private Function<Object, String> mapperView;
     private Function<Object, String> mapperFind;
+    private BiFunction<Object, InputUpdateDataProxy, Object> mapperUpdateItem;
 
     public DataBasePanel(Window frame) {
         super(frame);
@@ -125,6 +127,31 @@ public class DataBasePanel extends BasePanel {
                 map = teach.getId().toString();
             }
             return map;
+        };
+
+        mapperUpdateItem = (item, inputUpdateData) -> {
+            if (item instanceof UniversityModelTbl univ) {
+                univ.setName(inputUpdateData.getTextFieldData());
+            } else if (item instanceof FacultyModelTbl fac) {
+                fac.setName(inputUpdateData.getTextFieldData());
+                fac.setUniversityId(UUID.fromString(inputUpdateData.getComboboxData()));
+            } else if (item instanceof DepartmentModelTbl dep) {
+                dep.setName(inputUpdateData.getTextFieldData());
+                dep.setFacultyId(UUID.fromString(inputUpdateData.getComboboxData()));
+            } else if (item instanceof SpecializationModelTbl sp) {
+                sp.setName(inputUpdateData.getTextFieldData());
+                sp.setDepartmentId(UUID.fromString(inputUpdateData.getComboboxData()));
+            } else if (item instanceof DisciplineModelTbl dis) {
+                dis.setName(inputUpdateData.getTextFieldData());
+                dis.setSpecializationId(UUID.fromString(inputUpdateData.getComboboxData()));
+            } else if (item instanceof HeadDepartmentModelTbl heddep) {
+                heddep.setName(inputUpdateData.getTextFieldData());
+                heddep.setDepartmentId(UUID.fromString(inputUpdateData.getComboboxData()));
+            } else if (item instanceof TeacherModelTbl teach) {
+                teach.setName(inputUpdateData.getTextFieldData());
+                teach.setFacultyId(UUID.fromString(inputUpdateData.getComboboxData()));
+            }
+            return item;
         };
 
         Function<Object, List<?>> supplierDataList = o -> {
@@ -204,42 +231,33 @@ public class DataBasePanel extends BasePanel {
             return null;
         };
 
-/*
-        Function<Object, List<?>> supplierUpdate = o -> {
-            Class<?> clazzModelView = (Class<?>) o;
-            if (clazzModelView == UniversityModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().universityMapper()
-                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .universityService().update());
-            } else if (clazzModelView == FacultyModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().facultyMapper()
-                        .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .facultyService().update());
-            } else if (clazzModelView == DepartmentModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().departmentMapper()
-                        .listDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .departmentService().update());
-            } else if (clazzModelView == SpecializationModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().specializationMapper()
-                        .listSpecializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .specializationService().update());
-            } else if (clazzModelView == DisciplineModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().disciplineMapper()
-                        .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().update());
-            } else if (clazzModelView == HeadDepartmentModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
-                        .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .headDepartmentService().update());
-            } else if (clazzModelView == TeacherModelTbl.class) {
-                return MapperViewFactoryImpl.getInstance().teacherMapper()
-                        .listTeacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .teacherService().update());
+        Function<Object, Object> supplierUpdate = item -> {
+            if (item instanceof UniversityModelTbl univ) {
+                return ServiceFactoryImpl.getInstance().universityService()
+                        .update(MapperViewFactoryImpl.getInstance().universityMapper().universityMdlTblToDto(univ));
+
+            } else if (item instanceof FacultyModelTbl fac) {
+                return ServiceFactoryImpl.getInstance().facultyService()
+                        .update(MapperViewFactoryImpl.getInstance().facultyMapper().facultyMdlTblToSmpl(fac));
+            } else if (item instanceof DepartmentModelTbl dep) {
+                return ServiceFactoryImpl.getInstance().departmentService()
+                        .updateSmpl(MapperViewFactoryImpl.getInstance().departmentMapper().departmentMdlTblToSmpl(dep));
+            } else if (item instanceof SpecializationModelTbl spec) {
+                return ServiceFactoryImpl.getInstance().specializationService()
+                        .update(MapperViewFactoryImpl.getInstance().specializationMapper().specializationMdlTblToSmpl(spec));
+            } else if (item instanceof DisciplineModelTbl disc) {
+                return ServiceFactoryImpl.getInstance().disciplineService()
+                        .update(MapperViewFactoryImpl.getInstance().disciplineMapper().disciplineMdlTblToSmpl(disc));
+            } else if (item instanceof HeadDepartmentModelTbl headdep) {
+                return ServiceFactoryImpl.getInstance().headDepartmentService()
+                        .update(MapperViewFactoryImpl.getInstance().headDepartmentMapper().headDepartmentMdlTblToSmpl(headdep));
+            } else if (item instanceof TeacherModelTbl teach) {
+                return ServiceFactoryImpl.getInstance().teacherService()
+                        .update(MapperViewFactoryImpl.getInstance().teacherMapper().teacherMdlTblToSmpl(teach));
             }
             return null;
         };
 
-*/
         Function<Object, List<?>> supplierDelete = o -> {
             TransmissionObject transmissionObject = (TransmissionObject) o;
             Class<?> clazzModelView = transmissionObject.getClazzMdlTbl();
@@ -306,7 +324,7 @@ public class DataBasePanel extends BasePanel {
                                                 .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class).build()
                                                 )).build())
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .build(),
                                 ModelTableViewSupplier.builder()
@@ -318,7 +336,7 @@ public class DataBasePanel extends BasePanel {
                                                         RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class).build(),
                                                         RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build()
                                                 )).build())
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .build(),
                                 ModelTableViewSupplier.builder()
@@ -329,7 +347,7 @@ public class DataBasePanel extends BasePanel {
                                                         RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class).build(),
                                                         RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build()
                                                 )).build())
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
@@ -339,28 +357,28 @@ public class DataBasePanel extends BasePanel {
                                                 .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build()
                                                 )).build())
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DisciplineModelTbl.class)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(HeadDepartmentModelTbl.class)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(TeacherModelTbl.class)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build())
                                         .supplierCreate(supplierCreate)
-//                                        .supplierUpdate(supplierUpdate)
+                                        .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierDataList).build())
                         .toArray(ModelTableViewSupplier[]::new))
@@ -431,7 +449,7 @@ public class DataBasePanel extends BasePanel {
                     });
                 }
             } else if (source == btnUpdate) {
-                CompletableFuture.runAsync(() -> {
+                SwingUtilities.invokeLater(() -> {
                     UpdatePanel panel = new UpdatePanel();
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
                             "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
@@ -538,9 +556,14 @@ public class DataBasePanel extends BasePanel {
         }
 
         public void updateRequest() {
-            String subValueOldBox = mapperFind.apply(subselectedItem);
-            String subValueSelectedUserBox = mapperFind.apply(box.getSelectedItem());
-            System.out.println("oldValue : " + subValueOldBox + " ::: newValue : " + subValueSelectedUserBox);
+            InputUpdateDataProxy inputupdateData = InputUpdateDataProxy.builder()
+                    .comboboxData(mapperFind.apply((box != null) ? Objects.requireNonNull(box).getSelectedItem() : ""))
+                    .textFieldData(field.getText()).build();
+            if (box != null) {
+                String subValueOldBox = mapperFind.apply(subselectedItem);
+                String subValueSelectedUserBox = mapperFind.apply(box.getSelectedItem());
+                System.out.println("oldValue : " + subValueOldBox + " ::: newValue : " + subValueSelectedUserBox);
+            }
 
 
             String valueOldText = mapperView.apply(selectedItem);
@@ -549,12 +572,20 @@ public class DataBasePanel extends BasePanel {
 
             KeyForViewUI selectedTblView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
             var tbl = selectedTblView.getTbl();
-//            tbl.updateItem(subSelectedItem, selected);
 
-
-            myListButtons.deSelectInclude();
-
+            tbl.updateItem(mapperUpdateItem.apply(selectedItem, inputupdateData));
+            System.out.println(selectedItem);
+            tbl.performSetData();
         }
+    }
+
+    @Getter
+    @Builder
+    private static final class InputUpdateDataProxy {
+        @Builder.Default
+        private String comboboxData = "";
+        @Builder.Default
+        private String textFieldData = "";
     }
 
 }

@@ -182,6 +182,13 @@ public class JTableDataBase extends JTable {
         return ((RealizeTableModel) dataModel).getSelectedObjects(getSelectedRows());
     }
 
+    public void updateItem(Object selectedItem) {
+        if(selectedItem.getClass() != classTableView){
+            throw new IllegalArgumentException();
+        }
+        ((RealizeTableModel) dataModel).updateItem(selectedItem);
+    }
+
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
     }
@@ -236,11 +243,15 @@ public class JTableDataBase extends JTable {
                     .dataValue(selectedObjects).build());
         }
 
+        public void updateItem(Object selectedItem) {
+            supplierUpdate.apply(selectedItem);
+        }
+
         public Object[] getSelectedObjects(int[] selectedIndexes){
             return getSelectedObjects(classTableView, selectedIndexes);
         }
-
         // here don't should be such
+
         private Object[] getSelectedObjects(Class<?> clazz, int[] indexesSelectedRows) {
             Object[][] data = new Object[indexesSelectedRows.length][getColumnCount()];
             int i = 0;
