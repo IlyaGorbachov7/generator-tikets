@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
@@ -97,5 +98,10 @@ public class UniversityServiceImpl implements UniversityService {
     @Override
     public long countByLikeName(String likeName) {
         return universityRepository.countLikeByName(likeName);
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText) {
+        return null;
     }
 }

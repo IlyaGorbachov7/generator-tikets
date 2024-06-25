@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.FacultyMapper;
@@ -169,5 +170,10 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public long countByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
         return facultyRepo.countByLikeNameAndUniversityId(likeName, universityId);
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID universityId) {
+        return null;
     }
 }

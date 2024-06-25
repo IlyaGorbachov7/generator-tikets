@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -52,4 +53,6 @@ public interface FacultyService {
     List<FacultyDto> getByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException;
 
     long countByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException;
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID universityId);
 }

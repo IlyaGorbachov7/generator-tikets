@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
@@ -46,4 +47,6 @@ public interface SpecializationService {
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 
     List<SpecializationSimpleDto> getSmplByDepartmentId(UUID id);
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId);
 }

@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.DisciplineService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.displn.DisciplineNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DisciplineMapper;
@@ -155,5 +156,17 @@ public class DisciplineServiceImpl implements DisciplineService {
         return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToSimpleDto(
                         disciplineRepo.findBySpecializationId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID specializationId) {
+        long totalItems = filterText.isBlank() ? disciplineRepo.countBySpecializationId(specializationId) :
+                disciplineRepo.count(filterText, specializationId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

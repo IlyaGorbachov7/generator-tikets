@@ -8,10 +8,12 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DepartmentMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -160,5 +162,18 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalResultList(() ->
                 departmentMapper.departmentToDepartmentSimpleDto(
                         departmentRepo.findByFacultyId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(final int itemsOnPage, final int currentPage,
+                                              final @NonNull String filterText, final @NonNull UUID facultyId) {
+        long totalItems = filterText.isBlank() ? departmentRepo.countByFacultyId(facultyId) :
+                departmentRepo.countByLikeNameAndFacultyId(filterText, facultyId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.HeadDepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.headdep.HeadDepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.HeadDepartmentMapper;
@@ -161,5 +162,10 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
                         id).stream().map(
                         headDepartmentMapper::headDepartmentToSimpleDto).toList());
 
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
+        return null;
     }
 }

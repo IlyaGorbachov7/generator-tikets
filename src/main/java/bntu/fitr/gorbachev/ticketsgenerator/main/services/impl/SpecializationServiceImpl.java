@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.Reposi
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.SpecializationService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
@@ -160,5 +161,10 @@ public class SpecializationServiceImpl implements SpecializationService {
         return executor.wrapTransactionalResultList(() ->
                 specializationMapper.specializationToSimpleDto(
                         specializationRepo.findByDepartmentId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
+        return null;
     }
 }

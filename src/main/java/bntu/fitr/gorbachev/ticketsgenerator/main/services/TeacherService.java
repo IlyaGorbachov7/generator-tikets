@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
@@ -47,4 +48,6 @@ public interface TeacherService {
     long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 
     List<TeacherSimpleDto> getSmplByFacultyId(UUID id);
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID facultyId);
 }

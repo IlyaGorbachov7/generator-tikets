@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.Reposi
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.TeacherService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
@@ -154,5 +155,10 @@ public class TeacherServiceImpl implements TeacherService {
                 teacherRepo.findByFacultyId(id).stream().map(
                         teacherMapper::teacherToSimpleDto).toList());
 
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID facultyId) {
+        return null;
     }
 }
