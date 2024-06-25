@@ -107,7 +107,7 @@ public class DisciplineDAOImpl extends AppAreaAbstractDAOImpl<Discipline, UUID> 
 
     @Override
     @SuppressWarnings("unchecked")
-    public long ByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException {
+    public long countByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException {
         return executor.executeLongResult(
                 HQL_COUNT_FIND_BY_LIKE_NAME_AND_specializationId,
                 Map.entry(SPECIALIZATION_ID_ARG, specializationId),

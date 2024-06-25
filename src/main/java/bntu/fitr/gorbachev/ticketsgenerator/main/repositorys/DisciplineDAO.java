@@ -18,5 +18,5 @@ public interface DisciplineDAO extends AppAreaAbstractDAO<Discipline, UUID> {
 
     List<Discipline> findByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
 
-    long ByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
+    long countByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
 }
