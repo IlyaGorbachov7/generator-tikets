@@ -148,7 +148,7 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
-        return disciplineRepo.ByLikeNameAndSpecializationId(likeName, specializationId);
+        return disciplineRepo.countByLikeNameAndSpecializationId(likeName, specializationId);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     @Override
     public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID specializationId) {
         long totalItems = filterText.isBlank() ? disciplineRepo.countBySpecializationId(specializationId) :
-                disciplineRepo.count(filterText, specializationId);
+                disciplineRepo.countByLikeNameAndSpecializationId(filterText, specializationId);
         int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
         return PaginationParam.builder()
                 .currentPage((currentPage > totalPage) ? 1 : currentPage)

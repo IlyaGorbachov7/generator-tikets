@@ -165,6 +165,13 @@ public class SpecializationServiceImpl implements SpecializationService {
 
     @Override
     public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
-        return null;
+        long totalItems = filterText.isBlank() ? specializationRepo.countByDepartmentId(departmentId) :
+                specializationRepo.countByLikeNameAndDepartmentId(filterText, departmentId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

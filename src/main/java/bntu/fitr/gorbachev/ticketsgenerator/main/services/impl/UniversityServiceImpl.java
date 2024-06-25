@@ -102,6 +102,13 @@ public class UniversityServiceImpl implements UniversityService {
 
     @Override
     public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText) {
-        return null;
+        long totalItems = filterText.isBlank() ? universityRepository.count() :
+                universityRepository.countLikeByName(filterText);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

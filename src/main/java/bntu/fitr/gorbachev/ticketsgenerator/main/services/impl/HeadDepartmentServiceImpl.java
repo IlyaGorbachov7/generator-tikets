@@ -145,14 +145,14 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     @Override
     public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
-                headDepartmentRepo.findByLikeNameAndDepartmentName(
+                headDepartmentRepo.findByLikeNameAndDepartmentId(
                         likeName, departmentId).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
     }
 
     @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
-        return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
+        return headDepartmentRepo.countByLikeNameAndDepartmentId(likeName, departmentId);
     }
 
     @Override
@@ -166,6 +166,13 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
-        return null;
+        long totalItems = filterText.isBlank() ? headDepartmentRepo.countByDepartmentId(departmentId) :
+                headDepartmentRepo.countByLikeNameAndDepartmentId(filterText, departmentId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }
