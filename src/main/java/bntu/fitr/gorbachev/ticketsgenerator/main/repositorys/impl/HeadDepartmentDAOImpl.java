@@ -93,7 +93,7 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
+    public List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_departmentId,
                 ENTITY_CLAZZ,
@@ -103,7 +103,7 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
 
     @Override
     @SuppressWarnings("unchecked")
-    public long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
+    public long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
         return executor.executeLongResult(
                 HQL_COUNT_BY_NAME_AND_departmentId,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),

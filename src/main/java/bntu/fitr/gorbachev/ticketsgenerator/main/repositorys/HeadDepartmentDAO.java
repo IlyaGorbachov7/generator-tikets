@@ -16,7 +16,7 @@ public interface HeadDepartmentDAO extends AppAreaAbstractDAO<HeadDepartment, UU
 
     long countByDepartmentName(String departmentName) throws DAOException;
 
-    List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException;
+    List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 
-    long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException;
+    long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 }
