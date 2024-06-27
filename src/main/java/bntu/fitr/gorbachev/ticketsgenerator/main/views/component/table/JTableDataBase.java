@@ -175,15 +175,16 @@ public class JTableDataBase extends JTable {
     }
 
     public Object getSelectedItem() {
-        return getSelectedItems()[0];
+        Object[] items = getSelectedItems();
+        return items.length == 1 ? items[0] : null;
     }
 
-    public Object[] getSelectedItems(){
+    public Object[] getSelectedItems() {
         return ((RealizeTableModel) dataModel).getSelectedObjects(getSelectedRows());
     }
 
     public void updateItem(Object selectedItem) {
-        if(selectedItem.getClass() != classTableView){
+        if (selectedItem.getClass() != classTableView) {
             throw new IllegalArgumentException();
         }
         ((RealizeTableModel) dataModel).updateItem(selectedItem);
@@ -247,7 +248,7 @@ public class JTableDataBase extends JTable {
             supplierUpdate.apply(selectedItem);
         }
 
-        public Object[] getSelectedObjects(int[] selectedIndexes){
+        public Object[] getSelectedObjects(int[] selectedIndexes) {
             return getSelectedObjects(classTableView, selectedIndexes);
         }
         // here don't should be such

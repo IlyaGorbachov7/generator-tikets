@@ -265,8 +265,8 @@ public class MainWindowPanel extends BasePanel {
     public MainWindowPanel(Window frame) {
         super(frame);
         frameRoot = getRootFrame();
-        CompletableFuture.runAsync(() -> {
-            CompletableFuture.runAsync(() -> {
+        SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() -> {
                 recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
                         .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING);
                 dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()

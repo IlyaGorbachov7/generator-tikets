@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public final class KeyForViewUI {
 
     private JTableDataBase tbl;
 
-
+    private PaginationView pv;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

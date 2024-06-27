@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTb
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -56,7 +57,7 @@ public class MyListButtons extends JPanel {
 
                     return Map.entry(btn, // key
                             KeyForViewUI.builder() // value
-                                    .index(iIter.cur()).btn(btn)
+                                    .index(iIter.cur()).pv(PaginationView.builder().build()).btn(btn)
                                     .tbl(JTableDataBase.builder()
                                             .clazz(clazzTblView).p(p)
                                             .btn(btn)
@@ -124,7 +125,10 @@ public class MyListButtons extends JPanel {
             rootPnlForTable.add(v.getTbl().getPnlTbl());
             rootPnlForTable.repaint();
             rootPnlForTable.validate();
-            fireChoiceJTable(new ActionEvent(selectedBtn, mapBtnForKeyViewUI.get(selectedBtn).getIndex(), "choice"));
+            fireChoiceJTable(new ActionEvent(new EventChoiceBtn(
+                    mapBtnForKeyViewUI.get(cur),
+                    mapBtnForKeyViewUI.get(prev)),
+                    mapBtnForKeyViewUI.get(selectedBtn).getIndex(), "choice"));
         }
 
         void fireChoiceJTable(ActionEvent event) {
