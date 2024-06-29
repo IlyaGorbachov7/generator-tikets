@@ -70,7 +70,6 @@ public class HintTextField extends JTextField implements FocusListener {
     public void focusLost(FocusEvent e) {
         if (this.getText().isEmpty()) {
             super.setText(hint);
-            System.err.println(hint);
             super.setForeground(transparentColorTxt);
             super.setFont(hintFontTxt);
             showingHint = true;
