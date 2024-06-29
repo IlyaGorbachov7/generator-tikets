@@ -51,8 +51,17 @@ public class HintTextField extends JTextField implements FocusListener {
 
     @Override
     public void setText(String t) {
+        if (hint != null) {
+            if (!t.isEmpty()) {
+                focusGained(null);
+            } else {
+                super.setText("");
+                focusLost(null);
+                return;
+            }
+        }
         super.setText(t);
-        if(hint == null){
+        if (hint == null) {
             hint = t;
         }
     }
@@ -61,6 +70,7 @@ public class HintTextField extends JTextField implements FocusListener {
     public void focusLost(FocusEvent e) {
         if (this.getText().isEmpty()) {
             super.setText(hint);
+            System.err.println(hint);
             super.setForeground(transparentColorTxt);
             super.setFont(hintFontTxt);
             showingHint = true;
