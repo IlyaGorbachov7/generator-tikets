@@ -39,27 +39,27 @@ public final class PaginationView {
     private List<PropertyChangeListener> handler = new ArrayList<>(2);
 
 
-    public void setCurrentPage(int currentPage) {
+    public void setCurrentPageNotify(int currentPage) {
         if (currentPage == 0) throw new IllegalArgumentException("CurrentPage must be > 0");
         int oldV = this.currentPage;
         this.currentPage = currentPage;
         firePropertyChange(new PropertyChangeEvent(this, CURRENTPAGE, oldV, this.currentPage));
     }
 
-    public void setTotalPage(int totalPage) {
+    public void setTotalPageNotify(int totalPage) {
         if (currentPage == 0) throw new IllegalArgumentException("CurrentPage must be > 0");
         int oldV = this.totalPage;
         this.totalPage = totalPage;
         firePropertyChange(new PropertyChangeEvent(this, TOTALPAGE, oldV, this.totalPage));
     }
 
-    public void setItemsOnPage(int itemsOnPage) {
+    public void setItemsOnPageNotify(int itemsOnPage) {
         int oldV = this.itemsOnPage;
         this.itemsOnPage = itemsOnPage;
         firePropertyChange(new PropertyChangeEvent(this, ITEMSPAGE, oldV, this.itemsOnPage));
     }
 
-    public void setFilterText(String filterText) {
+    public void setFilterTextNotify(String filterText) {
         String oldV = this.filterText;
         this.filterText = filterText;
         firePropertyChange(new PropertyChangeEvent(this, FILTERTEXT, oldV, this.filterText));

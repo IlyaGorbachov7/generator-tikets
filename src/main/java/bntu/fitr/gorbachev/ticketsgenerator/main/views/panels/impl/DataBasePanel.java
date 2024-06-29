@@ -10,7 +10,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreate
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.EventChoiceBtn;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
@@ -35,7 +36,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -206,8 +206,6 @@ public class DataBasePanel extends BasePanel {
 
         supplierPaginationParam = () -> {
             Class<?> clazzModelView = selectedKeyForViewUI.getTbl().getClassTableView();
-            String strUUID = mapperFind.apply(subSelectedKeyForViewUI.getTbl().getSelectedItem());
-            UUID subId = strUUID == null ? null : UUID.fromString(strUUID);
             int currentPage = paginationView.getCurrentPage();
             int itemsOnPage = paginationView.getItemsOnPage();
             String filterText = paginationView.getFilterText();
@@ -215,17 +213,23 @@ public class DataBasePanel extends BasePanel {
             if (clazzModelView == UniversityModelTbl.class) {
                 return ServiceFactoryImpl.getInstance().universityService().calculatePageParam(itemsOnPage, currentPage, filterText);
             } else if (clazzModelView == FacultyModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().facultyService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().facultyService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getUniversity().getId());
             } else if (clazzModelView == DepartmentModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().departmentService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().departmentService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getFaculty().getId());
             } else if (clazzModelView == SpecializationModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().specializationService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().specializationService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == DisciplineModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().disciplineService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().disciplineService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().headDepartmentService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().headDepartmentService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == TeacherModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().teacherService().calculatePageParam(itemsOnPage, currentPage, filterText, subId);
+                return ServiceFactoryImpl.getInstance().teacherService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                        inputSearchFieldsData.getFaculty().getId());
             }
             throw new RuntimeException("Unified class model: " + clazzModelView);
         };
@@ -478,7 +482,7 @@ public class DataBasePanel extends BasePanel {
     public void setComponentsListeners() {
         ActionHandler handler = new ActionHandler();
         TableSelectedRowsListener handlerSelection = new HandlerSelectionRows();
-        ActionListener handlerChoice = new HandlerChoiceButtonList();
+        ChoiceButtonListListener handlerChoice = new HandlerChoiceButtonList();
         KeyListener fieldEnterHandler = new HandlerEnterField();
         PropertyChangeListener propertyChangeListener = new HandlerPropertyChangePagination();
         btnAllDeselect.addActionListener(handler);
@@ -489,10 +493,29 @@ public class DataBasePanel extends BasePanel {
         btnNext.addActionListener(handler);
         btnBack.addActionListener(handler);
         tfFilter.addKeyListener(fieldEnterHandler);
+        cmbCountView.addItemListener(new ItemListener() {
+            private int iter = 0;
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                // This Method invokes two time. Firstly this method receive oldValue. After this method is invoking with new selected item
+                if (iter == 0) { // old value intend skip
+                    iter++;
+                    return;
+                } else iter = 0;
+                System.out.println(e.getStateChange());
+                System.out.println(e.getSource());
+                System.out.println("----------------   itemStateChanged");
+                paginationView.setItemsOnPage(Integer.parseInt(e.getItem().toString()));
+                initPagination(true);
+                selectedKeyForViewUI.getTbl().performSetData();
+            }
+        });
         cmbCountView.addActionListener((e) -> {
-            paginationView.setItemsOnPage(Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString()));
-            SwingUtilities.invokeLater(this::setPaginationViewChanged);
-            SwingUtilities.invokeLater(() -> selectedKeyForViewUI.getTbl().performSetData());
+//            paginationView.setItemsOnPage(Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString()));
+//            System.out.println(paginationView.getItemsOnPage());
+//            selectedKeyForViewUI.getTbl().performSetData();
+//            System.out.println("------------ actionListener cbmCountView");
         });
 
         myListButtons.addChoiceListener(handlerChoice);
@@ -516,26 +539,22 @@ public class DataBasePanel extends BasePanel {
             } else if (source == btnDeselect) {
                 myListButtons.deSelectInclude();
             } else if (source == btnCreate) {
-                JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
-                        .get(myListButtons.getSelectedBtn())
-                        .getTbl();
+                JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                 String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ",
                         "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
+                    initPagination(true);
                     tbl.performSetData();
-                    setPaginationViewChanged();
                 }
             } else if (source == btnDelete) {
                 if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?",
                         "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
                     CompletableFuture.runAsync(() -> {
-                        JTableDataBase tbl = myListButtons.getMapBtnForKeyViewUI()
-                                .get(myListButtons.getSelectedBtn())
-                                .getTbl();
+                        JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                         tbl.deleteItem();
+                        initPagination(true);
                         tbl.performSetData();
-                        setPaginationViewChanged();
                         myListButtons.deSelectInclude();
                     });
                 }
@@ -545,20 +564,21 @@ public class DataBasePanel extends BasePanel {
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
                             "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
                         panel.updateRequest();
-                        KeyForViewUI keyForView = myListButtons.getMapBtnForKeyViewUI().get(myListButtons.getSelectedBtn());
-                        var tbl = keyForView.getTbl();
+                        var tbl = selectedKeyForViewUI.getTbl();
                         myListButtons.deSelectInclude();
+                        initPagination(true);
                         tbl.performSetData();
-                        setPaginationViewChanged();
                     }
                 });
             } else if (source == btnNext) {
                 if (paginationView.getCurrentPage() < paginationView.getTotalPage()) {
-                    paginationView.setCurrentPage(paginationView.getCurrentPage() + 1);
+                    paginationView.setCurrentPageNotify(paginationView.getCurrentPage() + 1);
+                    selectedKeyForViewUI.getTbl().performSetData();
                 }
             } else if (source == btnBack) {
                 if (paginationView.getCurrentPage() > 1) {
-                    paginationView.setCurrentPage(paginationView.getCurrentPage() - 1);
+                    paginationView.setCurrentPageNotify(paginationView.getCurrentPage() - 1);
+                    selectedKeyForViewUI.getTbl().performSetData();
                 }
             }
         }
@@ -575,20 +595,102 @@ public class DataBasePanel extends BasePanel {
         btnNext.setEnabled(enableNext);
     }
 
-
-    private void setPaginationViewChanged() {
-        PaginationParam pp = supplierPaginationParam.get();
-        paginationView.setCurrentPage(pp.getCurrentPage());
-        paginationView.setTotalPage(pp.getTotalPage());
+    private void initPagination(boolean requestToDataBase) {
+        if (!requestToDataBase) return;
+        PaginationParam paginationDto = supplierPaginationParam.get();
+        paginationView.setTotalPageNotify(paginationDto.getTotalPage());
+        paginationView.setCurrentPageNotify(paginationDto.getCurrentPage());
+        paginationView.setItemsOnPageNotify(paginationDto.getItemsOnPage()); // repaint to combobox
+        paginationView.setFilterTextNotify(paginationView.getFilterText()); // repaint to JTextField
+        // itemsOnPage don't change
     }
 
-    private void initPagination() {
-        PaginationParam paginationDto = supplierPaginationParam.get();
-        paginationView.setTotalPage(paginationDto.getTotalPage());
-        paginationView.setCurrentPage(paginationDto.getCurrentPage());
-        paginationView.setItemsOnPage(paginationDto.getItemsOnPage()); // repaint to combobox
-        paginationView.setFilterText(paginationView.getFilterText()); // repaint to JTextField
-        // itemsOnPage don't change
+    private final class HandlerChoiceButtonList implements ChoiceButtonListListener {
+
+        @Override
+        public void perform(EventChoiceBtn event) {
+            SwingUtilities.invokeLater(() -> {
+                selectedKeyForViewUI = event.getCurrent();
+                subSelectedKeyForViewUI = event.getPrevious();
+                paginationView = selectedKeyForViewUI.getPv();
+
+                /*
+                 *  Here I may initialize previous paginationView
+                 * */
+                SwingUtilities.invokeLater(() -> {
+                    initPagination(true);
+                    selectedKeyForViewUI.getTbl().performSetData();
+
+                    boolean isSelectedRows = selectedKeyForViewUI.getTbl().getSelectedRowCount() > 0;
+                    if (isSelectedRows) {
+                        setEnableCRUDbtn(true, true, true);
+                    } else setEnableCRUDbtn(true, false, false);
+                });
+            });
+        }
+    }
+
+    private class HandlerPropertyChangePagination implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            switch (evt.getPropertyName()) {
+                case PaginationView.CURRENTPAGE -> {
+                    lbCurrentPage.setText(String.valueOf(evt.getNewValue()));
+
+                    if (paginationView.getCurrentPage() == paginationView.getTotalPage()) {
+                        if (paginationView.getTotalPage() == 1) {
+                            setEnablePaginationElem(false, false);
+                        } else {
+                            setEnablePaginationElem(true, false);
+                        }
+                    } else {
+                        if (paginationView.getCurrentPage() == 1) {
+                            if (paginationView.getTotalPage() == 0) {
+                                setEnablePaginationElem(false, false);
+                            } else {
+                                setEnablePaginationElem(false, true);
+                            }
+                        } else {
+                            setEnablePaginationElem(true, true);
+                        }
+                    }
+
+                }
+                case PaginationView.TOTALPAGE -> {
+                    lbTotalNumberPage.setText(String.valueOf(evt.getNewValue()));
+
+                }
+                case PaginationView.ITEMSPAGE -> {
+                    cmbCountView.setSelectedItem(String.valueOf(evt.getNewValue()));
+
+                }
+                case PaginationView.FILTERTEXT -> {
+                    tfFilter.setText((String) evt.getNewValue());
+
+                }
+                default -> throw new RuntimeException("Undefined property: " + evt.getPropertyName());
+            }
+        }
+    }
+
+    private class HandlerEnterField implements KeyListener {
+        @Override
+        public void keyTyped(KeyEvent e) {
+            System.out.println("keyTyped : ");
+        }
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            System.out.println("keyPressed");
+        }
+
+        @Override
+        public void keyReleased(KeyEvent e) {
+            System.out.println("keyReleased");
+            paginationView.setFilterText(tfFilter.getText());
+
+        }
     }
 
     private final class HandlerSelectionRows implements TableSelectedRowsListener {
@@ -614,33 +716,17 @@ public class DataBasePanel extends BasePanel {
                 }
                 myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
             } else {
-                System.out.println("Selected > 1 element rows");
-                setEnableCRUDbtn(true, false, false);
+                System.out.println("Selected item=" + elemSelected.length);
+                if (elemSelected.length > 1) {
+                    setEnableCRUDbtn(true, true, false);
+                } else {
+                    setEnableCRUDbtn(true, false, false);
+                }
                 myListButtons.deEnabledExclude();
             }
         }
     }
 
-    private final class HandlerChoiceButtonList implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            SwingUtilities.invokeLater(() -> {
-                EventChoiceBtn eventChoiceBtn = (EventChoiceBtn) e.getSource();
-                selectedKeyForViewUI = eventChoiceBtn.getCurrent();
-                subSelectedKeyForViewUI = eventChoiceBtn.getPrevious();
-                paginationView = selectedKeyForViewUI.getPv();
-
-                // don't choose this sequence
-                SwingUtilities.invokeLater(DataBasePanel.this::initPagination);
-
-                boolean isSelectedRows = selectedKeyForViewUI.getTbl().getSelectedRowCount() > 0;
-                if (isSelectedRows) {
-                    setEnableCRUDbtn(true, true, true);
-                } else setEnableCRUDbtn(true, false, false);
-            });
-        }
-    }
 
     private class UpdatePanel extends Panel {
         private final JTextField field;
@@ -696,57 +782,4 @@ public class DataBasePanel extends BasePanel {
         private String textFieldData = "";
     }
 
-    private class HandlerPropertyChangePagination implements PropertyChangeListener {
-
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            switch (evt.getPropertyName()) {
-                case PaginationView.CURRENTPAGE -> {
-                    lbCurrentPage.setText(String.valueOf(evt.getNewValue()));
-
-                    if (paginationView.getCurrentPage() == paginationView.getTotalPage()) {
-                        if (paginationView.getTotalPage() == 1) {
-                            setEnablePaginationElem(false, false);
-                        } else {
-                            setEnablePaginationElem(true, false);
-                        }
-                    } else {
-                        if (paginationView.getCurrentPage() == 1) {
-                            setEnablePaginationElem(false, true);
-                        } else {
-                            setEnablePaginationElem(true, true);
-                        }
-                    }
-                }
-                case PaginationView.TOTALPAGE -> {
-                    lbTotalNumberPage.setText(String.valueOf(evt.getNewValue()));
-                    selectedKeyForViewUI.getTbl().performSetData();
-                }
-                case PaginationView.ITEMSPAGE -> {
-                    cmbCountView.setSelectedItem(String.valueOf(evt.getNewValue()));
-                }
-                case PaginationView.FILTERTEXT -> {
-                    tfFilter.setText((String) evt.getNewValue());
-                }
-                default -> throw new RuntimeException("Undefined property: " + evt.getPropertyName());
-            }
-        }
-    }
-
-    private class HandlerEnterField implements KeyListener {
-        @Override
-        public void keyTyped(KeyEvent e) {
-            System.out.println("keyTyped : ");
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            System.out.println("keyPressed");
-        }
-
-        @Override
-        public void keyReleased(KeyEvent e) {
-            System.out.println("keyReleased");
-        }
-    }
 }

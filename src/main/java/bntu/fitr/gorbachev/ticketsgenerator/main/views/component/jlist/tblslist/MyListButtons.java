@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
@@ -28,7 +30,7 @@ public class MyListButtons extends JPanel {
     private final JPanel rootPnlForTable;
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
     private final JButton[] arrBtn;
-    private final List<ActionListener> handlersOnChoice = new ArrayList<>(4);
+    private final List<ChoiceButtonListListener> handlersOnChoice = new ArrayList<>(4);
 
     @Builder
     public MyListButtons(ModelTableViewSupplier[] modelTableViewSuppliers,
@@ -89,11 +91,11 @@ public class MyListButtons extends JPanel {
         defaultSelectedBtn();
     }
 
-    public void addChoiceListener(ActionListener listener) {
+    public void addChoiceListener(ChoiceButtonListListener listener) {
         handlersOnChoice.add(listener);
     }
 
-    public void removeChoiceListener(ActionListener listener) {
+    public void removeChoiceListener(ChoiceButtonListListener listener) {
         handlersOnChoice.remove(listener);
     }
 
@@ -106,34 +108,47 @@ public class MyListButtons extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JButton btnSource = (JButton) e.getSource();
-            if (btnSource == cur) return;
-            if (cur == null) cur = arrBtn[0]; // initialization 1 раз
-            prev = cur;
-            cur = btnSource;
-            selectedBtn = cur;
-            KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
-            v.getTbl().performSetData();
-            if (prev != null) {
-                if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
-                    prev.setBackground(Color.LIGHT_GRAY);
-                } else prev.setBackground(Color.WHITE);
-            }
-
-            setSelectedColorBtn(cur);
-            rootPnlForTable.removeAll();
-            rootPnlForTable.add(v.getTbl().getPnlTbl());
-            rootPnlForTable.repaint();
-            rootPnlForTable.validate();
-            fireChoiceJTable(new ActionEvent(new EventChoiceBtn(
-                    mapBtnForKeyViewUI.get(cur),
-                    mapBtnForKeyViewUI.get(prev)),
-                    mapBtnForKeyViewUI.get(selectedBtn).getIndex(), "choice"));
+            SwingUtilities.invokeLater(() -> {
+                JButton btnSource = (JButton) e.getSource();
+                if (btnSource == cur) return;
+                if (cur == null) cur = arrBtn[0]; // initialization 1 раз
+                fireChoiceBeforeJTable(new EventChoiceBtn(
+                        mapBtnForKeyViewUI.get(cur),
+                        mapBtnForKeyViewUI.get(prev) // may be return null. If this is initializing in the first
+                ));
+                prev = cur;
+                cur = btnSource;
+                selectedBtn = cur;
+                KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+                fireChoiceJTable(new EventChoiceBtn(v, mapBtnForKeyViewUI.get(prev)));
+                if (prev != null) {
+                    if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
+                        prev.setBackground(Color.LIGHT_GRAY);
+                    } else prev.setBackground(Color.WHITE);
+                }
+                setSelectedColorBtn(cur);
+                rootPnlForTable.removeAll();
+                rootPnlForTable.add(v.getTbl().getPnlTbl());
+                rootPnlForTable.repaint();
+                rootPnlForTable.validate();
+                fireChoiceAfterJTable(new EventChoiceBtn(mapBtnForKeyViewUI.get(cur), mapBtnForKeyViewUI.get(prev)));
+            });
         }
 
-        void fireChoiceJTable(ActionEvent event) {
-            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.actionPerformed(event)));
+        void fireChoiceBeforeJTable(EventChoiceBtn event) {
+            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.beforePerform(event)));
+
         }
+
+        void fireChoiceJTable(EventChoiceBtn event) {
+            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.perform(event)));
+        }
+
+        void fireChoiceAfterJTable(EventChoiceBtn event) {
+            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.afterPerform(event)));
+
+        }
+
     }
 
     private static class HandlerSelectionRowsListener implements TableSelectedRowsListener {
@@ -190,6 +205,8 @@ public class MyListButtons extends JPanel {
         rootPnlForTable.repaint();
         rootPnlForTable.revalidate();
         valueSelected.getBtn().setBackground(Color.WHITE);
+        // TODO: нужно исправить потому что что0то не правильно работает
+        throw new RuntimeException();
     }
 
     public void deSelectInclude() {

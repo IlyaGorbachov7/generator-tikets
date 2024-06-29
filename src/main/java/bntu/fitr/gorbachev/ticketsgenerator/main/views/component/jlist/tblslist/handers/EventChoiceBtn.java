@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
+package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
 import lombok.AllArgsConstructor;
