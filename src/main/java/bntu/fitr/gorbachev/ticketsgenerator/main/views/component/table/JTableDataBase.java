@@ -75,20 +75,20 @@ public class JTableDataBase extends JTable {
             }
         });
         this.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-            int iter = 0;
-
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                ++iter;
-                if (iter < 2) {// iterator for stoping invoking fireSelectedRows 2 раза
-
+                System.out.println("first:" + e.getFirstIndex());
+                System.out.println("last:" + e.getLastIndex());
+                System.out.println("valueisAdjusting: " + e.getValueIsAdjusting());
+                if (!e.getValueIsAdjusting()) {
                     fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
                             .classTableView(classTableView)
                             .selectedItems(((RealizeTableModel) dataModel)
                                     .getSelectedObjects(classTableView, getSelectedRows()))
                             .btn(btn).build());
-                } else iter = 0;
+                }
             }
+
         });
     }
 
