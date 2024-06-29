@@ -7,6 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -17,13 +19,16 @@ public class MainWindowFrame extends BaseFrame {
     public MainWindowFrame(PanelType type) {
         setPanelType(type);
         Dimension sizeScreen = toolkit.getScreenSize();
+        System.out.println("Size SCREEEON ::: " + sizeScreen);
         this.setLayout(new BorderLayout());
-        Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.4),
-                (int) (sizeScreen.height / 1.5));
+        Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.7),
+                (int) (sizeScreen.height / 2.4));
+        System.out.println("size Frame: " + sizeFrame);
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                 (sizeScreen.height - sizeFrame.height) / 2,
                 sizeFrame.width, sizeFrame.height);
-        this.setMinimumSize(sizeFrame);
+        this.setPreferredSize(sizeFrame);
+        this.setMinimumSize(new Dimension(940, 410));
         this.setResizable(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         initDialog();
@@ -31,23 +36,8 @@ public class MainWindowFrame extends BaseFrame {
 
     @Override
     public void initDialog() {
-//        try {
-//            PoolConnection.getInstance().initPool();
             JPanel panel = PanelFactory.getInstance().createPanel(this, getPanelType());
             this.add(panel, BorderLayout.CENTER);
-
-            this.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    System.out.print(MainWindowFrame.class + " ");
-//                    PoolConnection.getInstance().destroyConnectionPool();
-                }
-            });
-//        } catch (ConnectionPoolException e) {
-//             close connections, which opened already
-//            PoolConnection.getInstance().destroyConnectionPool();
-//            initPanelErrorConnectionPool(e);
-//        }
     }
 
     private void initPanelErrorConnectionPool(ConnectionPoolException ex) {

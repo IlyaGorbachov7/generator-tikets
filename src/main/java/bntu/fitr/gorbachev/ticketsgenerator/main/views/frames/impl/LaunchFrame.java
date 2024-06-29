@@ -20,8 +20,8 @@ public class LaunchFrame extends BaseFrame {
     public LaunchFrame(PanelType type) {
         setPanelType(type);
         Dimension sizeScreen = toolkit.getScreenSize();
-        Dimension sizeFrame = new Dimension(sizeScreen.width / 2 - 100,
-                sizeScreen.height / 2);
+        Dimension sizeFrame = new Dimension(sizeScreen.width / 2 - 250,
+                sizeScreen.height / 2 - 100);
         this.setLayout(new BorderLayout());
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                 (sizeScreen.height - sizeFrame.height) / 2,

@@ -7,6 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
@@ -266,18 +268,10 @@ public class MainWindowPanel extends BasePanel {
         super(frame);
         frameRoot = getRootFrame();
         SwingUtilities.invokeLater(() -> {
-            SwingUtilities.invokeLater(() -> {
-                recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
-                        .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING);
-                dataBaseDialog = (InputParametersDialog) FrameDialogFactory.getInstance()
-                        .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB);
-            });
-            aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
-                    .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR);
-            aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
-                    .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM);
             viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
                     .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
+            recordSettingDialog = (Objects.isNull(recordSettingDialog)) ? (RecordSetting) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING) : recordSettingDialog;
         });
 
         // initialization menu bar
@@ -774,8 +768,17 @@ public class MainWindowPanel extends BasePanel {
         frameRoot.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (executionThread != null) {
-                    executionThread.interrupt();
+                System.out.println(":) Window closing");
+                getRootFrame().setVisible(false);
+                try {
+                    if (executionThread != null) {
+                        executionThread.interrupt();
+                    }
+                    PoolConnection.Builder.build().destroy();
+                } catch (ConnectionPoolException ex) {
+                    throw new RuntimeException(ex);
+                } finally {
+                    System.out.println("GoodBy!");
                 }
             }
 
@@ -1652,16 +1655,26 @@ public class MainWindowPanel extends BasePanel {
                         WindowEvent.WINDOW_CLOSING));
 
             } else if (e.getSource() == aboutAuthorItem) {
-                aboutAuthorDialog.setVisible(true);
-
+                SwingUtilities.invokeLater(() -> {
+                    aboutAuthorDialog = (Objects.isNull(aboutAuthorDialog)) ? (AboutAuthor) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR) : aboutAuthorDialog;
+                    aboutAuthorDialog.setVisible(true);
+                });
             } else if (e.getSource() == aboutProgramItem) {
-                aboutProgramDialog.setVisible(true);
+                SwingUtilities.invokeLater(() -> {
+                    aboutProgramDialog = (Objects.isNull(aboutProgramDialog)) ? (AboutProgram) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM) : aboutProgramDialog;
+                    aboutProgramDialog.setVisible(true);
+                });
 
             } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
-                //TODO:
-                dataBaseDialog.setVisible(true);
+                SwingUtilities.invokeLater(() -> {
+                    dataBaseDialog = (Objects.isNull(dataBaseDialog)) ? (InputParametersDialog) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB) : dataBaseDialog;
+                    dataBaseDialog.setVisible(true);
+                });
             } else if (e.getSource() == tglAppTheme) {
                 int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
                                                                            "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
