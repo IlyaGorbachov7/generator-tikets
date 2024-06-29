@@ -112,15 +112,19 @@ public class MyListButtons extends JPanel {
                 JButton btnSource = (JButton) e.getSource();
                 if (btnSource == cur) return;
                 if (cur == null) cur = arrBtn[0]; // initialization 1 раз
-                fireChoiceBeforeJTable(new EventChoiceBtn(
-                        mapBtnForKeyViewUI.get(cur),
-                        mapBtnForKeyViewUI.get(prev) // may be return null. If this is initializing in the first
-                ));
+                KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+                KeyForViewUI prevV = mapBtnForKeyViewUI.get(prev);
+                KeyForViewUI relatedV = getRelatedKeyForViewIU(v);
+                fireChoiceBeforeJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
                 prev = cur;
                 cur = btnSource;
                 selectedBtn = cur;
-                KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
-                fireChoiceJTable(new EventChoiceBtn(v, mapBtnForKeyViewUI.get(prev)));
+
+                v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+                prevV = mapBtnForKeyViewUI.get(prev);
+                relatedV = getRelatedKeyForViewIU(v);
+                fireChoiceJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
+
                 if (prev != null) {
                     if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
                         prev.setBackground(Color.LIGHT_GRAY);
@@ -131,24 +135,33 @@ public class MyListButtons extends JPanel {
                 rootPnlForTable.add(v.getTbl().getPnlTbl());
                 rootPnlForTable.repaint();
                 rootPnlForTable.validate();
-                fireChoiceAfterJTable(new EventChoiceBtn(mapBtnForKeyViewUI.get(cur), mapBtnForKeyViewUI.get(prev)));
+                fireChoiceAfterJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
             });
         }
 
-        void fireChoiceBeforeJTable(EventChoiceBtn event) {
-            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.beforePerform(event)));
+        KeyForViewUI getRelatedKeyForViewIU(KeyForViewUI base) {
+            return mapBtnForKeyViewUI.values()
+                    .stream().collect(Collectors.collectingAndThen(Collectors.filtering(keyForView -> {
+                        var tbl = keyForView.getTbl();
+                        var node = tbl.getRelatedMdlTbl();
+                        var relatedMbl = base.getTbl().getRelatedMdlTbl();
+                        if (node == null || node == relatedMbl) return false;
+                        return node.getChild().contains(relatedMbl);
+                    }, Collectors.toUnmodifiableList()), downList -> downList.isEmpty()
+                            ? base : downList.get(0)));
+        }
 
+        void fireChoiceBeforeJTable(EventChoiceBtn event) {
+            handlersOnChoice.parallelStream().forEach((h) -> h.beforePerform(event));
         }
 
         void fireChoiceJTable(EventChoiceBtn event) {
-            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.perform(event)));
+            handlersOnChoice.parallelStream().forEach((h) -> h.perform(event));
         }
 
         void fireChoiceAfterJTable(EventChoiceBtn event) {
-            CompletableFuture.runAsync(() -> handlersOnChoice.parallelStream().forEach((h) -> h.afterPerform(event)));
-
+            handlersOnChoice.parallelStream().forEach((h) -> h.afterPerform(event));
         }
-
     }
 
     private static class HandlerSelectionRowsListener implements TableSelectedRowsListener {

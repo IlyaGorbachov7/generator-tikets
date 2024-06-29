@@ -36,6 +36,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -472,6 +473,8 @@ public class DataBasePanel extends BasePanel {
 
     @Override
     public void setConfigComponents() {
+        tfFilter.setToolTipText("Введите не менее 5 символов");
+        tfFilter.setText("Введите не менее 5 символов");
         myListButtons.getMapBtnForKeyViewUI().values().parallelStream()
                 .map(KeyForViewUI::getPv).forEach(pagination -> {
                     pagination.setItemsOnPage((Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString())));
@@ -494,21 +497,16 @@ public class DataBasePanel extends BasePanel {
         btnBack.addActionListener(handler);
         tfFilter.addKeyListener(fieldEnterHandler);
         cmbCountView.addItemListener(new ItemListener() {
-            private int iter = 0;
-
             @Override
             public void itemStateChanged(ItemEvent e) {
                 // This Method invokes two time. Firstly this method receive oldValue. After this method is invoking with new selected item
-                if (iter == 0) { // old value intend skip
-                    iter++;
-                    return;
-                } else iter = 0;
-                System.out.println(e.getStateChange());
-                System.out.println(e.getSource());
-                System.out.println("----------------   itemStateChanged");
-                paginationView.setItemsOnPage(Integer.parseInt(e.getItem().toString()));
-                initPagination(true);
-                selectedKeyForViewUI.getTbl().performSetData();
+                // old value intend skip
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    System.out.println("----------------   itemStateChanged: " + e.getItem());
+                    paginationView.setItemsOnPage(Integer.parseInt(e.getItem().toString()));
+                    initPagination(true, true, false, false);
+                    selectedKeyForViewUI.getTbl().performSetData();
+                }
             }
         });
         cmbCountView.addActionListener((e) -> {
@@ -544,7 +542,7 @@ public class DataBasePanel extends BasePanel {
                         "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
-                    initPagination(true);
+                    initPagination(true, true, false, false);
                     tbl.performSetData();
                 }
             } else if (source == btnDelete) {
@@ -553,7 +551,7 @@ public class DataBasePanel extends BasePanel {
                     CompletableFuture.runAsync(() -> {
                         JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                         tbl.deleteItem();
-                        initPagination(true);
+                        initPagination(true, true, false, false);
                         tbl.performSetData();
                         myListButtons.deSelectInclude();
                     });
@@ -566,7 +564,7 @@ public class DataBasePanel extends BasePanel {
                         panel.updateRequest();
                         var tbl = selectedKeyForViewUI.getTbl();
                         myListButtons.deSelectInclude();
-                        initPagination(true);
+                        initPagination(true, true, false, false);
                         tbl.performSetData();
                     }
                 });
@@ -595,30 +593,37 @@ public class DataBasePanel extends BasePanel {
         btnNext.setEnabled(enableNext);
     }
 
-    private void initPagination(boolean requestToDataBase) {
-        if (!requestToDataBase) return;
-        PaginationParam paginationDto = supplierPaginationParam.get();
-        paginationView.setTotalPageNotify(paginationDto.getTotalPage());
-        paginationView.setCurrentPageNotify(paginationDto.getCurrentPage());
-        paginationView.setItemsOnPageNotify(paginationDto.getItemsOnPage()); // repaint to combobox
-        paginationView.setFilterTextNotify(paginationView.getFilterText()); // repaint to JTextField
-        // itemsOnPage don't change
+    private void initPagination() {
+        initPagination(true, true, true, true);
+    }
+
+    private void initPagination(boolean notifyTotalPage,
+                                boolean notifyCurrentPage,
+                                boolean notifyItemOnPage,
+                                boolean notifyFilterText) {
+        PaginationParam paginationParam = supplierPaginationParam.get();
+        if (notifyTotalPage)
+            paginationView.setTotalPageNotify(paginationParam.getTotalPage());
+        else paginationView.setTotalPage(paginationParam.getTotalPage());
+        if (notifyCurrentPage)
+            paginationView.setCurrentPageNotify(paginationParam.getCurrentPage());
+        else paginationView.setCurrentPage(paginationParam.getCurrentPage());
+        if (notifyItemOnPage)
+            paginationView.setItemsOnPageNotify(paginationParam.getItemsOnPage());
+        else paginationView.setItemsOnPage(paginationParam.getItemsOnPage());
+        if (notifyFilterText)
+            paginationView.setFilterTextNotify(paginationView.getFilterText()); // repaint to JTextField
     }
 
     private final class HandlerChoiceButtonList implements ChoiceButtonListListener {
-
         @Override
         public void perform(EventChoiceBtn event) {
             SwingUtilities.invokeLater(() -> {
                 selectedKeyForViewUI = event.getCurrent();
-                subSelectedKeyForViewUI = event.getPrevious();
+                subSelectedKeyForViewUI = event.getRelatedFromCurrent();
                 paginationView = selectedKeyForViewUI.getPv();
-
-                /*
-                 *  Here I may initialize previous paginationView
-                 * */
                 SwingUtilities.invokeLater(() -> {
-                    initPagination(true);
+                    initPagination();
                     selectedKeyForViewUI.getTbl().performSetData();
 
                     boolean isSelectedRows = selectedKeyForViewUI.getTbl().getSelectedRowCount() > 0;
@@ -674,21 +679,21 @@ public class DataBasePanel extends BasePanel {
         }
     }
 
-    private class HandlerEnterField implements KeyListener {
-        @Override
-        public void keyTyped(KeyEvent e) {
-            System.out.println("keyTyped : ");
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            System.out.println("keyPressed");
-        }
-
+    private class HandlerEnterField extends KeyAdapter {
+        boolean isUpdated = false;
         @Override
         public void keyReleased(KeyEvent e) {
-            System.out.println("keyReleased");
-            paginationView.setFilterText(tfFilter.getText());
+            String text = tfFilter.getText();
+            paginationView.setFilterText(text);
+            if (text.length() > 4) {
+                isUpdated = true;
+                initPagination(true, true, true, false);
+                selectedKeyForViewUI.getTbl().performSetData();
+            } else if (text.isBlank() && isUpdated) {
+                isUpdated = false;
+                initPagination(true, true, true, false);
+                selectedKeyForViewUI.getTbl().performSetData();
+            }
 
         }
     }
