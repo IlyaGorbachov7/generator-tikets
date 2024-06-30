@@ -29,6 +29,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMo
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -68,7 +69,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.Launch
  * @author Gorbachev I. D.
  * @version 18.04.2022
  */
-public class MainWindowPanel extends BasePanel {
+public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
@@ -370,7 +371,7 @@ public class MainWindowPanel extends BasePanel {
         datePicDecision.getComponentDateTextField().setEnabled(false);
         datePicDecision.setDateToToday();
         datePicDecision.setFocusable(false);
-
+        customizeUIDatePicker();
         // range with between September and December
         setTimeYearOnBoxTypeSession(datePicDecision.getDate());
         boxTypeSession.setFocusable(false);
@@ -444,6 +445,33 @@ public class MainWindowPanel extends BasePanel {
         textField.setFont(new Font("Serif", Font.PLAIN, 12));
     }
 
+    private void customizeUIDatePicker() {
+        var settings = datePicDecision.getSettings();
+        // цвет недели
+        settings.setColorBackgroundWeekdayLabels(UIManager.getColor("Button.background"), false);
+        // кнопка спаво снизу
+        settings.setColor(DatePickerSettings.DateArea.BackgroundClearLabel, UIManager.getColor("Button.background"));
+        // посередине 2е лейбы
+        settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearMenuLabels, UIManager.getColor("Button.background"));
+        // это кнопки навигации
+        settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearNavigationButtons, UIManager.getColor("Button.background"));
+        // кнопка лева снизу
+        settings.setColor(DatePickerSettings.DateArea.BackgroundTodayLabel, UIManager.getColor("Button.background"));
+        settings.setColor(DatePickerSettings.DateArea.BackgroundTopLeftLabelAboveWeekNumbers, UIManager.getColor("Button.disabledBackground"));
+
+        // задает для всех типо касание мыши типо папал на облость то отобрази более темным
+        settings.setColor(DatePickerSettings.DateArea.BackgroundCalendarPanelLabelsOnHover, UIManager.getColor("Button.disabledBackground"));
+        // фон отображаю темным
+        settings.setColor(DatePickerSettings.DateArea.BackgroundOverallCalendarPanel, UIManager.getColor("Button.disabledBackground"));
+        // цвет выбраной данты
+        settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundSelectedDate, UIManager.getColor("Component.focusColor"));
+        // цвет календаря
+        settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundNormalDates, UIManager.getColor("Button.background"));
+        // это то что отображается уже даны на textFiled
+        settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundValidDate, UIManager.getColor("Button.background"));
+
+    }
+
     private void setTimeYearOnBoxTypeSession(LocalDate newDate) {
         var range = ValueRange.of(Month.SEPTEMBER.getValue(), Month.DECEMBER.getValue());
         boxTypeSession.setSelectedIndex((range.isValidIntValue(newDate.getMonthValue())) ? 0 : 1);
@@ -453,6 +481,7 @@ public class MainWindowPanel extends BasePanel {
      * The method sets necessary all components listeners
      */
     public void setComponentsListeners() {
+        AppThemeManager.addThemeChangerListener(this);
         ActionListener handler = new ActionEventHandler();
         loadItem.addActionListener(handler);
         saveItem.addActionListener(handler);
@@ -1194,6 +1223,16 @@ public class MainWindowPanel extends BasePanel {
     private boolean isRandomRead;
     private boolean isRandomWrite;
     private final SenderMessage registerSenderMsg;
+
+    @Override
+    public Component getComponent() {
+        return null;
+    }
+
+    @Override
+    public void updateComponent() {
+        customizeUIDatePicker();
+    }
 
 
     /**

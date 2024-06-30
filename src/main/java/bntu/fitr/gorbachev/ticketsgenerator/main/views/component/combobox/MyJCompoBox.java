@@ -212,8 +212,12 @@ public class MyJCompoBox extends JComboBox<Object> {
                 "ComboBox.foreground",
                 "ComboBox.font");
         if (this.popup != null) {
-            if(popup.getScrollPane()!= null){
-                popup.getScrollPane().getVerticalScrollBar().updateUI();
+            if (popup.getScrollPane() != null) {
+                try {
+                    popup.getScrollPane().getVerticalScrollBar().updateUI();
+                } catch (Throwable ex) {
+                    System.out.println("Warning: MyJComboBox.updateUI::: exceptionMSG:" + ex.getMessage());
+                }
             }
         }
         ListCellRenderer<?> renderer = getRenderer();
