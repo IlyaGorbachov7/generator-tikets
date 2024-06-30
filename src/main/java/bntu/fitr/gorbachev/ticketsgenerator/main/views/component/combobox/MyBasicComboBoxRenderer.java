@@ -22,16 +22,7 @@ public class MyBasicComboBoxRenderer extends BasicComboBoxRenderer {
     // TODO: You should will be fixing  color mode related with view item of list. black | light
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        if (isSelected) {
-            setBackground(Color.LIGHT_GRAY);
-            setForeground(Color.BLACK);
-        } else {
-            setBackground(Color.white);
-            setForeground(Color.BLACK);
-        }
-
-        setFont(list.getFont());
-
+        super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         if (value instanceof Icon) {
             setIcon((Icon) value);
         } else {

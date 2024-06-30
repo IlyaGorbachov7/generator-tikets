@@ -28,6 +28,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -56,7 +57,6 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 // TODO: Сделать UI для вненсия изминней в базу данных отделов образования
@@ -79,7 +79,6 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
     private final JMenuItem tglAppTheme;
-    private boolean nightLightModeAppTheme;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -337,7 +336,7 @@ public class MainWindowPanel extends BasePanel {
         // init MenuBar
         saveItem.setEnabled(false);
 
-        tglAppTheme.setIcon((nightLightModeAppTheme)
+        tglAppTheme.setIcon(((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT))
                 ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                 : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
         tglAppTheme.setFocusable(false);
@@ -1676,23 +1675,13 @@ public class MainWindowPanel extends BasePanel {
                     dataBaseDialog.setVisible(true);
                 });
             } else if (e.getSource() == tglAppTheme) {
-                int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
-                                                                           "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
-                if (selected == JOptionPane.OK_OPTION) {
-                    System.out.println("Вносим изминение в базе данных, что пользователь выбрал темную/свлетлую тему. Перезагружаем приложение полностю, но не завершаем программу, показываем уже нужнут тему");
-                } else {
-                    System.out.println("Просто вносим зимения в базу данных, Но не выходим из приложения.");
-                }
-                nightLightModeAppTheme = !nightLightModeAppTheme;
-                if (nightLightModeAppTheme) {
-
-                } else {
-
-                }
-                tglAppTheme.setIcon((nightLightModeAppTheme)
-                        ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
-                        : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
-                tglAppTheme.updateUI();
+                SwingUtilities.invokeLater(() -> {
+                    AppThemeManager.swapTheme();
+                    tglAppTheme.setIcon((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT)
+                            ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                            : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+                    tglAppTheme.updateUI();
+                });
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {

@@ -2,11 +2,16 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentListener;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.ui.FlatScrollPaneUI;
+import com.google.common.collect.ArrayTable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.*;
+import javax.swing.plaf.ComboBoxUI;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
 import java.awt.event.*;
@@ -40,7 +45,7 @@ public class MyJCompoBox extends JComboBox<Object> {
     JButton arrowButton;
 
     @Getter
-    ComboPopup popup;
+    MyPopup popup;
 
     List<RelatedComponentListener> subscribersRelatedComponent = new ArrayList<>();
 
@@ -63,7 +68,7 @@ public class MyJCompoBox extends JComboBox<Object> {
         model = (DefaultComboBoxModel<Object>) super.getModel();
         editorTextField = (JTextField) this.getEditor().getEditorComponent();
         arrowButton = compoBoxUI.getArrowButton();
-        popup = compoBoxUI.getPopup();
+        popup = (MyPopup) compoBoxUI.getPopup();
         jList = popup.getList();
     }
 
@@ -134,10 +139,13 @@ public class MyJCompoBox extends JComboBox<Object> {
         arrowButton.removeMouseListener(popup.getMouseListener());
 
         arrowButton.addActionListener((e) -> {
-            updateDropDownList();
-            if (model.getSize() > 0) {
-                // toggle to show/hide dropList
-                popup.getMouseListener().mousePressed(new MouseEvent((Component) e.getSource(), 1, 0, InputEvent.BUTTON1_DOWN_MASK, 1, 1, 1, false));
+            if (isPopupVisible()) {
+                hidePopup();
+            } else {
+                updateDropDownList();
+                if (model.getSize() > 0) {
+                    showPopup();
+                }
             }
         });
     }
@@ -166,7 +174,7 @@ public class MyJCompoBox extends JComboBox<Object> {
         setEnableElements(Element.ARROW_BUTTON, model.getSize() > 0);
     }
 
-    public String getFieldText(){
+    public String getFieldText() {
         return editorTextField.getText();
     }
 
@@ -194,8 +202,23 @@ public class MyJCompoBox extends JComboBox<Object> {
     }
 
     public enum Element {
-        ARROW_BUTTON,
-        TEXT_FIELD,
-        ALL
+        ARROW_BUTTON, TEXT_FIELD, ALL
+    }
+
+
+    @Override
+    public void updateUI() {
+        LookAndFeel.installColorsAndFont(this, "ComboBox.background",
+                "ComboBox.foreground",
+                "ComboBox.font");
+        if (this.popup != null) {
+            if(popup.getScrollPane()!= null){
+                popup.getScrollPane().getVerticalScrollBar().updateUI();
+            }
+        }
+        ListCellRenderer<?> renderer = getRenderer();
+        if (renderer instanceof Component) {
+            SwingUtilities.updateComponentTreeUI((Component) renderer);
+        }
     }
 }
