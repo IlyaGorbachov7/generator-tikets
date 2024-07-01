@@ -53,6 +53,7 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ValueRange;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
@@ -1232,6 +1233,10 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     @Override
     public void updateComponent() {
         customizeUIDatePicker();
+        Arrays.stream(chooserUpLoad.getComponents())
+                .forEach(AppThemeManager::updateComponentTreeUI);
+        Arrays.stream(chooserSave.getComponents())
+                .forEach(AppThemeManager::updateComponentTreeUI);
     }
 
 

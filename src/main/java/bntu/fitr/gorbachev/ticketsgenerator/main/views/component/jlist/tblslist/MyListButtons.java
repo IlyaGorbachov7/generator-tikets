@@ -5,11 +5,14 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTblDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ColorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -18,14 +21,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public class MyListButtons extends JPanel {
+public class MyListButtons extends JPanel implements ThemeChangerListener {
 
     private final JPanel rootPnlForTable;
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
@@ -87,7 +90,7 @@ public class MyListButtons extends JPanel {
             btn.addActionListener(handlerBtnAction);
             keyView.getTbl().addTableSelectedRowsListener(handlerSelection);
         });
-
+        AppThemeManager.addThemeChangerListener(this);
         defaultSelectedBtn();
     }
 
@@ -101,6 +104,32 @@ public class MyListButtons extends JPanel {
 
 
     private JButton selectedBtn;
+
+    @Override
+    public Component getComponent() {
+        return null;
+    }
+
+    @Override
+    public void updateComponent() {
+        CompletableFuture.runAsync(() -> {
+            SwingUtilities.invokeLater(() -> {
+                mapBtnForKeyViewUI.forEach((btn, keyForView) -> {
+                    AppThemeManager.updateComponentTreeUI(keyForView.getTbl());
+                    if (btn == selectedBtn) {
+                        btn.setBackground(ColorsListBtn.ACTIVE.getColor());
+                        return;
+                    }
+                    boolean isSelectedItemOnTable = mapBtnForKeyViewUI.get(btn).getTbl().getSelectedRowCount() > 0;
+                    if (isSelectedItemOnTable) {
+                        btn.setBackground(ColorsListBtn.SELECTED.getColor());
+                    } else {
+                        btn.setBackground(ColorsListBtn.REGULAR.getColor());
+                    }
+                });
+            });
+        });
+    }
 
     private class HandlerButtonActionListener implements ActionListener {
         JButton cur;
@@ -127,8 +156,8 @@ public class MyListButtons extends JPanel {
 
                 if (prev != null) {
                     if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
-                        prev.setBackground(Color.LIGHT_GRAY);
-                    } else prev.setBackground(Color.WHITE);
+                        prev.setBackground(ColorsListBtn.SELECTED.getColor());
+                    } else prev.setBackground(ColorsListBtn.REGULAR.getColor());
                 }
                 setSelectedColorBtn(cur);
                 rootPnlForTable.removeAll();
@@ -202,7 +231,7 @@ public class MyListButtons extends JPanel {
     }
 
     protected void setSelectedColorBtn(@NonNull JButton btn) {
-        btn.setBackground(new Color(84, 151, 213));
+        btn.setBackground(ColorsListBtn.ACTIVE.getColor());
     }
 
     public void deSelectAll() {
@@ -217,7 +246,7 @@ public class MyListButtons extends JPanel {
         rootPnlForTable.removeAll();
         rootPnlForTable.repaint();
         rootPnlForTable.revalidate();
-        valueSelected.getBtn().setBackground(Color.WHITE);
+        valueSelected.getBtn().setBackground(ColorsListBtn.REGULAR.getColor());
         // TODO: нужно исправить потому что что0то не правильно работает
         throw new RuntimeException();
     }
@@ -244,7 +273,7 @@ public class MyListButtons extends JPanel {
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
                 arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
                 rootValue.getTbl().getSelectionModel().clearSelection();
             }
         }
@@ -264,7 +293,7 @@ public class MyListButtons extends JPanel {
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
                 arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
                 rootValue.getTbl().getSelectionModel().clearSelection();
             }
         }
@@ -280,7 +309,7 @@ public class MyListButtons extends JPanel {
 
         if (root == null || root.getChild().isEmpty()) {
             arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+            arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
             rootValue.getTbl().getSelectionModel().clearSelection();
             return;
         }
@@ -288,7 +317,7 @@ public class MyListButtons extends JPanel {
         for (RelatedTblDataBase child : root.getChild()) {
             doDes(child);
             arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+            arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
             rootValue.getTbl().getSelectionModel().clearSelection();
         }
     }
@@ -313,6 +342,38 @@ public class MyListButtons extends JPanel {
 
         public int cur() {
             return i;
+        }
+    }
+
+    /**
+     * This implementation follows one of the principles SOLID.
+     * <p>
+     * <b>This decision is  flexible and dynamically for runtime update theme application </b>
+     *
+     * @see ColorManager
+     */
+    public enum ColorsListBtn {
+        REGULAR(() -> {
+            return UIManager.getColor("Button.background");
+        }),
+        SELECTED(() -> {
+            return UIManager.getColor("Button.selectedBackground");
+        }),
+        ACTIVE(() -> {
+            return UIManager.getColor("Component.focusColor");
+        }),
+        NAVIGATION(() -> (AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.NIGHT) ?
+                new Color(0, 0, 0) :
+                new Color(72, 72, 72));
+
+        ColorManager color;
+
+        ColorsListBtn(@NonNull ColorManager color) {
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color.getColor();
         }
     }
 }

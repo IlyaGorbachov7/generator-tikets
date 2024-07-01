@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ReflectionTableHelper;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 import lombok.*;
 
 import javax.swing.*;
@@ -97,6 +98,8 @@ public class JTableDataBase extends JTable {
         var scroll = new JScrollPane(new JScrollPane(this)); // this is how I made it possible to have a horizontal scroll
         pnlTbl.add(scroll, BorderLayout.CENTER);
 
+        // Added scroll panel for update UI
+        AppThemeManager.addThemeChangerListener(() -> scroll);
 
         ReflectionTableHelper.checkRuntimeMistakes(classTableView);
 
