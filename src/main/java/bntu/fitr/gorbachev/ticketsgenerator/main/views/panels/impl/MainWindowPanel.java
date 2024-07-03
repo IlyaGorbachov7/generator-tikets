@@ -213,7 +213,7 @@ public class MainWindowPanel extends BasePanel {
                 .build();
 
         cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
-                .supplierListElem(textField -> facultyService.getByLikeNameAndUniversity(textField, inputSearchFieldsData.getUniversityDto().getId()))
+                .supplierListElem(textField -> facultyService.getByLikeNameAndUniversityId(textField, inputSearchFieldsData.getUniversityDto().getId()))
                 .build();
 
         cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
