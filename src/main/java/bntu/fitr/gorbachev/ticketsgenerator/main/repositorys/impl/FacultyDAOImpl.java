@@ -70,6 +70,13 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
                     """,
             HQL_FIND_BY_NAME_AND_universityId);
 
+    private final String HQL_FIND_BY_universityId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_universityId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Faculty> findByUniversityId(UUID universityId) throws DAOException {
@@ -77,6 +84,18 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
                 HQL_FIND_BY_universityId,
                 ENTITY_CLAZZ,
                 Map.entry(UNIVERSITY_ID_ARG, universityId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Faculty> findByUniversityId(UUID universityId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_universityId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(UNIVERSITY_ID_ARG, universityId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage))
+        );
     }
 
     @Override
@@ -108,6 +127,19 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
                 ENTITY_CLAZZ,
                 Map.entry(UNIVERSITY_ID_ARG, universityId),
                 Map.entry(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%"))
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId, int page, int itemsOnPage) {
+        return executor.executeQuery(
+                HQL_COUNT_FIND_BY_LIKE_NAME_AND_universityId,
+                ENTITY_CLAZZ,
+                Map.entry(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(UNIVERSITY_ID_ARG, universityId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage))
         );
     }
 

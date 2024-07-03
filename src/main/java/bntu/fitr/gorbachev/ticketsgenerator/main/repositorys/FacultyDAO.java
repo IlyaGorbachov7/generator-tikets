@@ -10,6 +10,8 @@ public interface FacultyDAO extends AppAreaAbstractDAO<Faculty, UUID> {
 
     List<Faculty> findByUniversityId(UUID universityId) throws DAOException;
 
+    List<Faculty> findByUniversityId(UUID universityId, int page, int itemsOnPage) throws DAOException;
+
     long countByUniversityId(UUID universityId) throws DAOException;
 
     List<Faculty> findByUniversityName(String universityName) throws DAOException;
@@ -17,6 +19,8 @@ public interface FacultyDAO extends AppAreaAbstractDAO<Faculty, UUID> {
     long countByUniversityName(String universityName) throws DAOException;
 
     List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId) throws DAOException;
+
+    List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId, int page, int itemsOnPage);
 
     long countByLikeNameAndUniversityId(String name, UUID universityId) throws DAOException;
 }

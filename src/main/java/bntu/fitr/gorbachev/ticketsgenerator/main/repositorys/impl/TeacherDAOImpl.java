@@ -58,6 +58,20 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
                     """,
             HQL_FIND_BY_NAME_AND_facultyId);
 
+    private final String HQL_FIND_BY_facultyId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_facultyId,
+            HQL_LIMIT);
+
+    private final String HQL_FIND_BY_LIKE_NAME_AND_facultyId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_NAME_AND_facultyId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Teacher> findByFacultyId(UUID facultyId) throws DAOException {
@@ -65,6 +79,18 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
                 HQL_FIND_BY_facultyId,
                 ENTITY_CLAZZ,
                 Map.entry(FACULTY_ID_ARG, facultyId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Teacher> findByFacultyId(UUID facultyId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_facultyId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(FACULTY_ID_ARG, facultyId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage))
+        );
     }
 
     @Override
@@ -98,6 +124,19 @@ public class TeacherDAOImpl extends AppAreaAbstractDAOImpl<Teacher, UUID> implem
                 ENTITY_CLAZZ,
                 Map.entry(FACULTY_ID_ARG, facultyId),
                 Map.entry(FACULTY_NAME_ARG, String.join("", "%", name, "%")));
+    }
+
+    @Override
+    @SuppressWarnings("unckeckd")
+    public List<Teacher> findByLikeNameAndFacultyId(String name, UUID facultyId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_facultyId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(FACULTY_ID_ARG, facultyId),
+                Map.entry(FACULTY_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage))
+        );
     }
 
     @Override
