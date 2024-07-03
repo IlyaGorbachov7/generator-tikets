@@ -21,8 +21,9 @@ public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, I
     // ------------ HQL entry ------------------------ //
 
     protected final String HQL_LIMIT = String.format("""
+            ORDER BY %s.name
             LIMIT :%s OFFSET :%s
-            """, ITEMS_ON_PAGE_arg, OFFSET_arg);
+            """,ALLIES_TABLE, ITEMS_ON_PAGE_arg, OFFSET_arg);
 
     private final String HQL_FIND_BY_NAME = String.format("""
                     %s

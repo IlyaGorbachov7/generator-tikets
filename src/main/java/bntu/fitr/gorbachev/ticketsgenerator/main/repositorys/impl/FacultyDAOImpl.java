@@ -77,6 +77,13 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
             HQL_FIND_BY_universityId,
             HQL_LIMIT);
 
+    private final String HQL_FIND_BY_LIKE_NAME_AND_universityId_LIMIT = String.format("""
+            %s
+            %s
+            """,
+            HQL_FIND_BY_NAME_AND_universityId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Faculty> findByUniversityId(UUID universityId) throws DAOException {
@@ -134,7 +141,7 @@ public class FacultyDAOImpl extends AppAreaAbstractDAOImpl<Faculty, UUID> implem
     @SuppressWarnings("unchecked")
     public List<Faculty> findByLikeNameAndUniversityId(String name, UUID universityId, int page, int itemsOnPage) {
         return executor.executeQuery(
-                HQL_COUNT_FIND_BY_LIKE_NAME_AND_universityId,
+                HQL_FIND_BY_LIKE_NAME_AND_universityId_LIMIT,
                 ENTITY_CLAZZ,
                 Map.entry(UNIVERSITY_NAME_ARG, String.join("", "%", name, "%")),
                 Map.entry(UNIVERSITY_ID_ARG, universityId),
