@@ -15,4 +15,6 @@ public class   TableSelectedRowsEvent {
     private JButton btn;
 
     private Object[] selectedItems;
+    private int[] selectedRows;
+    private boolean isAdjusting;
 }

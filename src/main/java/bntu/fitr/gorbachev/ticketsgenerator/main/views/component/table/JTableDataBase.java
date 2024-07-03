@@ -33,11 +33,13 @@ public class JTableDataBase extends JTable {
 
     private final List<TableSelectedRowsListener> handlers;
 
+    private Function<Object[], DefaultTableCellRenderer> supplierCellRender;
+
     @Builder
     public JTableDataBase(Class<?> clazz, JPanel p, JButton btn, Function<Object, List<?>> supplierDataList,
                           Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
                           Function<Object, List<?>> supplierDelete,
-                          RelatedTblDataBase relatedMdlTbl) {
+                          RelatedTblDataBase relatedMdlTbl, Function<Object[], DefaultTableCellRenderer> supplierCellRender) {
         super(new RealizeTableModel(clazz, supplierDataList, supplierCreate, supplierUpdate, supplierDelete),
                 new RealizeTableColumnModel());
         setAutoCreateColumnsFromModel(true);
@@ -49,7 +51,7 @@ public class JTableDataBase extends JTable {
         this.supplierUpdate = supplierUpdate;
         this.supplierDelete = supplierDelete;
         this.relatedMdlTbl = relatedMdlTbl;
-
+        this.supplierCellRender = Objects.requireNonNullElse(supplierCellRender, (args) -> new RealizedCellRender((Integer) args[0]));
         handlers = new ArrayList<>();
         combine();
         this.getColumnModel().addColumnModelListener(new TableColumnModelListener() {
@@ -75,21 +77,41 @@ public class JTableDataBase extends JTable {
             }
         });
         this.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+            /**
+             * IT very important notice!!!!
+             * This possibility allowed me to define early  pre-selected item for adjusting selections with desirable result
+             * See :
+             * When  user clicked on the item in table. Firstly invoke handler: {@link ListSelectionListener#valueChanged(ListSelectionEvent)}
+             * this event contains property: isAdjusting. This property invoked firstly when item on the table
+             * is selected. isAdjusting == true. This event already contains new selected rows
+             * <p>
+             * Further invoke {@link TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)}.
+             *</p>
+             * then after that it is called again {@link ListSelectionListener#valueChanged(ListSelectionEvent)},
+             * however with new value for property: isAdjusting == false.
+             * <p>
+             * And now again invoked {@link TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)}.
+             */
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 System.out.println("first:" + e.getFirstIndex());
                 System.out.println("last:" + e.getLastIndex());
                 System.out.println("valueisAdjusting: " + e.getValueIsAdjusting());
-                if (!e.getValueIsAdjusting()) {
-                    fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
-                            .classTableView(classTableView)
-                            .selectedItems(((RealizeTableModel) dataModel)
-                                    .getSelectedObjects(classTableView, getSelectedRows()))
-                            .btn(btn).build());
-                }
+                fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
+                        .classTableView(classTableView)
+                        .selectedItems(((RealizeTableModel) dataModel)
+                                .getSelectedObjects(classTableView, getSelectedRows()))
+                        .selectedRows(getSelectedRows())
+                        .isAdjusting(e.getValueIsAdjusting())
+                        .btn(btn).build());
             }
 
         });
+    }
+
+    public void setSupplierCellRender(Function<Object[], DefaultTableCellRenderer> supplierCellRender) {
+        this.supplierCellRender = supplierCellRender;
+        createDefaultColumnsFromModel();
     }
 
     private void combine() {
@@ -154,7 +176,7 @@ public class JTableDataBase extends JTable {
             // Create new columns from the data model info
             for (int i = 0; i < m.getColumnCount(); i++) {
                 TableColumn newColumn = new RealizedTableColumn(i);
-                newColumn.setCellRenderer(new RealizedCellRender(m.getColumnCount()));
+                newColumn.setCellRenderer(supplierCellRender.apply(new Object[]{m.getColumnCount()}));
                 addColumn(newColumn);
             }
         }
@@ -194,7 +216,7 @@ public class JTableDataBase extends JTable {
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
     }
 
-    private static class RealizeTableModel extends AbstractTableModel {
+    public static class RealizeTableModel extends AbstractTableModel {
         private final String[] EMPTY = new String[0];
         private final Class<?> classTableView;
 
@@ -286,7 +308,7 @@ public class JTableDataBase extends JTable {
         }
     }
 
-    private static class RealizedTableColumn extends TableColumn {
+    public static class RealizedTableColumn extends TableColumn {
         public RealizedTableColumn(int modelIndex) {
             super(modelIndex);
             setHeaderRenderer(createDefaultHeaderRenderer());
@@ -297,7 +319,7 @@ public class JTableDataBase extends JTable {
         }
     }
 
-    private static class RealizedCellRender extends DefaultTableCellRenderer {
+    public static class RealizedCellRender extends DefaultTableCellRenderer {
         private final int[] columnsMaxWidth;
         private final int[] columnsCurrentWidth;
 

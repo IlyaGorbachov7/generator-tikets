@@ -24,8 +24,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsD
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
@@ -475,20 +480,57 @@ public class DataBasePanel extends BasePanel {
                                         .supplierData(supplierPaginationDataList).build())
                         .toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();
+        statesSelectedItemsOnPage = myListButtons.getMapBtnForKeyViewUI().values().stream()
+                .collect(Collectors.toMap(Function.identity(), (k) -> new StateSelectedItemOnTbl()));
     }
 
     protected void addingCustomComponents() {
         pnlList.add(myListButtons);
     }
 
+    private Map<KeyForViewUI, StateSelectedItemOnTbl> statesSelectedItemsOnPage;
 
     @Override
     public void setConfigComponents() {
         tfFilter.setToolTipText("Введите не менее 5 символов");
         tfFilter.setText("Введите не менее 5 символов");
         myListButtons.getMapBtnForKeyViewUI().values().parallelStream()
-                .map(KeyForViewUI::getPv).forEach(pagination -> {
-                    pagination.setItemsOnPage((Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString())));
+                .forEach(keyForViewUI -> {
+                    keyForViewUI.getPv().setItemsOnPage((Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString())));
+                    /**
+                     * When user swap pages then selection don't perform correctly, so i had overridden
+                     * base realization and implement myself.
+                     * Basic purpose this idea is to when user drag next|previous page selected items saving itself state
+                     */
+                    keyForViewUI.getTbl().setSupplierCellRender((args) -> new JTableDataBase.RealizedCellRender((Integer) args[0]) {
+
+                        @Override
+                        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
+                            String selectedItemId = statesSelectedItemsOnPage.get(selectedKeyForViewUI).getUuid();
+
+                            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, rowIndex, columnIndex);
+
+                            if (value instanceof UUID uuid) { // column is UUID by type
+                                if (selectedItemId != null) {
+                                    if (uuid.toString().equals(selectedItemId)) {
+                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).setRow(rowIndex);
+                                        this.setBackground(Color.GREEN);
+                                    } else {
+                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).setRow(-1);
+                                        this.setBackground(Color.orange);
+                                    }
+                                }
+                            } else { // column don't is UUID by type however may be same index row that have selected index row
+
+                                if (rowIndex == statesSelectedItemsOnPage.get(selectedKeyForViewUI).getRow()) {
+                                    this.setBackground(Color.GREEN);
+                                } else {
+                                    this.setBackground(Color.orange);
+                                }
+                            }
+                            return this;
+                        }
+                    });
                 });
     }
 
@@ -520,12 +562,6 @@ public class DataBasePanel extends BasePanel {
                 }
             }
         });
-        cmbCountView.addActionListener((e) -> {
-//            paginationView.setItemsOnPage(Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString()));
-//            System.out.println(paginationView.getItemsOnPage());
-//            selectedKeyForViewUI.getTbl().performSetData();
-//            System.out.println("------------ actionListener cbmCountView");
-        });
 
         myListButtons.addChoiceListener(handlerChoice);
         myListButtons.getMapBtnForKeyViewUI()
@@ -546,7 +582,7 @@ public class DataBasePanel extends BasePanel {
             if (source == btnAllDeselect) {
                 myListButtons.deSelectAll();
             } else if (source == btnDeselect) {
-                myListButtons.deSelectInclude();
+                myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
             } else if (source == btnCreate) {
                 JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                 String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ",
@@ -564,7 +600,7 @@ public class DataBasePanel extends BasePanel {
                         tbl.deleteItem();
                         initPagination(true, true, false, false);
                         tbl.performSetData();
-                        myListButtons.deSelectInclude();
+                        myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                     });
                 }
             } else if (source == btnUpdate) {
@@ -574,7 +610,7 @@ public class DataBasePanel extends BasePanel {
                             "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
                         panel.updateRequest();
                         var tbl = selectedKeyForViewUI.getTbl();
-                        myListButtons.deSelectInclude();
+                        myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                         initPagination(true, true, false, false);
                         tbl.performSetData();
                     }
@@ -710,36 +746,91 @@ public class DataBasePanel extends BasePanel {
         }
     }
 
+    private void setStatesSelectedItemsOnPage(String selectedItemsID, int selectedRow) {
+        var state = statesSelectedItemsOnPage.get(selectedKeyForViewUI);
+        state.setUuid(selectedItemsID);
+        state.setRow(selectedRow);
+    }
+
+    private void setStatesSelectedItemsOnPage(String[] selectedItemsId, int[] selectedRows) {
+        if (selectedItemsId.length != selectedRows.length)
+            throw new RuntimeException("selectedItemsId.length != selectedRows");
+        for (int i = 0; i < selectedItemsId.length; ++i) {
+            setStatesSelectedItemsOnPage(selectedItemsId[i], selectedRows[i]);
+        }
+    }
+
+    private void deSetStateSelectedItemsOnPage(KeyForViewUI keyForViewUI) {
+        var state = statesSelectedItemsOnPage.get(keyForViewUI);
+        state.setRow(-1);
+        state.setUuid(null);
+    }
+
+    private void deSetStateSelectedItemsOnPageAll() {
+
+    }
+
     private final class HandlerSelectionRows implements TableSelectedRowsListener {
+        /**
+         * IT very important notice!!!!
+         * This possibility allowed me to define early  pre-selected item for adjusting selections with desirable result
+         * <p>
+         * When  user clicked on the item in table. Firstly invoke handler: {@link ListSelectionListener#valueChanged(ListSelectionEvent)}
+         * this event contains property: isAdjusting. This property invoked firstly when item on the table
+         * is selected. isAdjusting == true. This event already contains new selected rows
+         * <p>
+         * Further invoke {@link TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)}.
+         * </p>
+         * then after that it is called again {@link ListSelectionListener#valueChanged(ListSelectionEvent)},
+         * however with new value for property: isAdjusting == false.
+         * <p>
+         * And now again invoked {@link TableCellRenderer#getTableCellRendererComponent(JTable, Object, boolean, boolean, int, int)}.
+         */
         @Override
         public void perform(TableSelectedRowsEvent event) {
             Object[] elemSelected = event.getSelectedItems();
-            if (elemSelected.length == 1) {
-                setEnableCRUDbtn(true, true, true);
-                if (event.getClassTableView() == UniversityModelTbl.class) {
-                    inputSearchFieldsData.setUniversity((UniversityModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == FacultyModelTbl.class) {
-                    inputSearchFieldsData.setFaculty((FacultyModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == DepartmentModelTbl.class) {
-                    inputSearchFieldsData.setDepartment((DepartmentModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == SpecializationModelTbl.class) {
-                    inputSearchFieldsData.setSpecialization((SpecializationModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == HeadDepartmentModelTbl.class) {
-                    inputSearchFieldsData.setHeadDepartment((HeadDepartmentModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == TeacherModelTbl.class) {
-                    inputSearchFieldsData.setTeacher((TeacherModelTbl) elemSelected[0]);
-                } else if (event.getClassTableView() == DisciplineModelTbl.class) {
-                    inputSearchFieldsData.setDiscipline((DisciplineModelTbl) elemSelected[0]);
-                }
-                myListButtons.deSelectExclude(); // чтобы изменить выбор, если выбор уже был сделан
-            } else {
-                System.out.println("Selected item=" + elemSelected.length);
-                if (elemSelected.length > 1) {
-                    setEnableCRUDbtn(true, true, false);
+            if (!event.isAdjusting()) {
+                if (elemSelected.length == 1) {
+                    setEnableCRUDbtn(true, true, true);
+                    if (event.getClassTableView() == UniversityModelTbl.class) {
+                        inputSearchFieldsData.setUniversity((UniversityModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == FacultyModelTbl.class) {
+                        inputSearchFieldsData.setFaculty((FacultyModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == DepartmentModelTbl.class) {
+                        inputSearchFieldsData.setDepartment((DepartmentModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == SpecializationModelTbl.class) {
+                        inputSearchFieldsData.setSpecialization((SpecializationModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == HeadDepartmentModelTbl.class) {
+                        inputSearchFieldsData.setHeadDepartment((HeadDepartmentModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == TeacherModelTbl.class) {
+                        inputSearchFieldsData.setTeacher((TeacherModelTbl) elemSelected[0]);
+                    } else if (event.getClassTableView() == DisciplineModelTbl.class) {
+                        inputSearchFieldsData.setDiscipline((DisciplineModelTbl) elemSelected[0]);
+                    }
+                    // чтобы изменить выбор, если выбор уже был сделан
+                    myListButtons.deSelectExclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 } else {
-                    setEnableCRUDbtn(true, false, false);
+                    System.out.println("Selected item=" + elemSelected.length);
+                    if (elemSelected.length > 1) {
+                        setEnableCRUDbtn(true, true, false);
+                    } else {
+                        setEnableCRUDbtn(true, false, false);
+                    }
+                    myListButtons.deEnabledExclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 }
-                myListButtons.deEnabledExclude();
+            } else { // isAdjusting() == true => invoked firstly when item on the table is selected
+                if (elemSelected.length == 1) {
+                    System.out.println("SYKA");
+                    setStatesSelectedItemsOnPage(mapperFind.apply(elemSelected[0]), event.getSelectedRows()[0]);
+                } else if (elemSelected.length > 1) {
+                    System.out.println("SYKA");
+                    // TODO: нужно пото разобраться с выделение больших обхектов
+                    setStatesSelectedItemsOnPage(Arrays.stream(elemSelected).map(mapperFind).toArray(String[]::new),
+                            event.getSelectedRows());
+                }else{
+                    // TODO: здесь тоже не доконца стирает выделение
+                    myListButtons.deEnabledExclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
+                }
             }
         }
     }
@@ -797,6 +888,15 @@ public class DataBasePanel extends BasePanel {
         private String comboboxData = "";
         @Builder.Default
         private String textFieldData = "";
+    }
+
+    @Setter
+    @Getter
+    @ToString
+    private static final class StateSelectedItemOnTbl {
+        private String uuid = null;
+
+        private int row = -1;
     }
 
 }

@@ -20,7 +20,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -223,54 +223,96 @@ public class MyListButtons extends JPanel {
     }
 
     public void deSelectInclude() {
+        deSelectInclude((keyForView) -> true, (keyForViewUI) -> {
+        });
+    }
+
+    public void deSelectInclude(Consumer<KeyForViewUI> something){
+        deSelectInclude((keyForViewUI) -> true, something);
+    }
+
+    public void deSelectInclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, something);
             }
         }
-        valueSelected.getTbl().getSelectionModel().clearSelection();
+        if (isRunBase.apply(valueSelected)) {
+            valueSelected.getTbl().getSelectionModel().clearSelection();
+        }
+        something.accept(valueSelected);
     }
 
 
     public void deSelectExclude() {
+        deSelectExclude((keyForView) -> true, (keyForView) -> {
+        });
+    }
+
+    public void deSelectExclude(Consumer<KeyForViewUI> something){
+        deSelectExclude((keyForViewUI)-> true, something);
+    }
+
+    public void deSelectExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, something);
                 KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
-                arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-                rootValue.getTbl().getSelectionModel().clearSelection();
+                if (isRunBase.apply(rootValue)) {
+                    arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
+                    arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                    rootValue.getTbl().getSelectionModel().clearSelection();
+                }
+                something.accept(rootValue);
             }
         }
     }
+
 
     /**
      * This method same #deSelectExecute. However, this method used for setEnable(false) for
      * all related buttons, then selected more two items in table
      */
     public void deEnabledExclude() {
+        deEnabledExclude((keyForView) -> true, (keyForView) -> {
+        });
+    }
+
+    public void deEnabledExclude(Consumer<KeyForViewUI> something){
+        deEnabledExclude((keyForViewUI)->true, something);
+    }
+
+    public void deEnabledExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> somethingRun) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, somethingRun);
                 KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
-                arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-                rootValue.getTbl().getSelectionModel().clearSelection();
+                if (isRunBase.apply(rootValue)) {
+                    arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
+                    arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                    rootValue.getTbl().getSelectionModel().clearSelection();
+                }
+                somethingRun.accept(rootValue);
             }
         }
     }
 
     private void doDes(RelatedTblDataBase relatedTblDataBase) {
+        doDes(relatedTblDataBase, (keyForView) -> true, (keForView) -> {
+        });
+    }
+
+    private void doDes(RelatedTblDataBase relatedTblDataBase, Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> somethingRun) {
         KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                 .stream().filter(kv -> {
                     return kv.getTbl().getClassTableView() == relatedTblDataBase.getClassMdlTbl();
@@ -279,17 +321,23 @@ public class MyListButtons extends JPanel {
         var root = rootValue.getTbl().getRelatedMdlTbl();
 
         if (root == null || root.getChild().isEmpty()) {
-            arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-            rootValue.getTbl().getSelectionModel().clearSelection();
+            if (isRunBase.apply(rootValue)) {
+                arrBtn[rootValue.getIndex()].setEnabled(false);
+                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+            somethingRun.accept(rootValue);
             return;
         }
 
         for (RelatedTblDataBase child : root.getChild()) {
-            doDes(child);
-            arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-            rootValue.getTbl().getSelectionModel().clearSelection();
+            doDes(child, isRunBase, somethingRun);
+            if (isRunBase.apply(rootValue)) {
+                arrBtn[rootValue.getIndex()].setEnabled(false);
+                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+            somethingRun.accept(rootValue);
         }
     }
 
