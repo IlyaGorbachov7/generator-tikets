@@ -32,6 +32,8 @@ public interface UniversityService {
 
     List<UniversityDTO> getByLikeName(String likeName);
 
+    List<UniversityDTO> getByLikeName(String likeName, int page, int itemsOnPage);
+
     long countByLikeName(String likeName);
 
     PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText);

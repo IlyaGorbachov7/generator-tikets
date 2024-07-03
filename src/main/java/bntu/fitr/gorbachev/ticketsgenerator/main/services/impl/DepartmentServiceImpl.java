@@ -129,6 +129,20 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public List<DepartmentDto> getByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentDto(
+                        departmentRepo.findByFacultyId(facultyId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<DepartmentSimpleDto> getSmplByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentSimpleDto(
+                        departmentRepo.findByFacultyId(facultyId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByFacultyId(UUID facultyId) throws ServiceException {
         return departmentRepo.countByFacultyId(facultyId);
     }
@@ -150,6 +164,20 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalResultList(() ->
                 departmentMapper.departmentToDepartmentDto(
                         departmentRepo.findByLikeNameAndFacultyId(likeName, facultyId)));
+    }
+
+    @Override
+    public List<DepartmentDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentDto(
+                        departmentRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<DepartmentSimpleDto> getSmplByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentSimpleDto(
+                        departmentRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage)));
     }
 
     @Override

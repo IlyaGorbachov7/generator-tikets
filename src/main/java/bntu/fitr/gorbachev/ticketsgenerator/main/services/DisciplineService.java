@@ -38,6 +38,10 @@ public interface DisciplineService {
 
     List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException;
 
+    List<DisciplineDto> getBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
     long countBySpecializationId(UUID specializationId) throws ServiceException;
 
     List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException;
@@ -45,6 +49,10 @@ public interface DisciplineService {
     long countBySpecializationName(String specializationName) throws ServiceException;
 
     List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
+
+    List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException;
 
     long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 

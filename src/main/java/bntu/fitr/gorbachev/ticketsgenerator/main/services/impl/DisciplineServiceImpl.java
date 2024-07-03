@@ -57,7 +57,7 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->{
+        return executor.wrapTransactionalEntitySingle(() -> {
             Discipline entity = disciplineRepo.findById(dto.getId()).orElseThrow(DisciplineNoFoundByIdException::new);
             disciplineMapper.update(entity, dto);
             disciplineRepo.update(entity);
@@ -123,6 +123,20 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public List<DisciplineDto> getBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToDto(
+                        disciplineRepo.findBySpecializationId(specializationId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<DisciplineSimpledDto> getSmplBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToSimpleDto(
+                        disciplineRepo.findBySpecializationId(specializationId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countBySpecializationId(UUID specializationId) throws ServiceException {
         return disciplineRepo.countBySpecializationId(specializationId);
     }
@@ -144,6 +158,20 @@ public class DisciplineServiceImpl implements DisciplineService {
         return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId)));
+    }
+
+    @Override
+    public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToDto(
+                        disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<DisciplineSimpledDto> getSmplByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToSimpleDto(
+                        disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId, page, itemsOnPage)));
     }
 
     @Override

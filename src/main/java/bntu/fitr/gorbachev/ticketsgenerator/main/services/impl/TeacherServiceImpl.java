@@ -121,6 +121,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public List<TeacherDto> getByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
+    }
+
+    @Override
     public long countByFacultyId(UUID facultyId) throws ServiceException {
         return teacherRepo.countByFacultyId(facultyId);
     }
@@ -142,6 +156,20 @@ public class TeacherServiceImpl implements TeacherService {
         return executor.wrapTransactionalResultList(() ->
                 teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId).stream().map(
                         teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
     }
 
     @Override

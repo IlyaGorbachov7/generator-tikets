@@ -127,6 +127,20 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public List<SpecializationDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByDepartmentId(UUID departmentId) {
         return specializationRepo.countByDepartmentId(departmentId);
     }
@@ -148,6 +162,20 @@ public class SpecializationServiceImpl implements SpecializationService {
         return executor.wrapTransactionalResultList(() ->
                 specializationMapper.specializationToDto(
                         specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId)));
+    }
+
+    @Override
+    public List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
     }
 
 

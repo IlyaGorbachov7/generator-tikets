@@ -36,6 +36,10 @@ public interface SpecializationService {
 
     List<SpecializationDto> getByDepartmentId(UUID departmentId);
 
+    List<SpecializationDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage);
+
+    List<SpecializationSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage);
+
     long countByDepartmentId(UUID departmentId);
 
     List<SpecializationDto> getByDepartmentName(String departmentName);
@@ -43,6 +47,10 @@ public interface SpecializationService {
     long countByDepartmentName(String departmentName);
 
     List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
+
+    List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage);
+
+    List<SpecializationSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage);
 
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 

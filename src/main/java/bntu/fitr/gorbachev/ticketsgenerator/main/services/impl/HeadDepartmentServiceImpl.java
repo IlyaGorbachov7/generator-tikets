@@ -125,6 +125,20 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public List<HeadDepartmentDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToDto(
+                        headDepartmentRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToSimpleDto(
+                        headDepartmentRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByDepartmentId(UUID DepartmentId) throws ServiceException {
         return headDepartmentRepo.countByDepartmentId(DepartmentId);
     }
@@ -148,6 +162,20 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
                 headDepartmentRepo.findByLikeNameAndDepartmentId(
                         likeName, departmentId).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
+    }
+
+    @Override
+    public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToDto(
+                        headDepartmentRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToSimpleDto(
+                        headDepartmentRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
     }
 
     @Override

@@ -37,6 +37,10 @@ public interface TeacherService {
 
     List<TeacherDto> getByFacultyId(UUID facultyId) throws ServiceException;
 
+    List<TeacherDto> getByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException;
+
+    List<TeacherSimpleDto> getSmplByFacultyId(UUID facultyID, int page, int itemsOnPage) throws ServiceException;
+
     long countByFacultyId(UUID facultyId) throws ServiceException;
 
     List<TeacherDto> getByFacultyName(String facultyName) throws ServiceException;
@@ -44,6 +48,10 @@ public interface TeacherService {
     long countByFacultyName(String facultyName) throws ServiceException;
 
     List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
+
+    List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException;
+
+    List<TeacherSimpleDto> getSmplByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException;
 
     long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException;
 

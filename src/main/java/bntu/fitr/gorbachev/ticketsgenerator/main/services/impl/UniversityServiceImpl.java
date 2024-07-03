@@ -96,6 +96,11 @@ public class UniversityServiceImpl implements UniversityService {
     }
 
     @Override
+    public List<UniversityDTO> getByLikeName(String likeName, int page, int itemsOnPage) {
+        return universityMapper.universityToUniversityDto(universityRepository.findLikeByName(likeName, page, itemsOnPage));
+    }
+
+    @Override
     public long countByLikeName(String likeName) {
         return universityRepository.countLikeByName(likeName);
     }
