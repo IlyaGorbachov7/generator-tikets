@@ -236,34 +236,45 @@ public class DataBasePanel extends BasePanel {
         };
 
         Function<Object, List<?>> supplierPaginationDataList = o -> {
-            Class<?> clazzModelView = (Class<?>) o;
+            Class<?> clazzModelView = selectedKeyForViewUI.getTbl().getClassTableView();
+            int currentPage = paginationView.getCurrentPage();
+            int itemsOnPage = paginationView.getItemsOnPage();
+            String filterText = paginationView.getFilterText();
+
             if (clazzModelView == UniversityModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().universityMapper()
-                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().getAll());
+                        .listUniversityDtoToModelTbl(ServiceFactoryImpl.getInstance().universityService().
+                                getByLikeName(filterText, currentPage, itemsOnPage));
             } else if (clazzModelView == FacultyModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().facultyMapper()
                         .listFacultyDtoDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .facultyService().getSmplByUniversityId(inputSearchFieldsData.getUniversity().getId()));
+                                .facultyService().getSmplByLikeNameAndUniversityId(filterText,
+                                        inputSearchFieldsData.getUniversity().getId(), currentPage, itemsOnPage));
             } else if (clazzModelView == DepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().departmentMapper()
                         .listDepartmentDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .departmentService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
+                                .departmentService().getSmplByLikeNameAndFacultyId(filterText,
+                                        inputSearchFieldsData.getFaculty().getId(), currentPage, itemsOnPage));
             } else if (clazzModelView == SpecializationModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().specializationMapper()
                         .listSpecializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .specializationService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment().getId()));
+                                .specializationService().getSmplByLikeNameAndDepartmentId(filterText,
+                                        inputSearchFieldsData.getDepartment().getId(), currentPage, itemsOnPage));
             } else if (clazzModelView == DisciplineModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().disciplineMapper()
                         .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getSpecialization().getId()));
+                                .disciplineService().getSmplByLikeNameAndSpecializationId(filterText,
+                                        inputSearchFieldsData.getSpecialization().getId(), currentPage, itemsOnPage));
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
                         .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .headDepartmentService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment().getId()));
+                                .headDepartmentService().getSmplByLikeNameAndDepartmentId(filterText,
+                                        inputSearchFieldsData.getDepartment().getId(), currentPage, itemsOnPage));
             } else if (clazzModelView == TeacherModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().teacherMapper()
                         .listTeacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .teacherService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
+                                .teacherService().getSmplByLikeNameAndFacultyId(filterText,
+                                        inputSearchFieldsData.getFaculty().getId(), currentPage, itemsOnPage));
             }
             return null;
         };
@@ -681,6 +692,7 @@ public class DataBasePanel extends BasePanel {
 
     private class HandlerEnterField extends KeyAdapter {
         boolean isUpdated = false;
+
         @Override
         public void keyReleased(KeyEvent e) {
             String text = tfFilter.getText();
