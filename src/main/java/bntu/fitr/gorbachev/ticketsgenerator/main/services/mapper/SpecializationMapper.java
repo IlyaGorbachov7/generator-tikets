@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Speciali
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -34,14 +35,31 @@ public abstract class SpecializationMapper {
         );
     }
 
+    private Specialization specializationDtoToEntity(SpecializationSimpleDto dto) {
+        return assembleEntity(
+                departmentRepo.findById(dto.getDepartmentId()).orElseThrow(DepartmentNoFoundByIdException::new),
+                dto);
+    }
+
     @Mapping(target = "departmentDto", source = "department")
     public abstract SpecializationDto specializationToDto(Specialization specialization);
 
+    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "departmentName", source = "department.name")
+    public abstract SpecializationSimpleDto specializationToSimpleDto(Specialization specialization);
+
     public abstract List<SpecializationDto> specializationToDto(List<Specialization> specializations);
+
+    public abstract List<SpecializationSimpleDto> specializationToSimpleDto(List<Specialization> specializations);
 
     public void update(Specialization target, SpecializationDto sourceDto) {
         Specialization sourceEntity = specializationDtoToEntity(sourceDto);
         update(target, sourceEntity);
+    }
+
+    public void update(Specialization target, SpecializationSimpleDto dto) {
+        Specialization entitySource = specializationDtoToEntity(dto);
+        update(target, entitySource);
     }
 
     @Mapping(target = "id", ignore = true)
@@ -52,8 +70,13 @@ public abstract class SpecializationMapper {
     @Mapping(target = "name", source = "specializationDto.name")
     protected abstract Specialization assembleEntity(Department department, SpecializationDto specializationDto);
 
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Specialization assembleEntity(Department department, SpecializationSimpleDto dto);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "disciplines", ignore = true)
+    @Mapping(target = "department", expression = "java(source.getDepartment())")
     protected abstract void update(@MappingTarget Specialization target, Specialization source);
 
 }

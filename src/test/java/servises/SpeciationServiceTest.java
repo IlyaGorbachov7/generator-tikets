@@ -2,6 +2,7 @@ package servises;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.SpecializationService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.ServiceFactory;
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -45,6 +47,16 @@ public class SpeciationServiceTest {
     void getAll() {
         System.out.println(specializationService.getAll()
                 .stream().map(Object::toString).collect(Collectors.joining("\n")));
+    }
+
+    @Test
+    void getByNameAndDeoId(){
+        DepartmentDto departmentDto = ServiceFactoryImpl.getInstance().departmentService().getAny().orElseThrow();
+        System.out.println(departmentDto);
+        List<SpecializationDto> list = specializationService.getByLikeNameAndDepartmentId("", departmentDto.getId());
+        System.out.println(list);
+        list= specializationService.getByDepartmentId(departmentDto.getId());
+        System.out.println(list);
     }
 
     static class ArgumentProviderForCreateTest implements ArgumentsProvider {

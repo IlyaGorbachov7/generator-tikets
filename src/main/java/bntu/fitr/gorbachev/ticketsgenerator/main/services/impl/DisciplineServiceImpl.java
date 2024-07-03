@@ -7,6 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipli
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DisciplineService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.displn.DisciplineNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DisciplineMapper;
@@ -34,6 +36,15 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public DisciplineSimpledDto createSmpl(DisciplineCreateDto disciplineCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Discipline entity = disciplineMapper.disciplineDtoToEntity(disciplineCreateDto);
+            disciplineRepo.create(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public DisciplineDto update(DisciplineDto disciplineDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Discipline target = disciplineRepo.findById(disciplineDto.getId())
@@ -41,6 +52,16 @@ public class DisciplineServiceImpl implements DisciplineService {
             disciplineMapper.update(target, disciplineDto);
             disciplineRepo.update(target);
             return disciplineMapper.disciplineToDto(target);
+        });
+    }
+
+    @Override
+    public DisciplineSimpledDto update(DisciplineSimpledDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(()->{
+            Discipline entity = disciplineRepo.findById(dto.getId()).orElseThrow(DisciplineNoFoundByIdException::new);
+            disciplineMapper.update(entity, dto);
+            disciplineRepo.update(entity);
+            return disciplineMapper.disciplineToSimpleDto(entity);
         });
     }
 
@@ -54,9 +75,26 @@ public class DisciplineServiceImpl implements DisciplineService {
     }
 
     @Override
+    public void deleteSmpl(DisciplineSimpledDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> disciplineRepo.delete(disciplineRepo.findById(dto.getId())
+                .orElseThrow(DisciplineNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<DisciplineSimpledDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<DisciplineDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 disciplineRepo.findAny().map(disciplineMapper::disciplineToDto));
+    }
+
+    @Override
+    public Optional<DisciplineSimpledDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                disciplineRepo.findAny().map(disciplineMapper::disciplineToSimpleDto));
     }
 
     @Override
@@ -67,8 +105,14 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public Optional<DisciplineDto> getByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 disciplineRepo.findByName(name).map(disciplineMapper::disciplineToDto));
+    }
+
+    @Override
+    public Optional<DisciplineSimpledDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                disciplineRepo.findByName(name).map(disciplineMapper::disciplineToSimpleDto));
     }
 
     @Override
@@ -85,7 +129,7 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException {
-        return executor.wrapTransactionalResultList(()->
+        return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findBySpecializationName(specializationName)));
     }
@@ -97,13 +141,32 @@ public class DisciplineServiceImpl implements DisciplineService {
 
     @Override
     public List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
-        return executor.wrapTransactionalResultList(()->
+        return executor.wrapTransactionalResultList(() ->
                 disciplineMapper.disciplineToDto(
                         disciplineRepo.findByLikeNameAndSpecializationId(likeName, specializationId)));
     }
 
     @Override
     public long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException {
-        return disciplineRepo.ByLikeNameAndSpecializationId(likeName, specializationId);
+        return disciplineRepo.countByLikeNameAndSpecializationId(likeName, specializationId);
+    }
+
+    @Override
+    public List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                disciplineMapper.disciplineToSimpleDto(
+                        disciplineRepo.findBySpecializationId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID specializationId) {
+        long totalItems = filterText.isBlank() ? disciplineRepo.countBySpecializationId(specializationId) :
+                disciplineRepo.countByLikeNameAndSpecializationId(filterText, specializationId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

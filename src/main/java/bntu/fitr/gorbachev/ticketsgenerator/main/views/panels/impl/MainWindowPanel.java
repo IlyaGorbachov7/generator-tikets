@@ -7,12 +7,27 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetrie
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -38,9 +53,14 @@ import java.time.Month;
 import java.time.temporal.ValueRange;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
+// TODO: Сделать UI для вненсия изминней в базу данных отделов образования
+// TODO: После того, как DAO слой будет готов, по работе с сохранением состаяния приложения, тогда можно сделать настрофку сохраниня, а так же измиения темы слетлой/темной
 
 /**
  * The class represent main window panel
@@ -58,16 +78,32 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem aboutProgramItem;
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
+    private final JMenuItem tglAppTheme;
+    private boolean nightLightModeAppTheme;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
 
     private final Window frameRoot;
-    private final AboutAuthor aboutAuthorDialog;
-    private final AboutProgram aboutProgramDialog;
-    private final FileViewer viewFileDialog;
-    private final RecordSetting recordSettingDialog;
+    private AboutAuthor aboutAuthorDialog;
+    private AboutProgram aboutProgramDialog;
+    private FileViewer viewFileDialog;
+    private RecordSetting recordSettingDialog;
+    private InputParametersDialog dataBaseDialog;
 
+    private final UniversityService universityService = ServiceFactoryImpl.getInstance().universityService();
+    private final FacultyService facultyService = ServiceFactoryImpl.getInstance().facultyService();
+    private final DepartmentService departmentService = ServiceFactoryImpl.getInstance().departmentService();
+    private final SpecializationService specializationService = ServiceFactoryImpl.getInstance().specializationService();
+    private final DisciplineService disciplineService = ServiceFactoryImpl.getInstance().disciplineService();
+    private final HeadDepartmentService headDepartmentService = ServiceFactoryImpl.getInstance().headDepartmentService();
+    private final TeacherService teacherService = ServiceFactoryImpl.getInstance().teacherService();
+
+    private final InputSearchFieldsData inputSearchFieldsData;
+
+    private final UUID NO_FUND_ID = UUID.randomUUID();
+
+    // TODO: add toggle dark or lite mode window
     {
         menuBar = new JMenuBar();
         loadItem = new JMenuItem("Загрузить",
@@ -89,6 +125,8 @@ public class MainWindowPanel extends BasePanel {
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
         databaseSettingItem = new JMenuItem("Параметры ввода",
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
+        tglAppTheme = new JMenuItem("Color mode");
+
         chooserUpLoad = new JFileChooser();
         chooserSave = new JFileChooser();
 
@@ -113,6 +151,7 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher = new JTextField(30);
         tfHeadDepartment = new JTextField(30);
         tfProtocol = new JTextField(5);
+
         boxTypeSession = new JComboBox<>(
                 new Ticket.SessionType[]{Ticket.SessionType.WINTER, Ticket.SessionType.SUMMER
                 });
@@ -164,8 +203,61 @@ public class MainWindowPanel extends BasePanel {
         loadingDialog = new LoadingDialog();
 
         registerSenderMsg = SenderMsgFactory.getInstance().getSenderMsg();
-    }
 
+
+        inputSearchFieldsData = InputSearchFieldsData.builder().build();
+
+        cbInstitute = MyJCompoBox.builder().mapperViewElem((obj) -> ((UniversityDTO) obj).getName())
+                .supplierListElem((textField) -> ServiceFactoryImpl.getInstance().universityService()
+                        .getByLikeName(textField))
+                .build();
+
+        cbFaculty = MyJCompoBox.builder().mapperViewElem(obj -> ((FacultyDto) obj).getName())
+                .supplierListElem(textField -> facultyService.getByLikeNameAndUniversity(textField, inputSearchFieldsData.getUniversityDto().getId()))
+                .build();
+
+        cbDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((DepartmentDto) obj).getName())
+                .supplierListElem(text -> departmentService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
+                .build();
+
+        cbSpecialization = MyJCompoBox.builder().mapperViewElem(obj -> ((SpecializationDto) obj).getName())
+                .supplierListElem((text) -> specializationService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()))
+                .build();
+
+        cbDiscipline = MyJCompoBox.builder().mapperViewElem(obj -> ((DisciplineDto) obj).getName())
+                .supplierListElem(text -> disciplineService.getByLikeNameAndSpecializationId(text, inputSearchFieldsData.getSpecializationDto().getId()))
+                .build();
+
+        cbHeadDepartment = MyJCompoBox.builder().mapperViewElem(obj -> ((HeadDepartmentDto) obj).getName())
+                .supplierListElem(text -> headDepartmentService.getByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()))
+                .build();
+
+        cbTeacher = MyJCompoBox.builder().mapperViewElem(obj -> ((TeacherDto) obj).getName())
+                .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
+                .build();
+    }
+//
+//
+//    private void updateAllComponents() {
+//        updateComponent(this);
+////        var executorServices = Executors.newFixedThreadPool(2);
+//    }
+//
+//
+//    private void updateComponent(JComponent component) {
+//        Component[] components = component.getComponents();
+//        System.out.println(components.length);
+//        for (var c : components) {
+//            if(c instanceof JComponent jc){
+//                updateComponent(jc);
+//                try{
+//                    jc.setBackground(Color.WHITE);
+//                    jc.setForeground(Color.BLACK);
+//                }catch (Exception ignore){
+//                }
+//            }
+//        }
+//    }
 
     /**
      * The constructor creates a panel
@@ -175,14 +267,12 @@ public class MainWindowPanel extends BasePanel {
     public MainWindowPanel(Window frame) {
         super(frame);
         frameRoot = getRootFrame();
-        aboutAuthorDialog = (AboutAuthor) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.ABOUT_AUTHOR);
-        aboutProgramDialog = (AboutProgram) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.ABOUT_PROGRAM);
-        viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.FILE_VIEWER);
-        recordSettingDialog = (RecordSetting) FrameDialogFactory.getInstance()
-                .createJDialog(frame, PanelType.RECORD_SETTING);
+        SwingUtilities.invokeLater(() -> {
+            viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
+            recordSettingDialog = (Objects.isNull(recordSettingDialog)) ? (RecordSetting) FrameDialogFactory.getInstance()
+                    .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING) : recordSettingDialog;
+        });
 
         // initialization menu bar
         JMenu fileMenu = new JMenu("Файл");
@@ -198,6 +288,8 @@ public class MainWindowPanel extends BasePanel {
         JMenu settingMenu = new JMenu("Парамеры");
         settingMenu.add(recordSettingItem);
         settingMenu.add(databaseSettingItem);
+        settingMenu.addSeparator();
+        settingMenu.add(tglAppTheme);
 
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
@@ -211,7 +303,6 @@ public class MainWindowPanel extends BasePanel {
         this.initPanel();
 
         this.setComponentsListeners();
-        this.setVisible(true);
     }
 
     private JPanel pnlData;
@@ -223,27 +314,15 @@ public class MainWindowPanel extends BasePanel {
     @Override
     public void initPanel() {
         this.setLayout(new BorderLayout());
-        // разбил на потоки, чтобы было быстро инициализировалось
-        Thread thread1 = new Thread(() -> {
-            pnlData = this.createDataInputPanel();
-            System.out.println("000");
-        });
-        thread1.start();
 
-        Thread thread2 = new Thread(() -> {
+        CompletableFuture.runAsync(() -> {
+            pnlData = this.createDataInputPanel();
+        });
+        CompletableFuture.runAsync(() -> {
             pnlGenerate = this.createPanelMainActionPanel();
             pnlGenerate.setPreferredSize(new Dimension(430, pnlGenerate.getHeight()));
-            System.out.println("0000");
         });
-        thread2.start();
 
-
-        System.out.println("0");
-        try {
-            thread1.join();
-            thread2.join();
-        } catch (InterruptedException ignored) {
-        }
         this.setConfigComponents();
         this.add(pnlData, BorderLayout.CENTER);
         this.add(pnlGenerate, BorderLayout.EAST);
@@ -258,6 +337,11 @@ public class MainWindowPanel extends BasePanel {
         // init MenuBar
         saveItem.setEnabled(false);
 
+        tglAppTheme.setIcon((nightLightModeAppTheme)
+                ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+        tglAppTheme.setFocusable(false);
+
         // createDataInputPanel
         tfInstitute.setFont(new Font("Serif", Font.BOLD, 17));
         tfFaculty.setFont(new Font("Serif", Font.PLAIN, 17));
@@ -267,6 +351,14 @@ public class MainWindowPanel extends BasePanel {
         tfTeacher.setFont(new Font("Serif", Font.PLAIN, 17));
         tfHeadDepartment.setFont(new Font("Serif", Font.PLAIN, 17));
         tfProtocol.setFont(new Font("Serif", Font.PLAIN, 17));
+
+        cbInstitute.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, universityService.count() > 0);
+        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+        cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
 
         tfTeacher.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
         tfHeadDepartment.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
@@ -379,6 +471,7 @@ public class MainWindowPanel extends BasePanel {
         rdiBtnSequence.addActionListener(handler);
         rdiBtnWriteRandom.addActionListener(handler);
         rdiBtnWriteSequence.addActionListener(handler);
+        tglAppTheme.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -391,6 +484,244 @@ public class MainWindowPanel extends BasePanel {
         tfProtocol.addFocusListener(tfFocusListener);
         tfQuantityTickets.addFocusListener(tfFocusListener);
         tfQuantityQuestionTickets.addFocusListener(tfFocusListener);
+
+        //  Search Text Field Listeners -------------------------
+        cbInstitute.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
+                System.out.println("++ setUniversityDto");
+                inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
+                if (facultyService.countByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
+                        inputSearchFieldsData.getUniversityDto().getId()) > 0) {
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+            } else {
+                String text = instituteComboBox.getFieldText();
+                System.out.println("++ text : " + text);
+                universityService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setUniversityDto(elm);
+                    if (facultyService.countByLikeNameAndUniversity(cbFaculty.getFieldText(),
+                            inputSearchFieldsData.getUniversityDto().getId()) > 0) {
+                        cbFaculty.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                }, () -> {
+                    inputSearchFieldsData.setUniversityDto(UniversityDTO.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
+                    cbFaculty.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbFaculty.setSelectedItem(null);
+
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbSpecialization.setSelectedItem(null);
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedItem(null);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
+
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbTeacher.setSelectedItem(null);
+                    inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID).build());
+                });
+            }
+            cbFaculty.updateDropDownList();
+            cbFaculty.fireRelatedComponentListener(new RelatedComponentEvent(cbFaculty));
+        });
+
+        cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox facultyComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (facultyComboBox.getSelectedItem() instanceof FacultyDto) {
+                System.out.println("++ setFacultyDto");
+                inputSearchFieldsData.setFacultyDto((FacultyDto) facultyComboBox.getSelectedItem());
+                if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getEditorTextField().getText(),
+                        inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+                if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getEditorTextField().getText(),
+                        inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+            } else {
+                String text = facultyComboBox.getEditorTextField().getText();
+                if (facultyService.countByLikeNameAndUniversity(text, inputSearchFieldsData.getUniversityDto().getId()) == 0) {
+                    text = "";
+                }
+                System.out.println("++ text : " + text);
+                facultyService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setFacultyDto(elm);
+                    if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getFieldText(),
+                            inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                        cbDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                    if (teacherService.countByLikeNameAndFacultyId(cbTeacher.getFieldText(),
+                            inputSearchFieldsData.getFacultyDto().getId()) > 0) {
+                        cbTeacher.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                }, () -> {
+                    inputSearchFieldsData.setFacultyDto(FacultyDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID).build());
+                    cbDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbSpecialization.setSelectedItem(null);
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedItem(null);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedItem(null);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
+                });
+            }
+            cbDepartment.updateDropDownList();
+            cbTeacher.updateDropDownList();
+            cbDepartment.fireRelatedComponentListener(new RelatedComponentEvent(cbDepartment));
+            cbTeacher.fireRelatedComponentListener(new RelatedComponentEvent(cbTeacher));
+        });
+        cbDepartment.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox departmentComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (departmentComboBox.getSelectedItem() instanceof DepartmentDto) {
+                inputSearchFieldsData.setDepartmentDto((DepartmentDto) departmentComboBox.getSelectedItem());
+                if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getFieldText(),
+                        inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+                if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getFieldText(),
+                        inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+            } else {
+                String text = departmentComboBox.getFieldText();
+                if (departmentService.countByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()) == 0) {
+                    text = "";
+                }
+                departmentService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setDepartmentDto(elm);
+                    if (specializationService.countByLikeNameAndDepartmentId(cbSpecialization.getFieldText(),
+                            inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                        cbSpecialization.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                    if (headDepartmentService.countByLikeNameAndDepartmentId(cbHeadDepartment.getFieldText(),
+                            inputSearchFieldsData.getDepartmentDto().getId()) > 0) {
+                        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                }, () -> {
+                    inputSearchFieldsData.setDepartmentDto(DepartmentDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
+                    cbSpecialization.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbDiscipline.setSelectedIndex(-1);
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+                    cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    cbHeadDepartment.setSelectedIndex(-1);
+                    inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID).build());
+                });
+            }
+            cbSpecialization.updateDropDownList();
+            cbHeadDepartment.updateDropDownList();
+            cbSpecialization.fireRelatedComponentListener(new RelatedComponentEvent(cbSpecialization));
+            cbHeadDepartment.fireRelatedComponentListener(new RelatedComponentEvent(cbHeadDepartment));
+        });
+        cbSpecialization.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox specComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (specComboBox.getSelectedItem() instanceof SpecializationDto) {
+                inputSearchFieldsData.setSpecializationDto((SpecializationDto) specComboBox.getSelectedItem());
+                if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getFieldText(),
+                        inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                } else {
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                }
+            } else {
+                String text = specComboBox.getEditorTextField().getText();
+                if (specializationService.countByLikeNameAndDepartmentId(text, inputSearchFieldsData.getDepartmentDto().getId()) == 0) {
+                    text = "";
+                }
+                specializationService.getByName(text).ifPresentOrElse((elm) -> {
+                    inputSearchFieldsData.setSpecializationDto(elm);
+                    if (disciplineService.countByLikeNameAndSpecializationId(cbDiscipline.getFieldText(),
+                            inputSearchFieldsData.getSpecializationDto().getId()) > 0) {
+                        cbDiscipline.setEnableElements(MyJCompoBox.Element.ALL, true);
+                    } else {
+                        cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                    }
+                }, () -> {
+                    inputSearchFieldsData.setSpecializationDto(SpecializationDto.builder().id(NO_FUND_ID).build());
+                    inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build());
+                    cbDiscipline.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
+                });
+            }
+            cbDiscipline.updateDropDownList();
+            cbDiscipline.fireRelatedComponentListener(new RelatedComponentEvent(cbDepartment));
+        });
+        cbDiscipline.addRelatedComponentListener((relatedComponentEvent -> {
+            MyJCompoBox disciplineComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (disciplineComboBox.getSelectedItem() instanceof DisciplineDto) {
+                inputSearchFieldsData.setDisciplineDto((DisciplineDto) disciplineComboBox.getSelectedItem());
+            } else {
+                String text = disciplineComboBox.getEditorTextField().getText();
+                disciplineService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setDisciplineDto,
+                        () -> inputSearchFieldsData.setDisciplineDto(DisciplineDto.builder().id(NO_FUND_ID).build()));
+            }
+        }));
+
+        cbHeadDepartment.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox headDepComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (headDepComboBox.getSelectedItem() instanceof HeadDepartmentDto) {
+                inputSearchFieldsData.setHeadDepartmentDto((HeadDepartmentDto) headDepComboBox.getSelectedItem());
+            } else {
+                String text = headDepComboBox.getEditorTextField().getText();
+                headDepartmentService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setHeadDepartmentDto,
+                        () -> inputSearchFieldsData.setHeadDepartmentDto(HeadDepartmentDto.builder().id(NO_FUND_ID)
+                                .build()));
+            }
+        });
+        cbTeacher.addRelatedComponentListener(relatedComponentEvent -> {
+            MyJCompoBox teacherCompoBox = (MyJCompoBox) relatedComponentEvent.getSource();
+            if (teacherCompoBox.getSelectedItem() instanceof TeacherDto) {
+                inputSearchFieldsData.setTeacherDto((TeacherDto) teacherCompoBox.getSelectedItem());
+            } else {
+                String text = teacherCompoBox.getEditorTextField().getText();
+                teacherService.getByName(text).ifPresentOrElse(inputSearchFieldsData::setTeacherDto,
+                        () -> inputSearchFieldsData.setTeacherDto(TeacherDto.builder().id(NO_FUND_ID)
+                                .build()));
+            }
+        });
+        // -----------------------------------
 
         modelListFilesRsc.addListDataListener(new ListDataListener() {
             @Override
@@ -437,8 +768,17 @@ public class MainWindowPanel extends BasePanel {
         frameRoot.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                if (executionThread != null) {
-                    executionThread.interrupt();
+                System.out.println(":) Window closing");
+                getRootFrame().setVisible(false);
+                try {
+                    if (executionThread != null) {
+                        executionThread.interrupt();
+                    }
+                    PoolConnection.Builder.build().destroy();
+                } catch (ConnectionPoolException ex) {
+                    throw new RuntimeException(ex);
+                } finally {
+                    System.out.println("GoodBy!");
                 }
             }
 
@@ -511,6 +851,21 @@ public class MainWindowPanel extends BasePanel {
     private final JComboBox<Ticket.SessionType> boxTypeSession;
     private final DatePicker datePicDecision;
 
+
+    private final MyJCompoBox cbInstitute;
+
+    private final MyJCompoBox cbFaculty;
+
+    private final MyJCompoBox cbDepartment;
+
+    private final MyJCompoBox cbSpecialization;
+
+    private final MyJCompoBox cbDiscipline;
+
+    private final MyJCompoBox cbHeadDepartment;
+
+    private final MyJCompoBox cbTeacher;
+
     /**
      * This method created data input panel
      *
@@ -533,7 +888,8 @@ public class MainWindowPanel extends BasePanel {
         gbc1.weightx = 1;
         gbc1.weighty = 0.5;
         gbc1.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfInstitute, gbc1);
+//        panelLEFT.add(tfInstitute, gbc1);
+        panelLEFT.add(cbInstitute, gbc1);
 
         GridBagConstraints gbc2 = new GridBagConstraints();
         gbc2.gridx = 0;
@@ -551,7 +907,8 @@ public class MainWindowPanel extends BasePanel {
         gbc3.weightx = 1;
         gbc3.weighty = 0.5;
         gbc3.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfFaculty, gbc3);
+//        panelLEFT.add(tfFaculty, gbc3);
+        panelLEFT.add(cbFaculty, gbc3);
 
         GridBagConstraints gbc4 = new GridBagConstraints();
         gbc4.gridx = 0;
@@ -569,7 +926,8 @@ public class MainWindowPanel extends BasePanel {
         gbc5.weightx = 1;
         gbc5.weighty = 0.5;
         gbc5.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfDepartment, gbc5);
+//        panelLEFT.add(tfDepartment, gbc5);
+        panelLEFT.add(cbDepartment, gbc5);
 
         GridBagConstraints gbc6 = new GridBagConstraints();
         gbc6.gridx = 0;
@@ -587,7 +945,8 @@ public class MainWindowPanel extends BasePanel {
         gbc7.weightx = 1;
         gbc7.weighty = 0.5;
         gbc7.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfSpecialization, gbc7);
+//        panelLEFT.add(tfSpecialization, gbc7);
+        panelLEFT.add(cbSpecialization, gbc7);
 
         GridBagConstraints gbc8 = new GridBagConstraints();
         gbc8.gridx = 0;
@@ -605,7 +964,9 @@ public class MainWindowPanel extends BasePanel {
         gbc9.weightx = 1;
         gbc9.weighty = 0.5;
         gbc9.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfDiscipline, gbc9);
+//        panelLEFT.add(tfDiscipline, gbc9);
+        panelLEFT.add(cbDiscipline, gbc9);
+
         GridBagConstraints gbc10 = new GridBagConstraints();
         gbc10.gridx = 0;
         gbc10.gridy = 5;
@@ -623,7 +984,8 @@ public class MainWindowPanel extends BasePanel {
         gbc11.weighty = 1;
         gbc11.weightx = 0.5;
         gbc11.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfTeacher, gbc11);
+//        panelLEFT.add(tfTeacher, gbc11);
+        panelLEFT.add(cbTeacher, gbc11);
 
         GridBagConstraints gbc12 = new GridBagConstraints();
         gbc12.gridx = 0;
@@ -643,7 +1005,8 @@ public class MainWindowPanel extends BasePanel {
         gbc13.weightx = 1;
         gbc13.weighty = 0.5;
         gbc13.insets = new Insets(5, 5, 5, 5);
-        panelLEFT.add(tfHeadDepartment, gbc13);
+//        panelLEFT.add(tfHeadDepartment, gbc13);
+        panelLEFT.add(cbHeadDepartment, gbc13);
 
 
         GridBagConstraints gbc14 = new GridBagConstraints();
@@ -1292,15 +1655,44 @@ public class MainWindowPanel extends BasePanel {
                         WindowEvent.WINDOW_CLOSING));
 
             } else if (e.getSource() == aboutAuthorItem) {
-                aboutAuthorDialog.setVisible(true);
-
+                SwingUtilities.invokeLater(() -> {
+                    aboutAuthorDialog = (Objects.isNull(aboutAuthorDialog)) ? (AboutAuthor) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR) : aboutAuthorDialog;
+                    aboutAuthorDialog.setVisible(true);
+                });
             } else if (e.getSource() == aboutProgramItem) {
-                aboutProgramDialog.setVisible(true);
+                SwingUtilities.invokeLater(() -> {
+                    aboutProgramDialog = (Objects.isNull(aboutProgramDialog)) ? (AboutProgram) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM) : aboutProgramDialog;
+                    aboutProgramDialog.setVisible(true);
+                });
 
             } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
-                //TODO:
+                SwingUtilities.invokeLater(() -> {
+                    dataBaseDialog = (Objects.isNull(dataBaseDialog)) ? (InputParametersDialog) FrameDialogFactory.getInstance()
+                            .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB) : dataBaseDialog;
+                    dataBaseDialog.setVisible(true);
+                });
+            } else if (e.getSource() == tglAppTheme) {
+                int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
+                                                                           "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
+                if (selected == JOptionPane.OK_OPTION) {
+                    System.out.println("Вносим изминение в базе данных, что пользователь выбрал темную/свлетлую тему. Перезагружаем приложение полностю, но не завершаем программу, показываем уже нужнут тему");
+                } else {
+                    System.out.println("Просто вносим зимения в базу данных, Но не выходим из приложения.");
+                }
+                nightLightModeAppTheme = !nightLightModeAppTheme;
+                if (nightLightModeAppTheme) {
+
+                } else {
+
+                }
+                tglAppTheme.setIcon((nightLightModeAppTheme)
+                        ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                        : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+                tglAppTheme.updateUI();
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {

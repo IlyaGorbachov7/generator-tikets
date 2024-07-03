@@ -1,17 +1,22 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.SneakyThrows;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 
@@ -120,15 +125,20 @@ public class SplashScreenPanel extends BasePanel {
         miniPanels.add(panelInfo);
         // В неё год, и кнопки
 
-        JPanel miniPanels1 = new JPanel(new GridLayout(2, 1));
-        miniPanels1.add(lbYear);
+        JPanel miniPanels1 = new JPanel(new BorderLayout());
+        miniPanels1.setBorder(new EmptyBorder(0, 0, 20, 0));
+//        miniPanels1.setBackground(Color.MAGENTA);
+        miniPanels1.add(lbYear, BorderLayout.CENTER);
+        JPanel panelBtn = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
+//        panelBtn.setBackground(Color.green);
+        JPanel cellBtn = new JPanel(new BorderLayout());
+        cellBtn.add(btnNext);
+        panelBtn.add(cellBtn);
 
-        JPanel panelBtn = new JPanel(new GridLayout(1, 2, 5, 5));
-        panelBtn.add(btnNext);
-        btnNext.setBorder(BorderFactory.createRaisedBevelBorder());
-        panelBtn.add(btnExit);
-
-        miniPanels1.add(panelBtn);
+        cellBtn = new JPanel(new BorderLayout());
+        cellBtn.add(btnExit);
+        panelBtn.add(cellBtn);
+        miniPanels1.add(panelBtn, BorderLayout.SOUTH);
 
         setConfigComponents();
         this.add(miniPanels, BorderLayout.CENTER);
@@ -167,6 +177,10 @@ public class SplashScreenPanel extends BasePanel {
         lbYear.setHorizontalAlignment(SwingConstants.CENTER);
         lbYear.setFont(new Font("Dialog", Font.BOLD, 15));
 
+        btnNext.setBackground(Color.gray.brighter().brighter());
+        btnNext.setPreferredSize(new Dimension(250, 24));
+        btnExit.setPreferredSize(new Dimension(250, 24));
+
         progressBar.setVisible(false);
         progressBar.setPreferredSize(new Dimension(progressBar.getWidth(), 7));
         progressBar.setMinimum(0);
@@ -192,9 +206,16 @@ public class SplashScreenPanel extends BasePanel {
         getRootFrame().addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println(SplashScreenPanel.class + " window Closing");
-//                PoolConnection.getInstance().destroyConnectionPool();
-                threadProcess.interrupt();
+                System.out.println(":) Window closing");
+                getRootFrame().setVisible(false);
+                try {
+                    PoolConnection.Builder.build().destroy();
+                    threadProcess.interrupt();
+                } catch (ConnectionPoolException ex) {
+                    throw new RuntimeException(ex);
+                } finally {
+                    System.out.println("GoodBy!");
+                }
                 /* There are cases when throw NullPointerException.
                  * This event happening, if this thread trying
                  * to destroy Connection Pool, that still doesn't initialize arrayQueue
@@ -218,9 +239,11 @@ public class SplashScreenPanel extends BasePanel {
         @Override
         public void run() {
             System.out.println("Start init Main Window...<");
-            mainWindow = FrameDialogFactory.getInstance().createJFrame(PanelType.MAIN_WINDOW);
-            threadProcess.interrupt();
-            System.out.println("mainWindow created is success");
+            CompletableFuture.runAsync(PoolConnection.Builder::build);
+            CompletableFuture.runAsync(() -> {
+                mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
+                threadProcess.interrupt();
+            });
         }
     }
 
@@ -245,7 +268,6 @@ public class SplashScreenPanel extends BasePanel {
             System.out.println("process bar is filling");
         }
 
-        @SneakyThrows
         public void fill() {
             int i = 0;
             try {
@@ -257,7 +279,10 @@ public class SplashScreenPanel extends BasePanel {
             } catch (InterruptedException ignored) {
             }
             progressBar.setValue(500);
-            Thread.sleep(500);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignored) {
+            }
         }
     }
 

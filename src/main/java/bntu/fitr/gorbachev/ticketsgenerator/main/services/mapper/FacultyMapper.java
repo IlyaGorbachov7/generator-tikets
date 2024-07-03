@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.univ.UniversityNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -29,8 +30,21 @@ public abstract class FacultyMapper {
                 .orElseThrow(UniversityNoFoundByIdException::new), facultyCreateDto);
     }
 
+    public Faculty facultyDtoToFaculty(FacultySimpleDto dto) {
+        return assembleToEntity(
+                universityRepo.findById(dto.getUniversityId()).orElseThrow(UniversityNoFoundByIdException::new),
+                dto);
+    }
+
+
     @Mapping(target = "universityDto", source = "university")
     public abstract FacultyDto facultyToFacultyDto(Faculty faculty);
+
+    @Mapping(target = "universityId", source = "university.id")
+    @Mapping(target = "universityName", source = "university.name")
+    public abstract FacultySimpleDto facultyToFacultySmplDto(Faculty faculty);
+
+    public abstract List<FacultySimpleDto> facultyToFacultySimpleDto(List<Faculty> faculties);
 
     public abstract List<FacultyDto> facultyToFacultyDto(List<Faculty> faculties);
 
@@ -40,6 +54,11 @@ public abstract class FacultyMapper {
     public void update(@MappingTarget Faculty faculty, FacultyDto facultyDto) {
         Faculty entitySource = facultyDtoToFaculty(facultyDto);
         update(faculty, entitySource);
+    }
+
+    public void update(Faculty faculty, FacultySimpleDto dto) {
+        Faculty facultySource = facultyDtoToFaculty(dto);
+        update(faculty, facultySource);
     }
 
     @Mapping(target = "id", source = "facultyDto.id")
@@ -52,8 +71,13 @@ public abstract class FacultyMapper {
     @Mapping(target = "departments", ignore = true)
     protected abstract Faculty assembleToEntity(University university, FacultyCreateDto facultyCreateDto);
 
+    @Mapping(target = "id", source = "dto.id")
+    @Mapping(target = "name", source = "dto.name")
+    protected abstract Faculty assembleToEntity(University university, FacultySimpleDto dto);
+
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "departments", ignore = true)
+    @Mapping(target = "university", expression = "java(source.getUniversity())")
     protected abstract void update(@MappingTarget Faculty target, Faculty source);
 }

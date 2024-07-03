@@ -7,6 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepa
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.HeadDepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.headdep.HeadDepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.HeadDepartmentMapper;
@@ -34,6 +36,15 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public HeadDepartmentSimpleDto createSmpl(HeadDepartmentCreateDto headDepartmentCreateDto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentMapper.headDepartmentDtoToEntity(headDepartmentCreateDto);
+            headDepartmentRepo.create(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
+        });
+    }
+
+    @Override
     public HeadDepartmentDto update(HeadDepartmentDto headDepartmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             HeadDepartment target = headDepartmentRepo.findById(headDepartmentDto.getId())
@@ -41,6 +52,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
             headDepartmentMapper.update(target, headDepartmentDto);
             headDepartmentRepo.update(target);
             return headDepartmentMapper.headDepartmentToDto(target);
+        });
+    }
+
+    @Override
+    public HeadDepartmentSimpleDto update(HeadDepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            HeadDepartment entity = headDepartmentRepo.findById(dto.getId())
+                    .orElseThrow(HeadDepartmentNoFoundByIdException::new);
+            headDepartmentMapper.update(entity, dto);
+            headDepartmentRepo.update(entity);
+            return headDepartmentMapper.headDepartmentToSimpleDto(entity);
         });
     }
 
@@ -54,9 +76,26 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public void deleteSmpl(HeadDepartmentSimpleDto dto) throws ServiceException {
+        executor.wrapTransactional(() -> headDepartmentRepo.delete(
+                headDepartmentRepo.findById(dto.getId()).orElseThrow(HeadDepartmentNoFoundByIdException::new)));
+    }
+
+    @Override
+    public void deleteSmpl(List<HeadDepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<HeadDepartmentDto> getAny() throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToDto));
+    }
+
+    @Override
+    public Optional<HeadDepartmentSimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                headDepartmentRepo.findAny().map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
     @Override
@@ -67,8 +106,14 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
 
     @Override
     public Optional<HeadDepartmentDto> getByName(String name) throws ServiceException {
-        return executor.wrapTransactionalEntitySingle(()->
+        return executor.wrapTransactionalEntitySingle(() ->
                 headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToDto));
+    }
+
+    @Override
+    public Optional<HeadDepartmentSimpleDto> getSmplByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                headDepartmentRepo.findByName(name).map(headDepartmentMapper::headDepartmentToSimpleDto));
     }
 
     @Override
@@ -100,13 +145,34 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     @Override
     public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
-                headDepartmentRepo.findByLikeNameAndDepartmentName(
+                headDepartmentRepo.findByLikeNameAndDepartmentId(
                         likeName, departmentId).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
     }
 
     @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
-        return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
+        return headDepartmentRepo.countByLikeNameAndDepartmentId(likeName, departmentId);
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentRepo.findByDepartmentId(
+                        id).stream().map(
+                        headDepartmentMapper::headDepartmentToSimpleDto).toList());
+
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
+        long totalItems = filterText.isBlank() ? headDepartmentRepo.countByDepartmentId(departmentId) :
+                headDepartmentRepo.countByLikeNameAndDepartmentId(filterText, departmentId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

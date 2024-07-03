@@ -26,6 +26,7 @@ public class FileViewer extends BaseDialog {
      */
     public FileViewer(Window frame) {
         super(frame, "Предпросмотр");
+        this.setModal(true);
     }
 
     /**

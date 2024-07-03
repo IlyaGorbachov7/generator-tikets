@@ -7,10 +7,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Departme
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.DepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.deptm.DepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.DepartmentMapper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.factory.impl.MapperFactoryImpl;
+import lombok.NonNull;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,11 +34,35 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public DepartmentSimpleDto createSmpl(DepartmentCreateDto departmentCreateDto) throws ServiceException {
+        Department entity = departmentMapper.departmentDtoToDepartment(departmentCreateDto);
+        departmentRepo.create(entity);
+        return departmentMapper.departmentToDepartmentSimpleDto(entity);
+    }
+
+    @Override
     public DepartmentDto update(DepartmentDto departmentDto) throws ServiceException {
         return executor.wrapTransactionalEntitySingle(() -> {
             Department entity = departmentRepo.findById(departmentDto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
             departmentMapper.update(entity, departmentDto);
+            /*
+            I should necessarily perform repo.update, because current transaction still don't committed.
+            However you remember, update will be done after commit of the transaction.
+            However, here directly entity convert to DTO.
+            So I must implicitly perform update of operation, that this reflected on the result mapping.
+            */
+            departmentRepo.update(entity);
             return departmentMapper.departmentToDepartmentDto(entity);
+        });
+    }
+
+    @Override
+    public DepartmentSimpleDto updateSmpl(DepartmentSimpleDto dto) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() -> {
+            Department entity = departmentRepo.findById(dto.getId()).orElseThrow(DepartmentNoFoundByIdException::new);
+            departmentMapper.update(entity, dto);
+            departmentRepo.update(entity);
+            return departmentMapper.departmentToDepartmentSimpleDto(entity);
         });
     }
 
@@ -48,9 +75,31 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     @Override
+    public void deleteSmpl(DepartmentSimpleDto facultyDto) throws ServiceException {
+        executor.wrapTransactional(() -> {
+            departmentRepo.delete(departmentRepo.findById(facultyDto.getId())
+                    .orElseThrow(DepartmentNoFoundByIdException::new));
+        });
+    }
+
+    @Override
+    public void deleteSmpl(List<DepartmentSimpleDto> list) throws ServiceException {
+        executor.wrapTransactional(() -> list.forEach(this::deleteSmpl));
+    }
+
+    @Override
     public Optional<DepartmentDto> getByName(String name) throws ServiceException {
+        // Why we were give operation : findByName inside wrap transaction operation?
+        // Answer: When mapper used, mapper invoke method: getFaculty of the database object, this method is LAZY initialization
+        // then it does request to database for receive data. But for this, a transaction and session must be opened.
         return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findByName(name).map(departmentMapper::departmentToDepartmentDto));
+    }
+
+    @Override
+    public Optional<DepartmentSimpleDto> getSmplDtoByName(String name) throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                departmentRepo.findByName(name).map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
     @Override
@@ -58,6 +107,12 @@ public class DepartmentServiceImpl implements DepartmentService {
         return executor.wrapTransactionalEntitySingle(() ->
                 departmentRepo.findAny().map(departmentMapper::departmentToDepartmentDto)
         );
+    }
+
+    @Override
+    public Optional<DepartmentSimpleDto> getSmplAny() throws ServiceException {
+        return executor.wrapTransactionalEntitySingle(() ->
+                departmentRepo.findAny().map(departmentMapper::departmentToDepartmentSimpleDto));
     }
 
     @Override
@@ -100,5 +155,25 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return departmentRepo.countByLikeNameAndFacultyId(likeName, facultyId);
+    }
+
+    @Override
+    public List<DepartmentSimpleDto> getSmplByFacultyId(UUID id) {
+        return executor.wrapTransactionalResultList(() ->
+                departmentMapper.departmentToDepartmentSimpleDto(
+                        departmentRepo.findByFacultyId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(final int itemsOnPage, final int currentPage,
+                                              final @NonNull String filterText, final @NonNull UUID facultyId) {
+        long totalItems = filterText.isBlank() ? departmentRepo.countByFacultyId(facultyId) :
+                departmentRepo.countByLikeNameAndFacultyId(filterText, facultyId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }
