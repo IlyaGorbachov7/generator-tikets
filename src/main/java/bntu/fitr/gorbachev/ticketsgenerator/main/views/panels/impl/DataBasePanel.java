@@ -22,6 +22,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintT
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

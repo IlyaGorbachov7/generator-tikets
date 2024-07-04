@@ -28,6 +28,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
@@ -51,12 +53,12 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ValueRange;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 // TODO: Сделать UI для вненсия изминней в базу данных отделов образования
@@ -68,7 +70,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.Launch
  * @author Gorbachev I. D.
  * @version 18.04.2022
  */
-public class MainWindowPanel extends BasePanel {
+public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
@@ -79,7 +81,6 @@ public class MainWindowPanel extends BasePanel {
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
     private final JMenuItem tglAppTheme;
-    private boolean nightLightModeAppTheme;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -337,7 +338,7 @@ public class MainWindowPanel extends BasePanel {
         // init MenuBar
         saveItem.setEnabled(false);
 
-        tglAppTheme.setIcon((nightLightModeAppTheme)
+        tglAppTheme.setIcon(((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT))
                 ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                 : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
         tglAppTheme.setFocusable(false);
@@ -371,7 +372,7 @@ public class MainWindowPanel extends BasePanel {
         datePicDecision.getComponentDateTextField().setEnabled(false);
         datePicDecision.setDateToToday();
         datePicDecision.setFocusable(false);
-
+        customizeUIDatePicker();
         // range with between September and December
         setTimeYearOnBoxTypeSession(datePicDecision.getDate());
         boxTypeSession.setFocusable(false);
@@ -445,6 +446,33 @@ public class MainWindowPanel extends BasePanel {
         textField.setFont(new Font("Serif", Font.PLAIN, 12));
     }
 
+    private void customizeUIDatePicker() {
+        var settings = datePicDecision.getSettings();
+        // цвет недели
+        settings.setColorBackgroundWeekdayLabels(UIManager.getColor("Button.background"), false);
+        // кнопка спаво снизу
+        settings.setColor(DatePickerSettings.DateArea.BackgroundClearLabel, UIManager.getColor("Button.background"));
+        // посередине 2е лейбы
+        settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearMenuLabels, UIManager.getColor("Button.background"));
+        // это кнопки навигации
+        settings.setColor(DatePickerSettings.DateArea.BackgroundMonthAndYearNavigationButtons, UIManager.getColor("Button.background"));
+        // кнопка лева снизу
+        settings.setColor(DatePickerSettings.DateArea.BackgroundTodayLabel, UIManager.getColor("Button.background"));
+        settings.setColor(DatePickerSettings.DateArea.BackgroundTopLeftLabelAboveWeekNumbers, UIManager.getColor("Button.disabledBackground"));
+
+        // задает для всех типо касание мыши типо папал на облость то отобрази более темным
+        settings.setColor(DatePickerSettings.DateArea.BackgroundCalendarPanelLabelsOnHover, UIManager.getColor("Button.disabledBackground"));
+        // фон отображаю темным
+        settings.setColor(DatePickerSettings.DateArea.BackgroundOverallCalendarPanel, UIManager.getColor("Button.disabledBackground"));
+        // цвет выбраной данты
+        settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundSelectedDate, UIManager.getColor("Component.focusColor"));
+        // цвет календаря
+        settings.setColor(DatePickerSettings.DateArea.CalendarBackgroundNormalDates, UIManager.getColor("Button.background"));
+        // это то что отображается уже даны на textFiled
+        settings.setColor(DatePickerSettings.DateArea.TextFieldBackgroundValidDate, UIManager.getColor("Button.background"));
+
+    }
+
     private void setTimeYearOnBoxTypeSession(LocalDate newDate) {
         var range = ValueRange.of(Month.SEPTEMBER.getValue(), Month.DECEMBER.getValue());
         boxTypeSession.setSelectedIndex((range.isValidIntValue(newDate.getMonthValue())) ? 0 : 1);
@@ -454,6 +482,7 @@ public class MainWindowPanel extends BasePanel {
      * The method sets necessary all components listeners
      */
     public void setComponentsListeners() {
+        AppThemeManager.addThemeChangerListener(this);
         ActionListener handler = new ActionEventHandler();
         loadItem.addActionListener(handler);
         saveItem.addActionListener(handler);
@@ -1196,6 +1225,20 @@ public class MainWindowPanel extends BasePanel {
     private boolean isRandomWrite;
     private final SenderMessage registerSenderMsg;
 
+    @Override
+    public Component getComponent() {
+        return null;
+    }
+
+    @Override
+    public void updateComponent() {
+        customizeUIDatePicker();
+        Arrays.stream(chooserUpLoad.getComponents())
+                .forEach(AppThemeManager::updateComponentTreeUI);
+        Arrays.stream(chooserSave.getComponents())
+                .forEach(AppThemeManager::updateComponentTreeUI);
+    }
+
 
     /**
      * The class is a descendant of the ticket generation execution
@@ -1676,23 +1719,13 @@ public class MainWindowPanel extends BasePanel {
                     dataBaseDialog.setVisible(true);
                 });
             } else if (e.getSource() == tglAppTheme) {
-                int selected = JOptionPane.showInternalConfirmDialog(null, "Чтобы внести изменения, требуется перезагрузить программу.\n" +
-                                                                           "Хотите перезагрузить приложение ?", "Warning", JOptionPane.YES_NO_OPTION);
-                if (selected == JOptionPane.OK_OPTION) {
-                    System.out.println("Вносим изминение в базе данных, что пользователь выбрал темную/свлетлую тему. Перезагружаем приложение полностю, но не завершаем программу, показываем уже нужнут тему");
-                } else {
-                    System.out.println("Просто вносим зимения в базу данных, Но не выходим из приложения.");
-                }
-                nightLightModeAppTheme = !nightLightModeAppTheme;
-                if (nightLightModeAppTheme) {
-
-                } else {
-
-                }
-                tglAppTheme.setIcon((nightLightModeAppTheme)
-                        ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
-                        : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
-                tglAppTheme.updateUI();
+                SwingUtilities.invokeLater(() -> {
+                    AppThemeManager.swapTheme();
+                    tglAppTheme.setIcon((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT)
+                            ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
+                            : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
+                    tglAppTheme.updateUI();
+                });
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {

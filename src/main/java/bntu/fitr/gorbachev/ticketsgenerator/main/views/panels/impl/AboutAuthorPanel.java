@@ -3,6 +3,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
 
 import javax.swing.*;
 import java.awt.*;
