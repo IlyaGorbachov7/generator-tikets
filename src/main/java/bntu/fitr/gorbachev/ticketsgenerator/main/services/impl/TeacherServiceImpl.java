@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.Reposi
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.TeacherService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
@@ -120,6 +121,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public List<TeacherDto> getByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByFacultyId(UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByFacultyId(facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
+    }
+
+    @Override
     public long countByFacultyId(UUID facultyId) throws ServiceException {
         return teacherRepo.countByFacultyId(facultyId);
     }
@@ -144,6 +159,20 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public List<TeacherDto> getByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToDto).toList());
+    }
+
+    @Override
+    public List<TeacherSimpleDto> getSmplByLikeNameAndFacultyId(String likeName, UUID facultyId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                teacherRepo.findByLikeNameAndFacultyId(likeName, facultyId, page, itemsOnPage).stream().map(
+                        teacherMapper::teacherToSimpleDto).toList());
+    }
+
+    @Override
     public long countByLikeNameAndFacultyId(String likeName, UUID facultyId) throws ServiceException {
         return teacherRepo.countByLikeNameAndFacultyId(likeName, facultyId);
     }
@@ -154,5 +183,17 @@ public class TeacherServiceImpl implements TeacherService {
                 teacherRepo.findByFacultyId(id).stream().map(
                         teacherMapper::teacherToSimpleDto).toList());
 
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID facultyId) {
+        long totalItems = filterText.isBlank() ? teacherRepo.countByFacultyId(facultyId) :
+                teacherRepo.countByLikeNameAndFacultyId(filterText, facultyId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

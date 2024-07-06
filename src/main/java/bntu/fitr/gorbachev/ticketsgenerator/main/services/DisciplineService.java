@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -37,6 +38,10 @@ public interface DisciplineService {
 
     List<DisciplineDto> getBySpecializationId(UUID specializationId) throws ServiceException;
 
+    List<DisciplineDto> getBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
     long countBySpecializationId(UUID specializationId) throws ServiceException;
 
     List<DisciplineDto> getBySpecializationName(String specializationName) throws ServiceException;
@@ -45,7 +50,13 @@ public interface DisciplineService {
 
     List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 
+    List<DisciplineDto> getByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
+    List<DisciplineSimpledDto> getSmplByLikeNameAndSpecializationId(String likeName, UUID specializationId, int page, int itemsOnPage) throws ServiceException;
+
     long countByLikeNameAndSpecializationId(String likeName, UUID specializationId) throws ServiceException;
 
     List<DisciplineSimpledDto> getSmplBySpecializationId(UUID id);
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID specializationId);
 }

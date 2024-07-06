@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 
 import java.util.List;
@@ -36,6 +37,10 @@ public interface HeadDepartmentService {
 
     List<HeadDepartmentDto> getByDepartmentId(UUID DepartmentId) throws ServiceException;
 
+    List<HeadDepartmentDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException;
+
+    List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException;
+
     long countByDepartmentId(UUID DepartmentId) throws ServiceException;
 
     List<HeadDepartmentDto> getByDepartmentName(String departmentName) throws ServiceException;
@@ -44,7 +49,13 @@ public interface HeadDepartmentService {
 
     List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 
+    List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException;
+
+    List<HeadDepartmentSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException;
+
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException;
 
     List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID id);
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId);
 }

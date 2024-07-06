@@ -61,6 +61,20 @@ public class DisciplineDAOImpl extends AppAreaAbstractDAOImpl<Discipline, UUID> 
                     """,
             HQL_FIND_BY_LIKE_NAME_AND_specializationId);
 
+    private final String HQL_FIND_BY_specializationId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_specializationId,
+            HQL_LIMIT);
+
+    private final String HQL_FIND_BY_LIKE_NAME_AND_specializationId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_LIKE_NAME_AND_specializationId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Discipline> findBySpecializationId(UUID specializationId) throws DAOException {
@@ -68,6 +82,17 @@ public class DisciplineDAOImpl extends AppAreaAbstractDAOImpl<Discipline, UUID> 
                 HQL_FIND_BY_specializationId,
                 ENTITY_CLAZZ,
                 Map.entry(SPECIALIZATION_ID_ARG, specializationId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Discipline> findBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_specializationId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(SPECIALIZATION_ID_ARG, specializationId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)));
     }
 
     @Override
@@ -107,7 +132,19 @@ public class DisciplineDAOImpl extends AppAreaAbstractDAOImpl<Discipline, UUID> 
 
     @Override
     @SuppressWarnings("unchecked")
-    public long ByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException {
+    public List<Discipline> findByLikeNameAndSpecializationId(String name, UUID specializationId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_specializationId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(SPECIALIZATION_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(SPECIALIZATION_ID_ARG, specializationId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException {
         return executor.executeLongResult(
                 HQL_COUNT_FIND_BY_LIKE_NAME_AND_specializationId,
                 Map.entry(SPECIALIZATION_ID_ARG, specializationId),

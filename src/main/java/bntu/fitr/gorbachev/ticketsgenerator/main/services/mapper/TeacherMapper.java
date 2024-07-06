@@ -62,5 +62,6 @@ public abstract class TeacherMapper {
     protected abstract Teacher assembleToEntity(Faculty faculty, TeacherSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "faculty", expression = "java(source.getFaculty())")
     protected abstract void update(@MappingTarget Teacher target, Teacher source);
 }

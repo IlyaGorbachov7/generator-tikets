@@ -10,13 +10,17 @@ public interface HeadDepartmentDAO extends AppAreaAbstractDAO<HeadDepartment, UU
 
     List<HeadDepartment> findByDepartmentId(UUID departmentId) throws DAOException;
 
+    List<HeadDepartment> findByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws DAOException;
+
     long countByDepartmentId(UUID departmentId) throws DAOException;
 
     List<HeadDepartment> findByDepartmentName(String departmentName) throws DAOException;
 
     long countByDepartmentName(String departmentName) throws DAOException;
 
-    List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException;
+    List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 
-    long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException;
+    List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId, int page, int itemsOnPage) throws DAOException;
+
+    long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException;
 }

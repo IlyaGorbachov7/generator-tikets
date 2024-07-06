@@ -6,12 +6,24 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOExcept
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, ID> implements AppAreaAbstractDAO<T, ID> {
 
     private final String ENTITY_NAME_ARG = "entityName_arg";
 
+    protected final String OFFSET_arg = "page_arg";
+
+    protected final String ITEMS_ON_PAGE_arg = "itemsOnPage_arg";
+
+    protected final BiFunction<Integer, Integer, Integer> calculateOffset = (page, itemsOnPage) -> itemsOnPage * (page - 1);
+
     // ------------ HQL entry ------------------------ //
+
+    protected final String HQL_LIMIT = String.format("""
+            ORDER BY %s.name
+            LIMIT :%s OFFSET :%s
+            """,ALLIES_TABLE, ITEMS_ON_PAGE_arg, OFFSET_arg);
 
     private final String HQL_FIND_BY_NAME = String.format("""
                     %s
@@ -33,6 +45,13 @@ public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, I
             select count(*)
             %s
             """, HQL_FIND_LIKE_BY_NAME);
+
+    private final String HQL_FIND_LIKE_BY_NAME_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_LIKE_BY_NAME,
+            HQL_LIMIT);
 
     @Override
     @SuppressWarnings("unchecked")
@@ -56,7 +75,16 @@ public abstract class AppAreaAbstractDAOImpl<T, ID> extends AbstractDAOImpl<T, I
     @Override
     @SuppressWarnings("unchecked")
     public long countLikeByName(String name) throws DAOException {
-        return  executor.executeLongResult(HQL_COUNT_FIND_LIKE_BY_NAME,
+        return executor.executeLongResult(HQL_COUNT_FIND_LIKE_BY_NAME,
                 Map.entry(ENTITY_NAME_ARG, String.join("", "%", name, "%")));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<T> findLikeByName(String name, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(HQL_FIND_LIKE_BY_NAME_LIMIT, ENTITY_CLAZZ,
+                Map.entry(ENTITY_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)));
     }
 }

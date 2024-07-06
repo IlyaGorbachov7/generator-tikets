@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.DepartmentDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.HeadDepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment;
@@ -44,7 +43,7 @@ public abstract class HeadDepartmentMapper {
 
     public abstract List<HeadDepartmentDto> headDepartmentToDto(List<HeadDepartment> headDepartments);
 
-    public abstract List<HeadDepartmentSimpleDto> headDepartmentToSimpleDto(List<HeadDepartmentSimpleDto> headDepartmentSimpleDtos);
+    public abstract List<HeadDepartmentSimpleDto> headDepartmentToSimpleDto(List<HeadDepartment> headDepartmentSimpleDtos);
 
     public void update(HeadDepartment target, HeadDepartmentDto source) {
         HeadDepartment sourceEntity = headDepartmentDtoToEntity(source);
@@ -69,5 +68,6 @@ public abstract class HeadDepartmentMapper {
     protected abstract HeadDepartment assembleToEntity(Department department, HeadDepartmentSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "department", expression = "java(source.getDepartment())")
     protected abstract void update(@MappingTarget HeadDepartment target, HeadDepartment source);
 }

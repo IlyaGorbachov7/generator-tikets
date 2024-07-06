@@ -72,10 +72,11 @@ public abstract class SpecializationMapper {
 
     @Mapping(target = "id", source = "dto.id")
     @Mapping(target = "name", source = "dto.name")
-    protected abstract Specialization assembleEntity(Department orElseThrow, SpecializationSimpleDto dto);
+    protected abstract Specialization assembleEntity(Department department, SpecializationSimpleDto dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "disciplines", ignore = true)
+    @Mapping(target = "department", expression = "java(source.getDepartment())")
     protected abstract void update(@MappingTarget Specialization target, Specialization source);
 
 }

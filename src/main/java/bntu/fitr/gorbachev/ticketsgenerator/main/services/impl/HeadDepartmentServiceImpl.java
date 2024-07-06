@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.HeadDepartmentService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.headdep.HeadDepartmentSimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.headdep.HeadDepartmentNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.HeadDepartmentMapper;
@@ -124,6 +125,20 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     }
 
     @Override
+    public List<HeadDepartmentDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToDto(
+                        headDepartmentRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToSimpleDto(
+                        headDepartmentRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByDepartmentId(UUID DepartmentId) throws ServiceException {
         return headDepartmentRepo.countByDepartmentId(DepartmentId);
     }
@@ -144,14 +159,28 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
     @Override
     public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
-                headDepartmentRepo.findByLikeNameAndDepartmentName(
+                headDepartmentRepo.findByLikeNameAndDepartmentId(
                         likeName, departmentId).stream().map(
                         headDepartmentMapper::headDepartmentToDto).toList());
     }
 
     @Override
+    public List<HeadDepartmentDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToDto(
+                        headDepartmentRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<HeadDepartmentSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(() ->
+                headDepartmentMapper.headDepartmentToSimpleDto(
+                        headDepartmentRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) throws ServiceException {
-        return headDepartmentRepo.countByLikeNameAndDepartmentName(likeName, departmentId);
+        return headDepartmentRepo.countByLikeNameAndDepartmentId(likeName, departmentId);
     }
 
     @Override
@@ -161,5 +190,17 @@ public class HeadDepartmentServiceImpl implements HeadDepartmentService {
                         id).stream().map(
                         headDepartmentMapper::headDepartmentToSimpleDto).toList());
 
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
+        long totalItems = filterText.isBlank() ? headDepartmentRepo.countByDepartmentId(departmentId) :
+                headDepartmentRepo.countByLikeNameAndDepartmentId(filterText, departmentId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

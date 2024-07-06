@@ -18,6 +18,15 @@ public class MyPopup extends BasicComboPopup {
     }
 
     @Override
+    public void configureScroller() {
+        super.configureScroller();
+    }
+
+    public JScrollPane getScrollPane(){
+        return scroller;
+    }
+
+    @Override
     protected MouseListener createMouseListener() {
         MouseListener listener = super.createMouseListener();
         return new MouseListener() {

@@ -1,12 +1,18 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.JTableDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTblDataBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.ModelTableViewSupplier;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ColorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
@@ -15,19 +21,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
-public class MyListButtons extends JPanel {
+public class MyListButtons extends JPanel implements ThemeChangerListener {
 
     private final JPanel rootPnlForTable;
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
     private final JButton[] arrBtn;
-    private List<ActionListener> handlersOnChoice = new ArrayList<>(4);
+    private final List<ChoiceButtonListListener> handlersOnChoice = new ArrayList<>(4);
 
     @Builder
     public MyListButtons(ModelTableViewSupplier[] modelTableViewSuppliers,
@@ -40,7 +47,7 @@ public class MyListButtons extends JPanel {
         this.rootPnlForTable = rootPnl;
         this.arrBtn = new JButton[modelTableViewSuppliers.length];
         ActionListener handlerBtnAction = this.new HandlerButtonActionListener();
-        TableSelectedRowsListener handlerSelection = this.new HandlerSelectionRowsListener();
+        TableSelectedRowsListener handlerSelection = new HandlerSelectionRowsListener();
 
         IntIterator iIter = IntIterator.builder().build();
         mapBtnForKeyViewUI = Arrays.stream(modelTableViewSuppliers)
@@ -56,7 +63,7 @@ public class MyListButtons extends JPanel {
 
                     return Map.entry(btn, // key
                             KeyForViewUI.builder() // value
-                                    .index(iIter.cur()).btn(btn)
+                                    .index(iIter.cur()).pv(PaginationView.builder().build()).btn(btn)
                                     .tbl(JTableDataBase.builder()
                                             .clazz(clazzTblView).p(p)
                                             .btn(btn)
@@ -65,9 +72,7 @@ public class MyListButtons extends JPanel {
                                             .supplierUpdate(supplierUpdate)
                                             .supplierDelete(supplierDelete)
                                             .relatedMdlTbl(relatedMdlTbl).build()).build());
-                }).peek(entry -> {
-                    arrBtn[iIter.cur()] = entry.getKey();
-                })
+                }).peek(entry -> arrBtn[iIter.cur()] = entry.getKey())
                 .peek(entry -> { // initialization GUI bloke
                     GridBagConstraints gbc = new GridBagConstraints();
                     gbc.fill = GridBagConstraints.BOTH;
@@ -86,20 +91,46 @@ public class MyListButtons extends JPanel {
             btn.addActionListener(handlerBtnAction);
             keyView.getTbl().addTableSelectedRowsListener(handlerSelection);
         });
-
+        AppThemeManager.addThemeChangerListener(this);
         defaultSelectedBtn();
     }
 
-    public void addChoiceListener(ActionListener listener) {
+    public void addChoiceListener(ChoiceButtonListListener listener) {
         handlersOnChoice.add(listener);
     }
 
-    public void removeChoiceListener(ActionListener listener) {
+    public void removeChoiceListener(ChoiceButtonListListener listener) {
         handlersOnChoice.remove(listener);
     }
 
 
     private JButton selectedBtn;
+
+    @Override
+    public Component getComponent() {
+        return null;
+    }
+
+    @Override
+    public void updateComponent() {
+        CompletableFuture.runAsync(() -> {
+            SwingUtilities.invokeLater(() -> {
+                mapBtnForKeyViewUI.forEach((btn, keyForView) -> {
+                    AppThemeManager.updateComponentTreeUI(keyForView.getTbl());
+                    if (btn == selectedBtn) {
+                        btn.setBackground(ColorsListBtn.ACTIVE.getColor());
+                        return;
+                    }
+                    boolean isSelectedItemOnTable = mapBtnForKeyViewUI.get(btn).getTbl().getSelectedRowCount() > 0;
+                    if (isSelectedItemOnTable) {
+                        btn.setBackground(ColorsListBtn.SELECTED.getColor());
+                    } else {
+                        btn.setBackground(ColorsListBtn.REGULAR.getColor());
+                    }
+                });
+            });
+        });
+    }
 
     private class HandlerButtonActionListener implements ActionListener {
         JButton cur;
@@ -107,35 +138,63 @@ public class MyListButtons extends JPanel {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (cur == null) cur = arrBtn[0]; // initialization 1 раз
-            JButton btnSource = (JButton) e.getSource();
-            prev = cur;
-            cur = btnSource;
-            selectedBtn = cur;
-            KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
-            v.getTbl().performSetData();
-            if (prev != null) {
-                if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
-                    prev.setBackground(Color.LIGHT_GRAY);
-                } else prev.setBackground(Color.WHITE);
-            }
+            SwingUtilities.invokeLater(() -> {
+                JButton btnSource = (JButton) e.getSource();
+                if (btnSource == cur) return;
+                if (cur == null) cur = arrBtn[0]; // initialization 1 раз
+                KeyForViewUI v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+                KeyForViewUI prevV = mapBtnForKeyViewUI.get(prev);
+                KeyForViewUI relatedV = getRelatedKeyForViewIU(v);
+                fireChoiceBeforeJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
+                prev = cur;
+                cur = btnSource;
+                selectedBtn = cur;
 
-            setSelectedColorBtn(cur);
-            rootPnlForTable.removeAll();
-            rootPnlForTable.add(v.getTbl().getPnlTbl());
-            rootPnlForTable.repaint();
-            rootPnlForTable.validate();
-            fireChoiceJTable(new ActionEvent(selectedBtn, mapBtnForKeyViewUI.get(selectedBtn).getIndex(), "choice"));
+                v = Objects.requireNonNull(mapBtnForKeyViewUI.get(cur));
+                prevV = mapBtnForKeyViewUI.get(prev);
+                relatedV = getRelatedKeyForViewIU(v);
+                fireChoiceJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
+
+                if (prev != null) {
+                    if (mapBtnForKeyViewUI.get(prev).getTbl().getSelectedRowCount() > 0) {
+                        prev.setBackground(ColorsListBtn.SELECTED.getColor());
+                    } else prev.setBackground(ColorsListBtn.REGULAR.getColor());
+                }
+                setSelectedColorBtn(cur);
+                rootPnlForTable.removeAll();
+                rootPnlForTable.add(v.getTbl().getPnlTbl());
+                rootPnlForTable.repaint();
+                rootPnlForTable.validate();
+                fireChoiceAfterJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
+            });
         }
 
-        void fireChoiceJTable(ActionEvent event) {
-            CompletableFuture.runAsync(() -> {
-                handlersOnChoice.parallelStream().forEach((h) -> h.actionPerformed(event));
-            });
+        KeyForViewUI getRelatedKeyForViewIU(KeyForViewUI base) {
+            return mapBtnForKeyViewUI.values()
+                    .stream().collect(Collectors.collectingAndThen(Collectors.filtering(keyForView -> {
+                        var tbl = keyForView.getTbl();
+                        var node = tbl.getRelatedMdlTbl();
+                        var relatedMbl = base.getTbl().getRelatedMdlTbl();
+                        if (node == null || node == relatedMbl) return false;
+                        return node.getChild().contains(relatedMbl);
+                    }, Collectors.toUnmodifiableList()), downList -> downList.isEmpty()
+                            ? base : downList.get(0)));
+        }
+
+        void fireChoiceBeforeJTable(EventChoiceBtn event) {
+            handlersOnChoice.parallelStream().forEach((h) -> h.beforePerform(event));
+        }
+
+        void fireChoiceJTable(EventChoiceBtn event) {
+            handlersOnChoice.parallelStream().forEach((h) -> h.perform(event));
+        }
+
+        void fireChoiceAfterJTable(EventChoiceBtn event) {
+            handlersOnChoice.parallelStream().forEach((h) -> h.afterPerform(event));
         }
     }
 
-    private class HandlerSelectionRowsListener implements TableSelectedRowsListener {
+    private static class HandlerSelectionRowsListener implements TableSelectedRowsListener {
 
         /**
          * This is handler listener was for set enable list of the button.
@@ -173,11 +232,11 @@ public class MyListButtons extends JPanel {
     }
 
     protected void setSelectedColorBtn(@NonNull JButton btn) {
-        btn.setBackground(new Color(84, 151, 213));
+        btn.setBackground(ColorsListBtn.ACTIVE.getColor());
     }
 
-    public void deSelectInclude() {
-        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
+    public void deSelectAll() {
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(arrBtn[0]);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
@@ -185,21 +244,62 @@ public class MyListButtons extends JPanel {
             }
         }
         valueSelected.getTbl().getSelectionModel().clearSelection();
+        rootPnlForTable.removeAll();
+        rootPnlForTable.repaint();
+        rootPnlForTable.revalidate();
+        valueSelected.getBtn().setBackground(ColorsListBtn.REGULAR.getColor());
+        // TODO: нужно исправить потому что что0то не правильно работает
+        throw new RuntimeException();
     }
 
+    public void deSelectInclude() {
+        deSelectInclude((keyForView) -> true, (keyForViewUI) -> {
+        });
+    }
 
-    public void deSelectExclude() {
+    public void deSelectInclude(Consumer<KeyForViewUI> something){
+        deSelectInclude((keyForViewUI) -> true, something);
+    }
+
+    public void deSelectInclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, something);
+            }
+        }
+        if (isRunBase.apply(valueSelected)) {
+            valueSelected.getTbl().getSelectionModel().clearSelection();
+        }
+        something.accept(valueSelected);
+    }
+
+
+    public void deSelectExclude() {
+        deSelectExclude((keyForView) -> true, (keyForView) -> {
+        });
+    }
+
+    public void deSelectExclude(Consumer<KeyForViewUI> something){
+        deSelectExclude((keyForViewUI)-> true, something);
+    }
+
+    public void deSelectExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
+        KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
+        RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
+        if (relatedTblMdl != null) {
+            for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
+                doDes(child, isRunBase, something);
                 KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
-                arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-                rootValue.getTbl().getSelectionModel().clearSelection();
+                if (isRunBase.apply(rootValue)) {
+                    arrBtn[rootValue.getIndex()].setEnabled(true); // next button must be enabled
+                    arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
+                    rootValue.getTbl().getSelectionModel().clearSelection();
+                }
+                something.accept(rootValue);
             }
         }
     }
@@ -209,22 +309,39 @@ public class MyListButtons extends JPanel {
      * all related buttons, then selected more two items in table
      */
     public void deEnabledExclude() {
+        deEnabledExclude((keyForView) -> true, (keyForView) -> {
+        });
+    }
+
+    public void deEnabledExclude(Consumer<KeyForViewUI> something){
+        deEnabledExclude((keyForViewUI)->true, something);
+    }
+
+    public void deEnabledExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> somethingRun) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(selectedBtn);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, somethingRun);
                 KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                         .stream().filter(kv -> kv.getTbl().getClassTableView() == child.getClassMdlTbl())
                         .findFirst().orElseThrow();
-                arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
-                arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-                rootValue.getTbl().getSelectionModel().clearSelection();
+                if (isRunBase.apply(rootValue)) {
+                    arrBtn[rootValue.getIndex()].setEnabled(false); // set false for next button
+                    arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
+                    rootValue.getTbl().getSelectionModel().clearSelection();
+                }
+                somethingRun.accept(rootValue);
             }
         }
     }
 
     private void doDes(RelatedTblDataBase relatedTblDataBase) {
+        doDes(relatedTblDataBase, (keyForView) -> true, (keForView) -> {
+        });
+    }
+
+    private void doDes(RelatedTblDataBase relatedTblDataBase, Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> somethingRun) {
         KeyForViewUI rootValue = mapBtnForKeyViewUI.values()
                 .stream().filter(kv -> {
                     return kv.getTbl().getClassTableView() == relatedTblDataBase.getClassMdlTbl();
@@ -233,23 +350,30 @@ public class MyListButtons extends JPanel {
         var root = rootValue.getTbl().getRelatedMdlTbl();
 
         if (root == null || root.getChild().isEmpty()) {
-            arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-            rootValue.getTbl().getSelectionModel().clearSelection();
+            if (isRunBase.apply(rootValue)) {
+                arrBtn[rootValue.getIndex()].setEnabled(false);
+                arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+            somethingRun.accept(rootValue);
             return;
         }
 
         for (RelatedTblDataBase child : root.getChild()) {
-            doDes(child);
-            arrBtn[rootValue.getIndex()].setEnabled(false);
-            arrBtn[rootValue.getIndex()].setBackground(Color.WHITE);
-            rootValue.getTbl().getSelectionModel().clearSelection();
+            doDes(child, isRunBase, somethingRun);
+            if (isRunBase.apply(rootValue)) {
+                arrBtn[rootValue.getIndex()].setEnabled(false);
+                arrBtn[rootValue.getIndex()].setBackground(ColorsListBtn.REGULAR.getColor());
+                rootValue.getTbl().getSelectionModel().clearSelection();
+            }
+            somethingRun.accept(rootValue);
         }
     }
 
 
     @Builder
     private static final class IntIterator {
+        @Builder.Default
         int i = 0;
 
         public int incr() {
@@ -266,6 +390,38 @@ public class MyListButtons extends JPanel {
 
         public int cur() {
             return i;
+        }
+    }
+
+    /**
+     * This implementation follows one of the principles SOLID.
+     * <p>
+     * <b>This decision is  flexible and dynamically for runtime update theme application </b>
+     *
+     * @see ColorManager
+     */
+    public enum ColorsListBtn {
+        REGULAR(() -> {
+            return UIManager.getColor("Button.background");
+        }),
+        SELECTED(() -> {
+            return UIManager.getColor("Button.selectedBackground");
+        }),
+        ACTIVE(() -> {
+            return UIManager.getColor("Component.focusColor");
+        }),
+        NAVIGATION(() -> (AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.NIGHT) ?
+                new Color(0, 0, 0) :
+                new Color(72, 72, 72));
+
+        ColorManager color;
+
+        ColorsListBtn(@NonNull ColorManager color) {
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color.getColor();
         }
     }
 }

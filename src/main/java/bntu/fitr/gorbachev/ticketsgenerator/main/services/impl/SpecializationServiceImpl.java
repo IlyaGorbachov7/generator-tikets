@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.Reposi
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.SpecializationService;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
@@ -126,6 +127,20 @@ public class SpecializationServiceImpl implements SpecializationService {
     }
 
     @Override
+    public List<SpecializationDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByDepartmentId(departmentId, page, itemsOnPage)));
+    }
+
+    @Override
     public long countByDepartmentId(UUID departmentId) {
         return specializationRepo.countByDepartmentId(departmentId);
     }
@@ -149,6 +164,20 @@ public class SpecializationServiceImpl implements SpecializationService {
                         specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId)));
     }
 
+    @Override
+    public List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToDto(
+                        specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
+    @Override
+    public List<SpecializationSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage) {
+        return executor.wrapTransactionalResultList(()->
+                specializationMapper.specializationToSimpleDto(
+                        specializationRepo.findByLikeNameAndDepartmentId(likeName, departmentId, page, itemsOnPage)));
+    }
+
 
     @Override
     public long countByLikeNameAndDepartmentId(String likeName, UUID departmentId) {
@@ -160,5 +189,17 @@ public class SpecializationServiceImpl implements SpecializationService {
         return executor.wrapTransactionalResultList(() ->
                 specializationMapper.specializationToSimpleDto(
                         specializationRepo.findByDepartmentId(id)));
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId) {
+        long totalItems = filterText.isBlank() ? specializationRepo.countByDepartmentId(departmentId) :
+                specializationRepo.countByLikeNameAndDepartmentId(filterText, departmentId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

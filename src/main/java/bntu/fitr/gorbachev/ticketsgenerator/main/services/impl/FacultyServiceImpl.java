@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultySimpleDto;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.ServiceException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.fclt.FacultyNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper.FacultyMapper;
@@ -123,11 +124,25 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
+    public List<FacultyDto> getByUniversityId(UUID universityId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultyDto(
+                        facultyRepo.findByUniversityId(universityId, page , itemsOnPage)));
+    }
+
+    @Override
     public List<FacultySimpleDto> getSmplByUniversityId(UUID universityId) throws ServiceException {
         return executor.wrapTransactionalResultList(()->
                 facultyMapper.facultyToFacultySimpleDto(
                         facultyRepo.findByUniversityId(universityId)
                 ));
+    }
+
+    @Override
+    public List<FacultySimpleDto> getSmplByUniversityId(UUID universityId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultySimpleDto(
+                        facultyRepo.findByUniversityId(universityId, page , itemsOnPage)));
     }
 
     @Override
@@ -149,10 +164,24 @@ public class FacultyServiceImpl implements FacultyService {
     }
 
     @Override
-    public List<FacultyDto> getByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
+    public List<FacultyDto> getByLikeNameAndUniversityId(String likeName, UUID universityId) throws ServiceException {
         return executor.wrapTransactionalResultList(() ->
                 facultyMapper.facultyToFacultyDto(
                         facultyRepo.findByLikeNameAndUniversityId(likeName, universityId)));
+    }
+
+    @Override
+    public List<FacultyDto> getByLikeNameAndUniversityId(String likeName, UUID universityId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultyDto(
+                        facultyRepo.findByLikeNameAndUniversityId(likeName, universityId, page , itemsOnPage)));
+    }
+
+    @Override
+    public List<FacultySimpleDto> getSmplByLikeNameAndUniversityId(String likeName, UUID universityId, int page, int itemsOnPage) throws ServiceException {
+        return executor.wrapTransactionalResultList(()->
+                facultyMapper.facultyToFacultySimpleDto(
+                        facultyRepo.findByLikeNameAndUniversityId(likeName, universityId, page , itemsOnPage)));
     }
 
     @Override
@@ -169,5 +198,17 @@ public class FacultyServiceImpl implements FacultyService {
     @Override
     public long countByLikeNameAndUniversity(String likeName, UUID universityId) throws ServiceException {
         return facultyRepo.countByLikeNameAndUniversityId(likeName, universityId);
+    }
+
+    @Override
+    public PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID universityId) {
+        long totalItems = filterText.isBlank() ? facultyRepo.countByUniversityId(universityId) :
+                facultyRepo.countByLikeNameAndUniversityId(filterText, universityId);
+        int totalPage = (int) (((totalItems % itemsOnPage) == 0.0) ? (totalItems / itemsOnPage) : (totalItems / itemsOnPage) + 1);
+        return PaginationParam.builder()
+                .currentPage((currentPage > totalPage) ? 1 : currentPage)
+                .totalPage(totalPage)
+                .itemsOnPage(itemsOnPage)
+                .build();
     }
 }

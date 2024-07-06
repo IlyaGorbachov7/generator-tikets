@@ -61,6 +61,19 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
                     """,
             HQL_FIND_BY_NAME_AND_departmentId);
 
+    private final String HQL_FIND_BY_departmentId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_departmentId,
+            HQL_LIMIT);
+    private final String HQL_FIND_BY_LIKE_NAME_AND_departmentId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_NAME_AND_departmentId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<HeadDepartment> findByDepartmentId(UUID departmentId) throws DAOException {
@@ -68,6 +81,18 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
                 HQL_FIND_BY_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<HeadDepartment> findByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_departmentId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage)
+        );
     }
 
     @Override
@@ -93,7 +118,7 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<HeadDepartment> findByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
+    public List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
         return executor.executeQuery(
                 HQL_FIND_BY_NAME_AND_departmentId,
                 ENTITY_CLAZZ,
@@ -103,7 +128,19 @@ public class HeadDepartmentDAOImpl extends AppAreaAbstractDAOImpl<HeadDepartment
 
     @Override
     @SuppressWarnings("unchecked")
-    public long countByLikeNameAndDepartmentName(String name, UUID departmentId) throws DAOException {
+    public List<HeadDepartment> findByLikeNameAndDepartmentId(String name, UUID departmentId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_departmentId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public long countByLikeNameAndDepartmentId(String name, UUID departmentId) throws DAOException {
         return executor.executeLongResult(
                 HQL_COUNT_BY_NAME_AND_departmentId,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),

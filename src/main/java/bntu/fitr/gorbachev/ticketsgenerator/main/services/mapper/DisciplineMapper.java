@@ -72,5 +72,6 @@ public abstract class DisciplineMapper {
     protected abstract Discipline assembleToEntity(Specialization specialization, DisciplineSimpledDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "specialization", expression = "java(source.getSpecialization())")
     protected abstract void update(@MappingTarget Discipline target, Discipline source);
 }

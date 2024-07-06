@@ -55,6 +55,20 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
             %s
             """, HQL_FIND_BY_LIKE_NAME_AND_departmentId);
 
+    private final String HQL_FIND_BY_departmentId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_departmentId,
+            HQL_LIMIT);
+
+    private final String HQL_FIND_BY_LIKE_NAME_AND_departmentId_LIMIT = String.format("""
+                    %s
+                    %s
+                    """,
+            HQL_FIND_BY_LIKE_NAME_AND_departmentId,
+            HQL_LIMIT);
+
     @Override
     @SuppressWarnings("unchecked")
     public List<Specialization> findByDepartmentId(UUID departmentId) throws DAOException {
@@ -62,6 +76,18 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
                 HQL_FIND_BY_departmentId,
                 ENTITY_CLAZZ,
                 Map.entry(DEPARTMENT_ID_ARG, departmentId)
+        );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Specialization> findByDepartmentId(UUID departmentId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_departmentId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage))
         );
     }
 
@@ -100,6 +126,18 @@ public class SpecializationDAOImpl extends AppAreaAbstractDAOImpl<Specialization
                 Map.entry(DEPARTMENT_ID_ARG, departmentId),
                 Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%"))
         );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Specialization> findByLikeNameAndDepartmentId(String name, UUID departmentId, int page, int itemsOnPage) throws DAOException {
+        return executor.executeQuery(
+                HQL_FIND_BY_LIKE_NAME_AND_departmentId_LIMIT,
+                ENTITY_CLAZZ,
+                Map.entry(DEPARTMENT_ID_ARG, departmentId),
+                Map.entry(DEPARTMENT_NAME_ARG, String.join("", "%", name, "%")),
+                Map.entry(ITEMS_ON_PAGE_arg, itemsOnPage),
+                Map.entry(OFFSET_arg, calculateOffset.apply(page, itemsOnPage)));
     }
 
     @Override

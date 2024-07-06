@@ -10,6 +10,8 @@ public interface DisciplineDAO extends AppAreaAbstractDAO<Discipline, UUID> {
 
     List<Discipline> findBySpecializationId(UUID specializationId) throws DAOException;
 
+    List<Discipline> findBySpecializationId(UUID specializationId, int page, int itemsOnPage) throws DAOException;
+
     long countBySpecializationId(UUID specializationId) throws DAOException;
 
     List<Discipline> findBySpecializationName(String specializationName) throws DAOException;
@@ -18,5 +20,7 @@ public interface DisciplineDAO extends AppAreaAbstractDAO<Discipline, UUID> {
 
     List<Discipline> findByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
 
-    long ByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
+    List<Discipline> findByLikeNameAndSpecializationId(String name, UUID specializationId, int page, int itemsOnPage) throws DAOException;
+
+    long countByLikeNameAndSpecializationId(String name, UUID specializationId) throws DAOException;
 }

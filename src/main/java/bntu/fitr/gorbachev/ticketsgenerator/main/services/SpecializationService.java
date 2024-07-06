@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.other.PaginationParam;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;
@@ -35,6 +36,10 @@ public interface SpecializationService {
 
     List<SpecializationDto> getByDepartmentId(UUID departmentId);
 
+    List<SpecializationDto> getByDepartmentId(UUID departmentId, int page, int itemsOnPage);
+
+    List<SpecializationSimpleDto> getSmplByDepartmentId(UUID departmentId, int page, int itemsOnPage);
+
     long countByDepartmentId(UUID departmentId);
 
     List<SpecializationDto> getByDepartmentName(String departmentName);
@@ -43,7 +48,13 @@ public interface SpecializationService {
 
     List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 
+    List<SpecializationDto> getByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage);
+
+    List<SpecializationSimpleDto> getSmplByLikeNameAndDepartmentId(String likeName, UUID departmentId, int page, int itemsOnPage);
+
     long countByLikeNameAndDepartmentId(String likeName, UUID departmentId);
 
     List<SpecializationSimpleDto> getSmplByDepartmentId(UUID id);
+
+    PaginationParam calculatePageParam(int itemsOnPage, int currentPage, String filterText, UUID departmentId);
 }
