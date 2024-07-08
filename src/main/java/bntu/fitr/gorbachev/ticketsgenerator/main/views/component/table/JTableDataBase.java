@@ -74,7 +74,32 @@ public class JTableDataBase extends JTable {
 
             @Override
             public void columnSelectionChanged(ListSelectionEvent e) {
-                System.out.println("___________________________dfsfsf");
+                System.out.println("___________________________dfsfsf :: " + e.getFirstIndex());
+                System.out.println("___________________________dfsfsf :: " + e.getLastIndex());
+                System.out.println("___________________________dfsfsf :: " + e.getValueIsAdjusting());
+                if (sel) {
+                    if (isSel && e.getValueIsAdjusting()) {
+                        clearSelection();
+                        sel = false;
+                        isSel = false;
+                        list = new boolean[]{false, false};
+                        i = 0;
+                        return;
+                    }
+                    if (i <= 1) {
+                        list[i] = e.getValueIsAdjusting();
+                        if (i == 1) {
+                            if (list[i] == list[i - 1]) {
+                                System.out.println("clear");
+                                isSel = true;
+                            }
+                        }
+                        ++i;
+                    }
+//                if(!e.getValueIsAdjusting() && (e.getFirstIndex() == e.getFirstIndex())){
+//                    clearSelection();
+//                }
+                }
             }
         });
         this.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -95,9 +120,13 @@ public class JTableDataBase extends JTable {
              */
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                System.out.println("first:" + e.getFirstIndex());
-                System.out.println("last:" + e.getLastIndex());
-                System.out.println("valueisAdjusting: " + e.getValueIsAdjusting());
+                System.out.print("first:" + e.getFirstIndex());
+                System.out.print("  last:" + e.getLastIndex());
+                System.out.print("  valueisAdjusting: " + e.getValueIsAdjusting());
+                isSel = false;
+                list = new boolean[]{false, false};
+                i = 0;
+                sel = true;
                 fireSelectedRows(TableSelectedRowsEvent.builder().eventSource(e)
                         .classTableView(classTableView)
                         .selectedItems(((RealizeTableModel) dataModel)
@@ -109,6 +138,11 @@ public class JTableDataBase extends JTable {
 
         });
     }
+
+    boolean sel = false;
+    boolean isSel = false;
+    boolean[] list = new boolean[]{false, false};
+    int i = 0;
 
     public void setSupplierCellRender(Function<Object[], DefaultTableCellRenderer> supplierCellRender) {
         this.supplierCellRender = supplierCellRender;

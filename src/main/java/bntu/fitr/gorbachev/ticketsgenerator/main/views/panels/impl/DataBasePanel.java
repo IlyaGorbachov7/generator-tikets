@@ -22,7 +22,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintT
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,6 +42,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -76,6 +77,7 @@ public class DataBasePanel extends BasePanel {
 
     private Function<Object, List<?>> supplierDataList;
 
+    private Function<Class, Object> supplierInputSearchFieldData;
     private Function<Object, String> mapperView;
     private Function<Object, String> mapperFind;
     private BiFunction<Object, InputUpdateDataProxy, Object> mapperUpdateItem;
@@ -140,6 +142,26 @@ public class DataBasePanel extends BasePanel {
                                 .teacherService().getSmplByFacultyId(inputSearchFieldsData.getFaculty().getId()));
             }
             return null;
+        };
+
+        supplierInputSearchFieldData = clazz ->{
+            if (clazz == UniversityModelTbl.class) {
+                return inputSearchFieldsData.getUniversity();
+            }else if(clazz == FacultyModelTbl.class){
+                return inputSearchFieldsData.getFaculty();
+            }else if(clazz == DepartmentModelTbl.class){
+                return inputSearchFieldsData.getDepartment();
+            }else if(clazz == SpecializationModelTbl.class){
+                return inputSearchFieldsData.getSpecialization();
+            }else if(clazz == DisciplineModelTbl.class){
+                return inputSearchFieldsData.getDiscipline();
+            }else if(clazz == HeadDepartmentModelTbl.class){
+                return inputSearchFieldsData.getHeadDepartment();
+            }else if(clazz == TeacherModelTbl.class){
+                return inputSearchFieldsData.getTeacher();
+            }else{
+                throw new RuntimeException("undefield");
+            }
         };
 
         mapperView = o -> {
@@ -482,14 +504,14 @@ public class DataBasePanel extends BasePanel {
                         .toArray(ModelTableViewSupplier[]::new))
                 .rootPnl(rootPnlTbls).build();
         statesSelectedItemsOnPage = myListButtons.getMapBtnForKeyViewUI().values().stream()
-                .collect(Collectors.toMap(Function.identity(), (k) -> new StateSelectedItemOnTbl()));
+                .collect(Collectors.toMap(Function.identity(), (k) -> new ArrayList<>()));
     }
 
     protected void addingCustomComponents() {
         pnlList.add(myListButtons);
     }
 
-    private Map<KeyForViewUI, StateSelectedItemOnTbl> statesSelectedItemsOnPage;
+    private Map<KeyForViewUI, List<StateSelectedItemOnTbl>> statesSelectedItemsOnPage;
 
     @Override
     public void setConfigComponents() {
@@ -507,26 +529,42 @@ public class DataBasePanel extends BasePanel {
 
                         @Override
                         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
-                            String selectedItemId = statesSelectedItemsOnPage.get(selectedKeyForViewUI).getUuid();
+                            Color fgs = UIManager.getColor("Table.dropCellForeground"),
+                                    bgs = UIManager.getColor("Table.dropCellBackground");
+
+                            Color fg = UIManager.getColor("Table.focusCellForeground"),
+                                    bg = UIManager.getColor("Table.focusCellBackground");
+                            List<String> selectedItemId = statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream().map(StateSelectedItemOnTbl::getUuid).toList();
 
                             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, rowIndex, columnIndex);
-
+                            System.out.println("Hi: "+value);
                             if (value instanceof UUID uuid) { // column is UUID by type
-                                if (selectedItemId != null) {
-                                    if (uuid.toString().equals(selectedItemId)) {
-                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).setRow(rowIndex);
-                                        this.setBackground(Color.GREEN);
+                                if (!selectedItemId.isEmpty()) {
+                                    if (selectedItemId.contains(uuid.toString())) {
+                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).forEach(state -> {
+                                            state.setRow(rowIndex);
+                                        });
+                                        this.setForeground(fgs);
+                                        this.setBackground(bgs);
                                     } else {
-                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).setRow(-1);
-                                        this.setBackground(Color.orange);
+                                        statesSelectedItemsOnPage.get(selectedKeyForViewUI).forEach(state -> {
+                                            state.setRow(-1);
+                                        });
+                                        this.setForeground(fg);
+                                        this.setBackground(bg);
                                     }
+                                } else {
+                                    this.setForeground(fg);
+                                    this.setBackground(bg);
                                 }
                             } else { // column don't is UUID by type however may be same index row that have selected index row
 
-                                if (rowIndex == statesSelectedItemsOnPage.get(selectedKeyForViewUI).getRow()) {
-                                    this.setBackground(Color.GREEN);
+                                if (statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream().map(StateSelectedItemOnTbl::getRow).anyMatch(index -> index == rowIndex)) {
+                                    this.setForeground(fgs);
+                                    this.setBackground(bgs);
                                 } else {
-                                    this.setBackground(Color.orange);
+                                    this.setForeground(fg);
+                                    this.setBackground(bg);
                                 }
                             }
                             return this;
@@ -735,10 +773,12 @@ public class DataBasePanel extends BasePanel {
             String text = tfFilter.getText();
             paginationView.setFilterText(text);
             if (text.length() > 4) {
+                myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 isUpdated = true;
                 initPagination(true, true, true, false);
                 selectedKeyForViewUI.getTbl().performSetData();
             } else if (text.isBlank() && isUpdated) {
+                myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 isUpdated = false;
                 initPagination(true, true, true, false);
                 selectedKeyForViewUI.getTbl().performSetData();
@@ -747,24 +787,20 @@ public class DataBasePanel extends BasePanel {
         }
     }
 
-    private void setStatesSelectedItemsOnPage(String selectedItemsID, int selectedRow) {
-        var state = statesSelectedItemsOnPage.get(selectedKeyForViewUI);
-        state.setUuid(selectedItemsID);
-        state.setRow(selectedRow);
-    }
-
     private void setStatesSelectedItemsOnPage(String[] selectedItemsId, int[] selectedRows) {
         if (selectedItemsId.length != selectedRows.length)
             throw new RuntimeException("selectedItemsId.length != selectedRows");
-        for (int i = 0; i < selectedItemsId.length; ++i) {
-            setStatesSelectedItemsOnPage(selectedItemsId[i], selectedRows[i]);
-        }
+        List<StateSelectedItemOnTbl> list = statesSelectedItemsOnPage.get(selectedKeyForViewUI);
+        list.clear();
+        List<StateSelectedItemOnTbl> newsel = IntStream.range(0, selectedItemsId.length)
+                .mapToObj(i -> StateSelectedItemOnTbl.builder().uuid(selectedItemsId[i]).row(selectedRows[i]).build())
+                .toList();
+        list.addAll(newsel);
     }
 
     private void deSetStateSelectedItemsOnPage(KeyForViewUI keyForViewUI) {
-        var state = statesSelectedItemsOnPage.get(keyForViewUI);
-        state.setRow(-1);
-        state.setUuid(null);
+        statesSelectedItemsOnPage.get(keyForViewUI).clear();
+
     }
 
     private void deSetStateSelectedItemsOnPageAll() {
@@ -789,6 +825,7 @@ public class DataBasePanel extends BasePanel {
          */
         @Override
         public void perform(TableSelectedRowsEvent event) {
+            System.out.println("Hi");
             Object[] elemSelected = event.getSelectedItems();
             if (!event.isAdjusting()) {
                 if (elemSelected.length == 1) {
@@ -822,15 +859,16 @@ public class DataBasePanel extends BasePanel {
             } else { // isAdjusting() == true => invoked firstly when item on the table is selected
                 if (elemSelected.length == 1) {
                     System.out.println("SYKA");
-                    setStatesSelectedItemsOnPage(mapperFind.apply(elemSelected[0]), event.getSelectedRows()[0]);
+                    setStatesSelectedItemsOnPage(Arrays.stream(elemSelected).map(mapperFind).toArray(String[]::new),
+                            event.getSelectedRows());
                 } else if (elemSelected.length > 1) {
                     System.out.println("SYKA");
                     // TODO: нужно пото разобраться с выделение больших обхектов
                     setStatesSelectedItemsOnPage(Arrays.stream(elemSelected).map(mapperFind).toArray(String[]::new),
                             event.getSelectedRows());
-                }else{
-                    // TODO: здесь тоже не доконца стирает выделение
-                    myListButtons.deEnabledExclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
+                } else {
+                    System.out.println("NHF}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}]");
+                    myListButtons.deSelectInclude((key) -> false, DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 }
             }
         }
@@ -845,24 +883,20 @@ public class DataBasePanel extends BasePanel {
         private final Object selectedItem;
 
         public UpdatePanel() {
-            KeyForViewUI selectedTblView = selectedKeyForViewUI;
-            KeyForViewUI subSelectedTblView = subSelectedKeyForViewUI;
-
-
             JPanel rootPnl = new JPanel(new GridLayout(2, 2, 10, 10));
 
             JLabel sublbl = null;
-            selectedItem = selectedTblView.getTbl().getSelectedItem();
-            Object subselectedItem = subSelectedTblView.getTbl().getSelectedItem();
-            if (subSelectedTblView != selectedTblView) {
-                sublbl = new JLabel(subSelectedTblView.getBtn().getText());
-                List<?> dataList = supplierDataList.apply(subSelectedTblView.getTbl().getClassTableView());
+            selectedItem = supplierInputSearchFieldData.apply(selectedKeyForViewUI.getTbl().getClassTableView());
+            Object subselectedItem = supplierInputSearchFieldData.apply(subSelectedKeyForViewUI.getTbl().getClassTableView());
+            if (subSelectedKeyForViewUI != selectedKeyForViewUI) {
+                sublbl = new JLabel(subSelectedKeyForViewUI.getBtn().getText());
+                List<?> dataList = supplierDataList.apply(subSelectedKeyForViewUI.getTbl().getClassTableView());
                 box = new CombaBoxSupplierView(mapperView, dataList);
                 box.setSelectedItem(subselectedItem);
             }
-            JLabel curlbl = new JLabel(selectedTblView.getBtn().getText());
+            JLabel curlbl = new JLabel(selectedKeyForViewUI.getBtn().getText());
             field = new JTextField(mapperView.apply(selectedItem));
-            if (subSelectedTblView != selectedTblView) {
+            if (subSelectedKeyForViewUI != selectedKeyForViewUI) {
                 rootPnl.add(sublbl);
                 rootPnl.add(box);
             }
@@ -894,6 +928,7 @@ public class DataBasePanel extends BasePanel {
     @Setter
     @Getter
     @ToString
+    @Builder
     private static final class StateSelectedItemOnTbl {
         private String uuid = null;
 
