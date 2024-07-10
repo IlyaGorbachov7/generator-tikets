@@ -13,10 +13,17 @@ public class Test2 {
     }
 
     @Test
-    void test3(){
+    void test3() {
         int totalImtes = 16;
         int itmesOnPage = 15;
         int totalPage = (int) (((totalImtes % itmesOnPage) == 0.0) ? (totalImtes / itmesOnPage) : (totalImtes / itmesOnPage) + 1);
         System.out.println(totalPage);
+    }
+
+    @Test
+    void test4() {
+        System.getProperties().forEach((k, v) -> {
+            System.out.println("k =" + k + "v = " + v);
+        });
     }
 }

@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
@@ -798,6 +799,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             @Override
             public void windowClosing(WindowEvent e) {
                 System.out.println(":) Window closing");
+                Main.serialize();
                 getRootFrame().setVisible(false);
                 try {
                     if (executionThread != null) {
