@@ -1,6 +1,6 @@
 package subtest1.subsubtest1;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.Serializer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 import org.junit.jupiter.api.Test;
 

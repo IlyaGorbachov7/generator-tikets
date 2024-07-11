@@ -1,4 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools;
+package bntu.fitr.gorbachev.ticketsgenerator.main.util;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
 

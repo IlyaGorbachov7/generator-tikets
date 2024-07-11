@@ -3,13 +3,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.Serializer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class Main {

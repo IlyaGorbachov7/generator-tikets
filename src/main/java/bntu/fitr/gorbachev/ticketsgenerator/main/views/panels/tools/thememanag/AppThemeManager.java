@@ -1,6 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.Serializer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import lombok.AccessLevel;
