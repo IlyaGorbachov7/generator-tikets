@@ -40,4 +40,14 @@ public class Test1 {
     void throwm() throws IOException {
         throw new IOException("from method");
     }
+
+    @Test
+    public void test3() {
+        try {
+            System.out.println("try");
+            return;
+        } finally {
+            System.out.println("finnaly");
+        }
+    }
 }

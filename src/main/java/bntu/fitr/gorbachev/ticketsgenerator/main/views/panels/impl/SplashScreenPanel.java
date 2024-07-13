@@ -177,7 +177,7 @@ public class SplashScreenPanel extends BasePanel {
         lbYear.setHorizontalAlignment(SwingConstants.CENTER);
         lbYear.setFont(new Font("Dialog", Font.BOLD, 15));
 
-        btnNext.setBackground(Color.gray.brighter().brighter());
+        btnNext.setBackground(UIManager.getColor("Component.focusColor"));
         btnNext.setPreferredSize(new Dimension(250, 24));
         btnExit.setPreferredSize(new Dimension(250, 24));
 

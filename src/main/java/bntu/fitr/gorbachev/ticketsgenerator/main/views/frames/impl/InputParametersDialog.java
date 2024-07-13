@@ -11,7 +11,7 @@ public class InputParametersDialog extends BaseDialog {
 
     public InputParametersDialog(Window owner, PanelType panelType) {
         super(owner, panelType, "Параметры ввода");
-        this.setModal(true);
+//        this.setModal(true);
     }
 
     @Override

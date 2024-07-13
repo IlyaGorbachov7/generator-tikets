@@ -1,13 +1,17 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,8 +37,18 @@ public class AppThemeManager {
                 if (!running) {
                     System.out.println("Обращаемся к базе данных, берем от туда необходимые инфо о теме. если нет то создаем default nему");
                     running = true;
-                    FlatLightLaf.setup();
-                    currentTheme = ThemeApp.LIGHT;
+                    try {
+                        List<ThemeAppWrapper> objs = Serializer.deserialize(ThemeAppWrapper.class);
+                        if (objs.isEmpty()) {
+                            FlatLightLaf.setup();
+                        } else {
+                            ThemeAppWrapper wrapper = objs.get(0);
+                            currentTheme = wrapper.currentTheme;
+                            updateTheme();
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         }
@@ -43,8 +57,18 @@ public class AppThemeManager {
     public static void swapTheme() {
         synchronized (AppThemeManager.class) {
             checkRunning();
-            System.out.println("Вносим изминение в базе данных, что пользователь выбрал темную/свлетлую тему. Перезагружаем приложение полностю, но не завершаем программу, показываем уже нужнут тему");
             currentTheme = (currentTheme == ThemeApp.LIGHT) ? ThemeApp.NIGHT : ThemeApp.LIGHT;
+            if (currentTheme == ThemeApp.LIGHT) {
+                setLightTheme();
+            } else {
+                setDarkTheme();
+            }
+        }
+    }
+
+    public static void updateTheme() {
+        synchronized (AppThemeManager.class) {
+            checkRunning();
             if (currentTheme == ThemeApp.LIGHT) {
                 setLightTheme();
             } else {
@@ -122,8 +146,17 @@ public class AppThemeManager {
             throw new RuntimeException("ThemeAppManager has not been launched yet. Invoke method : ThemeAppManager.run()");
     }
 
+    public static Serializable serialize() {
+        return new ThemeAppWrapper(currentTheme);
+    }
+
     public enum ThemeApp {
         LIGHT,
         NIGHT
+    }
+
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class ThemeAppWrapper implements Serializable {
+        ThemeApp currentTheme;
     }
 }
