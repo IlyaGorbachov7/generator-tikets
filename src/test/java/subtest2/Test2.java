@@ -31,7 +31,7 @@ public class Test2 {
     @Test
     void test4() {
         System.getProperties().forEach((k, v) -> {
-            System.out.println("k =" + k + "v = " + v);
+            System.out.println("k =" + k + " v = " + v);
         });
     }
 

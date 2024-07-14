@@ -1,6 +1,7 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag;
+package bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import lombok.AccessLevel;
@@ -38,7 +39,8 @@ public class AppThemeManager {
                     System.out.println("Обращаемся к базе данных, берем от туда необходимые инфо о теме. если нет то создаем default nему");
                     running = true;
                     try {
-                        List<ThemeAppWrapper> objs = Serializer.deserialize(ThemeAppWrapper.class);
+                        //TODO:: Если я хочу независимую реализацию, от проекта к проекту, тогда нижнуюю запись нужно менять, удалять и далеть SerializerManager
+                        List<ThemeAppWrapper> objs = Main.deserialize(ThemeAppWrapper.class);
                         if (objs.isEmpty()) {
                             FlatLightLaf.setup();
                         } else {
@@ -155,8 +157,13 @@ public class AppThemeManager {
         NIGHT
     }
 
+    @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ThemeAppWrapper implements Serializable {
         ThemeApp currentTheme;
+
+        {
+            currentTheme = ThemeApp.LIGHT;
+        }
     }
 }

@@ -3,17 +3,22 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.Serializer;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.Path;
+import java.util.List;
 
 public class Main {
+    private static Serializer serializer;
+
     // TODO: нужно сделать какой то мэнеджер  А не работать через Main класс
-    public static void main(String[] args) throws UnsupportedLookAndFeelException {
+    public static void main(String[] args) throws UnsupportedLookAndFeelException, IOException {
+        serializer = new Serializer(Path.of(getUserDirectory().toString(), "serializable"));
         AppThemeManager.run();
         FrameDialogFactory.getInstance().createJFrame(FrameType.SPLASH_SCREEN, PanelType.SPLASH_SCREEN).setVisible(true);
     }
@@ -57,9 +62,13 @@ public class Main {
 
     public static void serialize() {
         try {
-            Serializer.serialize(AppThemeManager.serialize(), true);
+            serializer.serialize(AppThemeManager.serialize(), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static <T extends Serializable> List<T> deserialize(Class<T> clazz) throws IOException {
+            return serializer.deserialize(clazz);
     }
 }
