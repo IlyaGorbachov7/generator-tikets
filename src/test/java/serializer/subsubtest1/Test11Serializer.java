@@ -1,6 +1,7 @@
 package serializer.subsubtest1;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -20,7 +21,7 @@ public class Test11Serializer {
 
     @BeforeAll
     public static void init() throws IOException {
-        serializer = new Serializer(Path.of(Main.getUserDirectory().toString(), "sp"));
+        serializer = SerializeManager.getSerializer(Path.of(Main.getUserDirectory().toString(), "sp"));
     }
 
     /*
@@ -143,5 +144,10 @@ public class Test11Serializer {
     void testSer() throws IOException {
         AppThemeManager.ThemeAppWrapper wrapper = new AppThemeManager.ThemeAppWrapper(AppThemeManager.ThemeApp.LIGHT);
         serializer.serialize(wrapper);
+    }
+
+    @Test
+    void testPoint(){
+        System.out.println(Path.of(System.getProperty("user", "."), "defaultSerializeDir"));
     }
 }

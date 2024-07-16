@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
-import java.net.URL;
-
-public interface ResourceBundleManager {
+public interface Readable {
 
     String getValue(String key);
 

@@ -25,7 +25,7 @@ public class Serializer {
     @Getter
     private final Path targetDir;
 
-    public Serializer(Path targetDir) throws AccessDeniedException {
+    Serializer(Path targetDir) throws AccessDeniedException {
         this.targetDir = targetDir;
         try {
             if (Files.exists(targetDir)) {

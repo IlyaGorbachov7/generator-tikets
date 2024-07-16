@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
@@ -18,7 +19,7 @@ public class Main {
 
     // TODO: нужно сделать какой то мэнеджер  А не работать через Main класс
     public static void main(String[] args) throws UnsupportedLookAndFeelException, IOException {
-        serializer = new Serializer(Path.of(getUserDirectory().toString(), "serializable"));
+        serializer = SerializeManager.getSerializer(Path.of(getUserDirectory().toString(), "serializable"));
         AppThemeManager.run();
         FrameDialogFactory.getInstance().createJFrame(FrameType.SPLASH_SCREEN, PanelType.SPLASH_SCREEN).setVisible(true);
     }

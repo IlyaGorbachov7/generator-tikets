@@ -1,6 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
@@ -19,6 +18,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
@@ -799,14 +799,23 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             @Override
             public void windowClosing(WindowEvent e) {
                 System.out.println(":) Window closing");
-                Main.serialize();
+                CompletableFuture<Boolean> task = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        SerializeManager.runSerialize();
+                        return true;
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
                 getRootFrame().setVisible(false);
                 try {
                     if (executionThread != null) {
                         executionThread.interrupt();
                     }
                     PoolConnection.Builder.build().destroy();
-                } catch (ConnectionPoolException ex) {
+                    task.get();
+
+                } catch (ConnectionPoolException | ExecutionException | InterruptedException ex) {
                     throw new RuntimeException(ex);
                 } finally {
                     System.out.println("GoodBy!");
