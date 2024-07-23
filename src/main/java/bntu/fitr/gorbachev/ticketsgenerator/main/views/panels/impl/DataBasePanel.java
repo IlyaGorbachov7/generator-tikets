@@ -43,7 +43,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 // TODO: necessary added new column for each table of database for the purpose of short description naming any name
 // TODO: added sorting functional for "name" field
@@ -592,6 +591,8 @@ public class DataBasePanel extends BasePanel {
                         }
                     });
                 });
+        setEnableCRUDbtn(false, false, false);
+        setEnableComponent(false);
     }
 
     @Override
@@ -641,6 +642,8 @@ public class DataBasePanel extends BasePanel {
             JButton source = (JButton) e.getSource();
             if (source == btnAllDeselect) {
                 myListButtons.deSelectAll(keyForView -> {
+                    setEnableComponent(false);
+                    setEnableCRUDbtn(false, false, false);
                     keyForView.getPv().setFilterTextNotify("");
                     DataBasePanel.this.deSetStateSelectedItemsOnPage(keyForView);
                 });
@@ -733,6 +736,7 @@ public class DataBasePanel extends BasePanel {
                 subSelectedKeyForViewUI = event.getRelatedFromCurrent();
                 paginationView = selectedKeyForViewUI.getPv();
                 SwingUtilities.invokeLater(() -> {
+                    setEnableComponent(true);
                     initPagination();
                     selectedKeyForViewUI.getTbl().performSetData();
 
@@ -827,8 +831,11 @@ public class DataBasePanel extends BasePanel {
 
     }
 
-    private void deSetStateSelectedItemsOnPageAll() {
-
+    private void setEnableComponent(boolean enable) {
+        tfFilter.setEnabled(enable);
+        btnNext.setEnabled(enable);
+        btnBack.setEnabled(enable);
+        cmbCountView.setEnabled(enable);
     }
 
     private final class HandlerSelectionRows implements TableSelectedRowsListener {
@@ -882,16 +889,12 @@ public class DataBasePanel extends BasePanel {
                 }
             } else { // isAdjusting() == true => invoked firstly when item on the table is selected
                 if (elemSelected.length == 1) {
-                    System.out.println("SYKA");
                     setStatesSelectedItemsOnPage(Arrays.stream(elemSelected).map(mapperFind).toArray(String[]::new),
                             event.getSelectedRows());
                 } else if (elemSelected.length > 1) {
-                    System.out.println("SYKA");
-                    // TODO: нужно пото разобраться с выделение больших обхектов
                     setStatesSelectedItemsOnPage(Arrays.stream(elemSelected).map(mapperFind).toArray(String[]::new),
                             event.getSelectedRows());
                 } else {
-                    System.out.println("NHF}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}]");
                     myListButtons.deSelectInclude((key) -> false, DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 }
             }

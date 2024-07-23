@@ -179,7 +179,7 @@
                     </constraints>
                     <properties>
                       <horizontalAlignment value="0"/>
-                      <text value="5"/>
+                      <text value=""/>
                     </properties>
                   </component>
                   <hspacer id="752e1">
@@ -207,7 +207,7 @@
                     </constraints>
                     <properties>
                       <horizontalAlignment value="0"/>
-                      <text value="78"/>
+                      <text value=""/>
                     </properties>
                   </component>
                   <hspacer id="efcd5">
