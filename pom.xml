@@ -133,6 +133,10 @@
             <exclusions>
                 <exclusion>
                     <groupId>javax.media</groupId>
+                    <artifactId>jai_core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.media</groupId>
                     <artifactId>jai-core</artifactId>
                 </exclusion>
             </exclusions>

@@ -64,7 +64,6 @@ public class DataBasePanel extends BasePanel {
 
     private JPanel rootPnlTbls;
     private HintTextField tfFilter;
-    private JTable tableData;
     private JLabel lbCurrentPage;
     private JLabel lbTotalNumberPage;
     private JComboBox<Integer> cmbCountView;
@@ -127,15 +126,18 @@ public class DataBasePanel extends BasePanel {
             } else if (clazzModelView == SpecializationModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().specializationMapper()
                         .listSpecializationDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .specializationService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment().getId()));
+                                .specializationService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment()
+                                        .getId()));
             } else if (clazzModelView == DisciplineModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().disciplineMapper()
                         .listDisciplineDtoToModelTbl(ServiceFactoryImpl.getInstance()
-                                .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getSpecialization().getId()));
+                                .disciplineService().getSmplBySpecializationId(inputSearchFieldsData.getSpecialization()
+                                        .getId()));
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().headDepartmentMapper()
                         .listHeadDepartmentDtoModelTbl(ServiceFactoryImpl.getInstance()
-                                .headDepartmentService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment().getId()));
+                                .headDepartmentService().getSmplByDepartmentId(inputSearchFieldsData.getDepartment()
+                                        .getId()));
             } else if (clazzModelView == TeacherModelTbl.class) {
                 return MapperViewFactoryImpl.getInstance().teacherMapper()
                         .listTeacherDtoToModelTbl(ServiceFactoryImpl.getInstance()
@@ -144,22 +146,22 @@ public class DataBasePanel extends BasePanel {
             return null;
         };
 
-        supplierInputSearchFieldData = clazz ->{
+        supplierInputSearchFieldData = clazz -> {
             if (clazz == UniversityModelTbl.class) {
                 return inputSearchFieldsData.getUniversity();
-            }else if(clazz == FacultyModelTbl.class){
+            } else if (clazz == FacultyModelTbl.class) {
                 return inputSearchFieldsData.getFaculty();
-            }else if(clazz == DepartmentModelTbl.class){
+            } else if (clazz == DepartmentModelTbl.class) {
                 return inputSearchFieldsData.getDepartment();
-            }else if(clazz == SpecializationModelTbl.class){
+            } else if (clazz == SpecializationModelTbl.class) {
                 return inputSearchFieldsData.getSpecialization();
-            }else if(clazz == DisciplineModelTbl.class){
+            } else if (clazz == DisciplineModelTbl.class) {
                 return inputSearchFieldsData.getDiscipline();
-            }else if(clazz == HeadDepartmentModelTbl.class){
+            } else if (clazz == HeadDepartmentModelTbl.class) {
                 return inputSearchFieldsData.getHeadDepartment();
-            }else if(clazz == TeacherModelTbl.class){
+            } else if (clazz == TeacherModelTbl.class) {
                 return inputSearchFieldsData.getTeacher();
-            }else{
+            } else {
                 throw new RuntimeException("undefield");
             }
         };
@@ -240,24 +242,31 @@ public class DataBasePanel extends BasePanel {
             String filterText = paginationView.getFilterText();
 
             if (clazzModelView == UniversityModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().universityService().calculatePageParam(itemsOnPage, currentPage, filterText);
+                return ServiceFactoryImpl.getInstance().universityService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText);
             } else if (clazzModelView == FacultyModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().facultyService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().facultyService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getUniversity().getId());
             } else if (clazzModelView == DepartmentModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().departmentService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().departmentService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getFaculty().getId());
             } else if (clazzModelView == SpecializationModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().specializationService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().specializationService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == DisciplineModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().disciplineService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().disciplineService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == HeadDepartmentModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().headDepartmentService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().headDepartmentService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getDepartment().getId());
             } else if (clazzModelView == TeacherModelTbl.class) {
-                return ServiceFactoryImpl.getInstance().teacherService().calculatePageParam(itemsOnPage, currentPage, filterText,
+                return ServiceFactoryImpl.getInstance().teacherService().calculatePageParam(itemsOnPage, currentPage,
+                        filterText,
                         inputSearchFieldsData.getFaculty().getId());
             }
             throw new RuntimeException("Unified class model: " + clazzModelView);
@@ -442,7 +451,8 @@ public class DataBasePanel extends BasePanel {
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(UniversityModelTbl.class)
                                                 .child(Collections.singletonList(
-                                                        RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class).build()
+                                                        RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class)
+                                                                .build()
                                                 )).build())
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
@@ -453,8 +463,10 @@ public class DataBasePanel extends BasePanel {
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class)
                                                 .child(Arrays.asList(
-                                                        RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class).build(),
-                                                        RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build()
+                                                        RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class)
+                                                                .build(),
+                                                        RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class)
+                                                                .build()
                                                 )).build())
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
@@ -464,8 +476,10 @@ public class DataBasePanel extends BasePanel {
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class)
                                                 .child(Arrays.asList(
-                                                        RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class).build(),
-                                                        RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build()
+                                                        RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
+                                                                .build(),
+                                                        RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class)
+                                                                .build()
                                                 )).build())
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
@@ -475,28 +489,32 @@ public class DataBasePanel extends BasePanel {
                                         .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
                                                 .child(Collections.singletonList(
-                                                        RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build()
+                                                        RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class)
+                                                                .build()
                                                 )).build())
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierPaginationDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DisciplineModelTbl.class)
-                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class).build())
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class)
+                                                .build())
                                         .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierPaginationDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(HeadDepartmentModelTbl.class)
-                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class).build())
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class)
+                                                .build())
                                         .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierPaginationDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(TeacherModelTbl.class)
-                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class).build())
+                                        .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class)
+                                                .build())
                                         .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
@@ -519,7 +537,8 @@ public class DataBasePanel extends BasePanel {
         tfFilter.setText("Введите не менее 5 символов");
         myListButtons.getMapBtnForKeyViewUI().values().parallelStream()
                 .forEach(keyForViewUI -> {
-                    keyForViewUI.getPv().setItemsOnPage((Integer.parseInt(Objects.requireNonNull(cmbCountView.getSelectedItem()).toString())));
+                    keyForViewUI.getPv().setItemsOnPage((Integer.parseInt(
+                            Objects.requireNonNull(cmbCountView.getSelectedItem()).toString())));
                     /**
                      * When user swap pages then selection don't perform correctly, so i had overridden
                      * base realization and implement myself.
@@ -528,16 +547,17 @@ public class DataBasePanel extends BasePanel {
                     keyForViewUI.getTbl().setSupplierCellRender((args) -> new JTableDataBase.RealizedCellRender((Integer) args[0]) {
 
                         @Override
-                        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
+                        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                                       boolean hasFocus, int rowIndex, int columnIndex) {
                             Color fgs = UIManager.getColor("Table.dropCellForeground"),
                                     bgs = UIManager.getColor("Table.dropCellBackground");
 
                             Color fg = UIManager.getColor("Table.focusCellForeground"),
                                     bg = UIManager.getColor("Table.focusCellBackground");
-                            List<String> selectedItemId = statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream().map(StateSelectedItemOnTbl::getUuid).toList();
+                            List<String> selectedItemId = statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream()
+                                    .map(StateSelectedItemOnTbl::getUuid).toList();
 
                             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, rowIndex, columnIndex);
-                            System.out.println("Hi: "+value);
                             if (value instanceof UUID uuid) { // column is UUID by type
                                 if (!selectedItemId.isEmpty()) {
                                     if (selectedItemId.contains(uuid.toString())) {
@@ -559,7 +579,8 @@ public class DataBasePanel extends BasePanel {
                                 }
                             } else { // column don't is UUID by type however may be same index row that have selected index row
 
-                                if (statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream().map(StateSelectedItemOnTbl::getRow).anyMatch(index -> index == rowIndex)) {
+                                if (statesSelectedItemsOnPage.get(selectedKeyForViewUI).stream()
+                                        .map(StateSelectedItemOnTbl::getRow).anyMatch(index -> index == rowIndex)) {
                                     this.setForeground(fgs);
                                     this.setBackground(bgs);
                                 } else {
@@ -619,7 +640,10 @@ public class DataBasePanel extends BasePanel {
         public void actionPerformed(ActionEvent e) {
             JButton source = (JButton) e.getSource();
             if (source == btnAllDeselect) {
-                myListButtons.deSelectAll();
+                myListButtons.deSelectAll(keyForView -> {
+                    keyForView.getPv().setFilterTextNotify("");
+                    DataBasePanel.this.deSetStateSelectedItemsOnPage(keyForView);
+                });
             } else if (source == btnDeselect) {
                 myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
             } else if (source == btnCreate) {

@@ -10,12 +10,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTb
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.AppThemeManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ColorManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.thememanag.ThemeChangerListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.Setter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +36,10 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
     private final Map<JButton, KeyForViewUI> mapBtnForKeyViewUI;
     private final JButton[] arrBtn;
     private final List<ChoiceButtonListListener> handlersOnChoice = new ArrayList<>(4);
+    private final JPanel EMPTY = new JPanel();
+
+    private final HandlerButtonActionListener handlerBtnAction;
+    private final TableSelectedRowsListener handlerSelection;
 
     @Builder
     public MyListButtons(ModelTableViewSupplier[] modelTableViewSuppliers,
@@ -46,14 +51,16 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         // Farther means that all right
         this.rootPnlForTable = rootPnl;
         this.arrBtn = new JButton[modelTableViewSuppliers.length];
-        ActionListener handlerBtnAction = this.new HandlerButtonActionListener();
-        TableSelectedRowsListener handlerSelection = new HandlerSelectionRowsListener();
+        handlerBtnAction = this.new HandlerButtonActionListener();
+        handlerSelection = new HandlerSelectionRowsListener();
 
         IntIterator iIter = IntIterator.builder().build();
         mapBtnForKeyViewUI = Arrays.stream(modelTableViewSuppliers)
                 .map(modelTableViewSupplier -> {
                     JPanel p = new JPanel();
-                    JButton btn = new JButton(ReflectionListDataBaseHelper.extractTableViewName(modelTableViewSupplier.getClazzModelView()));
+                    String name = ReflectionListDataBaseHelper.extractTableViewName(modelTableViewSupplier.getClazzModelView());
+                    JButton btn = new JButton(name);
+                    btn.setName(name);
                     Class<?> clazzTblView = modelTableViewSupplier.getClazzModelView();
                     Function<Object, List<?>> supplierDataList = modelTableViewSupplier.getSupplierData();
                     Function<Object, Object> supplierCreate = modelTableViewSupplier.getSupplierCreate();
@@ -132,6 +139,8 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         });
     }
 
+    @Setter
+    @Getter
     private class HandlerButtonActionListener implements ActionListener {
         JButton cur;
         JButton prev;
@@ -235,21 +244,29 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         btn.setBackground(ColorsListBtn.ACTIVE.getColor());
     }
 
-    public void deSelectAll() {
+
+    public void deSelectAll(Consumer<KeyForViewUI> something) {
+        deSelectAll((keyForView) -> true, something);
+    }
+
+    public void deSelectAll(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
         KeyForViewUI valueSelected = mapBtnForKeyViewUI.get(arrBtn[0]);
         RelatedTblDataBase relatedTblMdl = valueSelected.getTbl().getRelatedMdlTbl();
         if (relatedTblMdl != null) {
             for (RelatedTblDataBase child : relatedTblMdl.getChild()) {
-                doDes(child);
+                doDes(child, isRunBase, something);
             }
         }
-        valueSelected.getTbl().getSelectionModel().clearSelection();
-        rootPnlForTable.removeAll();
-        rootPnlForTable.repaint();
-        rootPnlForTable.revalidate();
-        valueSelected.getBtn().setBackground(ColorsListBtn.REGULAR.getColor());
-        // TODO: нужно исправить потому что что0то не правильно работает
-        throw new RuntimeException();
+        if (isRunBase.apply(valueSelected)) {
+            valueSelected.getTbl().getSelectionModel().clearSelection();
+            valueSelected.getBtn().setBackground(ColorsListBtn.REGULAR.getColor());
+            rootPnlForTable.removeAll();
+            rootPnlForTable.add(EMPTY);
+            handlerBtnAction.setCur(null); // reset current selected table btn
+            rootPnlForTable.repaint();
+            rootPnlForTable.revalidate();
+        }
+        something.accept(valueSelected);
     }
 
     public void deSelectInclude() {
@@ -257,7 +274,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         });
     }
 
-    public void deSelectInclude(Consumer<KeyForViewUI> something){
+    public void deSelectInclude(Consumer<KeyForViewUI> something) {
         deSelectInclude((keyForViewUI) -> true, something);
     }
 
@@ -281,8 +298,8 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         });
     }
 
-    public void deSelectExclude(Consumer<KeyForViewUI> something){
-        deSelectExclude((keyForViewUI)-> true, something);
+    public void deSelectExclude(Consumer<KeyForViewUI> something) {
+        deSelectExclude((keyForViewUI) -> true, something);
     }
 
     public void deSelectExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> something) {
@@ -313,8 +330,8 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         });
     }
 
-    public void deEnabledExclude(Consumer<KeyForViewUI> something){
-        deEnabledExclude((keyForViewUI)->true, something);
+    public void deEnabledExclude(Consumer<KeyForViewUI> something) {
+        deEnabledExclude((keyForViewUI) -> true, something);
     }
 
     public void deEnabledExclude(Function<KeyForViewUI, Boolean> isRunBase, Consumer<KeyForViewUI> somethingRun) {

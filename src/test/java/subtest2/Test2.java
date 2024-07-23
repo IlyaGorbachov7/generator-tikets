@@ -1,7 +1,7 @@
 package subtest2;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.ResourceBundleManagerBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ResourceBundleManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManager;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -31,7 +31,7 @@ public class Test2 {
     @Test
     void test4() {
         System.getProperties().forEach((k, v) -> {
-            System.out.println("k =" + k + "v = " + v);
+            System.out.println("k =" + k + " v = " + v);
         });
     }
 
