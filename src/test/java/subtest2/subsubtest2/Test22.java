@@ -79,4 +79,22 @@ public class Test22 {
             Assumptions.assumeFalse(/*true*/ false);
         });
     }
+
+
+    @Test
+    void testFlatMap() {
+        List<List<Integer>> listlist = List.of(
+                List.of(1, 2, 3, 4, 5),
+                List.of(6, 7, 8, 9, 0, 10),
+                List.of(12, 13, 14, 15, 16, 17)
+        );
+
+        listlist.stream().flatMap(list -> {
+            System.out.println("flatMap: " + list);
+            return list.stream();
+        }).peek(i->{
+            System.out.print(" i: "+i);
+        }).forEach(i-> System.out.println(" ternar :: i : "+ i));
+    }
+
 }

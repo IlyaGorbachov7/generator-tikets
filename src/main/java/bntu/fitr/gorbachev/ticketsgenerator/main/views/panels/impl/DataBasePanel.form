@@ -267,25 +267,15 @@
           </grid>
           <component id="94516" class="bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintTextField" binding="tfFilter">
             <constraints border-constraint="North"/>
-            <properties>
-              
-            </properties>
-          </component>
-          <grid id="e05b6" binding="rootPnlTbls" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints border-constraint="Center"/>
             <properties/>
+          </component>
+          <grid id="e05b6" binding="rootPnlTbls" layout-manager="CardLayout" hgap="0" vgap="0">
+            <constraints border-constraint="Center"/>
+            <properties>
+              <foreground color="-2696815"/>
+            </properties>
             <border type="none"/>
-            <children>
-              <component id="fcd7" class="javax.swing.JTable" binding="tableData">
-                <constraints border-constraint="Center"/>
-                <properties>
-                  <background color="-16696511"/>
-                  <foreground color="-4474537"/>
-                  <gridColor color="-5356625"/>
-                  <selectionBackground color="-5356625"/>
-                </properties>
-              </component>
-            </children>
+            <children/>
           </grid>
         </children>
       </grid>

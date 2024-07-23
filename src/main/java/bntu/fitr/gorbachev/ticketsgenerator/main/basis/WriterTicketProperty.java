@@ -3,9 +3,11 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.basis;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
-public class WriterTicketProperty {
+public class WriterTicketProperty implements Serializable {
     private boolean isTicketOnSinglePage;
     private int quantityOnSinglePage;
 

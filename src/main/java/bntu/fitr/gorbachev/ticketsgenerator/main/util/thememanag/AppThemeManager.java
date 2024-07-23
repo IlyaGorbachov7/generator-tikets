@@ -1,6 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
@@ -8,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,34 +27,38 @@ import java.util.List;
  * Здесь будет запись данных в базу данных
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class AppThemeManager {
 
+    private static ThemeAppWrapper saveObj;
     @Getter
     private static ThemeApp currentTheme;
 
     @Getter
     private static volatile boolean running;
 
+
+    private static Serializer serializer;
     private static final Collection<ThemeChangerListener> handler = Collections.synchronizedCollection(new ArrayList<>());
 
-    public static void run() {
+    public static void run() throws IOException {
         if (!running) {
             synchronized (AppThemeManager.class) {
                 if (!running) {
-                    System.out.println("Обращаемся к базе данных, берем от туда необходимые инфо о теме. если нет то создаем default nему");
                     running = true;
-                    try {
-                        //TODO:: Если я хочу независимую реализацию, от проекта к проекту, тогда нижнуюю запись нужно менять, удалять и далеть SerializerManager
-                        List<ThemeAppWrapper> objs = Main.deserialize(ThemeAppWrapper.class);
-                        if (objs.isEmpty()) {
-                            FlatLightLaf.setup();
-                        } else {
-                            ThemeAppWrapper wrapper = objs.get(0);
-                            currentTheme = wrapper.currentTheme;
-                            updateTheme();
-                        }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    serializer = Serializer.getSerializer(TicketGeneratorUtil.getFileSerializeDirectory().toPath());
+                    List<ThemeAppWrapper> objs = serializer.deserialize(ThemeAppWrapper.class);
+                    if (objs.isEmpty()) {
+                        log.warn("AppThemeManager: deserialize object: don't found");
+                        currentTheme =  ThemeApp.LIGHT;
+                        saveObj = new ThemeAppWrapper(currentTheme);
+                        SerializeManager.addListener(saveObj);
+                        updateTheme();
+                    } else {
+                        saveObj = objs.get(0);
+                        SerializeManager.addListener(saveObj);
+                        currentTheme = saveObj.currentTheme;
+                        updateTheme();
                     }
                 }
             }
@@ -159,11 +168,16 @@ public class AppThemeManager {
 
     @NoArgsConstructor
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class ThemeAppWrapper implements Serializable {
+    public static class ThemeAppWrapper implements Serializable, SerializeListener {
         ThemeApp currentTheme;
 
         {
             currentTheme = ThemeApp.LIGHT;
+        }
+
+        @Override
+        public void serialize() throws IOException {
+            serializer.serialize(new ThemeAppWrapper(AppThemeManager.currentTheme));
         }
     }
 }

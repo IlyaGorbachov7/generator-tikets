@@ -1,7 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.ReflectionUtil;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,7 +15,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -22,6 +28,18 @@ import java.util.stream.Stream;
  */
 @Slf4j
 public class Serializer {
+
+    private static final Map<Path, Serializer> context = new ConcurrentHashMap<>(4);
+
+    public static <T extends Serializable> Serializer getSerializer(Path targetDirectory) throws AccessDeniedException {
+        context.putIfAbsent(targetDirectory.toAbsolutePath(), new Serializer(targetDirectory.toAbsolutePath()));
+        return context.get(targetDirectory);
+    }
+
+    public static Map<Path, Serializer> getSerializers() {
+        return context.entrySet().stream().collect(Collectors.toUnmodifiableMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     @Getter
     private final Path targetDir;
 
@@ -109,10 +127,23 @@ public class Serializer {
 
 
     public File getFileSerializableDirectory() throws IOException {
-        Main.checkFileCredentials(getTargetDir());
+        checkFileCredentials(getTargetDir());
         File file = getTargetDir().toFile();
         file.mkdir();
         return file;
+    }
+
+    private boolean checkFileCredentials(Path file) throws NotAccessForReadToFileException, NotAccessForWriteToFileException {
+        if (Files.exists(file)) {
+            if (!Files.isReadable(file)) {
+                throw new NotAccessForReadToFileException(file);
+            }
+            if (!Files.isWritable(file)) {
+                throw new NotAccessForWriteToFileException(file);
+            }
+            return true;
+        }
+        return false;
     }
 
     public <T extends Serializable> long deleteAllFiles(Class<T> clazz) throws IOException {

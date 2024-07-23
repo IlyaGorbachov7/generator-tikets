@@ -1,7 +1,12 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
+import lombok.SneakyThrows;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -10,29 +15,40 @@ import javax.swing.text.DefaultFormatter;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.util.List;
 
-public class RecordSettingPanel extends BasePanel {
+public class RecordSettingPanel extends BasePanel implements SerializeListener {
     /**
      * Data transfer object. This object is mapping GUI this panel.
      */
     private WriterTicketProperty property;
 
+    private static Serializer serializer;
+
+    @SneakyThrows
     public RecordSettingPanel(Window rootWindow) {
         super(rootWindow);
+        serializer = Serializer.getSerializer(TicketGeneratorUtil.getPathSerializeDirectory());
+        List<WriterTicketProperty> list = serializer.deserialize(WriterTicketProperty.class);
+        if (list.isEmpty()) {
+            property = new WriterTicketProperty();
+        } else {
+            property = list.get(0);
+        }
+        SerializeManager.addListener(this);
+
+        lbQuantityTicketOnSinglePage = new JLabel("Количество билетов на странице");
+        spinnerQuantityTicketOnSinglePage = new JSpinner(new SpinnerNumberModel(property.getQuantityOnSinglePage(), 1, 5, 1));
+
+        lbFontSize = new JLabel("Размер шрифта");
+        spinnerFontSize = new JSpinner(new SpinnerNumberModel(property.getSizeFont(), 1, 20, 1));
+
+        btnOk = new JButton("Ok");
+
         initPanel();
         setConfigComponents();
         setComponentsListeners();
-        property = new WriterTicketProperty();
-    }
-
-    {
-        lbQuantityTicketOnSinglePage = new JLabel("Количество билетов на странице");
-        spinnerQuantityTicketOnSinglePage = new JSpinner(new SpinnerNumberModel(1, 1, 5, 1));
-
-        lbFontSize = new JLabel("Размер шрифта");
-        spinnerFontSize = new JSpinner(new SpinnerNumberModel(14, 1, 20, 1));
-
-        btnOk = new JButton("Ok");
     }
 
     private final JButton btnOk;
@@ -128,4 +144,8 @@ public class RecordSettingPanel extends BasePanel {
         this.property = property;
     }
 
+    @Override
+    public void serialize() throws IOException {
+        serializer.serialize(property);
+    }
 }
