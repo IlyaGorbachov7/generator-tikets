@@ -14,8 +14,8 @@ public class PropertiesManagerBase extends PropertiesWritableManager {
         super(prop);
     }
 
-    public static ResourceBundleManagerBase.Builder builder() {
-        return new ResourceBundleManagerBase.Builder();
+    public static PropertiesManagerBase.Builder builder() {
+        return new PropertiesManagerBase.Builder();
     }
 
     public static class Builder {
