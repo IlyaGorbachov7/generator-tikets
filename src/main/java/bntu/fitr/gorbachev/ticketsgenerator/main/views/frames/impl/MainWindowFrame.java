@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionP
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseFrame;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,16 +15,17 @@ import java.awt.event.WindowEvent;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 
+@Slf4j
 public class MainWindowFrame extends BaseFrame {
 
     public MainWindowFrame(PanelType type) {
         setPanelType(type);
         Dimension sizeScreen = toolkit.getScreenSize();
-        System.out.println("Size SCREEEON ::: " + sizeScreen);
+        log.info("Size Window: width={}, height={}",sizeScreen.width, sizeScreen.height);
         this.setLayout(new BorderLayout());
         Dimension sizeFrame = new Dimension((int) (sizeScreen.width / 1.7),
                 (int) (sizeScreen.height / 2.4));
-        System.out.println("size Frame: " + sizeFrame);
+        log.info("Size Frame: {}",sizeScreen);
         this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
                 (sizeScreen.height - sizeFrame.height) / 2,
                 sizeFrame.width, sizeFrame.height);

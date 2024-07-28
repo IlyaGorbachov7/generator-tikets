@@ -25,8 +25,8 @@ public class ResourceBundleManagerBase extends ResourceBundleManager {
     }
 
     public static class Builder {
-        Locale locale;
-        ResourceBundle.Control control;
+        private Locale locale;
+        private ResourceBundle.Control control;
 
         public Builder() {
         }

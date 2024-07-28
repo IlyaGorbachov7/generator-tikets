@@ -39,6 +39,7 @@ import com.github.lgooddatepicker.components.DatePickerSettings;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -71,6 +72,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.Launch
  * @author Gorbachev I. D.
  * @version 18.04.2022
  */
+@Slf4j
 public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
@@ -798,7 +800,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         frameRoot.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println(":) Window closing");
+                log.trace("Frame application is closing");
                 CompletableFuture<Boolean> task = CompletableFuture.supplyAsync(() -> {
                     try {
                         SerializeManager.runSerialize();
@@ -818,7 +820,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 } catch (ConnectionPoolException | ExecutionException | InterruptedException ex) {
                     throw new RuntimeException(ex);
                 } finally {
-                    System.out.println("GoodBy!");
+                    log.info("Application is closed");
                 }
             }
 

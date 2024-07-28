@@ -12,10 +12,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Properties;
 
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class PropertiesWritableManager extends WriteableProperties {
     @NonNull
     protected Properties prop;
+
+    public PropertiesWritableManager(@NonNull Properties prop) {
+        this.prop = prop;
+        initProperties();
+    }
 
     @Override
     protected void initProperties() {

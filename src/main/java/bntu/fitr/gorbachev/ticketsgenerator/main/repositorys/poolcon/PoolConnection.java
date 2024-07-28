@@ -13,6 +13,12 @@ import org.hibernate.cfg.Configuration;
  * {@see  <a href="https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/">Connection pool</a>}
  */
 public class PoolConnection {
+    /**
+     * This is system property, which you may specify in JVM options for provide configure file for Hibernate framework.
+     */
+    public static String SYS_PROP_JPA_CONFIG = "configuration.hibernate";
+
+    public static String DEF_CONFIG_FILE_PATH = "resources/hibernate.cfg.xml";
     private static final PoolConnection instance = new PoolConnection();
     private static SessionFactory connectionFactory;
     private static final Logger logger = LogManager.getLogger(PoolConnection.class);
@@ -66,7 +72,9 @@ public class PoolConnection {
             if (connectionFactory == null) {
                 synchronized (PoolConnection.Builder.class) {
                     if (connectionFactory == null) {
-                        connectionFactory = new Configuration().configure("resources/hibernate.cfg.xml").buildSessionFactory();
+                        connectionFactory = new Configuration()
+                                .configure(System.getProperty(SYS_PROP_JPA_CONFIG, DEF_CONFIG_FILE_PATH))
+                                .buildSessionFactory();
                         logger.info("connection factory is build");
                     } else {
                         logger.warn("connection pool already is build");

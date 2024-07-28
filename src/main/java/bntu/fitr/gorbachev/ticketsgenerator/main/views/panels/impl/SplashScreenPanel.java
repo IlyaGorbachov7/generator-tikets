@@ -9,6 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -26,6 +27,7 @@ import java.util.random.RandomGeneratorFactory;
  * @author Gorbachev I. D.
  * @version 24.03.2022
  */
+@Slf4j
 public class SplashScreenPanel extends BasePanel {
 
     private final JLabel lbUniversity;
@@ -206,7 +208,7 @@ public class SplashScreenPanel extends BasePanel {
         getRootFrame().addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                System.out.println(":) Window closing");
+                log.trace("Frame application is closing");
                 getRootFrame().setVisible(false);
                 try {
                     PoolConnection.Builder.build().destroy();
@@ -214,7 +216,7 @@ public class SplashScreenPanel extends BasePanel {
                 } catch (ConnectionPoolException ex) {
                     throw new RuntimeException(ex);
                 } finally {
-                    System.out.println("GoodBy!");
+                    log.info("Application is closed");
                 }
                 /* There are cases when throw NullPointerException.
                  * This event happening, if this thread trying
@@ -238,7 +240,7 @@ public class SplashScreenPanel extends BasePanel {
         @SneakyThrows
         @Override
         public void run() {
-            System.out.println("Start init Main Window...<");
+            log.info("Started initialization application");
             CompletableFuture.runAsync(PoolConnection.Builder::build);
             CompletableFuture.runAsync(() -> {
                 mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
@@ -253,19 +255,14 @@ public class SplashScreenPanel extends BasePanel {
         //https://coderanch.com/t/501538/java/repainting-JFrame
         @Override
         public void run() {
-            System.out.println("Launch process bar loading");
+            log.trace("Launch process bar loading");
             progressBar.setVisible(true);
             btnNext.setVisible(false);
             btnExit.setVisible(false);
-//            miniPanels1.remove(panelBtn);
-//            var g = miniPanels1.getGraphics();
-//            miniPanels1.print(g);
-//            miniPanels1.revalidate();
-//            miniPanels1.repaint();
             fill();
             frame.setVisible(false);
             mainWindow.setVisible(true);
-            System.out.println("process bar is filling");
+            log.trace("process bar is filling");
         }
 
         public void fill() {
