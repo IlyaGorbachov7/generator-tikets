@@ -269,4 +269,12 @@ public class TestPropertyReadableManager {
                            }));
 
     }
+
+
+    @Test
+    public void testMkDir() {
+        File file = new File("C:\\Users\\SecuRiTy\\.tickets-generator\\serializer\\sub\\serial\\hooo");
+        System.out.println(Files.exists(file.toPath()));
+        System.out.println(file.mkdir());
+    }
 }

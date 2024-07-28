@@ -138,10 +138,9 @@ public class TicketGeneratorUtil {
         boolean find = true;
         while (find) {
             if (t instanceof NotAccessToFileException ex) {
-                ex.printStackTrace();
                 log.error(ex.getMessage());
                 JOptionPane.showMessageDialog(null, String.format("""
-                                Not access or not found to file:
+                                No read or write access or not found:
                                 %s
                                 """, ex.getFilePath()),
                         "Access undefined", JOptionPane.ERROR_MESSAGE);

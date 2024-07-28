@@ -4,11 +4,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Slf4j
 public class FilesUtil {
 
 
@@ -82,10 +84,14 @@ public class FilesUtil {
         } else {
             dir = path.toFile();
             if (!dir.mkdir()) {
-                checkFileCredentials(path.getParent());
-                // fatal error. Because if getParent() don't throw exception on the checking credentials, then
-                // why child dir don't created.
-                throw new NotAccessToFileException(String.format("Path %s don't created", path), path);
+                System.out.println("log: " + path.getParent());
+                log.warn("directory don't created:{}", dir);
+                log.warn("try create parent directory: {}", path.getParent());
+                createDirIfNotExist(path.getParent());
+                log.warn("try create again directory: {}", path);
+                if (!dir.mkdir()) {
+                    checkFileCredentials(path);
+                }
             }
         }
         return dir;
