@@ -19,6 +19,8 @@ public class ConfigurationApplicationProperties {
 
     public static final String DIR_LOGS_KEY = "app.directory.logs";
 
+    public static final String THEME_APP_DEF_KEY = "app.theme.default";
+
     private final String sourceFile;
     private final ReadableProperties appProp;
 
@@ -48,5 +50,9 @@ public class ConfigurationApplicationProperties {
 
     public String getDirLogs() {
         return appProp.getValue(DIR_LOGS_KEY, null);
+    }
+
+    public String getThemeAppDef() {
+        return appProp.getValue(THEME_APP_DEF_KEY, null);
     }
 }

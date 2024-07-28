@@ -51,8 +51,21 @@ public class TicketGeneratorUtil {
     }
 
     public static File getFileLogsDirectory() throws IOException {
-        Path path = getPathLogsDirectory();;
+        Path path = getPathLogsDirectory();
+        ;
         return FilesUtil.createDirIfNotExist(path);
+    }
+
+    public static AppThemeManager.ThemeApp getThemeAppDefault() {
+        String value = config.getThemeAppDef();
+        AppThemeManager.ThemeApp def = AppThemeManager.ThemeApp.NIGHT;
+        try {
+            def = AppThemeManager.ThemeApp.valueOf(value);
+        } catch (IllegalArgumentException ex) {
+            log.warn("Specified  in property file value: {} of theme application don't matched with exists values ThemeApp. Set default value: {} ",
+                    value, def);
+        }
+        return def;
     }
 
     public static String getFileSeparator() {

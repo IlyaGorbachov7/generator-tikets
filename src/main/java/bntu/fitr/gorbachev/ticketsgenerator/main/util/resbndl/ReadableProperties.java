@@ -88,7 +88,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String getValue(String key, String defaultValue) {
-        return properties.contains(key) ? getValue(key) : defaultValue;
+        return properties.containsKey(key) ? getValue(key) : defaultValue;
     }
 
     @Override
@@ -102,7 +102,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String[] getValues(String key, String[] defaultValue) {
-        return properties.contains(key) ? getValues(key) : defaultValue;
+        return properties.containsKey(key) ? getValues(key) : defaultValue;
     }
 
     @Override
@@ -116,7 +116,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public int getInt(String key, int defaultValue) {
-        return properties.contains(key) ? getInt(key) : defaultValue;
+        return properties.containsKey(key) ? getInt(key) : defaultValue;
     }
 
     @Override
@@ -127,7 +127,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public int[] getInts(String key, int[] defaultValue) {
-        return properties.contains(key) ? getInts(key) : defaultValue;
+        return properties.containsKey(key) ? getInts(key) : defaultValue;
     }
 
     @Override
@@ -141,7 +141,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public long getLong(String key, long defaultValue) {
-        return properties.contains(key) ? getLong(key) : defaultValue;
+        return properties.containsKey(key) ? getLong(key) : defaultValue;
     }
 
     @Override
@@ -152,7 +152,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public long[] getLongs(String key, long[] defaultValue) {
-        return properties.contains(key) ? getLongs(key) : defaultValue;
+        return properties.containsKey(key) ? getLongs(key) : defaultValue;
     }
 
     @Override
@@ -166,7 +166,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public Object getObject(String key, Object defaultValue) {
-        return properties.contains(key) ? getObject(key) : defaultValue;
+        return properties.containsKey(key) ? getObject(key) : defaultValue;
     }
 
     /**

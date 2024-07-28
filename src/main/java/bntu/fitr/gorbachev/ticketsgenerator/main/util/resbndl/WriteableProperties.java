@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 public abstract class WriteableProperties extends ReadableProperties implements Writable {
 
     protected void set(String key, Object value) {
-        if (properties.contains(key)) {
+        if (properties.containsKey(key)) {
             properties.put(key, value);
         }
         throw new NoSuchElementException(String.format("Not found key: %s", key));

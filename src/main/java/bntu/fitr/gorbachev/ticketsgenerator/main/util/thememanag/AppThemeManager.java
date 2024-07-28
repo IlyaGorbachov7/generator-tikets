@@ -50,7 +50,7 @@ public class AppThemeManager {
                     List<ThemeAppWrapper> objs = serializer.deserialize(ThemeAppWrapper.class);
                     if (objs.isEmpty()) {
                         log.warn("AppThemeManager: deserialize object: don't found");
-                        currentTheme =  ThemeApp.LIGHT;
+                        currentTheme =  TicketGeneratorUtil.getThemeAppDefault();
                         saveObj = new ThemeAppWrapper(currentTheme);
                         SerializeManager.addListener(saveObj);
                         updateTheme();
