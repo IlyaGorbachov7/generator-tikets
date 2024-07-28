@@ -79,9 +79,9 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String getValue(String key) {
-        String value = resolveValue(get(key));
+        String value = get(key);
         if (Objects.nonNull(value)) {
-            return value;
+            return resolveValue(value);
         }
         throw new NoSuchElementException(String.format("Not found key: %s", key));
     }
@@ -107,9 +107,9 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public int getInt(String key) {
-        String value = resolveValue(get(key));
+        String value = get(key);
         if (Objects.nonNull(value)) {
-            return Integer.parseInt(value);
+            return Integer.parseInt(resolveValue(value));
         }
         throw new NoSuchElementException(String.format("Not found key: %s", key));
     }
@@ -132,9 +132,9 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public long getLong(String key) {
-        String value = resolveValue(get(key));
+        String value = get(key);
         if (Objects.nonNull(value)) {
-            return Long.parseLong(value);
+            return Long.parseLong(resolveValue(value));
         }
         throw new NoSuchElementException(String.format("Not found key: %s", key));
     }

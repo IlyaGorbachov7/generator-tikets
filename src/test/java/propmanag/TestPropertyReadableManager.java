@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.PropertiesManagerBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
 import org.hibernate.engine.jdbc.ReaderInputStream;
 import org.junit.jupiter.api.Assertions;
@@ -18,6 +19,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Optional;
 
 public class TestPropertyReadableManager {
     static ReadableProperties prop;
@@ -203,7 +205,7 @@ public class TestPropertyReadableManager {
         // location on the other disk
         String pathOther = "C:/Users/SecuRiTy/Documents/text.txt";
 
-        Assertions.assertThrows(FileNotFoundException.class, () -> {
+        Assertions.assertThrows(NotAccessForReadToFileException.class, () -> {
             FilesUtil.checkFileReading(Path.of(path));
         });
 
@@ -242,7 +244,29 @@ public class TestPropertyReadableManager {
             System.out.println("parentfile write:" + Files.isWritable(path));
             FilesUtil.checkFileCredentials(path);
         }
+    }
 
+    @Test
+    void testOptinal() {
+        Optional<String> optinal = Optional.ofNullable("/serialzizer/path/other");
+
+        System.out.println("RESULT : " +
+                           optinal.map(str -> {
+                               System.out.println("value : " + str);
+                               return Path.of(str);
+                           }));
+
+
+        System.out.println("--------------------------------");
+
+
+        optinal = Optional.ofNullable(null);
+
+        System.out.println("RESULT : " +
+                           optinal.map(str -> {
+                               System.out.println("value : " + str);
+                               return Path.of(str);
+                           }));
 
     }
 }

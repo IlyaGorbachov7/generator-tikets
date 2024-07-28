@@ -39,12 +39,17 @@ public class FilesUtil {
      * <p>
      * <b>See:</b> TestPropertyReadableManager#testGetPathByStringVersion2()
      */
-    public static InputStream resolveSourceLocation(String path) throws IOException, FileNotFoundException, NotAccessForReadToFileException {
+    public static InputStream resolveSourceLocation(String path) throws NotAccessToFileException {
         InputStream is = TicketGeneratorUtil.class.getResourceAsStream(path);
         if (is == null) {
             // try to receive file outside jar file
-            checkFileReading(Path.of(path));
-            is = new BufferedInputStream(new FileInputStream(path)); // if file don't found than throw FileNotFoundException
+            Path of = Path.of(path);
+            checkFileReading(of);
+            try {
+                is = new BufferedInputStream(new FileInputStream(path)); // if file don't found than throw FileNotFoundException
+            } catch (FileNotFoundException e) {
+                throw new NotAccessToFileException(e, of);
+            }
             System.out.println(String.format("File %s located outside jar file", path));
             return is;
         }
@@ -52,9 +57,9 @@ public class FilesUtil {
         return is;
     }
 
-    public static void checkFileReading(Path file) throws IOException {
+    public static void checkFileReading(Path file) throws NotAccessToFileException {
         if (!Files.exists(file)) {
-            throw new FileNotFoundException(file.toString());
+            throw new NotAccessToFileException(new FileNotFoundException(file.toString()), file);
         }
         if (!Files.isReadable(file)) {
             throw new NotAccessForReadToFileException(file);
