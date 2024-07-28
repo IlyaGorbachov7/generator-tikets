@@ -22,7 +22,7 @@ public class Test11Serializer {
 
     @BeforeAll
     public static void init() throws IOException {
-        serializer = Serializer.getSerializer(Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "sp"));
+        serializer = Serializer.getSerializer(Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "sp"));
     }
 
     /*
@@ -39,7 +39,7 @@ public class Test11Serializer {
      */
     @Test
     public void testDir() throws IOException {
-        Path path = Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "aaaaaa");
+        Path path = Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "aaaaaa");
         File file = path.toFile();
 
         System.out.println(file.exists());
@@ -62,7 +62,7 @@ public class Test11Serializer {
      */
     @Test
     public void testDirCr() throws IOException {
-        Path path = Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "aaaaaa/txt");
+        Path path = Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "aaaaaa/txt");
         System.out.println("exist : " + Files.exists(path));
         System.out.println("toFile exist : " + path.toFile().exists());
         System.out.println("dir : " + Files.isDirectory(path));
@@ -87,7 +87,7 @@ public class Test11Serializer {
 
     @Test
     public void testDirOtherThrow() throws IOException {
-        Path path = Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "aaaaaa/txt");
+        Path path = Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "aaaaaa/txt");
         if (Files.exists(path)) {
             System.out.println("1");
             Files.createDirectories(Path.of(path.toFile().getCanonicalPath(), "hooolo"));
@@ -99,7 +99,7 @@ public class Test11Serializer {
 
     @Test
     public void testFileOtherThrow() throws IOException {
-        Path path = Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "aaaaaa/txt.txt");
+        Path path = Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "aaaaaa/txt.txt");
         if (Files.exists(path)) {
             System.out.println("1");
         } else {
@@ -110,7 +110,7 @@ public class Test11Serializer {
 
     @Test
     public void testDirFileOtherThrow() throws IOException {
-        Path path = Path.of(TicketGeneratorUtil.getUserDirectory().toString(), "dirNonExist/txt.txt");
+        Path path = Path.of(TicketGeneratorUtil.getFileUserDirectory().toString(), "dirNonExist/txt.txt");
         if (Files.exists(path)) {
             System.out.println("1");
         } else {
