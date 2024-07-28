@@ -3,8 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.ServiceFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.FacultyServiceImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.UniversityServiceImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +15,16 @@ public class ServiceFactoryImpl implements ServiceFactory {
     private final UniversityService universityService = new UniversityServiceImpl();
 
     private final FacultyService facultyService = new FacultyServiceImpl();
+
+    private final DepartmentService departmentService = new DepartmentServiceImpl();
+
+    private final SpecializationService specializationService = new SpecializationServiceImpl();
+
+    private final DisciplineService disciplineService = new DisciplineServiceImpl();
+
+    private final HeadDepartmentService headDepartmentService = new HeadDepartmentServiceImpl();
+
+    private final TeacherService teacherService = new TeacherServiceImpl();
 
     public static ServiceFactory getInstance() {
         if (serviceFactory == null) {
@@ -40,26 +49,26 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     @Override
     public DepartmentService departmentService() {
-        return null;
+        return departmentService;
     }
 
     @Override
     public SpecializationService specializationService() {
-        return null;
+        return specializationService;
     }
 
     @Override
     public DisciplineService disciplineService() {
-        return null;
+        return disciplineService;
     }
 
     @Override
-    public HeadDepartment headDepartmentService() {
-        return null;
+    public HeadDepartmentService headDepartmentService() {
+        return headDepartmentService;
     }
 
     @Override
     public TeacherService teacherService() {
-        return null;
+        return teacherService;
     }
 }

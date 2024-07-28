@@ -2,6 +2,8 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.DialogFunc;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,8 +11,12 @@ import java.awt.*;
 /**
  * This class represent basic for {@link JDialog}
  */
-public abstract class BaseDialog extends JDialog implements DialogFunc {
+public abstract class BaseDialog extends JDialog implements DialogFunc, ThemeChangerListener {
     protected PanelType panelType;
+
+    {
+        AppThemeManager.addThemeChangerListener(this);
+    }
 
     public BaseDialog(Window owner) {
         super(owner);
@@ -73,4 +79,16 @@ public abstract class BaseDialog extends JDialog implements DialogFunc {
 
     @Override
     public abstract void initDialog();
+
+    /**
+     * This update whole frame and all items inside. So you don't need to add handlerListener
+     * for root panel. If also add handler listener inside root any panel then this updating
+     * gui will be twice, that may try any exception.
+     * <p>
+     * <b>Therefore, it is enough to add handler only here</b>
+     */
+    @Override
+    public Component getComponent() {
+        return this;
+    }
 }

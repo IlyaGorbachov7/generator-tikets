@@ -133,6 +133,10 @@
             <exclusions>
                 <exclusion>
                     <groupId>javax.media</groupId>
+                    <artifactId>jai_core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.media</groupId>
                     <artifactId>jai-core</artifactId>
                 </exclusion>
             </exclusions>
@@ -160,7 +164,10 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Log4j -->
+        <!--==============================  Logger   ==============================-->
+        <!--See for more understanding:
+                https://www.marcobehler.com/guides/java-logging#_introduction
+                https://howtodoinjava.com/log4j2/log4j2-with-slf4j/-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -171,7 +178,12 @@
             <artifactId>log4j-core</artifactId>
             <version>2.20.0</version>
         </dependency>
-
+        <!-- implementation slf4j framework on the base log4j2 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>2.20.0</version>
+        </dependency>
 
         <!--==================================  Junit 5 Testing ============================================-->
         <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->

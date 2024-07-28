@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.basis;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractContentExtractThread;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.xwpf.usermodel.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractOutputContentThread;
 
@@ -23,6 +24,7 @@ import java.util.function.Supplier;
  * @author Gorbachev I. D.
  * @version 12.03.2022
  */
+@Slf4j
 public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends Ticket<Q>>
         implements Callable<List<Q>> {
 
