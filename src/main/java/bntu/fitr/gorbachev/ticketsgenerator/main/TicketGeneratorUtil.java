@@ -1,58 +1,85 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Slf4j
 public class TicketGeneratorUtil {
+    @Getter
+    private static ConfigurationApplicationProperties config;
 
     public static Path getPathUserDirectory() {
         return Path.of(System.getProperty("user.home"));
     }
 
     public static File getFileUserDirectory() throws IOException {
-        checkFileCredentials(getPathUserDirectory());
-        File dirUserHome = getPathUserDirectory().toFile();
-        dirUserHome.mkdir();
-        return dirUserHome;
+        Path path = getPathUserDirectory();
+        return FilesUtil.createDirIfNotExist(path);
     }
 
     public static Path getPathAppDirectory() {
-        return Path.of(getPathUserDirectory().toString(), ".tickets-generator");
+        return Path.of(config.getDirApp());
     }
 
     public static File getFileAppDirectory() throws IOException {
-        checkFileCredentials(getPathAppDirectory());
-        File dirApp = getPathAppDirectory().toFile();
-        dirApp.mkdir();
-        return dirApp;
+        Path path = getPathAppDirectory();
+        return FilesUtil.createDirIfNotExist(path);
     }
 
     public static Path getPathSerializeDirectory() {
-        return Path.of(getPathAppDirectory().toString(), "serialize");
+        return Path.of(config.getDirSerialize());
     }
 
     public static File getFileSerializeDirectory() throws IOException {
-        checkFileCredentials(getPathSerializeDirectory());
-        File dirSer = getPathSerializeDirectory().toFile();
-        dirSer.mkdir();
-        return dirSer;
+        Path path = getPathSerializeDirectory();
+        return FilesUtil.createDirIfNotExist(path);
+    }
+
+    public static Path getPathLogsDirectory() {
+        return Path.of(config.getDirLogs());
+    }
+
+    public static File getFileLogsDirectory() throws IOException {
+        Path path = getPathLogsDirectory();;
+        return FilesUtil.createDirIfNotExist(path);
     }
 
     public static String getFileSeparator() {
         return System.getProperty("file.separator");
     }
 
-    public static void checkFileCredentials(Path file) throws IOException {
-        if (!Files.isReadable(file)) {
-            throw new NotAccessForReadToFileException(file);
+    public static void init() {
+        try {
+            // This sequence must be such!
+            config = new ConfigurationApplicationProperties("/resources/application.properties"); // see this Class, that you understand this record
+            LoggerUtil.init();
+            AppThemeManager.run();
+        } catch (NotAccessForReadToFileException | NotAccessForWriteToFileException ex) {
+            ex.printStackTrace();
+            log.error(ex.getMessage());
+            JOptionPane.showMessageDialog(null, ex.getMessage(), "Access undefined", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            log.error(ex.getMessage());
+            JOptionPane.showMessageDialog(null, "Undefinded Exception", "", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException();
+        } catch (TicketGeneratorException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Undefinded Exception", "", JOptionPane.ERROR_MESSAGE);
+            throw new RuntimeException();
         }
-        if (!Files.isWritable(file)) {
-            throw new NotAccessForWriteToFileException(file);
-        }
+
     }
 }
