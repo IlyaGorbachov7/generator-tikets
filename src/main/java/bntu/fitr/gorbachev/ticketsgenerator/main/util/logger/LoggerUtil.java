@@ -4,6 +4,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.core.config.ConfigurationSource;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,5 +29,13 @@ public class LoggerUtil {
             throw new LoggerException(ex);
         }
 
+    }
+
+    public static Logger getRootLogger() {
+        return LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+    }
+
+    public static LoggerMethod getDefaultLoggerMethod() {
+        return LoggerMethod.info;
     }
 }
