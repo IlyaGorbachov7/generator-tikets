@@ -1,6 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import javax.swing.plaf.metal.MetalComboBoxEditor;
@@ -10,7 +10,7 @@ import java.awt.event.FocusEvent;
 import java.util.function.Function;
 
 // TODO: needed fixing logging mechanism
-@Slf4j
+@Log4j2
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;
 

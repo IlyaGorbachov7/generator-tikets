@@ -29,7 +29,7 @@ public class AboutProgram extends BaseDialog {
      */
     @Override
     public void initDialog() {
-        this.setBounds((int) getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 800, 500);
+        this.setBounds((int) getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 860, 500);
         this.setResizable(false);
         this.add(PanelFactory.getInstance().createPanel(this, getPanelType()));
     }

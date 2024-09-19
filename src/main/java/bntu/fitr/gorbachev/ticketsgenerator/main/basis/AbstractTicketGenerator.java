@@ -31,10 +31,9 @@ import java.util.function.Supplier;
  * @author Gorbachev I. D.
  * @version 12.03.2022
  */
-//@Log4j2
+@Log4j2
 public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends Ticket<Q>>
         implements Callable<List<Q>> {
-    private static  Logger log =  LogManager.getLogger(AbstractTicketGenerator.class);
     private Future<List<Q>> futureTaskExtractContent;
 
     protected File[] filesRsc;
@@ -193,7 +192,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
 
             } catch (ExecutionException e) {
                 Throwable cause = e.getCause();
-                System.out.println(cause.getMessage());
+                log.warn(cause.getMessage());
                 throw new ExecutionException(cause.getMessage(), null);
             } catch (InterruptedException ignored) {
             } finally {

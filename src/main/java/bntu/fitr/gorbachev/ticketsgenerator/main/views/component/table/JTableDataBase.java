@@ -7,17 +7,20 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectap
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
 @Getter
+@Log4j2
 public class JTableDataBase extends JTable {
     private final Class<?> classTableView;
 
@@ -77,9 +80,6 @@ public class JTableDataBase extends JTable {
 
             @Override
             public void columnSelectionChanged(ListSelectionEvent e) {
-                System.out.println("___________________________dfsfsf :: " + e.getFirstIndex());
-                System.out.println("___________________________dfsfsf :: " + e.getLastIndex());
-                System.out.println("___________________________dfsfsf :: " + e.getValueIsAdjusting());
                 if (sel) {
                     if (isSel && e.getValueIsAdjusting()) {
                         clearSelection();
@@ -93,7 +93,7 @@ public class JTableDataBase extends JTable {
                         list[i] = e.getValueIsAdjusting();
                         if (i == 1) {
                             if (list[i] == list[i - 1]) {
-                                System.out.println("clear");
+                                log.debug("clear");
                                 isSel = true;
                             }
                         }
@@ -123,9 +123,8 @@ public class JTableDataBase extends JTable {
              */
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                System.out.print("first:" + e.getFirstIndex());
-                System.out.print("  last:" + e.getLastIndex());
-                System.out.print("  valueisAdjusting: " + e.getValueIsAdjusting());
+                log.debug("firstIndex: {}, lastIndex: {}, isAdjusting: {}", e.getFirstIndex(), e.getLastIndex(),
+                        e.getValueIsAdjusting());
                 isSel = false;
                 list = new boolean[]{false, false};
                 i = 0;
@@ -224,32 +223,42 @@ public class JTableDataBase extends JTable {
     }
 
     public void performSetData() {
+        log.info("Request get list rows data");
         ((RealizeTableModel) dataModel).performSetData();
         createDefaultColumnsFromModel();
     }
 
     public void createItem(String s) {
+        log.info("Request on the createItem: {}", s);
         ((RealizeTableModel) dataModel).performCreateItem(s);
     }
 
     public void deleteItem() {
-        ((RealizeTableModel) dataModel).deleteItems(getSelectedRows());
-    }
-
-    public Object getSelectedItem() {
-        Object[] items = getSelectedItems();
-        return items.length == 1 ? items[0] : null;
-    }
-
-    public Object[] getSelectedItems() {
-        return ((RealizeTableModel) dataModel).getSelectedObjects(getSelectedRows());
+        int[] selectedRows = getSelectedRows();
+        log.info("Request on the deleteItems : {}", Arrays.toString(selectedRows));
+        ((RealizeTableModel) dataModel).deleteItems(selectedRows);
     }
 
     public void updateItem(Object selectedItem) {
         if (selectedItem.getClass() != classTableView) {
-            throw new IllegalArgumentException();
+            log.warn("selectedItem.getClass() != classTableView");
+            throw new IllegalArgumentException("selectedItem.getClass() != classTableView");
         }
+        log.info("Request on the updateItem: {}",selectedItem);
         ((RealizeTableModel) dataModel).updateItem(selectedItem);
+    }
+
+    public Object getSelectedItem() {
+        Object[] items = getSelectedItems();
+        Object res = items.length == 1 ? items[0] : null;
+        log.debug("Get selectedItem: {}",res);
+        return res;
+    }
+
+    public Object[] getSelectedItems() {
+        Object[] res = ((RealizeTableModel) dataModel).getSelectedObjects(getSelectedRows());
+        log.debug("Get selectedItems: {}", res);
+        return res;
     }
 
 

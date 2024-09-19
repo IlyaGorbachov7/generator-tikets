@@ -7,7 +7,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import lombok.Getter;
-import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Strings;
 
 import javax.swing.*;
@@ -17,10 +18,31 @@ import java.nio.file.Path;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
-@Log4j2
+/*If out want specify @Log41 or @Slf4j annotation, then logger will be don't worked because Logger now don't initialized */
 public class TicketGeneratorUtil {
     @Getter
     private static ConfigurationApplicationProperties config;
+
+    private static final Logger log;
+
+    static {
+        try {
+            // This sequence must be such!
+            config = new ConfigurationApplicationProperties();
+            System.setProperty(DIR_APP_KEY, getPathAppDirectory().toString());
+            System.setProperty(DIR_SERIALIZE_KEY, getPathSerializeDirectory().toString());
+            // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
+            // So I must add this key=value from application.properties earlier than will be performed logger configuration
+            System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
+
+            LoggerUtil.init();
+            log = LogManager.getLogger(TicketGeneratorUtil.class);
+            AppThemeManager.run();
+        } catch (Throwable ex) {
+            showAlertDialog(ex);
+            throw new RuntimeException();
+        }
+    }
 
     public static Path getPathUserDirectory() {
         return Path.of(System.getProperty("user.home"));
@@ -112,25 +134,6 @@ public class TicketGeneratorUtil {
 
     public static String getFileSeparator() {
         return System.getProperty("file.separator");
-    }
-
-    public static void init() {
-        try {
-            // This sequence must be such!
-            config = new ConfigurationApplicationProperties();
-            System.setProperty(DIR_APP_KEY, getPathAppDirectory().toString());
-            System.setProperty(DIR_SERIALIZE_KEY, getPathSerializeDirectory().toString());
-            // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
-            // So I must add this key=value from application.properties earlier than will be performed logger configuration
-            System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
-
-            LoggerUtil.init();
-            AppThemeManager.run();
-        } catch (Throwable ex) {
-            showAlertDialog(ex);
-            throw new RuntimeException();
-        }
-
     }
 
     public static void showAlertDialog(Throwable t) {

@@ -8,10 +8,9 @@ import javax.swing.*;
 
 public class Main {
 
-    // TODO: нужно сделать какой то мэнеджер  А не работать через Main класс
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
         try{
-            TicketGeneratorUtil.init();
+            Class.forName(TicketGeneratorUtil.class.getName());
             FrameDialogFactory.getInstance().createJFrame(FrameType.SPLASH_SCREEN, PanelType.SPLASH_SCREEN).setVisible(true);
         }catch (Throwable ignored){
             ignored.printStackTrace();

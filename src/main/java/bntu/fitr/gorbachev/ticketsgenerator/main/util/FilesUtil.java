@@ -4,13 +4,12 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
-import lombok.extern.log4j.Log4j2;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Log4j2
+/*If out want specify @Log41 or @Slf4j annotation, then logger will be don't worked because Logger now don't initialized */
 public class FilesUtil {
 
 
@@ -85,10 +84,7 @@ public class FilesUtil {
             dir = path.toFile();
             if (!dir.mkdir()) {
                 System.out.println("log: " + path.getParent());
-                log.warn("directory don't created:{}", dir);
-                log.warn("try create parent directory: {}", path.getParent());
                 createDirIfNotExist(path.getParent());
-                log.warn("try create again directory: {}", path);
                 if (!dir.mkdir()) {
                     checkFileCredentials(path);
                 }

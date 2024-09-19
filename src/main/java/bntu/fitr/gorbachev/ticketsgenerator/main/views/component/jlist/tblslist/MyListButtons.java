@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,6 +31,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
+@Log4j2
 public class MyListButtons extends JPanel implements ThemeChangerListener {
 
     private final JPanel rootPnlForTable;
@@ -67,7 +69,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
                     Function<Object, Object> supplierUpdate = modelTableViewSupplier.getSupplierUpdate();
                     Function<Object, List<?>> supplierDelete = modelTableViewSupplier.getSupplierDelete();
                     RelatedTblDataBase relatedMdlTbl = modelTableViewSupplier.getRelatedMdlTbl();
-
+                    log.debug("init TableDatabase by name: {}", name);
                     return Map.entry(btn, // key
                             KeyForViewUI.builder() // value
                                     .index(iIter.cur()).pv(PaginationView.builder().build()).btn(btn)

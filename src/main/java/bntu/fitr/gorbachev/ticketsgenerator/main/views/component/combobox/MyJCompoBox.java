@@ -5,6 +5,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abserv
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+@Log4j2
 public class MyJCompoBox extends JComboBox<Object> {
     @Getter
     private final MyComboBoxUI compoBoxUI = new MyComboBoxUI(this);
@@ -164,7 +166,6 @@ public class MyJCompoBox extends JComboBox<Object> {
     public void updateDropDownList() {
         model.removeAllElements();
         model.addAll(supplierListElem.apply(editorTextField.getText()));
-        System.out.println("Model count : " + model.getSize());
         setMaximumRowCount(Math.min(model.getSize(), 5));
         setEnableElements(Element.ARROW_BUTTON, model.getSize() > 0);
     }
@@ -211,7 +212,7 @@ public class MyJCompoBox extends JComboBox<Object> {
                 try {
                     popup.getScrollPane().getVerticalScrollBar().updateUI();
                 } catch (Throwable ex) {
-                    System.out.println("Warning: MyJComboBox.updateUI::: exceptionMSG:" + ex.getMessage());
+                    log.warn("Warning: MyJComboBox.updateUI::: exceptionMSG:" + ex.getMessage());
                 }
             }
         }

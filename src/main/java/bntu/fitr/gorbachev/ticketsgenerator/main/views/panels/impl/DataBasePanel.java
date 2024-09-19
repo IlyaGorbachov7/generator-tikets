@@ -836,6 +836,7 @@ public class DataBasePanel extends BasePanel {
         public void actionPerformed(ActionEvent e) {
             JButton source = (JButton) e.getSource();
             if (source == btnAllDeselect) {
+                log.debug("Click on the btnAllDeselect");
                 myListButtons.deSelectAll(keyForView -> {
                     setEnableComponent(false);
                     setEnableCRUDbtn(false, false, false);
@@ -843,8 +844,10 @@ public class DataBasePanel extends BasePanel {
                     DataBasePanel.this.deSetStateSelectedItemsOnPage(keyForView);
                 });
             } else if (source == btnDeselect) {
+                log.debug("Click on the btnDeselect");
                 myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
             } else if (source == btnCreate) {
+                log.debug("Click on the btnCreate");
                 JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                 String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ",
                         "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
@@ -854,6 +857,7 @@ public class DataBasePanel extends BasePanel {
                     tbl.performSetData();
                 }
             } else if (source == btnDelete) {
+                log.debug("Click on the btnDelete");
                 if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?",
                         "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
                     CompletableFuture.runAsync(() -> {
@@ -865,6 +869,7 @@ public class DataBasePanel extends BasePanel {
                     });
                 }
             } else if (source == btnUpdate) {
+                log.debug("Click on the btnUpdate");
                 SwingUtilities.invokeLater(() -> {
                     UpdatePanel panel = new UpdatePanel();
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
@@ -877,11 +882,13 @@ public class DataBasePanel extends BasePanel {
                     }
                 });
             } else if (source == btnNext) {
+                log.debug("Click on the btnNext");
                 if (paginationView.getCurrentPage() < paginationView.getTotalPage()) {
                     paginationView.setCurrentPageNotify(paginationView.getCurrentPage() + 1);
                     selectedKeyForViewUI.getTbl().performSetData();
                 }
             } else if (source == btnBack) {
+                log.debug("Click on the btnBack");
                 if (paginationView.getCurrentPage() > 1) {
                     paginationView.setCurrentPageNotify(paginationView.getCurrentPage() - 1);
                     selectedKeyForViewUI.getTbl().performSetData();
