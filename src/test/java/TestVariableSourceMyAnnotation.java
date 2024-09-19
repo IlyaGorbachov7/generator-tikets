@@ -1,10 +1,8 @@
 import ann.VariableSource;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
-import jakarta.persistence.Table;
 import model.Person;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;

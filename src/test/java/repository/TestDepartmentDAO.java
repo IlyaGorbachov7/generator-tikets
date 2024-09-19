@@ -3,9 +3,7 @@ package repository;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.DepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.RepositoryFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.AppAreaAbstractDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.DepartmentDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.FacultyDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
@@ -13,20 +11,15 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionP
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
-import com.sun.istack.Pool;
-import jakarta.persistence.PersistenceException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TestDepartmentDAO {

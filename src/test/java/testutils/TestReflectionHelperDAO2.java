@@ -1,16 +1,12 @@
 package testutils;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AbstractDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.AppAreaAbstractDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO;
-import com.sun.istack.NotNull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
-import model.Person;
 import model.PersonAnn;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +15,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
 import testutils.models.*;
 
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 

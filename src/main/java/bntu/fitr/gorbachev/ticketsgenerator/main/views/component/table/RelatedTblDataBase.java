@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
 

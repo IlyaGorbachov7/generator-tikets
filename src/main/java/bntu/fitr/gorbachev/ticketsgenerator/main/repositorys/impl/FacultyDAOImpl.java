@@ -7,7 +7,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Universi
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.utils.ReflectionHelperDAO.extractEntityNameFromJakartaAnnEntity;

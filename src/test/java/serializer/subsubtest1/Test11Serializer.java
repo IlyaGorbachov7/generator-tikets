@@ -1,8 +1,6 @@
 package serializer.subsubtest1;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import org.junit.jupiter.api.BeforeAll;

@@ -1,6 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.GenerationProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGeneratorWay;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import lombok.Getter;

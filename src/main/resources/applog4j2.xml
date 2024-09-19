@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn"  name="MyApp" packages="">
+    <!-- see this ::::  https://logging.apache.org/log4j/2.x/manual/configuration.html-->
+    <Properties>
+        <Property name="LOG_PATTERN">%-5p %c{3} - %m%n</Property>
+        <Property name="LOG_CONSOLE">%-5p %c{2} - %m%n</Property>
+    </Properties>
+    <Appenders>
+        <File name="FileAppender"
+              fileName="${sys:app.directory.logs}/ticketGenerator-${date:yyyy-MM-dd-HHmmssSSS}.log"
+              append="false"> <!--don't add at the end in exist file-->
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </File>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_CONSOLE}"/> <!--задаю значение через property -->
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main" level="debug"
+                additivity="false">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.basis" level="debug"
+                additivity="false">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.services" level="info"
+                additivity="false">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.views" level="info"
+                additivity="false">
+            <AppenderRef ref="FileAppender"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+    </Loggers>
+</Configuration>

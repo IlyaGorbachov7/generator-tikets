@@ -2,7 +2,6 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.UniversityDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.query.HQueryMaster;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;

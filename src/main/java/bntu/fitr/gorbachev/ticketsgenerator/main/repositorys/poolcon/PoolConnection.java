@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
@@ -12,6 +13,7 @@ import org.hibernate.cfg.Configuration;
  * <p>
  * {@see  <a href="https://www.mastertheboss.com/hibernate-jpa/hibernate-configuration/configure-a-connection-pool-with-hibernate/">Connection pool</a>}
  */
+@Log4j2
 public class PoolConnection {
     /**
      * This is system property, which you may specify in JVM options for provide configure file for Hibernate framework.
@@ -75,9 +77,9 @@ public class PoolConnection {
                         connectionFactory = new Configuration()
                                 .configure(System.getProperty(SYS_PROP_JPA_CONFIG, DEF_CONFIG_FILE_PATH))
                                 .buildSessionFactory();
-                        logger.info("connection factory is build");
+                        log.info("connection factory is build");
                     } else {
-                        logger.warn("connection pool already is build");
+                        log.warn("connection pool already is build");
                     }
                 }
             }

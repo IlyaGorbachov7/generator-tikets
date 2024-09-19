@@ -1,6 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools;
 
-import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

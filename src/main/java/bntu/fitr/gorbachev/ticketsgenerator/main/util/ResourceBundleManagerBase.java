@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManager;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,7 +12,6 @@ import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
-@Slf4j
 public class ResourceBundleManagerBase extends ResourceBundleManager {
 
     protected ResourceBundleManagerBase(ResourceBundle resourceBundle) {

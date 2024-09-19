@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class SenderMessageImpl implements SenderMessage {
     List<MessageRetriever> subscribes = new ArrayList<>();
@@ -14,9 +15,8 @@ public class SenderMessageImpl implements SenderMessage {
 
     @Override
     public void sendMsg(String msg) {
-        for (MessageRetriever sender :
-                subscribes) {
-            sender.send(msg);
-        }
+        CompletableFuture.runAsync(()->{
+            for (MessageRetriever sender : subscribes) sender.send(msg);
+        });
     }
 }

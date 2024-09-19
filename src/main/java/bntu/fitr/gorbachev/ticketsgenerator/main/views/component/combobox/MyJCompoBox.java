@@ -2,19 +2,14 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentListener;
-import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.ui.FlatScrollPaneUI;
-import com.google.common.collect.ArrayTable;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.swing.*;
-import javax.swing.plaf.ComboBoxUI;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.ComboPopup;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

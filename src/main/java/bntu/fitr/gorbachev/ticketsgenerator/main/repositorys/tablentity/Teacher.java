@@ -1,7 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created entities is mapping table view

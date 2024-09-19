@@ -36,13 +36,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
  */
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.AbstractTableModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.GridLayout;
-import java.awt.Dimension;
 
 public class TableSelectionDemo extends JPanel 
                                 implements ActionListener { 

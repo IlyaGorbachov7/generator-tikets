@@ -1,6 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyDto;
 import lombok.Builder;
 import lombok.Data;
 

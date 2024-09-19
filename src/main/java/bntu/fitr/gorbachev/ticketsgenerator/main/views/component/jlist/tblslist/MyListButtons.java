@@ -1,5 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.reflectionapi.ReflectionListDataBaseHelper;
@@ -10,9 +13,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.RelatedTb
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;

@@ -1,20 +1,19 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerMethod;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.Slf4jLoggable;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
 
-public class AboutAuthorPanel extends BasePanel implements Slf4jLoggable {
+@Log4j2
+public class AboutAuthorPanel extends BasePanel {
 
     public AboutAuthorPanel(Window frame) {
         super(frame);
-        log(LoggerMethod.error, "Привет 11 08 2024]");
         this.initPanel();
     }
 

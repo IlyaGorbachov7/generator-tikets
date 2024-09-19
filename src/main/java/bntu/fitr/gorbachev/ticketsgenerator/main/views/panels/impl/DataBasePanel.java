@@ -10,9 +10,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreate
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
@@ -22,10 +22,14 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.textfield.HintT
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputFieldsDataTbl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.PaginationView;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -35,8 +39,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -49,6 +53,7 @@ import java.util.stream.IntStream;
 
 // TODO: ВСЕ запросы в базу данных дложны осуществляться В ОТДЕЛЬНОМ потоке, чтобы графика отдельно НЕ ЗАВИСАЛА
 // ответа из бд, а продолжала функционировать
+@Log4j2
 public class DataBasePanel extends BasePanel {
     private JPanel rootPanel;
 
@@ -446,20 +451,18 @@ public class DataBasePanel extends BasePanel {
                 .modelTableViewSuppliers(Arrays.asList(
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(UniversityModelTbl.class)
-                                        .supplierData(supplierPaginationDataList)
-                                        .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(UniversityModelTbl.class)
                                                 .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class)
                                                                 .build()
                                                 )).build())
+                                        .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
+                                        .supplierData(supplierPaginationDataList)
                                         .build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(FacultyModelTbl.class)
-                                        .supplierData(supplierPaginationDataList)
-                                        .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(FacultyModelTbl.class)
                                                 .child(Arrays.asList(
                                                         RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class)
@@ -467,12 +470,13 @@ public class DataBasePanel extends BasePanel {
                                                         RelatedTblDataBase.builder().classMdlTbl(TeacherModelTbl.class)
                                                                 .build()
                                                 )).build())
+                                        .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
+                                        .supplierData(supplierPaginationDataList)
                                         .build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(DepartmentModelTbl.class)
-                                        .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(DepartmentModelTbl.class)
                                                 .child(Arrays.asList(
                                                         RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
@@ -480,17 +484,18 @@ public class DataBasePanel extends BasePanel {
                                                         RelatedTblDataBase.builder().classMdlTbl(HeadDepartmentModelTbl.class)
                                                                 .build()
                                                 )).build())
+                                        .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierPaginationDataList).build(),
                                 ModelTableViewSupplier.builder()
                                         .clazzModelView(SpecializationModelTbl.class)
-                                        .supplierCreate(supplierCreate)
                                         .relatedMdlTbl(RelatedTblDataBase.builder().classMdlTbl(SpecializationModelTbl.class)
                                                 .child(Collections.singletonList(
                                                         RelatedTblDataBase.builder().classMdlTbl(DisciplineModelTbl.class)
                                                                 .build()
                                                 )).build())
+                                        .supplierCreate(supplierCreate)
                                         .supplierUpdate(supplierUpdate)
                                         .supplierDelete(supplierDelete)
                                         .supplierData(supplierPaginationDataList).build(),
@@ -616,7 +621,6 @@ public class DataBasePanel extends BasePanel {
                 // This Method invokes two time. Firstly this method receive oldValue. After this method is invoking with new selected item
                 // old value intend skip
                 if (e.getStateChange() == ItemEvent.SELECTED) {
-                    System.out.println("----------------   itemStateChanged: " + e.getItem());
                     paginationView.setItemsOnPage(Integer.parseInt(e.getItem().toString()));
                     initPagination(true, true, false, false);
                     selectedKeyForViewUI.getTbl().performSetData();
@@ -634,6 +638,197 @@ public class DataBasePanel extends BasePanel {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
+    }
+
+    {
+// GUI initializer generated by IntelliJ IDEA GUI Designer
+// >>> IMPORTANT!! <<<
+// DO NOT EDIT OR ADD ANY CODE HERE!
+        $$$setupUI$$$();
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        rootPanel = new JPanel();
+        rootPanel.setLayout(new BorderLayout(0, 0));
+        rootPanel.setForeground(new Color(-4520687));
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new BorderLayout(0, 0));
+        panel1.setBackground(new Color(-7881946));
+        panel1.setForeground(new Color(-12959471));
+        rootPanel.add(panel1, BorderLayout.WEST);
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        panel1.add(panel2, BorderLayout.NORTH);
+        final JLabel label1 = new JLabel();
+        label1.setHorizontalAlignment(0);
+        label1.setHorizontalTextPosition(0);
+        label1.setText("Таблицы");
+        panel2.add(label1);
+        pnlList = new JPanel();
+        pnlList.setLayout(new BorderLayout(0, 0));
+        pnlList.putClientProperty("html.disable", Boolean.FALSE);
+        panel1.add(pnlList, BorderLayout.CENTER);
+        listTables = new JList();
+        listTables.setAlignmentX(1.0f);
+        listTables.setAlignmentY(1.0f);
+        listTables.setAutoscrolls(false);
+        listTables.setDoubleBuffered(false);
+        listTables.setEnabled(true);
+        listTables.setLayoutOrientation(0);
+        listTables.setMaximumSize(new Dimension(0, 300));
+        listTables.setMinimumSize(new Dimension(0, 300));
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        defaultListModel1.addElement("Университеты");
+        defaultListModel1.addElement("Факультеты");
+        defaultListModel1.addElement("Кафедры");
+        defaultListModel1.addElement("Специальности");
+        defaultListModel1.addElement("Заведующий кафедрой");
+        defaultListModel1.addElement("Преподавателии");
+        listTables.setModel(defaultListModel1);
+        listTables.setOpaque(false);
+        listTables.setPreferredSize(new Dimension(0, 300));
+        listTables.setVisible(true);
+        listTables.setVisibleRowCount(6);
+        pnlList.add(listTables, BorderLayout.CENTER);
+        final JPanel panel3 = new JPanel();
+        panel3.setLayout(new GridBagLayout());
+        panel3.setMinimumSize(new Dimension(0, 0));
+        panel1.add(panel3, BorderLayout.SOUTH);
+        final JPanel panel4 = new JPanel();
+        panel4.setLayout(new GridLayoutManager(1, 2, new Insets(5, 5, 5, 5), 0, 0, true, false));
+        GridBagConstraints gbc;
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.ipadx = 20;
+        panel3.add(panel4, gbc);
+        btnAllDeselect = new JButton();
+        btnAllDeselect.setBackground(new Color(-12697277));
+        btnAllDeselect.setForeground(new Color(-3421237));
+        btnAllDeselect.setMargin(new Insets(5, 5, 5, 5));
+        btnAllDeselect.setText("снять весь выбор");
+        panel4.add(btnAllDeselect, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnDeselect = new JButton();
+        btnDeselect.setBackground(new Color(-12434105));
+        btnDeselect.setForeground(new Color(-2894893));
+        btnDeselect.setMargin(new Insets(5, 5, 5, 5));
+        btnDeselect.setText("снять выбор");
+        panel4.add(btnDeselect, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        btnDelete = new JButton();
+        btnDelete.setBackground(new Color(-4520687));
+        btnDelete.setMargin(new Insets(5, 0, 5, 0));
+        btnDelete.setMaximumSize(new Dimension(78, 55));
+        btnDelete.setText("Удалить");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel3.add(btnDelete, gbc);
+        btnUpdate = new JButton();
+        btnUpdate.setBackground(new Color(-2698694));
+        btnUpdate.setMargin(new Insets(5, 0, 5, 0));
+        btnUpdate.setMaximumSize(new Dimension(78, 55));
+        btnUpdate.setText("Обновить");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel3.add(btnUpdate, gbc);
+        btnCreate = new JButton();
+        btnCreate.setBackground(new Color(-12338337));
+        btnCreate.setEnabled(true);
+        btnCreate.setMargin(new Insets(5, 0, 5, 0));
+        btnCreate.setMaximumSize(new Dimension(78, 55));
+        btnCreate.setText("Добавить");
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5);
+        panel3.add(btnCreate, gbc);
+        final JPanel panel5 = new JPanel();
+        panel5.setLayout(new BorderLayout(0, 0));
+        panel5.setBackground(new Color(-12959471));
+        panel5.setForeground(new Color(-7881946));
+        rootPanel.add(panel5, BorderLayout.CENTER);
+        final JPanel panel6 = new JPanel();
+        panel6.setLayout(new BorderLayout(0, 0));
+        panel6.setBackground(new Color(-12513483));
+        panel6.setForeground(new Color(-4511418));
+        panel5.add(panel6, BorderLayout.SOUTH);
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new GridLayoutManager(1, 8, new Insets(0, 0, 0, 0), -1, -1));
+        panel6.add(panel7, BorderLayout.EAST);
+        lbCurrentPage = new JLabel();
+        lbCurrentPage.setHorizontalAlignment(0);
+        lbCurrentPage.setText("");
+        panel7.add(lbCurrentPage, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel7.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setHorizontalAlignment(0);
+        label2.setText("/");
+        panel7.add(label2, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        panel7.add(spacer2, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        lbTotalNumberPage = new JLabel();
+        lbTotalNumberPage.setHorizontalAlignment(0);
+        lbTotalNumberPage.setText("");
+        panel7.add(lbTotalNumberPage, new GridConstraints(0, 6, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer3 = new Spacer();
+        panel7.add(spacer3, new GridConstraints(0, 7, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 1, false));
+        final Spacer spacer4 = new Spacer();
+        panel7.add(spacer4, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        cmbCountView = new JComboBox();
+        cmbCountView.setFocusable(false);
+        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        defaultComboBoxModel1.addElement("5");
+        defaultComboBoxModel1.addElement("10");
+        defaultComboBoxModel1.addElement("25");
+        defaultComboBoxModel1.addElement("50");
+        defaultComboBoxModel1.addElement("100");
+        cmbCountView.setModel(defaultComboBoxModel1);
+        panel7.add(cmbCountView, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel8 = new JPanel();
+        panel8.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+        panel6.add(panel8, BorderLayout.CENTER);
+        btnBack = new JButton();
+        btnBack.setBackground(new Color(-14671067));
+        btnBack.setForeground(new Color(-1));
+        btnBack.setText("<<");
+        panel8.add(btnBack);
+        final Spacer spacer5 = new Spacer();
+        panel8.add(spacer5);
+        btnNext = new JButton();
+        btnNext.setBackground(new Color(-14342359));
+        btnNext.setForeground(new Color(-65794));
+        btnNext.setText(">>");
+        panel8.add(btnNext);
+        tfFilter = new HintTextField();
+        panel5.add(tfFilter, BorderLayout.NORTH);
+        rootPnlTbls = new JPanel();
+        rootPnlTbls.setLayout(new CardLayout(0, 0));
+        rootPnlTbls.setForeground(new Color(-2696815));
+        panel5.add(rootPnlTbls, BorderLayout.CENTER);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return rootPanel;
     }
 
     private final class ActionHandler implements ActionListener {
@@ -856,7 +1051,6 @@ public class DataBasePanel extends BasePanel {
          */
         @Override
         public void perform(TableSelectedRowsEvent event) {
-            System.out.println("Hi");
             Object[] elemSelected = event.getSelectedItems();
             if (!event.isAdjusting()) {
                 if (elemSelected.length == 1) {
@@ -879,7 +1073,6 @@ public class DataBasePanel extends BasePanel {
                     // чтобы изменить выбор, если выбор уже был сделан
                     myListButtons.deSelectExclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
                 } else {
-                    System.out.println("Selected item=" + elemSelected.length);
                     if (elemSelected.length > 1) {
                         setEnableCRUDbtn(true, true, false);
                     } else {

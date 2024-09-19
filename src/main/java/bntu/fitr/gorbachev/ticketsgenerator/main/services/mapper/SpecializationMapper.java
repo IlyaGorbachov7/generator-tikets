@@ -4,7 +4,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.DepartmentDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.SpecializationSimpleDto;

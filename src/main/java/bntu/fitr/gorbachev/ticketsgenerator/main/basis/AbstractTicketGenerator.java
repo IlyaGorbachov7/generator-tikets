@@ -2,15 +2,22 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.basis;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractContentExtractThread;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.xwpf.usermodel.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractOutputContentThread;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.config.Loggers;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -24,10 +31,10 @@ import java.util.function.Supplier;
  * @author Gorbachev I. D.
  * @version 12.03.2022
  */
-@Slf4j
+//@Log4j2
 public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends Ticket<Q>>
         implements Callable<List<Q>> {
-
+    private static  Logger log =  LogManager.getLogger(AbstractTicketGenerator.class);
     private Future<List<Q>> futureTaskExtractContent;
 
     protected File[] filesRsc;
@@ -172,7 +179,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
                 for (int i = 0; i < inputTreads.length; ++i) {
                     inputTreads[i] = new FileInputStream(filesRsc[i]);
                     docxRsc[i] = new XWPFDocument(inputTreads[i]);
-
+                    log.debug("Read file: {}",filesRsc[i]);
                     // thread launch
                     AbstractContentExtractThread<Q> extractor = factoryExtractor(docxRsc[i], filesRsc[i].getName())
                             .get();
@@ -217,7 +224,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     public final void startGenerate(GenerationProperty generationProperty)
             throws GenerationConditionException, ExecutionException, InterruptedException {
-
+        log.info("Start generate Tickets");
         this.generationProperty = generationProperty;
         checkedNecessarilyConditions();
 
@@ -294,6 +301,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     private void checkedNecessarilyConditions() throws GenerationConditionException {
         // Throw Exception if incorrect entered parameters method
+        log.info("Check necessarily conditions");
         if (generationProperty == null) {
             throw new GenerationConditionException(new NullPointerException("Your need initialize generation property"));
         } else if (generationProperty.getQuantityTickets() <= 0) {

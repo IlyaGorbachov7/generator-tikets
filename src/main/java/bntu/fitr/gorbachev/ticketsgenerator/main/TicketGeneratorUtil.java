@@ -7,7 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import org.bouncycastle.util.Strings;
 
 import javax.swing.*;
@@ -17,7 +17,7 @@ import java.nio.file.Path;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
-@Slf4j
+@Log4j2
 public class TicketGeneratorUtil {
     @Getter
     private static ConfigurationApplicationProperties config;
@@ -120,7 +120,7 @@ public class TicketGeneratorUtil {
             config = new ConfigurationApplicationProperties();
             System.setProperty(DIR_APP_KEY, getPathAppDirectory().toString());
             System.setProperty(DIR_SERIALIZE_KEY, getPathSerializeDirectory().toString());
-            // this very importer because file log4j2.xml exist text, which contains property key from application.properties
+            // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
 

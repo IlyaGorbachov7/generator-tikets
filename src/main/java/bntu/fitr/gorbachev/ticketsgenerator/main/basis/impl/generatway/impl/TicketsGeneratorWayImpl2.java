@@ -4,12 +4,12 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.GenerationProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.QuestionExt;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGeneratorWay;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.FindsNonMatchingLevel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationConditionException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestionsRequireException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGeneratorWay;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
 
 import java.util.*;
 import java.util.function.Predicate;

@@ -7,7 +7,7 @@
     <groupId>bntu.fitr.gorbachev</groupId>
     <artifactId>ConstructorTickets</artifactId>
     <packaging>jar</packaging>
-    <version>2.0</version>
+    <version>3.0</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -19,9 +19,42 @@
         <org.hibernate-c3pO-connectionPool.version>6.2.0.CR3</org.hibernate-c3pO-connectionPool.version>
         <org.sqlite-jdbc-driver.version>3.42.0.0</org.sqlite-jdbc-driver.version>
         <org.hibernate-cmmunity-dialects.version>6.2.4.Final</org.hibernate-cmmunity-dialects.version>
+        <log4j>2.20.0</log4j>
+        <intellij.form>7.0.3</intellij.form>
     </properties>
 
     <dependencies>
+        <!--==============================  Logger   ==============================-->
+        <!--See for more understanding:
+                https://www.marcobehler.com/guides/java-logging#_introduction
+                https://howtodoinjava.com/log4j2/log4j2-with-slf4j/-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j}</version>
+        </dependency>
+        <!-- implementation slf4j framework on the base log4j2 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <version>${log4j}</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.intellij/forms_rt  для генерации Java Code на базе файла с расш. ".form"-->
+        <dependency>
+            <groupId>com.intellij</groupId>
+            <artifactId>forms_rt</artifactId>
+            <version>${intellij.form}</version>
+        </dependency>
 
         <!-- ====================== DATA BASE Connection =====================================-->
         <!-- https://mvnrepository.com/artifact/org.hibernate.orm/hibernate-core -->
@@ -162,27 +195,6 @@
             <artifactId>lombok</artifactId>
             <version>${org.projectlombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <!--==============================  Logger   ==============================-->
-        <!--See for more understanding:
-                https://www.marcobehler.com/guides/java-logging#_introduction
-                https://howtodoinjava.com/log4j2/log4j2-with-slf4j/-->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.20.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.20.0</version>
-        </dependency>
-        <!-- implementation slf4j framework on the base log4j2 -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j2-impl</artifactId>
-            <version>2.20.0</version>
         </dependency>
 
         <!--==================================  Junit 5 Testing ============================================-->

@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * Problem when I had to solve:
  * <p>
- * this very importer because file log4j2.xml exist text, which contains property key from application.properties
+ * this very importer because file applog4j2.xml exist text, which contains property key from application.properties
  * So I must add this key=value from application.properties earlier than will be performed logger configuration
  */
 @Getter

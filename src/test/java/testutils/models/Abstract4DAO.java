@@ -2,7 +2,6 @@ package testutils.models;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Teacher;
 import com.mysql.cj.log.Log;
-import model.Person;
 
 import java.util.UUID;
 

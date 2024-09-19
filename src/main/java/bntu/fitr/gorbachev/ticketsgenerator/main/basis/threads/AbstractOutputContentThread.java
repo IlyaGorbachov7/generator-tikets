@@ -1,9 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.QuestionExt;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.OutputContentException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.WrapXml;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import com.microsoft.schemas.office.word.STWrapType;
 import org.apache.poi.util.Units;
 import org.apache.poi.xwpf.usermodel.*;
@@ -15,12 +16,10 @@ import org.openxmlformats.schemas.drawingml.x2006.wordprocessingDrawing.CTInline
 import org.openxmlformats.schemas.officeDocument.x2006.math.CTOMath;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.*;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
-
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 
 /**

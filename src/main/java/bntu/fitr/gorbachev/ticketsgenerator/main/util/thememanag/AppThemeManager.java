@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
@@ -12,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +25,7 @@ import java.util.List;
  * Здесь будет запись данных в базу данных
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-@Slf4j
+@Log4j2
 public class AppThemeManager {
 
     private static ThemeAppWrapper saveObj;

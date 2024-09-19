@@ -1,13 +1,13 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.QuestionExt;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.ContentExtractException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.InvalidLexicalException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.PreparerPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.AttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.impl.ListTagAttributeService;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TagPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.LexicalPatterns;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.QuestionExt;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.ContentExtractException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TagPatterns;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;

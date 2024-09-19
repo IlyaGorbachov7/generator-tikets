@@ -1,12 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.Main;
-import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.ReflectionUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.*;
 import java.nio.file.AccessDeniedException;
@@ -26,7 +24,7 @@ import java.util.stream.Stream;
  *
  * @version 14.07.2024 21:16
  */
-@Slf4j
+@Log4j2
 public class Serializer {
 
     private static final Map<Path, Serializer> context = new ConcurrentHashMap<>(4);

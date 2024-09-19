@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * The class represents the content of the question

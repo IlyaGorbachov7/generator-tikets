@@ -1,9 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.WriteableProperties;
-import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.OutputStream;

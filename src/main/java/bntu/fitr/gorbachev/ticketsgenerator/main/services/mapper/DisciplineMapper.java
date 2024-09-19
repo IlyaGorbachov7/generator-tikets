@@ -2,13 +2,11 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.services.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.SpecializationDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Department;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Discipline;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Specialization;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineSimpledDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.displn.DisciplineNoFoundByIdException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.exception.specl.SpecializationNoFoundByIdException;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

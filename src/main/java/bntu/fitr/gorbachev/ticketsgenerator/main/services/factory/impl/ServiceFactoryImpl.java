@@ -1,6 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.HeadDepartment;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.ServiceFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.impl.*;

@@ -3,7 +3,6 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.KeyForViewUI;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

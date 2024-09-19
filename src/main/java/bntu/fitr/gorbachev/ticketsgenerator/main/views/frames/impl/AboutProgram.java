@@ -7,11 +7,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 /**
  * The class represents a dialog box object "About Program"

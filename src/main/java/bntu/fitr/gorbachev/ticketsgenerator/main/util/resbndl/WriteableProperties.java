@@ -1,6 +1,5 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
-import java.util.Hashtable;
 import java.util.NoSuchElementException;
 
 public abstract class WriteableProperties extends ReadableProperties implements Writable {

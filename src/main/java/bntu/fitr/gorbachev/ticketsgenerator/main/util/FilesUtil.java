@@ -4,13 +4,13 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForReadToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessForWriteToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-@Slf4j
+@Log4j2
 public class FilesUtil {
 
 

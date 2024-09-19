@@ -1,7 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.UUID;
 

@@ -1,7 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.mapper;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
-import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherSimpleDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.mdldbtbl.TeacherModelTbl;
 import org.mapstruct.Mapper;

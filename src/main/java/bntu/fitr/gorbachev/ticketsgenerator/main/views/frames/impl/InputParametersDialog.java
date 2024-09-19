@@ -5,7 +5,6 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 
 import java.awt.*;
-import java.awt.event.*;
 
 public class InputParametersDialog extends BaseDialog {
 

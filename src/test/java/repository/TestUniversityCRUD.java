@@ -1,7 +1,6 @@
 package repository;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.exception.DAOException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.AbstractDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.impl.UniversityDAOImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.University;
@@ -12,7 +11,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 public class TestUniversityCRUD {

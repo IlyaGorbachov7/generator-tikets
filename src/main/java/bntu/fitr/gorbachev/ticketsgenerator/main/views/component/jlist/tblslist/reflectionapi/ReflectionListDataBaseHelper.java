@@ -2,7 +2,6 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.reflectapi.ann.TableViewUI;
 
-import javax.swing.text.TableView;
 import java.util.Arrays;
 import java.util.Objects;
 

@@ -2,7 +2,6 @@ package servises;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.FacultyDAO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.factory.impl.RepositoryFactoryImpl;
-import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.tablentity.Faculty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.FacultyService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.UniversityService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;

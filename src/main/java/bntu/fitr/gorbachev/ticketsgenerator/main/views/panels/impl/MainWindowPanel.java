@@ -1,12 +1,18 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.AbstractTicketGenerator;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Question2;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.FindsChapterWithoutSection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.FindsNonMatchingLevel;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationConditionException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetriever;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.*;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.*;
@@ -19,33 +25,31 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.abservers.RelatedComponentEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.*;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
+import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.GenerationMode;
-import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.InputSearchFieldsData;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.github.lgooddatepicker.components.DatePickerSettings;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
-import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.*;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultFormatter;
 import java.awt.*;
@@ -63,18 +67,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
-// TODO: Сделать UI для вненсия изминней в базу данных отделов образования
-// TODO: После того, как DAO слой будет готов, по работе с сохранением состаяния приложения, тогда можно сделать настрофку сохраниня, а так же измиения темы слетлой/темной
-
 /**
  * The class represent main window panel
  *
  * @author Gorbachev I. D.
  * @version 18.04.2022
  */
-@Slf4j
+@Log4j2
 public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
-    private final Logger logger = LogManager.getLogger(MainWindowFrame.class);
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
     private final JMenuItem saveItem;
@@ -240,28 +240,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 .supplierListElem(text -> teacherService.getByLikeNameAndFacultyId(text, inputSearchFieldsData.getFacultyDto().getId()))
                 .build();
     }
-//
-//
-//    private void updateAllComponents() {
-//        updateComponent(this);
-////        var executorServices = Executors.newFixedThreadPool(2);
-//    }
-//
-//
-//    private void updateComponent(JComponent component) {
-//        Component[] components = component.getComponents();
-//        System.out.println(components.length);
-//        for (var c : components) {
-//            if(c instanceof JComponent jc){
-//                updateComponent(jc);
-//                try{
-//                    jc.setBackground(Color.WHITE);
-//                    jc.setForeground(Color.BLACK);
-//                }catch (Exception ignore){
-//                }
-//            }
-//        }
-//    }
 
     /**
      * The constructor creates a panel
@@ -521,7 +499,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         cbInstitute.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox instituteComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (instituteComboBox.getSelectedItem() instanceof UniversityDTO) {
-                System.out.println("++ setUniversityDto");
                 inputSearchFieldsData.setUniversityDto((UniversityDTO) instituteComboBox.getSelectedItem());
                 if (facultyService.countByLikeNameAndUniversity(cbFaculty.getEditorTextField().getText(),
                         inputSearchFieldsData.getUniversityDto().getId()) > 0) {
@@ -531,7 +508,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 }
             } else {
                 String text = instituteComboBox.getFieldText();
-                System.out.println("++ text : " + text);
                 universityService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setUniversityDto(elm);
                     if (facultyService.countByLikeNameAndUniversity(cbFaculty.getFieldText(),
@@ -574,7 +550,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         cbFaculty.addRelatedComponentListener(relatedComponentEvent -> {
             MyJCompoBox facultyComboBox = (MyJCompoBox) relatedComponentEvent.getSource();
             if (facultyComboBox.getSelectedItem() instanceof FacultyDto) {
-                System.out.println("++ setFacultyDto");
                 inputSearchFieldsData.setFacultyDto((FacultyDto) facultyComboBox.getSelectedItem());
                 if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getEditorTextField().getText(),
                         inputSearchFieldsData.getFacultyDto().getId()) > 0) {
@@ -593,7 +568,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 if (facultyService.countByLikeNameAndUniversity(text, inputSearchFieldsData.getUniversityDto().getId()) == 0) {
                     text = "";
                 }
-                System.out.println("++ text : " + text);
                 facultyService.getByName(text).ifPresentOrElse((elm) -> {
                     inputSearchFieldsData.setFacultyDto(elm);
                     if (departmentService.countByLikeNameAndFacultyId(cbDepartment.getFieldText(),
@@ -1343,7 +1317,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
                 } catch (InterruptedException e) {
                     loadingDialog.closeDialog();
-                    logger.error(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
+                    log.error(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
                                  "close program during ticket generation: interrupted is successful");
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
@@ -1386,11 +1360,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
                         registerSenderMsg.sendMsg("start convert docx => pdf");
-                        System.out.println("convert docx => pdf");
+                        log.info("convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
                                 .as(DocumentType.PDF).execute();
                         registerSenderMsg.sendMsg("convert docx => pdf is : success");
-                        System.out.println("convert docx => pdf is : success");
+                        log.info("convert docx => pdf is : success");
                         // if convert docx is success, then load file for open viewFilePanel
                         viewFileDialog.setFile(tmpFilePdf);
                         try {
@@ -1411,8 +1385,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 } catch (Exception e) {
                     loadingDialog.closeDialog();
                     this.setEnabledComponents(true, false);
-                    logger.error("CONVERTOR Xyeta 5min wait that close program");
-                    logger.error(e);
+                    log.error("CONVERTOR Xyeta 5min wait that close program");
+                    log.error(e);
 
                     if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
                         return;
@@ -1588,7 +1562,9 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         @Override
         public void send(String msg) {
-            lblMsg.setText(msg);
+            SwingUtilities.invokeLater(()->{
+                lblMsg.setText(msg);
+            });
         }
     }
 
@@ -1702,7 +1678,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         }
                     }).start();
                 } else {
-                    System.err.println("To save file not can: tmpFileDocx == null");
+                    log.warn("To save file not can: tmpFileDocx == null");
                 }
 
             } else if (e.getSource() == exitItem) {

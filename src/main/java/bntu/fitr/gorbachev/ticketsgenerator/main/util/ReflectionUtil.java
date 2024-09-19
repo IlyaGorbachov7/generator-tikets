@@ -1,5 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -7,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 
+@Log4j2
 public class ReflectionUtil {
 
     public static <T extends Serializable> T newInstance(Class<T> clazz) {
@@ -24,7 +27,7 @@ public class ReflectionUtil {
             f.setAccessible(true);
             return f;
         } catch (NoSuchFieldException e) {
-            System.out.printf("Reflection API: NoSuchFieldException: field: %s , class: %s %n", fieldName, clazz);
+            log.warn("Reflection API: NoSuchFieldException: field: {} , class: {}", fieldName, clazz);
             return null;
         }
     }
