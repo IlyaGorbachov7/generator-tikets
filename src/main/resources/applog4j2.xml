@@ -6,11 +6,29 @@
         <Property name="LOG_CONSOLE">%-5p %c{4} - %m%n</Property>
     </Properties>
     <Appenders>
+        <!--RollingFile позволяет нам настаивать файл лога -->
+        <RollingFile name="FileAppender"
+                     fileName="${sys:app.directory.logs}/ticketGenerator.log"
+                     filePattern="${sys:app.directory.logs}/ticketGenerator-%d{yyyy-MM-dd}-%i.log"> <!--pattern нужен если у один файл уже не поместилось создеается еще один файл-часть куда будет уже записывая-->
+            <PatternLayout>
+                <Pattern>${LOG_PATTERN}</Pattern>
+            </PatternLayout>
+
+            <!-- Политика ротации файлов -->
+            <Policies>
+                <!-- Ротация файла при достижении 5 MB -->
+                <SizeBasedTriggeringPolicy size="5MB"/>
+            </Policies>
+
+            <!-- Настройка количества лог-файлов -->
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+        <!-- // Это старый
         <File name="FileAppender"
               fileName="${sys:app.directory.logs}/ticketGenerator-${date:yyyy-MM-dd-HHmmssSSS}.log"
-              append="false"> <!--don't add at the end in exist file-->
+              append="false"> &lt;!&ndash;don't add at the end in exist file&ndash;&gt;
             <PatternLayout pattern="${LOG_PATTERN}"/>
-        </File>
+        </File>-->
 
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="${LOG_CONSOLE}"/> <!--задаю значение через property -->
