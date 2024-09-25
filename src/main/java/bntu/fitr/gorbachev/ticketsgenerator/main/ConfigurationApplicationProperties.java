@@ -41,7 +41,7 @@ public class ConfigurationApplicationProperties {
     public ConfigurationApplicationProperties(String sourceFile) throws TicketGeneratorException {
         this.sourceFile = sourceFile;
         try {
-            appProp = PropertiesManagerBase.builder().build(FilesUtil.resolveSourceLocation(sourceFile));
+            appProp = PropertiesManagerBase.builder().build(FilesUtil.resolveSourceLocationAsInputStream(sourceFile));
         } catch (Exception e) {
             throw new TicketGeneratorException(e);
         }

@@ -40,7 +40,7 @@ public class FilesUtil {
      * <p>
      * <b>See:</b> TestPropertyReadableManager#testGetPathByStringVersion2()
      */
-    public static InputStream resolveSourceLocation(String path) throws NotAccessToFileException {
+    public static InputStream resolveSourceLocationAsInputStream(String path) throws NotAccessToFileException {
         InputStream is = TicketGeneratorUtil.class.getResourceAsStream(path);
         if (is == null) {
             // try to receive file outside jar file
@@ -91,5 +91,16 @@ public class FilesUtil {
             }
         }
         return dir;
+    }
+
+    /**
+     * THis method return boolean value. True -- if application launch from jar file or  through IDA
+     * <p>
+     * #{@linkplain Class#getResource(String)} -- method return string of path where started with "file:" or "jar:"
+     */
+    public static boolean isRunningFromJar() {
+        String fileClazz = FilesUtil.class.getName().replace('.', '/');
+        String clazzJar = FilesUtil.class.getResource("/" + fileClazz + ".class").toString();
+        return clazzJar.startsWith("jar:");
     }
 }

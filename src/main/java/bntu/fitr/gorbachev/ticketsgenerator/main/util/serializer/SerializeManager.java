@@ -23,10 +23,4 @@ public class SerializeManager {
             h.serialize();
         }
     }
-
-    public static void runDeserialize() throws IOException, AccessDeniedException {
-        for (var h : handlers) {
-            h.deserialize();
-        }
-    }
 }

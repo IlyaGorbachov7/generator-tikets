@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
@@ -34,8 +35,9 @@ public class TicketGeneratorUtil {
             // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
-
+            System.out.println("----------------");
             LoggerUtil.init();
+            Class.forName(Localizer.class.getName());
             log = LogManager.getLogger(TicketGeneratorUtil.class);
             AppThemeManager.run();
         } catch (Throwable ex) {
