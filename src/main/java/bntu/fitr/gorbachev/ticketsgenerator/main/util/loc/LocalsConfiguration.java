@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 
 @Log4j2
 public class LocalsConfiguration implements SerializeListener {
-    public static final String DIR_LOCALES = "/resources/lang";
+    public static final String DIR_LOCALES = "lang";
 
     private final Locale systemLocale = Locale.getDefault();
     private Locale selectedLocale = systemLocale;
@@ -41,21 +41,22 @@ public class LocalsConfiguration implements SerializeListener {
 
     }
 
-    private List<Locale> getSupportedLocale() throws NotAccessToFileException {
+    private Stream<Locale> getSupportedLocale() throws NotAccessToFileException {
+        Stream.Builder<Locale> builderList = Stream.builder();
         if (FilesUtil.isRunningFromJar()) {
             String pathJarFile = LocalsConfiguration.class.getProtectionDomain()
                     .getCodeSource().getLocation().getPath();
-            Stream.Builder<Locale> builderList = Stream.builder();
             try (JarFile jarFile = new JarFile(pathJarFile)) {
                 var entries = jarFile.entries();
                 while (entries.hasMoreElements()) {
                     JarEntry entity = entries.nextElement();
                     String pathToFileOrDir = entity.getName();
-                    if (pathToFileOrDir.startsWith(DIR_LOCALES.replaceFirst("/", "")) && pathToFileOrDir.endsWith(".properties")) {
-                        String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf("/") + 1);
+                    if (pathToFileOrDir.startsWith(DIR_LOCALES.replaceFirst(TicketGeneratorUtil.getFileSeparator(), "")) && pathToFileOrDir.endsWith(".properties")) {
+                        String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf(TicketGeneratorUtil.getFileSeparator()) + 1);
                         Locale locale = isLocale(simpleName);
                         if (Objects.nonNull(locale)) {
                             builderList.accept(locale);
+                            log.debug("Find supported-locale file {}", simpleName);
                         }
                     }
                 }
@@ -64,18 +65,27 @@ public class LocalsConfiguration implements SerializeListener {
             }
         } else {
             try {
-                Path rootDirLocales = Path.of(Objects.requireNonNull(LocalsConfiguration.class.getResource(DIR_LOCALES)).toURI());
+                Path rootDirLocales = Path.of(Objects.requireNonNull(LocalsConfiguration.class.getClassLoader().getResource(DIR_LOCALES)).toURI());
                 log.info("Default dir locales file: {}", rootDirLocales);
                 Files.find(rootDirLocales, 1, (pathFile, attr) -> {
-                    System.out.println("a[a[a ::: " + pathFile);
-                    return true;
+                    if(pathFile.toString().endsWith(".properties")){
+                        return true;
+                    }
+                    return false;
+                }).forEach(propertiesPath ->{
+                    String simpleName = propertiesPath.toString().substring(propertiesPath.toString().lastIndexOf(TicketGeneratorUtil.getFileSeparator() + 1));
+                    Locale locale = isLocale(simpleName);
+                    if(Objects.nonNull(locale)){
+                        builderList.accept(locale);
+                        log.debug("Find supported-locale file {}", simpleName);
+                    }
                 });
             } catch (Exception e) {
                 throw new NotAccessToFileException("Directory locale undefined", e, Path.of(DIR_LOCALES));
             }
         }
 
-        return null;
+        return builderList.build();
     }
 
     private Locale isLocale(String simpleName) {

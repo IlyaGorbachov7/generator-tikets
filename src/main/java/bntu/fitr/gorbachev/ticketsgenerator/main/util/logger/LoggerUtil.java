@@ -10,6 +10,8 @@ import java.util.Objects;
 
 public class LoggerUtil {
     public static final String SYS_PROP_LOG_CONFIG = "configuration.log4j";
+
+    public static final String DEF_CONFIG_FILE_PATH = "applog4j2.xml";
     // how config: https://stackoverflow.com/a/30132945/14707802
     // how config2: https://poe.com/s/3MyIu5G2LTF3pP9vjGfS
 
@@ -18,7 +20,7 @@ public class LoggerUtil {
             // Path of the configuration file you maybe received outside jar of file or inside jar of file.
             // To specify path for configuration log4j you should specify property: log4j.configuration from JVM options
             // For example: jar
-            String configFile = Objects.requireNonNullElse(System.getProperty(SYS_PROP_LOG_CONFIG), "/resources/applog4j2.xml");
+            String configFile = Objects.requireNonNullElse(System.getProperty(SYS_PROP_LOG_CONFIG), DEF_CONFIG_FILE_PATH);
             ConfigurationSource config = new ConfigurationSource(Objects.requireNonNull(FilesUtil.resolveSourceLocationAsInputStream(configFile)));
             Configurator.initialize(null, config);
         } catch (Exception ex) {

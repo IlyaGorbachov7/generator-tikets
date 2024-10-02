@@ -20,7 +20,7 @@ public class PoolConnection {
      */
     public static String SYS_PROP_JPA_CONFIG = "configuration.hibernate";
 
-    public static String DEF_CONFIG_FILE_PATH = "resources/hibernate.cfg.xml";
+    public static String DEF_CONFIG_FILE_PATH = "hibernate.cfg.xml";
     private static final PoolConnection instance = new PoolConnection();
     private static SessionFactory connectionFactory;
     private static final Logger logger = LogManager.getLogger(PoolConnection.class);

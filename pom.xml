@@ -287,13 +287,13 @@
         </plugins>
 
         <resources>
-            <resource>
-                <!--ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)-->
+       <!--     <resource>
+                &lt;!&ndash;ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)&ndash;&gt;
                 <directory>src/main/resources</directory>
-                <!--А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
-                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)-->
+                &lt;!&ndash;А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
+                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)&ndash;&gt;
                 <targetPath>resources</targetPath>
-            </resource>
+            </resource>-->
             <resource>
                 <directory>src/main/META-INF</directory>
                 <targetPath>META-INF</targetPath>

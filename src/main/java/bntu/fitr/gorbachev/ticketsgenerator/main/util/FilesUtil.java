@@ -41,7 +41,7 @@ public class FilesUtil {
      * <b>See:</b> TestPropertyReadableManager#testGetPathByStringVersion2()
      */
     public static InputStream resolveSourceLocationAsInputStream(String path) throws NotAccessToFileException {
-        InputStream is = TicketGeneratorUtil.class.getResourceAsStream(path);
+        InputStream is = TicketGeneratorUtil.class.getClassLoader().getResourceAsStream(path);
         if (is == null) {
             // try to receive file outside jar file
             Path of = Path.of(path);

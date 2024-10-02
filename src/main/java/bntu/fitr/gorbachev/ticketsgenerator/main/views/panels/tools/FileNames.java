@@ -13,10 +13,10 @@ import java.nio.charset.StandardCharsets;
  * Contains constants file-paths
  */
 public class FileNames {
-    private static final String targetPath = "/resources/pictures/";
+    private static final String targetPath = "/pictures/";
 
     // record "resources/html/" - important in such look
-    private static final String targetPathHtml = "resources/html/";
+    private static final String targetPathHtml = "html/";
 
     private FileNames() {
     }

@@ -35,7 +35,7 @@ public class ConfigurationApplicationProperties {
      * <i>value</i> may be as file path to located inside jar file and outside located
      */
     public ConfigurationApplicationProperties() throws TicketGeneratorException {
-        this(Objects.requireNonNullElse(System.getProperty(SYS_PROP_APP_PROP), "/resources/application.properties"));
+        this(Objects.requireNonNullElse(System.getProperty(SYS_PROP_APP_PROP), "application.properties"));
     }
 
     public ConfigurationApplicationProperties(String sourceFile) throws TicketGeneratorException {
