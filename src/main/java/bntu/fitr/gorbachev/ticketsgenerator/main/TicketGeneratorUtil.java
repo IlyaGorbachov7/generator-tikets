@@ -4,6 +4,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
@@ -16,6 +17,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Locale;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
@@ -134,6 +136,10 @@ public class TicketGeneratorUtil {
         return theme;
     }
 
+    public static Locale getDefaultLocale() {
+        return config.getDefaultLocale().map(Locale::new).orElseGet(Locale::getDefault);
+    }
+
     public static String getFileSeparator() {
         return System.getProperty("file.separator");
     }
@@ -150,7 +156,7 @@ public class TicketGeneratorUtil {
                                 """, ex.getFilePath()),
                         "Access undefined", JOptionPane.ERROR_MESSAGE);
                 find = false;
-            } else if (t instanceof TicketGeneratorException | t instanceof LoggerException | t instanceof IOException) {
+            } else if (t instanceof TicketGeneratorException | t instanceof LoggerException | t instanceof LocalizerException | t instanceof IOException) {
                 Throwable cause = t.getCause();
                 if (cause instanceof NotAccessToFileException) {
                     t = cause;

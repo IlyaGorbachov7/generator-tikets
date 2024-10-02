@@ -22,6 +22,7 @@ public class ConfigurationApplicationProperties {
     public static final String DIR_APP_KEY = "app.directory";
     public static final String DIR_SERIALIZE_KEY = "app.directory.serializer";
     public static final String DIR_LOGS_KEY = "app.directory.logs";
+    public static final String DEFAULT_LOCALE = "app.locale.default";
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
 
     private final String sourceFile;
@@ -68,6 +69,10 @@ public class ConfigurationApplicationProperties {
      */
     public Optional<String> getDirLogs() {
         return Optional.ofNullable(appProp.getValue(DIR_LOGS_KEY, null));
+    }
+
+    public Optional<String> getDefaultLocale() {
+        return Optional.ofNullable(appProp.getValue(DEFAULT_LOCALE, null));
     }
 
     /**

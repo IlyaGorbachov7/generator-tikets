@@ -1,12 +1,15 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.loc;
 
-import java.io.IOException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
 
 public class Localizer {
+    private static ReadableProperties localeProperties;
+
     static {
         try {
             LocalsConfiguration config = new LocalsConfiguration();
-        } catch (IOException e) {
+            localeProperties = config.getLocaleProperties();
+        } catch (LocalizerException e) {
             throw new RuntimeException(e);
         }
     }
