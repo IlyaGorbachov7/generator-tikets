@@ -24,6 +24,7 @@ public class ConfigurationApplicationProperties {
     public static final String DIR_LOGS_KEY = "app.directory.logs";
     public static final String DEFAULT_LOCALE = "app.locale.default";
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
+    public static final String DELAY_STEP_GENERATION= "app.generator.tickets.delay.step";
 
     private final String sourceFile;
     private final ReadableProperties appProp;
@@ -80,5 +81,9 @@ public class ConfigurationApplicationProperties {
      */
     public Optional<String> getThemeAppDef() {
         return Optional.ofNullable(appProp.getValue(THEME_APP_DEF_KEY, null));
+    }
+
+    public Optional<Long> getDelayStepGeneration() {
+        return Optional.of(appProp.getLong(DELAY_STEP_GENERATION, 100));
     }
 }

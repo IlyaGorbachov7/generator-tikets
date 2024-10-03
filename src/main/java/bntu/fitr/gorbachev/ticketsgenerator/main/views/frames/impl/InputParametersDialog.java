@@ -9,7 +9,7 @@ import java.awt.*;
 public class InputParametersDialog extends BaseDialog {
 
     public InputParametersDialog(Window owner, PanelType panelType) {
-        super(owner, panelType, "Параметры ввода");
+        super(owner, panelType, "Параметры ввода"); //frame.title.setting.input
 //        this.setModal(true);
     }
 

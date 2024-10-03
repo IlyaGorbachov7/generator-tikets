@@ -132,8 +132,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         tglAppTheme = new JMenuItem("Color mode");
 
         chooserUpLoad = new JFileChooser();
+        // TODO: То же добавить обработку от выбраной локализации
+        chooserUpLoad.setLocale(Locale.getDefault());
         chooserSave = new JFileChooser();
-
+        // TODO: То же добавить обработку от выбраной локализации
+        chooserSave.setLocale(Locale.getDefault());
         //**********************
 
         lbInstitute = new JLabel("Учреждение образования");
@@ -194,7 +197,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         btnSave = new JButton("Сохранить билеты", new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.saveItemIcon))
         ));
-        lblCountItems = new JLabel("Загружено файлов : ");
+        lblCountItems = new JLabel("Загружено файлов:");
         lblListSize = new JLabel("" + "0");
         lbQuantityTickets = new JLabel("Количество билетов");
         tfQuantityTickets = new JTextField("10", 2);
@@ -344,6 +347,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         tfTeacher.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
         tfHeadDepartment.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
+
+        // TODO: Тут обязательно установить ru/en !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
         DatePickerSettings datePickerSettings = new DatePickerSettings(new Locale("ru"));
         datePickerSettings.setFormatForDatesCommonEra("dd.MM.uuuu");
@@ -1267,7 +1272,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             boolean repeat;
             do {
                 try {
-                    registerSenderMsg.sendMsg("start...");
+                    registerSenderMsg.sendMsg("start..."); // panel.main.message.registrator.start
                     loadingDialog.showDialog();
                     ticketGenerator.startGenerate(property);
                     repeat = false;
@@ -1277,7 +1282,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
                         int selected = JOptionPane.showInternalConfirmDialog(null,
                                 ex.getMessage() + "\n" +
-                                "Хотите продолжить генерацию ?",
+                                "Хотите продолжить генерацию ?", //panel.message.generation.continue
                                 "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
@@ -1341,13 +1346,13 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 IConverter converter;
                 try {
                     try {
-                        registerSenderMsg.sendMsg("create temp file .docx .pdf");
+                        registerSenderMsg.sendMsg("create temp file .docx .pdf");//panel.main.message.registrator.tmpFile
                         tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
                         tmpFileDocx.deleteOnExit();
                         File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
                         tmpFilePdf.deleteOnExit();
 
-                        registerSenderMsg.sendMsg("write output data to tmp .docx file ");
+                        registerSenderMsg.sendMsg("write output data to tmp .docx file ");//panel.main.message.registrator.file.write
                         ticketGenerator.writeOutputFile(tmpFileDocx);
 
                         /*Since if the user wants 100,000 tickets,the memory will fill up by 3GB.
@@ -1359,11 +1364,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
-                        registerSenderMsg.sendMsg("start convert docx => pdf");
+                        registerSenderMsg.sendMsg("start convert docx => pdf"); //panel.main.message.registrator.file.convert.start
                         log.info("convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
                                 .as(DocumentType.PDF).execute();
-                        registerSenderMsg.sendMsg("convert docx => pdf is : success");
+                        registerSenderMsg.sendMsg("convert docx => pdf is : success");//panel.main.message.registrator.file.convert
                         log.info("convert docx => pdf is : success");
                         // if convert docx is success, then load file for open viewFilePanel
                         viewFileDialog.setFile(tmpFilePdf);
@@ -1371,7 +1376,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                             viewFileDialog.openDocument();
                         } catch (Exception ex) {
                             JOptionPane.showConfirmDialog(frameRoot,
-                                    "No such file");
+                                    "No such file"); //panel.message.file.not-founded
                             this.setEnabledComponents(true, false);
                         }
                     } finally {
@@ -1391,12 +1396,13 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                     if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
                         return;
                     }
-                    JOptionPane.showMessageDialog(null,
+                    JOptionPane.showMessageDialog(null, //panel.message.generation.error
                             """
                                     Произошла ошибка ожидания .
                                     Прошу повторите попытку снова
                                     Причин является: Microsoft Office:
-                                    => Просто закройте окно Мастер активации Microsoft Office""",
+                                    => Просто закройте окно Мастер активации Microsoft Office
+                                    """,
                             "ERROR !", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
@@ -1486,8 +1492,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         public void initPanel() {
             // init fields
             this.setLayout(new BorderLayout());
-            btnCancel = new JButton("Отмена");
-            lblMsg = new JLabel("Processing message");
+            btnCancel = new JButton("Отмена");//btn.cancel
+            lblMsg = new JLabel("Ожидание"); // panel.main.message.registrator.launch
             JScrollPane scrollPane = new JScrollPane(lblMsg);
 
 
@@ -1497,7 +1503,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             JPanel pnlRow = new JPanel();
             pnlRow.setLayout(new BoxLayout(pnlRow, BoxLayout.X_AXIS));
             pnlRow.add(new JLabel(initImageIcon()));
-            pnlRow.add(new JLabel("Генерируется."));
+            pnlRow.add(new JLabel("Генерируется."));//panel.message.generation
             pnlMain.add(pnlRow);
             pnlMain.add(scrollPane);
 
@@ -1587,21 +1593,21 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 String msg = "";
                 if ((textField == tfTeacher || textField == tfHeadDepartment) &&
                     !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
-                    msg = "Пример:\n" +
+                    msg = "Пример:\n" + //panel.main.input.validator.example
                           " Фамилия Имя Отчество (или Фамилия И. О.)";
                 } else if (textField == tfProtocol &&
                            !TextPatterns.PROTOCOL_PATTERN.matches(textField.getText())) {
-                    msg = "Пример:\n" +
+                    msg = "Пример:\n" + // panel.main.input.validator.protocol.access
                           " 4.1 (или 1.23.1)";
                 } else if ((textField == tfQuantityTickets || textField == tfQuantityQuestionTickets) &&
                            !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимо число:\n" +
+                    msg = "Допустимо число:\n" + //panel.main.input.validator.number.access
                           "[1; 999]";
                 } else if (textField != tfTeacher && textField != tfHeadDepartment &&
                            textField != tfProtocol &&
                            textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
                            !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимы символы:\n" +
+                    msg = "Допустимы символы:\n" + //panel.main.input.validator.symbols.access
                           " A-Я,А-Z, а-я, a-z, 0-9, -, _, «, », \", }, {, ),(";
                 } else { // кидаем ошибку
                     textField.setForeground(Color.BLACK);
@@ -1659,7 +1665,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                                 Files.deleteIfExists(saveFile.toPath());
                                 Files.copy(tmpFileDocx.toPath(), saveFile.toPath());
                                 int selected = JOptionPane.showInternalConfirmDialog(null,
-                                        "Файл успешно сохранен!\n " +
+                                        "Файл успешно сохранен!\n " + //panel.message.file.saved
                                         "Хотите ли вы открыть ?",
                                         "Message", JOptionPane.YES_NO_OPTION,
                                         JOptionPane.QUESTION_MESSAGE);
@@ -1670,10 +1676,9 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                                 }
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(null,
-                                        "Произошла ошибка.\n" +
-                                        ex.getMessage(),
+                                        "Произошла ошибка.", //panel.message.error.unknown
                                         "ERROR !", JOptionPane.ERROR_MESSAGE);
-                                ex.printStackTrace();
+                                log.warn("",ex);
                             }
                         }
                     }).start();

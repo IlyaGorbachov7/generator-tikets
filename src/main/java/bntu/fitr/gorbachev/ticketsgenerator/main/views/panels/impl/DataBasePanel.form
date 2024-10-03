@@ -22,12 +22,12 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="6e62b" class="javax.swing.JLabel">
+              <component id="6e62b" class="javax.swing.JLabel" binding="tablesLbl">
                 <constraints/>
                 <properties>
                   <horizontalAlignment value="0"/>
                   <horizontalTextPosition value="0"/>
-                  <text value="Таблицы"/>
+                  <text resource-bundle="application" key="таблицы"/>
                 </properties>
               </component>
             </children>

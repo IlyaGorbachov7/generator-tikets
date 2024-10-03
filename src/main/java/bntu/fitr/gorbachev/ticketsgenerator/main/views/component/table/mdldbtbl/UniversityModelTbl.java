@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Data
-@TableViewUI(name = "Университет")
+@TableViewUI(name = "Университет") //tbl.model.university
 @NoArgsConstructor
 public class UniversityModelTbl {
     @ColumnViewUI(typeView = ColumnViewUI.STRING)

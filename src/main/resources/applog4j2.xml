@@ -1,70 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn"  name="MyApp" packages="">
+<Configuration status="warn" name="MyApp" packages="">
     <!-- see this ::::  https://logging.apache.org/log4j/2.x/manual/configuration.html-->
     <Properties>
-        <Property name="LOG_PATTERN">%-5p %c - %m%n</Property>
-        <Property name="LOG_CONSOLE">%-5p %c{4} - %m%n</Property>
+        <Property name="PATH_LOGS">${sys:app.directory.logs}</Property>
+        <Property name="PATTERN_APPENDER">%-5p %c - %m%n</Property>
+        <Property name="PATTERN_APPENDER_FILE">%d{HH:mm:ss.SSS} %-5p %c - %m%n</Property>
     </Properties>
     <Appenders>
-        <!--RollingFile позволяет нам настаивать файл лога -->
-        <RollingFile name="FileAppender"
-                     fileName="${sys:app.directory.logs}/ticketGenerator.log"
-                     filePattern="${sys:app.directory.logs}/ticketGenerator-%d{yyyy-MM-dd}-%i.log"> <!--pattern нужен если у один файл уже не поместилось создеается еще один файл-часть куда будет уже записывая-->
-            <PatternLayout>
-                <Pattern>${LOG_PATTERN}</Pattern>
-            </PatternLayout>
-
-            <!-- Политика ротации файлов -->
-            <Policies>
-                <!-- Ротация файла при достижении 5 MB -->
-                <SizeBasedTriggeringPolicy size="5MB"/>
-            </Policies>
-
-            <!-- Настройка количества лог-файлов -->
-            <DefaultRolloverStrategy max="5"/>
-        </RollingFile>
-        <!-- // Это старый
-        <File name="FileAppender"
-              fileName="${sys:app.directory.logs}/ticketGenerator-${date:yyyy-MM-dd-HHmmssSSS}.log"
-              append="false"> &lt;!&ndash;don't add at the end in exist file&ndash;&gt;
-            <PatternLayout pattern="${LOG_PATTERN}"/>
-        </File>-->
-
-        <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${LOG_CONSOLE}"/> <!--задаю значение через property -->
+        <Console name="ConsoleAppender">
+            <PatternLayout pattern="${PATTERN_APPENDER}"/>
         </Console>
+        <RollingFile name="FileAppender" append="false">
+            <FileName>${PATH_LOGS}/${date:yyyy-MM-dd}/ticketgenerator-${date:yyyy-MM-dd-HH}.log</FileName>
+            <FilePattern>${PATH_LOGS}/%d{yyyy-MM-dd}/ticketgenerator-${date:yyyy-MM-dd-HH}.log</FilePattern>
+            <PatternLayout pattern="${PATTERN_APPENDER_FILE}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+        </RollingFile>
+        <RollingFile name="TriggerOnDeleteLogFiles">
+            <FileName>${PATH_LOGS}/${date:yyyy-MM-dd}/trigger-on-delete-logfile.log</FileName>
+            <FilePattern>${PATH_LOGS}/%d{yyyy-MM-dd}/trigger-on-delete-logfile-%i.log
+            </FilePattern> <!-- Здесь нужно обязательно добавить %i? чтобы сробатывал DefaultRolloverStrategy-->
+            <Policies>
+                <SizeBasedTriggeringPolicy
+                        size="1MB"/> <!--Когда достигнет 1MB то срабатывает DefaultRolloverStrategy, который в совю очередь смотрит какоие файлы удалять -->
+            </Policies>
+            <DefaultRolloverStrategy min="1"
+                                     max="1"><!--Удаление срабатывает только когда созданны файл filePattern содержит %i-->
+                <Delete basePath="${PATH_LOGS}" maxDepth="1">
+                    <IfLastModified age="2d"/> <!--Спустя 2д будет полностью очищаться папка корнивая папка лога-->
+                </Delete>
+                <Delete basePath="${PATH_LOGS}/${date:yyyy-MM-dd}" maxDepth="3">
+                    <IfLastModified
+                            age="2h"/> <!--Каждые 2 часов будут удалятся файлы из папки по дню, где ${date:yyyy-MM-dd} - это день запуска -->
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
     </Appenders>
+
     <Loggers>
         <!--Для иных библиотек я вывожу только WARN-->
         <Root level="warn">
             <AppenderRef ref="FileAppender"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="TriggerOnDeleteLogFiles"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Root>
 
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
         <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main" level="debug"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="TriggerOnDeleteLogFiles"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Logger>
 
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
         <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.basis" level="debug"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="TriggerOnDeleteLogFiles"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Logger>
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
         <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.services" level="info"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="TriggerOnDeleteLogFiles"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Logger>
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
         <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.views" level="info"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="TriggerOnDeleteLogFiles"/>
+            <AppenderRef ref="ConsoleAppender"/>
         </Logger>
     </Loggers>
 </Configuration>
+        <!-- 03.10.2024 Добавил сюда эту конфигкацию после тог, когда ее же сделал в Кореонике
+                  Объяснение.
+              24.09
+              в файл fileName - сюда добавляется логи. Этот файл является "appeder-ом куда добавяляется актуальная инфа"
+              А те файлы которые создаются через filePattern туда ничего не записывается.
+              Происходит простое переименования файла fileName -> filePattern. файл-filePattern появлися тогда, когда файл-fileName привысил указаный размер.
+              По итогу в file-filePattern сожержится начальная инфорация при запуске приложения. А в файл-fileName будет
+              уже записываться логи текущеие. Когда файл-fileName сново привысит размер, он будет переименнваон в файл-filePatter.
+              Если  DefaultRolloverStrategy min="1" max="1" то в таком случаи будет 2 файла один это файд-fileName и 1 файл-filePattern
+                  Причем DefaultRolloverStrategy сробатывает тогда, когда условия, прописанные в <Policies> будут true.
+              Проблема в том, что если файл так и не достигнет указаного xMB. то DefaultRolloverStrategy не сработает
+              и если пользователь запускал приложение несколько раз. То лог-файлов становися все больше и больше причем
+              каждый файл не привышает указаного SizeBasedTriggeringPolicy размера, что в сумме эти файлы могу весить ГИГАБАЙТЫ
+              Может пройти месяц и там ваше дахуя забъеться памяти.
+              Я не могу исползовать CronTriggeringPolicy потому что он будет вызывать DefaultRolloverStrategy слишком
+              рана, даже тиогда когда файл не достиг 100MB
+
+              25.09.24
+              Сейчас я сделал так, чтобы файл-FilePattern назвался так же как и fileName таким образом у нас будет
+              только один файл, который будет перезаписыватся когда одно из условий в Policies сработает. Таким обрзром
+              оно запустит. Однако в этом случаи DefaultRolloverStrategy уже не будет сробатывать даже если его Policies
+              будет сробатыватть. Потому что у файла-filePattern нет этого %i - он указывает индекс.
+              Но тогда встает вопрос КАК УДАЛЯТЬ СТАРЫЕ ФАЙЛЫ если DefaultRolloverStrategy не страбатывает.
+              Поэтому решение:
+              Я создаю еще один Appender файла. Он будет триером для удаления файлов. Идея заключается в том, что
+              ему задается минимальный размер файла 100КB или любое другое малькое значение. В этот файл будет происходить
+              запись всех логов. В его DefaultRolloverStrategy я устанавливаю удаление файлов, которые будет старше
+              указанного времени.
+              Обязательно ! для этого апендера файл-FilePattern должен содержать %i чтобы срабатывал DefaultRolloverStrategy.
+              Как я уже говорил выше (24.09) - если бы в Policies стояло 100MB то DefaultRolloverStrategy мало вероятно бы сработал.
+              И тогда бы у пользователя постоянно бы капились много мегабайт-файлов, которые бы не удалялись пока когда нибудь
+              файл лога не достиг 100MB. По этой причине я создаю еще один аппендер с максмальным размером файла 100КБ
+          -->

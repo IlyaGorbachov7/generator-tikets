@@ -19,6 +19,7 @@ public class AboutProgramPanel extends BasePanel {
     @Override
     public void initPanel() {
         this.setLayout(new BorderLayout());
+        // TODO: отображение html старнцы также зависит от локализации!!!!!!!!!!!!
         JLabel lbHtml = new JLabel(FileNames.readResourceToString(FileNames.aboutProgramHtml));
 
         lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));

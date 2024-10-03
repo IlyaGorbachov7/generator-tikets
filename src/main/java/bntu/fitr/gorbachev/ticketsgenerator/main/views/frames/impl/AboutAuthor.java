@@ -19,7 +19,7 @@ public class AboutAuthor extends BaseDialog {
      * @param frame class object {@link JFrame}
      */
     public AboutAuthor(Window frame, PanelType type) {
-        super(frame, type, "О авторе");
+        super(frame, type, "О авторе"); //frame.title.about.author
         this.setModal(false);
     }
 

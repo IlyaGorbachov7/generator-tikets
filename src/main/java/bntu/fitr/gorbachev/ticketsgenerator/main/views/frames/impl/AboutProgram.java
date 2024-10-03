@@ -20,7 +20,7 @@ public class AboutProgram extends BaseDialog {
      * @param frame class object {@link JFrame}
      */
     public AboutProgram(Window frame, PanelType type) {
-        super(frame, type, "О программе");
+        super(frame, type, "О программе"); //frame.title.about.program
         this.setModal(false);
     }
 

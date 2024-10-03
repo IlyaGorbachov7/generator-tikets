@@ -12,7 +12,7 @@ public class RecordSetting extends BaseDialog {
     private RecordSettingPanel panel;
 
     public RecordSetting(Window owner, PanelType panelType) {
-        super(owner, panelType, "Параметры записи билетов");
+        super(owner, panelType, "Параметры записи билетов"); //frame.title.setting.record
         this.setModal(true);
     }
 

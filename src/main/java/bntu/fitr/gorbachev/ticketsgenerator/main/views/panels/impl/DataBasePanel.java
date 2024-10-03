@@ -73,6 +73,7 @@ public class DataBasePanel extends BasePanel {
     private JComboBox<Integer> cmbCountView;
     private JButton btnNext;
     private JButton btnBack;
+    private JLabel tablesLbl;
 
     private MyListButtons myListButtons;
 
@@ -99,12 +100,25 @@ public class DataBasePanel extends BasePanel {
     public void initPanel() {
         // Methods particular for this panel
         initUIFormComponents();
+        updateLocaleComponents();
         initCustomComponents();
         addingCustomComponents();
 
         // default methods
         setConfigComponents();
         setComponentsListeners();
+    }
+
+    private void updateLocaleComponents() {
+        //panel.db.all-deselect
+//        btnAllDeselect.setText();
+//        btnDeselect.setText();
+//        btnDelete.setText();
+//        btnUpdate.setText();
+//        btnCreate.setText();
+//        tablesLbl.setText();
+        tfFilter.setToolTipText("Введите не менее 5 символов");
+        tfFilter.setText("Введите не менее 5 символов");
     }
 
     protected void initUIFormComponents() {
@@ -537,8 +551,6 @@ public class DataBasePanel extends BasePanel {
 
     @Override
     public void setConfigComponents() {
-        tfFilter.setToolTipText("Введите не менее 5 символов");
-        tfFilter.setText("Введите не менее 5 символов");
         myListButtons.getMapBtnForKeyViewUI().values().parallelStream()
                 .forEach(keyForViewUI -> {
                     keyForViewUI.getPv().setItemsOnPage((Integer.parseInt(
@@ -849,8 +861,8 @@ public class DataBasePanel extends BasePanel {
             } else if (source == btnCreate) {
                 log.debug("Click on the btnCreate");
                 JTableDataBase tbl = selectedKeyForViewUI.getTbl();
-                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ",
-                        "Input Dialog", JOptionPane.INFORMATION_MESSAGE);
+                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ", //panel.message.enter.name
+                        "Input Dialog", JOptionPane.INFORMATION_MESSAGE);//dialog.title.input
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
                     initPagination(true, true, false, false);
@@ -858,8 +870,8 @@ public class DataBasePanel extends BasePanel {
                 }
             } else if (source == btnDelete) {
                 log.debug("Click on the btnDelete");
-                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?",
-                        "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
+                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?", //panel.message.make-sure
+                        "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {// dialog.title.delete
                     CompletableFuture.runAsync(() -> {
                         JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                         tbl.deleteItem();
@@ -873,7 +885,8 @@ public class DataBasePanel extends BasePanel {
                 SwingUtilities.invokeLater(() -> {
                     UpdatePanel panel = new UpdatePanel();
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
-                            "Update Dialog", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
+                            "Update Dialog", // dialog.title.update
+                            JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
                         panel.updateRequest();
                         var tbl = selectedKeyForViewUI.getTbl();
                         myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);

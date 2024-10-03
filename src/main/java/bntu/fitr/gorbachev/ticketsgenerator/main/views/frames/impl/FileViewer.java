@@ -25,7 +25,7 @@ public class FileViewer extends BaseDialog {
      * @param frame class object {@link JFrame}
      */
     public FileViewer(Window frame) {
-        super(frame, "Предпросмотр");
+        super(frame, "Предпросмотр"); //frame.title.preview
         this.setModal(true);
     }
 

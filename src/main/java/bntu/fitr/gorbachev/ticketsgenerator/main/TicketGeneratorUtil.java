@@ -140,8 +140,21 @@ public class TicketGeneratorUtil {
         return config.getDefaultLocale().map(Locale::new).orElseGet(Locale::getDefault);
     }
 
+    public static Long getDelayStepGeneration() {
+        return config.getDelayStepGeneration().orElse(100L);
+    }
+
     public static String getFileSeparator() {
         return System.getProperty("file.separator");
+    }
+
+
+    public static void sleepFor(long millisecond) {
+        try {
+            Thread.sleep(millisecond);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void showAlertDialog(Throwable t) {
