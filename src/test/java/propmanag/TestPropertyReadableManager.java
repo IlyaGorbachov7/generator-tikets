@@ -26,7 +26,7 @@ public class TestPropertyReadableManager {
 
     @BeforeAll
     public static void init() throws IOException {
-        prop = PropertiesManagerBase.builder().build(TicketGeneratorUtil.class.getResourceAsStream("/resources/application.properties"));
+        prop = PropertiesManagerBase.builder().build(TicketGeneratorUtil.class.getResourceAsStream("/application.properties"));
     }
 
 
@@ -58,6 +58,26 @@ public class TestPropertyReadableManager {
         System.out.println(prop.getValue("str.nasty"));
     }
 
+    @Test
+    void testMap() {
+        prop.getMap("app.map").forEach((key, value) -> {
+            System.out.println(key + " : " + value);
+        });
+    }
+
+    @Test
+    void testMap2() {
+        prop.getMap("app.map2").forEach((key, value)-> {
+            System.out.println(key + " : "+value );
+        });
+    }
+
+    @Test
+    void testMap3() {
+        prop.getMap("app.map3").forEach((key, value)-> {
+            System.out.println(key + " : "+value );
+        });
+    }
     /**
      * PropertyReadableManager don't take in account "file separator" depending on the operation system,
      * But you should remember that if use <i>File file = new file(path)</i>, then  file separator become valid
@@ -277,4 +297,5 @@ public class TestPropertyReadableManager {
         System.out.println(Files.exists(file.toPath()));
         System.out.println(file.mkdir());
     }
+
 }

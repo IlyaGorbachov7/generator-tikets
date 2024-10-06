@@ -3,9 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.WriteableProperties;
 import lombok.NonNull;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Properties;
@@ -24,6 +22,11 @@ public abstract class PropertiesWritableManager extends WriteableProperties {
         properties = prop;
     }
 
+    public void store(File file) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
+            store(writer);
+        }
+    }
 
     public void store(Writer writer) throws IOException {
         prop.store(writer, LocalDate.now().toString());

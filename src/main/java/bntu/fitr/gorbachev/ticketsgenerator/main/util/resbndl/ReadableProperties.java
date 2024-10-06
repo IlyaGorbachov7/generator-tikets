@@ -1,17 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -70,22 +64,55 @@ import java.util.stream.Stream;
 
 public abstract class ReadableProperties implements Readable {
 
-    @Getter(value = AccessLevel.PROTECTED)
+    @Getter(value = AccessLevel.PUBLIC)
     protected Hashtable<Object, Object> properties;
+
+    protected RegexResolverToString resolverRegex;
+
+    protected SplitResolveToArrayString resolverSplit;
+
+    protected DeserializeResolverToObject resolverDeserialize;
+
+    protected ResolverToMap resolverMap;
+
+    {
+        resolverRegex = initRegexResolver();
+        resolverSplit = initSplitResolver();
+        resolverDeserialize = initDeserializeResolver();
+        resolverMap = initMapResolver();
+    }
 
     protected abstract void initProperties();
 
+    public Map<Object, Object> getContent() {
+        return Collections.unmodifiableMap(properties);
+    }
+
+    protected RegexResolverToString initRegexResolver() {
+        return new RegexResolverToString(this);
+    }
+
+    protected SplitResolveToArrayString initSplitResolver() {
+        return new SplitResolveToArrayString(resolverRegex);
+    }
+
+    protected DeserializeResolverToObject initDeserializeResolver() {
+        return new DeserializeResolverToObject();
+    }
+
+    protected ResolverToMap initMapResolver() {
+        return new ResolverToMap(resolverSplit);
+    }
+
     protected String get(String key) {
-        return (String) properties.get(key);
+        String value = (String) properties.get(key);
+        if (Objects.isNull(value)) throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return value;
     }
 
     @Override
     public String getValue(String key) {
-        String value = get(key);
-        if (Objects.nonNull(value)) {
-            return resolveValue(value);
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return resolverRegex.assemble(get(key));
     }
 
     @Override
@@ -95,11 +122,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String[] getValues(String key) {
-        String value = getValue(key);
-        if (Objects.nonNull(value)) {
-            return splitValue(value);
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return resolverSplit.assemble(getValue(key));
     }
 
     @Override
@@ -109,11 +132,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public int getInt(String key) {
-        String value = get(key);
-        if (Objects.nonNull(value)) {
-            return Integer.parseInt(resolveValue(value));
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return Integer.parseInt(resolverRegex.assemble(get(key)));
     }
 
     @Override
@@ -123,8 +142,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public int[] getInts(String key) {
-        String[] stringArr = getValues(key);
-        return Stream.of(stringArr).mapToInt(Integer::parseInt).toArray();
+        return Stream.of(getValues(key)).mapToInt(Integer::parseInt).toArray();
     }
 
     @Override
@@ -134,11 +152,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public long getLong(String key) {
-        String value = get(key);
-        if (Objects.nonNull(value)) {
-            return Long.parseLong(resolveValue(value));
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return Long.parseLong(resolverRegex.assemble(get(key)));
     }
 
     @Override
@@ -148,8 +162,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public long[] getLongs(String key) {
-        String[] stringArr = getValues(key);
-        return Stream.of(stringArr).mapToLong(Long::parseLong).toArray();
+        return Stream.of(getValues(key)).mapToLong(Long::parseLong).toArray();
     }
 
     @Override
@@ -159,11 +172,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public Object getObject(String key) {
-        String value = get(key);
-        if (Objects.nonNull(value)) {
-            return deserializeObject(key);
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+        return resolverDeserialize.assemble(get(key));
     }
 
     @Override
@@ -171,83 +180,23 @@ public abstract class ReadableProperties implements Readable {
         return properties.containsKey(key) ? getObject(key) : defaultValue;
     }
 
-    /**
-     * Resolve situation:
-     * For example you have properties file with properties value:
-     * <p>
-     * <b>app.directory</b>=.ticket-generator
-     * <p>
-     * <b>app.directory.serializer</b>=&{  app.directory }/serializer
-     * <p>
-     * Then value => <I>&{app.directory}/serializer</I> --> <i>.ticket-generator/serializer</i>
-     * <p>
-     * ___________________Example 1________________
-     * <p>
-     * <b>int.value=4</b>
-     * <p>
-     * <b>int.values= 1, 2, ${int.value}, 5</b>
-     * <p>
-     * <b>str.value = Hello Word</b>
-     * <p>
-     * <b>str.values = read, learn, Okey ${str.value}</b>
-     * <p>
-     * ___________________Example 2________________
-     * <p>
-     * <b>app.dir=&{sys: user.home}/${app.dir}/anyFolder</b>
-     * </p>
-     * <i>Result :: app.dir=User/userName/appdir/anyFolder</i>
-     * <p>
-     * <p>
-     * Supported: ${} or &{} and you get access system properties from ${sys: systemProperty}
-     * <p>
-     * <b>Also supported nesting of keys</b>
-     * <p>
-     * <i>For example: </i> app.with.nesty=${str.values},${str.value},
-     * where<p>
-     * <b>str.values=String1, String2, ${str.value}, ${str.value2}</b>
-     * <p>
-     * <i>Res: [String1, String2, HiBrooo, AAAAA, Hello Word]</i>
-     */
-    protected String resolveValue(String value) {
-//        Pattern pattern = Pattern.compile("[&$]\\{\\s*(.+?)\\s*}");
-        Pattern pattern = Pattern.compile("[&$]\\{\\s*(sys\\s*:\\s*)?\\s*(.+?)\\s*}");
-        Matcher matcher = pattern.matcher(value);
-        StringBuilder stringBuilder = new StringBuilder(value);
-        while (matcher.find()) {
-            String sysProp = matcher.group(1);
-            String k = matcher.group(2);
-            String v;
-            if (sysProp != null) {
-                v = System.getProperty(k);
-            } else {
-                Object obj = getProperties().getOrDefault(k, null);
-                v = ((Objects.nonNull(obj)) ? ((obj instanceof String) ?
-                        (String) obj : obj.toString()) : null);
-            }
-            if (v != null) {
-                v = resolveValue(v); // This code solves the problem of nesting properties
-                int indexStart = matcher.start();
-                int indexEnd = matcher.end();
-                String replaceKeyInstruction = value.substring(indexStart, indexEnd);
-                indexStart = stringBuilder.indexOf(replaceKeyInstruction);
-                indexEnd = indexStart + replaceKeyInstruction.length();
-                stringBuilder.replace(indexStart, indexEnd, v);
-            }
-        }
-        return stringBuilder.toString();
+    @Override
+    public Map<String, String> getMap(String key) {
+        return resolverMap.assemble(get(key));
     }
 
-    protected String[] splitValue(String value) {
-        return Arrays.stream(value.split(","))
-                .map(String::trim)
-                .map(this::resolveValue).toArray(String[]::new);
+    @Override
+    public Map<String, String> getMap(String key, Map<String, String> defaultValue) {
+        return properties.contains(key) ? getMap(key) : defaultValue;
     }
 
-    protected Object deserializeObject(String value) {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(new ByteArrayInputStream(value.getBytes()))) {
-            return objectInputStream.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public Map<String, String> getMap(String key, Supplier<Map<String, String>> supplierMap) {
+        return resolverMap.assemble(get(key), supplierMap);
+    }
+
+    @Override
+    public Map<String, String> getMap(String key, Map<String, String> defaultValue, Supplier<Map<String, String>> supplierMap) {
+        return properties.contains(key) ? getMap(key, supplierMap) : defaultValue;
     }
 }

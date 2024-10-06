@@ -1,5 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
+import java.util.Map;
+import java.util.function.Supplier;
+
 public interface Readable {
 
     String getValue(String key);
@@ -29,4 +32,13 @@ public interface Readable {
     Object getObject(String key);
 
     Object getObject(String key, Object defaultValue);
+
+    Map<String, String> getMap(String key);
+
+    Map<String, String> getMap(String key, Map<String, String> defaultValue);
+
+    Map<String, String> getMap(String key, Supplier<Map<String, String>> supplierMap);
+
+    Map<String, String> getMap(String key, Map<String, String> defaultValue,
+                               Supplier<Map<String, String>> supplierMap);
 }
