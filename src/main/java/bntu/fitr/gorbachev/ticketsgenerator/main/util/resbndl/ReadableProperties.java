@@ -69,9 +69,17 @@ public abstract class ReadableProperties implements Readable {
 
     protected RegexResolverToString resolverRegex;
 
-    protected SplitResolveToArrayString resolverSplit;
+    protected SplitResolverToArrayString resolverSplit;
 
     protected DeserializeResolverToObject resolverDeserialize;
+
+    protected ResolverToInt resolverToInt;
+
+    protected ResolverToArrayInt resolverToArrayInt;
+
+    protected ResolverToLong resolverToLong;
+
+    protected ResolverToArrayLong resolverToArrayLong;
 
     protected ResolverToMap resolverMap;
 
@@ -79,6 +87,10 @@ public abstract class ReadableProperties implements Readable {
         resolverRegex = initRegexResolver();
         resolverSplit = initSplitResolver();
         resolverDeserialize = initDeserializeResolver();
+        resolverToInt = initIntResolver();
+        resolverToArrayInt = initArrayIntResolver();
+        resolverToLong = initLongResolver();
+        resolverToArrayLong = initArrayLongResolver();
         resolverMap = initMapResolver();
     }
 
@@ -89,19 +101,35 @@ public abstract class ReadableProperties implements Readable {
     }
 
     protected RegexResolverToString initRegexResolver() {
-        return new RegexResolverToString(this);
+        return RegexResolverToString.builder().properties(this).build();
     }
 
-    protected SplitResolveToArrayString initSplitResolver() {
-        return new SplitResolveToArrayString(resolverRegex);
+    protected SplitResolverToArrayString initSplitResolver() {
+        return SplitResolverToArrayString.builder().resolverRegex(resolverRegex).build();
     }
 
     protected DeserializeResolverToObject initDeserializeResolver() {
-        return new DeserializeResolverToObject();
+        return DeserializeResolverToObject.builder().build();
+    }
+
+    protected ResolverToInt initIntResolver() {
+        return ResolverToInt.builder().build();
+    }
+
+    protected ResolverToArrayInt initArrayIntResolver() {
+        return ResolverToArrayInt.builder().resolverSplit(resolverSplit).resolverToInt(resolverToInt).build();
+    }
+
+    protected ResolverToLong initLongResolver() {
+        return ResolverToLong.builder().build();
+    }
+
+    protected ResolverToArrayLong initArrayLongResolver() {
+        return ResolverToArrayLong.builder().resolverSplit(resolverSplit).resolverToLong(resolverToLong).build();
     }
 
     protected ResolverToMap initMapResolver() {
-        return new ResolverToMap(resolverSplit);
+        return ResolverToMap.builder().resolverRegex(resolverRegex).build();
     }
 
     protected String get(String key) {

@@ -2,7 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.util.loc;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.PropertiesManagerBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesManagerBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;

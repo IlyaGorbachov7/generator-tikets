@@ -1,6 +1,4 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.util;
-
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManager;
+package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl;
 
 import java.io.IOException;
 import java.io.InputStream;

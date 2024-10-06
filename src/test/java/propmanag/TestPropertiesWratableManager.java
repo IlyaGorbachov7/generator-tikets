@@ -1,7 +1,9 @@
 package propmanag;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.PropertiesManagerBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesManagerBase;
+import model.Person;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -9,6 +11,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.Map;
 
 public class TestPropertiesWratableManager {
     static String fileName = "test.properties";
@@ -22,9 +26,46 @@ public class TestPropertiesWratableManager {
         });
     }
 
+    @AfterAll
+    static void destory() throws IOException {
+        prop.setValue("timeSaving", LocalDate.now().toString());
+        prop.save();
+        prop.getContent().forEach((key, value) -> {
+            System.out.println("key:" + key + " value: " + value);
+        });
+    }
+
     @AfterEach
     public void repeatEach() {
-        System.out.println();
+        System.out.println("-----------------------------------");
+    }
+
+    @Test
+    public void testW1() {
+        prop.setValue("string.value", "Hi broo iam string");
+    }
+
+    @Test
+    public void testW2() {
+        prop.setValue("string.array.value", new int[]{1, 2, 34, 2, 9, 34, 3, 34, 3, 4});
+    }
+
+    @Test
+    public void testW3() {
+        prop.setValue("string.array.value", new String[]{"fskdjf sd", "sdfjsdklfsd"});
+    }
+
+    @Test
+    public void testW4() throws IOException {
+        prop.setValue("map.value", Map.of(
+                "key1", "value1",
+                "key2", "value1",
+                "Key3", "value3"));
+    }
+
+    @Test
+    public void testW5() {
+        prop.setValue("object.base64preview", new Person("Ilya Gorbachev", 22));
     }
 
     @Test

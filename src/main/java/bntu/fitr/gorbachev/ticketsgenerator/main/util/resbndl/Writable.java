@@ -1,5 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
+import java.io.Serializable;
+import java.util.Map;
+
 public interface Writable {
 
     void setValue(String key, String value);
@@ -14,5 +17,7 @@ public interface Writable {
 
     void setValue(String key, long[] values);
 
-    void setObject(String key, Object value);
+    void setValue(String key, Serializable value);
+
+    void setValue(String key, Map<String, String> value);
 }

@@ -1,11 +1,11 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.WriteableProperties;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Objects;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,8 +49,8 @@ import java.util.regex.Pattern;
  * @version 05.10.2024
  */
 @Getter
-@RequiredArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class RegexResolverToString implements Resolver<String> {
 
     private String regex = "[&$]\\{\\s*(sys\\s*:\\s*)?\\s*(.+?)\\s*}";
@@ -69,10 +69,10 @@ public class RegexResolverToString implements Resolver<String> {
         while (matcher.find()) {
             String sysProp = matcher.group(1);
             String k = matcher.group(2);
-            String v;
+            String v = null;
             if (sysProp != null) {
                 v = System.getProperty(k);
-            } else {
+            } else if (Objects.nonNull(getProperties())) {
                 Object obj = getProperties().getProperties().getOrDefault(k, null);
                 v = ((Objects.nonNull(obj)) ? ((obj instanceof String) ?
                         (String) obj : obj.toString()) : null);
@@ -88,5 +88,39 @@ public class RegexResolverToString implements Resolver<String> {
             }
         }
         return stringBuilder.toString();
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @Override
+    public String assembleToString(String object) {
+        return object;
+    }
+
+    public static class Builder {
+
+        private ReadableProperties properties;
+
+        private String regex;
+
+        public Builder properties(ReadableProperties properties) {
+            this.properties = properties;
+            return this;
+        }
+
+        public Builder regex(String regex) {
+            this.regex = regex;
+            return this;
+        }
+
+        public RegexResolverToString build() {
+            RegexResolverToString resolver = new RegexResolverToString();
+            resolver.properties = Objects.requireNonNullElse(properties, resolver.properties);
+            resolver.regex = Objects.requireNonNullElse(regex, resolver.regex);
+            return resolver;
+        }
+
     }
 }

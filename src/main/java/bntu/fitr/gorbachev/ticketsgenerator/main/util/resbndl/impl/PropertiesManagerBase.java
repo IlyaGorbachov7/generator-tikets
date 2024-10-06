@@ -1,6 +1,5 @@
-package bntu.fitr.gorbachev.ticketsgenerator.main.util;
+package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesWritableManager;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;

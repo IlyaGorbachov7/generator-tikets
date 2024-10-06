@@ -2,7 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.PropertiesManagerBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesManagerBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
 import lombok.Getter;
 

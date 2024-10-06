@@ -1,14 +1,12 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
-import java.util.NoSuchElementException;
+import java.io.Serializable;
+import java.util.Map;
 
 public abstract class WriteableProperties extends ReadableProperties implements Writable {
 
-    protected void set(String key, Object value) {
-        if (properties.containsKey(key)) {
-            properties.put(key, value);
-        }
-        throw new NoSuchElementException(String.format("Not found key: %s", key));
+    protected void set(String key, String value) {
+        properties.put(key, value);
     }
 
     @Override
@@ -18,36 +16,41 @@ public abstract class WriteableProperties extends ReadableProperties implements 
 
     @Override
     public void setValue(String key, String[] values) {
-        set(key, values);
+        set(key, resolverSplit.assembleToString(values));
 
     }
 
     @Override
     public void setValue(String key, int value) {
-        set(key, value);
+        set(key, resolverToInt.assembleToString(value));
 
     }
 
     @Override
     public void setValue(String key, int[] values) {
-        set(key, values);
+        set(key, resolverToArrayInt.assembleToString(values));
 
     }
 
     @Override
     public void setValue(String key, long value) {
-        set(key, value);
+        set(key, resolverToLong.assembleToString(value));
 
     }
 
     @Override
     public void setValue(String key, long[] values) {
-        set(key, values);
+        set(key, resolverToArrayLong.assembleToString(values));
 
     }
 
     @Override
-    public void setObject(String key, Object value) {
-        set(key, value);
+    public void setValue(String key, Serializable value) {
+        set(key, resolverDeserialize.assembleToString(value));
+    }
+
+    @Override
+    public void setValue(String key, Map<String, String> value) {
+        set(key, resolverMap.assembleToString(value));
     }
 }

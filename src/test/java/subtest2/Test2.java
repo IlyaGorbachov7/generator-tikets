@@ -1,6 +1,6 @@
 package subtest2;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.ResourceBundleManagerBase;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManagerBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManager;
 import org.junit.jupiter.api.Test;
 
