@@ -1,11 +1,9 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.WriteableProperties;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.ReadableProperties;
 import lombok.*;
 
 import java.util.Objects;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,11 +48,12 @@ import java.util.regex.Pattern;
  */
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PUBLIC)  // NoArgsConstructor = PUBLIC is very necessary
 public class RegexResolverToString implements Resolver<String> {
 
     private String regex = "[&$]\\{\\s*(sys\\s*:\\s*)?\\s*(.+?)\\s*}";
 
+    @Setter // also need because if RegexResolverToString.properties == null, then this field should be initialized
     private ReadableProperties properties;
 
     public RegexResolverToString(ReadableProperties properties) {
@@ -105,20 +104,37 @@ public class RegexResolverToString implements Resolver<String> {
 
         private String regex;
 
-        public Builder properties(ReadableProperties properties) {
+        public Builder properties(@NonNull ReadableProperties properties) {
             this.properties = properties;
             return this;
         }
 
-        public Builder regex(String regex) {
+        public Builder regex(@NonNull String regex) {
             this.regex = regex;
             return this;
         }
 
+        /**
+         * This method requires mandatory initialize filed <code>Builder.properties</code>, else throw NullPointerException
+         * <p>
+         * This method don't allow to create RegexResolverToString with filed properties == null
+         */
         public RegexResolverToString build() {
-            RegexResolverToString resolver = new RegexResolverToString();
-            resolver.properties = Objects.requireNonNullElse(properties, resolver.properties);
+            RegexResolverToString resolver = new RegexResolverToString(); // resolver.properties is null because constructor with no param
+            resolver.properties = Objects.requireNonNull(properties);
             resolver.regex = Objects.requireNonNullElse(regex, resolver.regex);
+            return resolver;
+        }
+
+        /**
+         * This build method allows to create RegexResolverToString with field
+         * <p>
+         * <code><i>RegexResolverToString.properties</i> == null</code>
+         */
+        public RegexResolverToString buildNullable() {
+            RegexResolverToString resolver = new RegexResolverToString(); // resolver.properties is null because constructor with no param
+            resolver.properties = (properties != null) ? properties : (null);
+            resolver.regex = (regex != null) ? regex : resolver.regex;
             return resolver;
         }
 

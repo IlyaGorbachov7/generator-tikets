@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -13,8 +11,12 @@ import java.util.stream.Stream;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResolverToArrayInt implements Resolver<int[]> {
 
+    @Getter
+    @Setter
     ResolverToInt resolverInt;
 
+    @Getter
+    @Setter
     SplitResolverToArrayString resolverSplit;
 
     @Override
@@ -43,17 +45,17 @@ public class ResolverToArrayInt implements Resolver<int[]> {
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required
          */
-        public Builder resolverRegex(RegexResolverToString resolverRegex) {
+        public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;
             return this;
         }
 
-        public Builder resolverSplit(SplitResolverToArrayString resolverSplit) {
+        public Builder resolverSplit(@NonNull SplitResolverToArrayString resolverSplit) {
             this.resolverSplit = resolverSplit;
             return this;
         }
 
-        public Builder resolverToInt(ResolverToInt resolverToTnt) {
+        public Builder resolverToInt(@NonNull ResolverToInt resolverToTnt) {
             this.resolverToInt = resolverToTnt;
             return this;
         }
@@ -62,7 +64,7 @@ public class ResolverToArrayInt implements Resolver<int[]> {
             ResolverToArrayInt resolverToArrayInt = new ResolverToArrayInt();
             resolverToArrayInt.resolverInt = Objects.requireNonNullElse(resolverToInt, new ResolverToInt());
             resolverToArrayInt.resolverSplit = Objects.requireNonNullElseGet(resolverSplit,
-                    ()-> new SplitResolverToArrayString(Objects.requireNonNullElseGet(resolverRegex, RegexResolverToString::new)));
+                    () -> new SplitResolverToArrayString(Objects.requireNonNullElseGet(resolverRegex, RegexResolverToString::new)));
             return resolverToArrayInt;
         }
     }

@@ -5,6 +5,8 @@ import java.util.function.Supplier;
 
 public interface Readable {
 
+    boolean contains(String key);
+
     String getValue(String key);
 
     String getValue(String key, String defaultValue);

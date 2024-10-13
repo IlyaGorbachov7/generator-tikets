@@ -1,8 +1,10 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesManagerBase;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver.*;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -61,10 +63,10 @@ import java.util.stream.Stream;
  *
  * @version 28.07.2024
  */
-
+@Getter
 public abstract class ReadableProperties implements Readable {
 
-    @Getter(value = AccessLevel.PUBLIC)
+    @Setter(value = AccessLevel.PUBLIC)
     protected Hashtable<Object, Object> properties;
 
     protected RegexResolverToString resolverRegex;
@@ -83,7 +85,13 @@ public abstract class ReadableProperties implements Readable {
 
     protected ResolverToMap resolverMap;
 
+    protected abstract void initProperties();
+
     {
+        initResolvers();
+    }
+
+    protected void initResolvers() {
         resolverRegex = initRegexResolver();
         resolverSplit = initSplitResolver();
         resolverDeserialize = initDeserializeResolver();
@@ -94,8 +102,6 @@ public abstract class ReadableProperties implements Readable {
         resolverMap = initMapResolver();
     }
 
-    protected abstract void initProperties();
-
     public Map<Object, Object> getContent() {
         return Collections.unmodifiableMap(properties);
     }
@@ -104,38 +110,143 @@ public abstract class ReadableProperties implements Readable {
         return RegexResolverToString.builder().properties(this).build();
     }
 
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverRegex(RegexResolverToString resolverRegex) {
+        if (resolverRegex.getProperties() != this) {
+            throw new IllegalArgumentException("resolverRegex.getProperties() != this");
+        }
+        this.resolverRegex = resolverRegex;
+        resolverSplit = initSplitResolver();
+        resolverToArrayInt = initArrayIntResolver();
+        resolverToArrayLong = initArrayLongResolver();
+        resolverMap = initMapResolver();
+    }
+
     protected SplitResolverToArrayString initSplitResolver() {
         return SplitResolverToArrayString.builder().resolverRegex(resolverRegex).build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverSplit(SplitResolverToArrayString splitResolver) {
+        if (splitResolver.getRegexResolver() != resolverRegex) {
+            throw new IllegalArgumentException("splitResolver.getRegexResolver() != resolverRegex");
+        }
+        this.resolverSplit = splitResolver;
+        resolverToArrayInt = initArrayIntResolver();
+        resolverToArrayLong = initArrayLongResolver();
+        resolverMap = initMapResolver();
     }
 
     protected DeserializeResolverToObject initDeserializeResolver() {
         return DeserializeResolverToObject.builder().build();
     }
 
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverDeserialize(DeserializeResolverToObject deserializeResolver) {
+        this.resolverDeserialize = deserializeResolver;
+    }
+
     protected ResolverToInt initIntResolver() {
         return ResolverToInt.builder().build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToInt(ResolverToInt resolverToInt) {
+        this.resolverToInt = resolverToInt;
     }
 
     protected ResolverToArrayInt initArrayIntResolver() {
         return ResolverToArrayInt.builder().resolverSplit(resolverSplit).resolverToInt(resolverToInt).build();
     }
 
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToArrayInt(ResolverToArrayInt resolverToArrayInt) {
+        if (resolverToArrayInt.getResolverInt() != this.resolverToInt) {
+            throw new IllegalArgumentException("resolverToArrayInt.getResolverInt() != this.resolverToInt");
+        }
+        if (resolverToArrayInt.getResolverSplit() != this.resolverSplit) {
+            throw new IllegalArgumentException("resolverToArrayInt.getResolverSplit() != this.resolverSplit");
+        }
+        this.resolverToArrayInt = resolverToArrayInt;
+    }
+
     protected ResolverToLong initLongResolver() {
         return ResolverToLong.builder().build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToLong(ResolverToLong resolverToLong) {
+        this.resolverToLong = resolverToLong;
     }
 
     protected ResolverToArrayLong initArrayLongResolver() {
         return ResolverToArrayLong.builder().resolverSplit(resolverSplit).resolverToLong(resolverToLong).build();
     }
 
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToArrayLong(ResolverToArrayLong resolverToArrayLong) {
+        if (resolverToArrayLong.getResolverLong() != this.resolverToLong) {
+            throw new IllegalArgumentException("resolverToArrayLong.getResolverLong() != this.resolverToLong");
+        }
+        if (resolverToArrayLong.getResolverSplit() != this.resolverSplit) {
+            throw new IllegalArgumentException("resolverToArrayLong.getResolverSplit() != this.resolverSplit");
+        }
+        this.resolverToArrayLong = resolverToArrayLong;
+    }
+
     protected ResolverToMap initMapResolver() {
-        return ResolverToMap.builder().resolverRegex(resolverRegex).build();
+        return ResolverToMap.builder().resolverSplit(resolverSplit).build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToMap(ResolverToMap resolverToMap) {
+        if (resolverToMap.getSplitResolver() != this.resolverSplit) {
+            throw new IllegalArgumentException("resolverToMap.getSplitResolver() != this.resolverSplit");
+        }
+        this.resolverMap = resolverToMap;
     }
 
     protected String get(String key) {
         String value = (String) properties.get(key);
         if (Objects.isNull(value)) throw new NoSuchElementException(String.format("Not found key: %s", key));
         return value;
+    }
+
+    @Override
+    public boolean contains(String key) {
+        return properties.contains(key);
     }
 
     @Override

@@ -1,9 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -16,6 +13,7 @@ public class SplitResolverToArrayString implements Resolver<String[]> {
     private String regexSplit = ",";
 
     @Getter
+    @Setter
     private RegexResolverToString regexResolver;
 
     public SplitResolverToArrayString(RegexResolverToString regexResolver) {
@@ -44,12 +42,12 @@ public class SplitResolverToArrayString implements Resolver<String[]> {
 
         private String regexSplit;
 
-        public Builder resolverRegex(RegexResolverToString resolverRegex) {
+        public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;
             return this;
         }
 
-        public Builder regexSplit(String regexSplit) {
+        public Builder regexSplit(@NonNull String regexSplit) {
             this.regexSplit = regexSplit;
             return this;
         }

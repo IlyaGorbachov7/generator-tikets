@@ -1,9 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -18,6 +15,8 @@ public class ResolverToMap implements Resolver<Map<String, String>> {
 
     private String separateKeyValue = "=";
 
+    @Getter
+    @Setter
     private SplitResolverToArrayString splitResolver;
 
     public ResolverToMap(SplitResolverToArrayString splitResolver) {
@@ -74,7 +73,7 @@ public class ResolverToMap implements Resolver<Map<String, String>> {
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required
          */
-        public Builder resolverRegex(RegexResolverToString resolverRegex) {
+        public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;
             return this;
         }
@@ -84,7 +83,7 @@ public class ResolverToMap implements Resolver<Map<String, String>> {
             return this;
         }
 
-        public Builder resolverSplit(SplitResolverToArrayString resolverSplit) {
+        public Builder resolverSplit(@NonNull SplitResolverToArrayString resolverSplit) {
             this.resolverSplit = resolverSplit;
             return this;
         }

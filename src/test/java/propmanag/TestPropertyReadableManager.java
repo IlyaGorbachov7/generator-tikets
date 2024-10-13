@@ -30,6 +30,11 @@ public class TestPropertyReadableManager {
     }
 
 
+    @Test
+    public void testInitProperties() throws AccessDeniedException, FileNotFoundException {
+        PropertiesManagerBase propertiesMB = PropertiesManagerBase.builder().build(Path.of("test.properties").toFile());
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {
             "str.values",

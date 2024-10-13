@@ -1,8 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.resolver;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -13,8 +11,12 @@ import java.util.stream.Stream;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResolverToArrayLong implements Resolver<long[]> {
 
+    @Getter
+    @Setter
     private ResolverToLong resolverLong;
 
+    @Getter
+    @Setter
     private SplitResolverToArrayString resolverSplit;
 
     @Override
@@ -43,17 +45,17 @@ public class ResolverToArrayLong implements Resolver<long[]> {
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required
          */
-        public Builder resolverRegex(RegexResolverToString resolverRegex) {
+        public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;
             return this;
         }
 
-        public Builder resolverSplit(SplitResolverToArrayString resolverSplit) {
+        public Builder resolverSplit(@NonNull SplitResolverToArrayString resolverSplit) {
             this.resolverSplit = resolverSplit;
             return this;
         }
 
-        public Builder resolverToLong(ResolverToLong resolverToLong) {
+        public Builder resolverToLong(@NonNull ResolverToLong resolverToLong) {
             this.resolverToLong = resolverToLong;
             return this;
         }
