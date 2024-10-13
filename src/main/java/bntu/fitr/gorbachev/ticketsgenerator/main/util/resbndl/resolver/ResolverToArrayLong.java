@@ -13,11 +13,11 @@ public class ResolverToArrayLong implements Resolver<long[]> {
 
     @Getter
     @Setter
-    private ResolverToLong resolverLong;
+    protected ResolverToLong resolverLong;
 
     @Getter
     @Setter
-    private SplitResolverToArrayString resolverSplit;
+    protected SplitResolverToArrayString resolverSplit;
 
     @Override
     public long[] assemble(String value) {
@@ -36,11 +36,11 @@ public class ResolverToArrayLong implements Resolver<long[]> {
     }
 
     public static class Builder {
-        private RegexResolverToString resolverRegex;
+        protected RegexResolverToString resolverRegex;
 
-        private SplitResolverToArrayString resolverSplit;
+        protected SplitResolverToArrayString resolverSplit;
 
-        private ResolverToLong resolverToLong;
+        protected ResolverToLong resolverToLong;
 
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required

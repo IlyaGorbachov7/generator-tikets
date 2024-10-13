@@ -10,11 +10,11 @@ import java.util.stream.Stream;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SplitResolverToArrayString implements Resolver<String[]> {
-    private String regexSplit = ",";
+    protected String regexSplit = ",";
 
     @Getter
     @Setter
-    private RegexResolverToString regexResolver;
+    protected RegexResolverToString regexResolver;
 
     public SplitResolverToArrayString(RegexResolverToString regexResolver) {
         this.regexResolver = regexResolver;
@@ -38,9 +38,9 @@ public class SplitResolverToArrayString implements Resolver<String[]> {
 
     public static class Builder {
 
-        private RegexResolverToString resolverRegex;
+        protected RegexResolverToString resolverRegex;
 
-        private String regexSplit;
+        protected String regexSplit;
 
         public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;

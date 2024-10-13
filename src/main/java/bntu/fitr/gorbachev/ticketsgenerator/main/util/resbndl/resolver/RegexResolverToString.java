@@ -51,10 +51,10 @@ import java.util.regex.Pattern;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)  // NoArgsConstructor = PUBLIC is very necessary
 public class RegexResolverToString implements Resolver<String> {
 
-    private String regex = "[&$]\\{\\s*(sys\\s*:\\s*)?\\s*(.+?)\\s*}";
+    protected String regex = "[&$]\\{\\s*(sys\\s*:\\s*)?\\s*(.+?)\\s*}";
 
     @Setter // also need because if RegexResolverToString.properties == null, then this field should be initialized
-    private ReadableProperties properties;
+    protected ReadableProperties properties;
 
     public RegexResolverToString(ReadableProperties properties) {
         this.properties = properties;
@@ -100,9 +100,9 @@ public class RegexResolverToString implements Resolver<String> {
 
     public static class Builder {
 
-        private ReadableProperties properties;
+        protected ReadableProperties properties;
 
-        private String regex;
+        protected String regex;
 
         public Builder properties(@NonNull ReadableProperties properties) {
             this.properties = properties;

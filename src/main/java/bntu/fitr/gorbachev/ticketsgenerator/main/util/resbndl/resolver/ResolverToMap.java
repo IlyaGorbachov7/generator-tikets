@@ -13,11 +13,13 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ResolverToMap implements Resolver<Map<String, String>> {
 
-    private String separateKeyValue = "=";
+    @Getter
+    @Setter
+    protected String separateKeyValue = "=";
 
     @Getter
     @Setter
-    private SplitResolverToArrayString splitResolver;
+    protected SplitResolverToArrayString splitResolver;
 
     public ResolverToMap(SplitResolverToArrayString splitResolver) {
         this.splitResolver = splitResolver;
@@ -64,11 +66,11 @@ public class ResolverToMap implements Resolver<Map<String, String>> {
 
     public static class Builder {
 
-        private String separateKeyValue;
+        protected String separateKeyValue;
 
-        private SplitResolverToArrayString resolverSplit;
+        protected SplitResolverToArrayString resolverSplit;
 
-        private RegexResolverToString resolverRegex;
+        protected RegexResolverToString resolverRegex;
 
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required
