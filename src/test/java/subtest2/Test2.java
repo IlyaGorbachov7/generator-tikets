@@ -1,7 +1,5 @@
 package subtest2;
 
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManagerBase;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.ResourceBundleManager;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -33,15 +31,6 @@ public class Test2 {
         System.getProperties().forEach((k, v) -> {
             System.out.println("k =" + k + " v = " + v);
         });
-    }
-
-    @Test
-    void test5() {
-        ResourceBundleManager managerBundle = ResourceBundleManagerBase.builder().build("resources.application");
-//        System.out.println(Arrays.toString(managerBundle.getValues("list.strings", null)));
-//
-        System.out.println(Arrays.toString(managerBundle.getValues("list.int")));
-        System.out.println(Arrays.toString(managerBundle.getValues("app.directory.serializer")));
     }
 
     @Test

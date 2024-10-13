@@ -8,6 +8,7 @@ import lombok.Setter;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.Hashtable;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -33,6 +34,12 @@ public abstract class PropertiesWritableManager extends WriteableProperties {
     @Override
     protected void initProperties() {
         properties = prop;
+    }
+
+    @Override
+    public void setProperties(Hashtable<Object, Object> properties) {
+        super.setProperties(properties);
+        prop = (Properties) properties;
     }
 
     public void save() throws IOException {

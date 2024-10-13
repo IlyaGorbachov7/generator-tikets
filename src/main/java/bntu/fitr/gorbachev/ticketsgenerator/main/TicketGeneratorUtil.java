@@ -3,11 +3,12 @@ package bntu.fitr.gorbachev.ticketsgenerator.main;
 import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalsConfiguration;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerConfiguration;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeAppConfiguration;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +25,16 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplication
 /*If out want specify @Log41 or @Slf4j annotation, then logger will be don't worked because Logger now don't initialized */
 public class TicketGeneratorUtil {
     @Getter
-    private static ConfigurationApplicationProperties config;
+    private static final ConfigurationApplicationProperties config;
+
+    @Getter
+    private static final LoggerConfiguration loggerConfiguration;
+
+    @Getter
+    private static final LocalsConfiguration localsConfiguration;
+
+    @Getter
+    private static final ThemeAppConfiguration themeAppConfiguration;
 
     private static final Logger log;
 
@@ -38,10 +48,10 @@ public class TicketGeneratorUtil {
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
             System.out.println("----------------");
-            LoggerUtil.init();
-            Class.forName(Localizer.class.getName());
+            loggerConfiguration = new LoggerConfiguration();
+            localsConfiguration = new LocalsConfiguration();
             log = LogManager.getLogger(TicketGeneratorUtil.class);
-            AppThemeManager.run();
+            themeAppConfiguration = new ThemeAppConfiguration();
         } catch (Throwable ex) {
             showAlertDialog(ex);
             throw new RuntimeException();

@@ -246,7 +246,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public boolean contains(String key) {
-        return properties.contains(key);
+        return properties.containsKey(key);
     }
 
     @Override

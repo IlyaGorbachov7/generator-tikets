@@ -23,6 +23,7 @@ public class ResolverTest {
         resolverLocale =  new LocaleResolver(Localizer.getLocaleProperties());
         Localizer.getLocalsConfiguration().setSelectedLocale(new Locale("ru"));
     }
+
     @Test
     void testObjectdeserializeSerialize() {
         Person person = new Person("Ilya", 22);
@@ -63,7 +64,9 @@ public class ResolverTest {
     @Test
     void testLocale() {
         System.out.println(resolverLocale.assemble(Localizer.getLocaleProperties().getValue("panel.message.file.saved")));
+        System.out.println();
         System.out.println(resolverLocale.assemble(Localizer.getLocaleProperties().getValue("panel.main.input.validator.symbols.access")));
+        System.out.println();
         System.out.println(resolverLocale.assemble(Localizer.getLocaleProperties().getValue("panel.main.input.validator.input.incorrect")));
     }
 
