@@ -58,20 +58,25 @@ public class LocalsConfiguration implements SerializeListener {
     }
 
     public void setSelectedLocale(Locale locale) {
-        if(!supportedLocales.contains(locale)) {
+        if (!supportedLocales.contains(locale)) {
             log.warn("Try was set selected locale: {}. Transmitted locale don't supported.", locale);
             return;
         }
         selectedLocale = locale;
-        defineLocaleProperties();
+        updateLocaleProperties();
+    }
+
+    public void setSelectedLocaleSerialize(Locale locale) throws IOException {
+        setSelectedLocale(locale);
+        serialize();
     }
 
     private void defineLocale() throws LocalizerException {
         try {
             Set<Locale> supportedLocales = getSupportedLocale();
-            if(!supportedLocales.contains(defaultLocale)) {
+            if (!supportedLocales.contains(defaultLocale)) {
                 log.error("Specified defaultLocale: {} don't supported. Supported locales: {}", defaultLocale, supportedLocales);
-                throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s",defaultLocale, supportedLocales));
+                throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s", defaultLocale, supportedLocales));
             }
 
             if (Objects.nonNull(selectedLocale)) {
@@ -168,10 +173,33 @@ public class LocalsConfiguration implements SerializeListener {
         return new Locale(name);
     }
 
+    public LocaleResolver getLocaleResolver() {
+        return (LocaleResolver) localeProperties.getResolverRegex();
+    }
+
     private void defineLocaleProperties() {
         try {
-            localeProperties = PropertiesManagerBase.builder().build(FilesUtil.resolveSourceLocationAsInputStream(String.format(
-                    Locale.ROOT, "%s/%s%s", DIR_LOCALES, selectedLocale.toString(), PROPERTIES_EXCEPTION)));
+            localeProperties = PropertiesManagerBase.builder().setResolverRegex(LocaleResolver.builder().buildNullable())
+                    .build(FilesUtil.resolveSourceLocationAsInputStream(String.format(
+                            Locale.ROOT, "%s/%s%s", DIR_LOCALES, selectedLocale.toString(), PROPERTIES_EXCEPTION)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void updateLocaleProperties() {
+        try {
+            if (localeProperties == null) {
+                throw new NullPointerException("localeProperties == null, You should define locale");
+            } else {
+                // It's done this way because/ There are objects that directly depend on localeProperties
+                // So when locale will be updated. Whe don't have to update localeProperties
+                // Because localeProperties used in resolverRegex and resolverLocale then used this instance
+                // So I update only properties which contains key=value E
+                localeProperties.setProperties(PropertiesManagerBase.builder().setResolverRegex(LocaleResolver.builder()
+                        .buildNullable()).build(FilesUtil.resolveSourceLocationAsInputStream(String.format(Locale.ROOT,
+                        "%s/%s%s", DIR_LOCALES, selectedLocale.toString(), PROPERTIES_EXCEPTION))).getProperties());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

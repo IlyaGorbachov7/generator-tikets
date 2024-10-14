@@ -2,17 +2,11 @@ package locale;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalsConfiguration;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.core.util.JsonUtils;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
