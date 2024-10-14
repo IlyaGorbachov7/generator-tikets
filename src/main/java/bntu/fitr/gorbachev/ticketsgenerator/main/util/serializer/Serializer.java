@@ -44,9 +44,11 @@ public class Serializer {
     Serializer(Path targetDir) throws AccessDeniedException {
         this.targetDir = targetDir;
         try {
-            if (Files.exists(targetDir)) {
+            if (!Files.exists(targetDir)) {
                 Files.createDirectories(targetDir);
                 log.info("Created serializer directory: {}", targetDir);
+            }else{
+                log.info("Serializer directory: {}", targetDir);
             }
         } catch (AccessDeniedException | FileAlreadyExistsException ex) {
             // See : package serializer.subsubtest1.testDirCr() and testDir()

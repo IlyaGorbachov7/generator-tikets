@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalsConfiguration;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerConfiguration;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.logger.LoggerException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeAppConfiguration;
 import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
@@ -52,6 +53,7 @@ public class TicketGeneratorUtil {
             localsConfiguration = new LocalsConfiguration();
             log = LogManager.getLogger(TicketGeneratorUtil.class);
             themeAppConfiguration = new ThemeAppConfiguration();
+            AppThemeManager.updateTheme();
         } catch (Throwable ex) {
             showAlertDialog(ex);
             throw new RuntimeException();
@@ -130,15 +132,15 @@ public class TicketGeneratorUtil {
      * <p>
      * map(Path::of) may return Optional<Path>.NULL because config may return Optional<String>.NULL
      */
-    public static AppThemeManager.ThemeApp getThemeAppDefault() {
-        AppThemeManager.ThemeApp def = AppThemeManager.ThemeApp.LIGHT;
-        AppThemeManager.ThemeApp theme = def;
+    public static ThemeApp getThemeAppDefault() {
+        ThemeApp def = ThemeApp.LIGHT;
+        ThemeApp theme = def;
         String value = Strings.toUpperCase(config.getThemeAppDef().orElseGet(() -> {
             log.warn("key:{} don't specified in configuration file.  The default value will be used", THEME_APP_DEF_KEY);
             return def.toString();
         }));
         try {
-            theme = AppThemeManager.ThemeApp.valueOf(value);
+            theme = ThemeApp.valueOf(value);
         } catch (IllegalArgumentException ex) {
             log.warn("Specified  in property file value: {} of theme application don't matched with exists values ThemeApp. Set default value: {} ",
                     value, theme);

@@ -1,25 +1,17 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
-import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * Здесь будет запись данных в базу данных
@@ -27,47 +19,24 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Log4j2
 public class AppThemeManager {
-
-    private static ThemeAppWrapper saveObj;
-    @Getter
-    private static ThemeApp currentTheme;
-
-    @Getter
-    private static volatile boolean running;
-
-
-    private static Serializer serializer;
+    private static final ThemeAppConfiguration themeAppConfiguration;
+    private static ThemeAppWrapper currentThemeWrapper;
     private static final Collection<ThemeChangerListener> handler = Collections.synchronizedCollection(new ArrayList<>());
 
-    public static void run() throws IOException {
-        if (!running) {
-            synchronized (AppThemeManager.class) {
-                if (!running) {
-                    running = true;
-                    serializer = Serializer.getSerializer(TicketGeneratorUtil.getFileSerializeDirectory().toPath());
-                    List<ThemeAppWrapper> objs = serializer.deserialize(ThemeAppWrapper.class);
-                    if (objs.isEmpty()) {
-                        log.warn("AppThemeManager: deserialize object: don't found");
-                        currentTheme =  TicketGeneratorUtil.getThemeAppDefault();
-                        saveObj = new ThemeAppWrapper(currentTheme);
-                        SerializeManager.addListener(saveObj);
-                        updateTheme();
-                    } else {
-                        saveObj = objs.get(0);
-                        SerializeManager.addListener(saveObj);
-                        currentTheme = saveObj.currentTheme;
-                        updateTheme();
-                    }
-                }
-            }
-        }
+    static {
+        themeAppConfiguration = TicketGeneratorUtil.getThemeAppConfiguration();
+        currentThemeWrapper = themeAppConfiguration.getCurrentThemeWrapper();
+    }
+
+    public static ThemeApp getCurrentTheme() {
+        return currentThemeWrapper.getCurrentTheme();
     }
 
     public static void swapTheme() {
         synchronized (AppThemeManager.class) {
-            checkRunning();
-            currentTheme = (currentTheme == ThemeApp.LIGHT) ? ThemeApp.NIGHT : ThemeApp.LIGHT;
-            if (currentTheme == ThemeApp.LIGHT) {
+            currentThemeWrapper.setCurrentTheme((currentThemeWrapper.getCurrentTheme() == ThemeApp.LIGHT)
+                    ? ThemeApp.NIGHT : ThemeApp.LIGHT);
+            if (currentThemeWrapper.getCurrentTheme() == ThemeApp.LIGHT) {
                 setLightTheme();
             } else {
                 setDarkTheme();
@@ -77,8 +46,7 @@ public class AppThemeManager {
 
     public static void updateTheme() {
         synchronized (AppThemeManager.class) {
-            checkRunning();
-            if (currentTheme == ThemeApp.LIGHT) {
+            if (currentThemeWrapper.getCurrentTheme() == ThemeApp.LIGHT) {
                 setLightTheme();
             } else {
                 setDarkTheme();
@@ -147,35 +115,6 @@ public class AppThemeManager {
             for (Component child : children) {
                 updateComponentTreeUI0(child);
             }
-        }
-    }
-
-    private static void checkRunning() {
-        if (!running)
-            throw new RuntimeException("ThemeAppManager has not been launched yet. Invoke method : ThemeAppManager.run()");
-    }
-
-    public static Serializable serialize() {
-        return new ThemeAppWrapper(currentTheme);
-    }
-
-    public enum ThemeApp {
-        LIGHT,
-        NIGHT
-    }
-
-    @NoArgsConstructor
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class ThemeAppWrapper implements Serializable, SerializeListener {
-        ThemeApp currentTheme;
-
-        {
-            currentTheme = ThemeApp.LIGHT;
-        }
-
-        @Override
-        public void serialize() throws IOException {
-            serializer.serialize(new ThemeAppWrapper(AppThemeManager.currentTheme));
         }
     }
 }

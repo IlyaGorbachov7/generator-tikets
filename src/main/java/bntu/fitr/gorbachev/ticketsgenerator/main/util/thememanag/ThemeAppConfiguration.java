@@ -1,9 +1,37 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag;
 
-import java.io.IOException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
+import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 
-public class ThemeAppConfiguration {
+import java.io.IOException;
+import java.util.List;
+
+@Log4j2
+public class ThemeAppConfiguration implements SerializeListener {
+    @Getter
+    private ThemeAppWrapper currentThemeWrapper;
+
+    private final Serializer serializer;
+
     public ThemeAppConfiguration() throws IOException {
-        AppThemeManager.run();
+        serializer = Serializer.getSerializer(TicketGeneratorUtil.getFileSerializeDirectory().toPath());
+        SerializeManager.addListener(this);
+        List<ThemeAppWrapper> objs = serializer.deserialize(ThemeAppWrapper.class);
+        if (objs.isEmpty()) {
+            log.warn("AppThemeManager: deserialize object: don't found");
+            ThemeApp currentTheme = TicketGeneratorUtil.getThemeAppDefault();
+            currentThemeWrapper = new ThemeAppWrapper(currentTheme);
+        } else {
+            currentThemeWrapper = objs.get(0);
+        }
+    }
+
+    @Override
+    public void serialize() throws IOException {
+        serializer.serialize(currentThemeWrapper);
     }
 }

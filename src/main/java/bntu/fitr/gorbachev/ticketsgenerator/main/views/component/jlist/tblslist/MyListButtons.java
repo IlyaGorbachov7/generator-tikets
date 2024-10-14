@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.EventChoiceBtn;
@@ -429,7 +430,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         ACTIVE(() -> {
             return UIManager.getColor("Component.focusColor");
         }),
-        NAVIGATION(() -> (AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.NIGHT) ?
+        NAVIGATION(() -> (AppThemeManager.getCurrentTheme() == ThemeApp.NIGHT) ?
                 new Color(0, 0, 0) :
                 new Color(72, 72, 72));
 

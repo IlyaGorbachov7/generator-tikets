@@ -26,6 +26,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeChangerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.PanelFunc;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.MyJCompoBox;
@@ -322,7 +323,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         // init MenuBar
         saveItem.setEnabled(false);
 
-        tglAppTheme.setIcon(((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT))
+        tglAppTheme.setIcon(((AppThemeManager.getCurrentTheme() == ThemeApp.LIGHT))
                 ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                 : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
         tglAppTheme.setFocusable(false);
@@ -1715,7 +1716,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             } else if (e.getSource() == tglAppTheme) {
                 SwingUtilities.invokeLater(() -> {
                     AppThemeManager.swapTheme();
-                    tglAppTheme.setIcon((AppThemeManager.getCurrentTheme() == AppThemeManager.ThemeApp.LIGHT)
+                    tglAppTheme.setIcon((AppThemeManager.getCurrentTheme() == ThemeApp.LIGHT)
                             ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                             : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
                     tglAppTheme.updateUI();
