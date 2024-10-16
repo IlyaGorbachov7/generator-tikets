@@ -28,7 +28,6 @@ public class LocalsConfiguration implements SerializeListener {
     public static final String DIR_LOCALES = "lang";
     public static final String PROPERTIES_EXCEPTION = ".properties";
 
-    private final Locale systemLocale = Locale.getDefault();
     private final Locale defaultLocale = TicketGeneratorUtil.getDefaultLocale();
     @Getter
     private Set<Locale> supportedLocales;
@@ -74,7 +73,7 @@ public class LocalsConfiguration implements SerializeListener {
     private void defineLocale() throws LocalizerException {
         try {
             Set<Locale> supportedLocales = getSupportedLocale();
-            if (!supportedLocales.contains(defaultLocale)) {
+            if (!supportedLocales.contains(defaultLocale)) { // this snippet is very important
                 log.error("Specified defaultLocale: {} don't supported. Supported locales: {}", defaultLocale, supportedLocales);
                 throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s", defaultLocale, supportedLocales));
             }
@@ -87,12 +86,7 @@ public class LocalsConfiguration implements SerializeListener {
                     return;
                 }
             }
-            if (supportedLocales.contains(systemLocale)) {
-                selectedLocale = systemLocale;
-                return;
-            }
             selectedLocale = defaultLocale;
-            return;
         } catch (NotAccessToFileException e) {
             throw new LocalizerException(e);
         }

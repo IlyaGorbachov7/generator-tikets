@@ -20,11 +20,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Optional;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
 /*If out want specify @Log41 or @Slf4j annotation, then logger will be don't worked because Logger now don't initialized */
 public class TicketGeneratorUtil {
+    private static final String SYS_PROP_DEFAULT_LOCALE = THEME_APP_DEF_KEY;
+
     @Getter
     private static final ConfigurationApplicationProperties config;
 
@@ -42,18 +45,19 @@ public class TicketGeneratorUtil {
     static {
         try {
             // This sequence must be such!
+            System.out.println("--------Initialize Context of Application--------");
             config = new ConfigurationApplicationProperties();
             System.setProperty(DIR_APP_KEY, getPathAppDirectory().toString());
             System.setProperty(DIR_SERIALIZE_KEY, getPathSerializeDirectory().toString());
             // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
-            System.out.println("----------------");
             loggerConfiguration = new LoggerConfiguration();
             localsConfiguration = new LocalsConfiguration();
-            log = LogManager.getLogger(TicketGeneratorUtil.class);
             themeAppConfiguration = new ThemeAppConfiguration();
+            log = LogManager.getLogger(TicketGeneratorUtil.class);
             AppThemeManager.updateTheme();
+            log.info("Completed initialize context of application");
         } catch (Throwable ex) {
             showAlertDialog(ex);
             throw new RuntimeException();
@@ -148,8 +152,21 @@ public class TicketGeneratorUtil {
         return theme;
     }
 
+    /**
+     * Default value define in next events:
+     * <p>
+     * Firstly check if was specified <b>SYSTEM OF PROPERTIES</b>
+     * if is present than return this value.
+     * <p>
+     * <i>ELSE</i> Next check if was specified <b>APPLICATION OF PROPERTIES</b> in <u>application.properties</u>
+     * if is present than return this value.
+     * <p>
+     * <i>ELSE</i> return Locale.getDefault()
+     */
     public static Locale getDefaultLocale() {
-        return config.getDefaultLocale().map(Locale::new).orElseGet(Locale::getDefault);
+        return Optional.ofNullable(System.getProperty(SYS_PROP_DEFAULT_LOCALE)).map(Locale::new)
+                .or(() -> config.getDefaultLocale().map(Locale::new))
+                .orElseGet(Locale::getDefault);
     }
 
     public static Long getDelayStepGeneration() {
