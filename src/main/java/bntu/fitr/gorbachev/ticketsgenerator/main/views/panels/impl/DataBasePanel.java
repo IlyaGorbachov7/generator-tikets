@@ -1132,6 +1132,7 @@ public class DataBasePanel extends BasePanel {
                 sublbl = new JLabel(subSelectedKeyForViewUI.getBtn().getText());
                 List<?> dataList = supplierDataList.apply(subSelectedKeyForViewUI.getTbl().getClassTableView());
                 box = new CombaBoxSupplierView(mapperView, dataList);
+                box.setMaximumRowCount(5);
                 box.setSelectedItem(subselectedItem);
             }
             JLabel curlbl = new JLabel(selectedKeyForViewUI.getBtn().getText());

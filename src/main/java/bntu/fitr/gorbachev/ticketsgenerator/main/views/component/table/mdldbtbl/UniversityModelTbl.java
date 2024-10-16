@@ -11,9 +11,9 @@ import java.util.UUID;
 @TableViewUI(name = "tbl.model.university")
 @NoArgsConstructor
 public class UniversityModelTbl {
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.field.id")
     private UUID id;
 
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.field.name")
     private String name;
 }

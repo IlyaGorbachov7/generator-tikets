@@ -10,16 +10,16 @@ import java.util.UUID;
 @Data
 @TableViewUI(name = "tbl.model.faculty")
 public class FacultyModelTbl {
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.field.id")
     private UUID id;
 
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.field.name")
     private String name;
 
     @EqualsAndHashCode.Exclude
     private UUID universityId;
 
     @EqualsAndHashCode.Exclude
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.university.foreign")
     private String universityName;
 }

@@ -10,16 +10,16 @@ import java.util.UUID;
 @Data
 @TableViewUI(name = "lbl.model.specialization")
 public class SpecializationModelTbl {
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "tbl.model.field.id")
     private UUID id;
 
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name="tbl.model.field.name")
     private String name;
 
     @EqualsAndHashCode.Exclude
     private UUID departmentId;
 
     @EqualsAndHashCode.Exclude
-    @ColumnViewUI(typeView = ColumnViewUI.STRING)
+    @ColumnViewUI(typeView = ColumnViewUI.STRING, name = "lbl.model.department.foreign")
     private String departmentName;
 }

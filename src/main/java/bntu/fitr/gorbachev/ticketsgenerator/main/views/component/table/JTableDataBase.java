@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
@@ -301,6 +302,7 @@ public class JTableDataBase extends JTable {
             data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(classTableView), classTableView);
             if (columnNames == EMPTY) {
                 columnNames = ReflectionTableHelper.extractColumnName(classTableView);
+                columnNames = Arrays.stream(columnNames).map(Localizer::get).toArray(String[]::new);
             }
         }
 
