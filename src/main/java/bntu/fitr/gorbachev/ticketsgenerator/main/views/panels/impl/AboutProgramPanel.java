@@ -1,14 +1,21 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.SneakyThrows;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Locale;
 import java.util.Objects;
 
 public class AboutProgramPanel extends BasePanel {
+
+    private String pathAboutProgramSnippet0Html = String.format(Locale.ROOT, FileNames.aboutProgramHtml,
+            TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
+    private String pathAboutProgramSnippet1Html = String.format(Locale.ROOT, FileNames.aboutProgramSnippet1Html,
+            TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
 
     public AboutProgramPanel(Window frame) {
         super(frame);
@@ -20,7 +27,7 @@ public class AboutProgramPanel extends BasePanel {
     public void initPanel() {
         this.setLayout(new BorderLayout());
         // TODO: отображение html старнцы также зависит от локализации!!!!!!!!!!!!
-        JLabel lbHtml = new JLabel(FileNames.readResourceToString(FileNames.aboutProgramHtml));
+        JLabel lbHtml = new JLabel(FileNames.readResourceToString(pathAboutProgramSnippet0Html));
 
         lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));
         JPanel panelInfo = new JPanel();
@@ -36,7 +43,7 @@ public class AboutProgramPanel extends BasePanel {
         panelImage.add(lbImage);
         panelInfo.add(panelImage);
 
-        lbHtml = new JLabel(FileNames.readResourceToString(FileNames.aboutProgramSnippet1Html));
+        lbHtml = new JLabel(FileNames.readResourceToString(pathAboutProgramSnippet1Html));
         lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));
         panelHtml = new JPanel(new GridLayout(1, 1, 5, 5));
         panelHtml.add(lbHtml);

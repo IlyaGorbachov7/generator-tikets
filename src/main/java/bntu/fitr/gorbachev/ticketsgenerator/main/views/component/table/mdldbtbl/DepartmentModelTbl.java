@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import java.util.UUID;
 
 @Data
-@TableViewUI(name = "Кафедра") //lbl.model.department
+@TableViewUI(name = "lbl.model.department")
 public class DepartmentModelTbl {
     @ColumnViewUI(typeView = ColumnViewUI.STRING)
     private UUID id;

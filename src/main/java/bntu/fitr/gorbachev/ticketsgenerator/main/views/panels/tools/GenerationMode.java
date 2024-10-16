@@ -7,15 +7,16 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGe
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.impl.TicketsGeneratorWayImpl3;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 
 /**
  * Mode enum will define generation tickets algorithm.
  */
 public enum GenerationMode {
     //panel.main.generation.mode...
-    MODE_3("Сплошным списком", TicketsGeneratorWayImpl3.class),
-    MODE_1("Группировать по темам", TicketsGeneratorWayImpl1.class),
-    MODE_2("Группировать по сложности", TicketsGeneratorWayImpl2.class);
+    MODE_3(Localizer.get("panel.main.generation.mode.level"), TicketsGeneratorWayImpl3.class),
+    MODE_1(Localizer.get("panel.main.generation.mode.section"), TicketsGeneratorWayImpl1.class),
+    MODE_2(Localizer.get("panel.main.generation.mode.sequence"), TicketsGeneratorWayImpl2.class);
     String name;
 
     Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generateWay;

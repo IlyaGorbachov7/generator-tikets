@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
@@ -49,32 +50,29 @@ public class SplashScreenPanel extends BasePanel {
     private JFrame mainWindow;
 
     {
-        String university = "Беларусский национальный технический университет";
-        String faculty = "Факультет информационных технологий и робототехники";
-        String department = "Кафедра программного обеспечения " +
-                            "информационных систем и технологий";
-        String infoDeveloper = "Выполнил: Студент группы 10702419";
-        String nameDeveloper = "Горбачёв Илья Дмитриевич";
-        String infoTeacher = "Преподаватель: к.ф.-м.н.,доц.";
-        String nameTeacher = "Ковалёва Ирина Львовна";
+        String university = Localizer.get("panel.splashscreen.university");
+        String faculty = Localizer.get("panel.splashscreen.faculty");
+        String department = Localizer.get("panel.splashscreen.department");
+        String infoDeveloper = Localizer.get("panel.splashscreen.infoDev", "panel.infoDev");
+        String nameDeveloper = Localizer.get("panel.nameDev");
+        String infoTeacher = Localizer.get("panel.splashscreen.infoTeacher");
+        String nameTeacher = Localizer.get("panel.splashscreen.nameTeacher");
         lbUniversity = new JLabel(university);
         lbFaculty = new JLabel(faculty);
         lbDepartment = new JLabel(department);
-        lbCoursework = new JLabel("Курсовая работа");
-        lbDiscipline = new JLabel("по дисциплине: " +
-                                  "\"Программирование на языке Java\"");
-        lbNameCoursework = new JLabel("Конструктор" +
-                                      " экзаменационных билетов");
+        lbCoursework = new JLabel(Localizer.get("panel.splashscreen.typeWork"));
+        lbDiscipline = new JLabel(Localizer.get("panel.splashscreen.discipline"));
+        lbNameCoursework = new JLabel(Localizer.get("panel.splashscreen.appName"));
         labelIcon = new JLabel(new ImageIcon(Objects.requireNonNull(
                 FileNames.getResource(FileNames.iconCoursework))));
         lbInfoDeveloper = new JLabel(infoDeveloper);
         lbNameDeveloper = new JLabel(nameDeveloper);
         lbInfoTeacher = new JLabel(infoTeacher);
         lbNameTeacher = new JLabel(nameTeacher);
-        lbYear = new JLabel("Минск, 2022");
+        lbYear = new JLabel(Localizer.get("panel.splashscreen.locationData"));
 
-        btnNext = new JButton("Далее");
-        btnExit = new JButton("Выход");
+        btnNext = new JButton(Localizer.get("btn.next"));
+        btnExit = new JButton("btn.exit");
 
         progressBar = new JProgressBar();
 

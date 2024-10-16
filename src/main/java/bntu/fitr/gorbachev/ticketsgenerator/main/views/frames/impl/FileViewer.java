@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.MyAnnotationCallback;
@@ -25,7 +26,7 @@ public class FileViewer extends BaseDialog {
      * @param frame class object {@link JFrame}
      */
     public FileViewer(Window frame) {
-        super(frame, "Предпросмотр"); //frame.title.preview
+        super(frame, Localizer.get("frame.title.preview"));
         this.setModal(true);
     }
 

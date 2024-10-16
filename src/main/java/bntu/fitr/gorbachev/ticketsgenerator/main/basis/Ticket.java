@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.basis;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -191,9 +192,9 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
      * @version 10.03.2022
      */
     public enum SessionType {
-        AUTUMN("Осенняя"), WINTER("Зимняя"),
-        SPRING("Весенняя"), SUMMER("Летняя"),
-        NON("не определен");
+        AUTUMN(Localizer.get("sessionType.autumn")), WINTER(Localizer.get("sessionType.winter")),
+        SPRING(Localizer.get("sessionType.spring")), SUMMER(Localizer.get("sessionType.summer")),
+        NON(Localizer.get("sessionType.nondefine"));
         private final String name;
 
         /**

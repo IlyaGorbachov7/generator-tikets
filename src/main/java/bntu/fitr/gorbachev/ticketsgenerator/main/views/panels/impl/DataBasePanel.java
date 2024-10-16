@@ -9,6 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
@@ -110,15 +111,14 @@ public class DataBasePanel extends BasePanel {
     }
 
     private void updateLocaleComponents() {
-        //panel.db.all-deselect
-//        btnAllDeselect.setText();
-//        btnDeselect.setText();
-//        btnDelete.setText();
-//        btnUpdate.setText();
-//        btnCreate.setText();
-//        tablesLbl.setText();
-        tfFilter.setToolTipText("Введите не менее 5 символов");
-        tfFilter.setText("Введите не менее 5 символов");
+        btnAllDeselect.setText(Localizer.get("panel.db.all-deselect"));
+        btnDeselect.setText(Localizer.get("panel.db.deselect"));
+        btnDelete.setText(Localizer.get("panel.db.delete"));
+        btnUpdate.setText(Localizer.get("panel.db.update"));
+        btnCreate.setText(Localizer.get("panel.db.create"));
+        tablesLbl.setText(Localizer.get("panel.db.tables"));
+        tfFilter.setToolTipText(Localizer.get("panel.db.tf-filter.tool-tip-text"));
+        tfFilter.setText(Localizer.get("panel.db.tf-filter.text"));
     }
 
     protected void initUIFormComponents() {
@@ -861,8 +861,8 @@ public class DataBasePanel extends BasePanel {
             } else if (source == btnCreate) {
                 log.debug("Click on the btnCreate");
                 JTableDataBase tbl = selectedKeyForViewUI.getTbl();
-                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, "Введите название: ", //panel.message.enter.name
-                        "Input Dialog", JOptionPane.INFORMATION_MESSAGE);//dialog.title.input
+                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, Localizer.get("panel.message.enter.name"),
+                        Localizer.get("dialog.title.input"), JOptionPane.INFORMATION_MESSAGE);
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
                     initPagination(true, true, false, false);
@@ -870,8 +870,8 @@ public class DataBasePanel extends BasePanel {
                 }
             } else if (source == btnDelete) {
                 log.debug("Click on the btnDelete");
-                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, "Вы уверены ?", //panel.message.make-sure
-                        "Delete Dialog", JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {// dialog.title.delete
+                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, Localizer.get("panel.message.make-sure"),
+                        Localizer.get("dialog.title.delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
                     CompletableFuture.runAsync(() -> {
                         JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                         tbl.deleteItem();
@@ -885,7 +885,7 @@ public class DataBasePanel extends BasePanel {
                 SwingUtilities.invokeLater(() -> {
                     UpdatePanel panel = new UpdatePanel();
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
-                            "Update Dialog", // dialog.title.update
+                            Localizer.get("dialog.title.update"),
                             JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE) == JOptionPane.OK_OPTION) {
                         panel.updateRequest();
                         var tbl = selectedKeyForViewUI.getTbl();

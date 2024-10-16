@@ -162,6 +162,13 @@ public class TicketGeneratorUtil {
      * if is present than return this value.
      * <p>
      * <i>ELSE</i> return Locale.getDefault()
+     *
+     * @implNote if you want to create <b>exe file</b> I can specify this system of property {@link #SYS_PROP_DEFAULT_LOCALE}, when this app will be run.
+     * If programmer don't specify this system properties when defaultLocale <code>must be necessary specified in <u>application.properties</u></code>
+     * Else return <b>Locale.getDefault</b>
+     * <p>
+     * <code>However if Locale.getDefault don't supported this of application then will be throw exception when will be execute configuration of locale</code>
+     * So you should specify correct locale in <u>application.properties</u>
      */
     public static Locale getDefaultLocale() {
         return Optional.ofNullable(System.getProperty(SYS_PROP_DEFAULT_LOCALE)).map(Locale::new)

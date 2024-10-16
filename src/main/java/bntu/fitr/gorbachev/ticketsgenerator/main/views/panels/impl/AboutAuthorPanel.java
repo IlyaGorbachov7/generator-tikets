@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.extern.log4j.Log4j2;
@@ -29,25 +30,25 @@ public class AboutAuthorPanel extends BasePanel {
         ));
         panelInfo.add(lbImage, gbc);
 
-        JLabel lbPost = new JLabel(" студент группы 10702419");
+        JLabel lbPost = new JLabel(" " + Localizer.get("panel.infoDev"));
         lbPost.setFont(new Font("Serif", Font.PLAIN, 17));
         gbc.gridy = 1;
         gbc.insets = new Insets(5, 0, 0, 5);
         panelInfo.add(lbPost, gbc);
 
-        JLabel lbName = new JLabel("Горбачёв Илья Дмитриевич");
+        JLabel lbName = new JLabel(Localizer.get("panel.nameDev"));
         lbName.setFont(new Font("Serif", Font.PLAIN, 17));
         gbc.gridy = 2;
         panelInfo.add(lbName, gbc);
 
-        JLabel lbRelate = new JLabel("gorbacevaili891@gmail.com");
+        JLabel lbRelate = new JLabel(Localizer.get("panel.emailDev"));
         lbRelate.setFont(new Font("Serif", Font.PLAIN, 17));
         gbc.gridy = 3;
         panelInfo.add(lbRelate, gbc);
 
         this.add(panelInfo, BorderLayout.CENTER);
 
-        var ok = new JButton("OK");
+        var ok = new JButton(Localizer.get("btn.ok"));
         ok.addActionListener(event -> getRootFrame().setVisible(false));
         add(ok, BorderLayout.SOUTH);
     }

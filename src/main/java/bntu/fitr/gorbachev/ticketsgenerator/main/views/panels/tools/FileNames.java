@@ -96,7 +96,7 @@ public class FileNames {
 
     public static final String lightModeApp = targetPath + "light-mode.png";
 
-    public static final String aboutProgramHtml = targetPathHtml + "AboutProgram_ru.html";
+    public static final String aboutProgramHtml = targetPathHtml + "AboutProgram_%s.html";
 
-    public static final String aboutProgramSnippet1Html = targetPathHtml + "AboutProgramSnippet1_ru.html";
+    public static final String aboutProgramSnippet1Html = targetPathHtml + "AboutProgramSnippet1_%s.html";
 }

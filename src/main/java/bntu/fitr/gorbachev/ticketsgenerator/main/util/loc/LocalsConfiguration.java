@@ -75,7 +75,7 @@ public class LocalsConfiguration implements SerializeListener {
             Set<Locale> supportedLocales = getSupportedLocale();
             if (!supportedLocales.contains(defaultLocale)) { // this snippet is very important
                 log.error("Specified defaultLocale: {} don't supported. Supported locales: {}", defaultLocale, supportedLocales);
-                throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s", defaultLocale, supportedLocales));
+                throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s.", defaultLocale, supportedLocales));
             }
 
             if (Objects.nonNull(selectedLocale)) {

@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.AbstractTicketGenerator;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Question2;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
@@ -24,6 +25,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.specl.Specializati
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
@@ -68,6 +70,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
+
 /**
  * The class represent main window panel
  *
@@ -111,45 +114,43 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     // TODO: add toggle dark or lite mode window
     {
         menuBar = new JMenuBar();
-        loadItem = new JMenuItem("Загрузить",
+        loadItem = new JMenuItem(Localizer.get("panel.load"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.openItemIcon))
                 ));
-        saveItem = new JMenuItem("Сохранить",
+        saveItem = new JMenuItem(Localizer.get("panel.save"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.saveItemIcon))
                 ));
-        exitItem = new JMenuItem("Выйти",
+        exitItem = new JMenuItem(Localizer.get("panel.leave"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.exitItemIcon))
                 ));
-        aboutAuthorItem = new JMenuItem("О авторе",
+        aboutAuthorItem = new JMenuItem(Localizer.get("panel.main.aboutAuthor"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutAuthorItemIcon))
                 ));
-        aboutProgramItem = new JMenuItem("О программе",
+        aboutProgramItem = new JMenuItem(Localizer.get("panel.main.aboutProgram"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.aboutProgramItemIcon))
                 ));
-        recordSettingItem = new JMenuItem("Запись билетов",
+        recordSettingItem = new JMenuItem(Localizer.get("panel.main.recordTickets"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.recordSettingIcon))));
-        databaseSettingItem = new JMenuItem("Параметры ввода",
+        databaseSettingItem = new JMenuItem(Localizer.get("panel.main.inputSetting"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
-        tglAppTheme = new JMenuItem("Color mode");
+        tglAppTheme = new JMenuItem(Localizer.get("panel.main.themeApp"));
 
         chooserUpLoad = new JFileChooser();
-        // TODO: То же добавить обработку от выбраной локализации
-        chooserUpLoad.setLocale(Locale.getDefault());
+        chooserUpLoad.setLocale(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
         chooserSave = new JFileChooser();
-        // TODO: То же добавить обработку от выбраной локализации
-        chooserSave.setLocale(Locale.getDefault());
+        chooserSave.setLocale(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
         //**********************
 
-        lbInstitute = new JLabel("Учреждение образования");
-        lbFaculty = new JLabel("Факультет");
-        lbDepartment = new JLabel("Кафедра");
-        lbSpecialization = new JLabel("Специальность");
-        lbDiscipline = new JLabel("Дисциплина");
-        lbTeacher = new JLabel("Экзаменатор");
-        lbHeadDepartment = new JLabel("Заведующий кафедрой");
-        lbTypeSession = new JLabel("Вид сессии");
-        lbDateDecision = new JLabel("Дата утверждения : ");
-        lbProtocol = new JLabel("Протокол №");
+        lbInstitute = new JLabel(Localizer.get("panel.main.university"));
+        lbFaculty = new JLabel(Localizer.get("panel.main.faculty"));
+        lbDepartment = new JLabel(Localizer.get("panel.main.department"));
+        lbSpecialization = new JLabel(Localizer.get("panel.main.specialization"));
+        lbDiscipline = new JLabel(Localizer.get("panel.main.discipline"));
+        lbTeacher = new JLabel(Localizer.get("panel.main.examiner"));
+        lbHeadDepartment = new JLabel(Localizer.get("panel.main.departmentLeader"));
+        lbTypeSession = new JLabel(Localizer.get("panel.main.sessionType"));
+        lbDateDecision = new JLabel(Localizer.get("panel.main.dataApproval"));
+        lbProtocol = new JLabel(Localizer.get("panel.main.protocol"));
 
         tfInstitute = new JTextField(30);
         tfFaculty = new JTextField(30);
@@ -167,42 +168,42 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         //**********************
 
         modelListFilesRsc = new DefaultListModel<>();
-        btnAdd = new JButton("Загрузить файл вопросов", new ImageIcon(
+        btnAdd = new JButton(Localizer.get("panel.main.file.load"), new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.openItemIcon))
         ));
-        btnRemove = new JButton("Исключить файл", new ImageIcon(
+        btnRemove = new JButton(Localizer.get("panel.main.file.exclude"), new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.removeItemIcon))
         ));
         jBoxModes = new JComboBox<>(new GenerationMode[]{
                 GenerationMode.MODE_3, GenerationMode.MODE_1, GenerationMode.MODE_2});
 
-        lbReadQuestRandom = new JLabel("Считывать вопросы:");
+        lbReadQuestRandom = new JLabel(Localizer.get("panel.main.file.question.read"));
         btnGroupReadWay = new ButtonGroup();
-        rdiBtnSequence = new JRadioButton("последовательно", true);
-        rdiBtnRandom = new JRadioButton("произвольно", false);
+        rdiBtnSequence = new JRadioButton(Localizer.get("panel.main.file.question.sequence"), true);
+        rdiBtnRandom = new JRadioButton(Localizer.get("panel.main.file.question.random"), false);
 
-        lbWriteQuestRandom = new JLabel("Записывать вопросы:");
+        lbWriteQuestRandom = new JLabel(Localizer.get("panel.main.file.question.write"));
         btnGroupWriteWay = new ButtonGroup();
-        rdiBtnWriteSequence = new JRadioButton("последовательно", true);
-        rdiBtnWriteRandom = new JRadioButton("произвольно", false);
+        rdiBtnWriteSequence = new JRadioButton(Localizer.get("panel.main.file.question.sequence"), true);
+        rdiBtnWriteRandom = new JRadioButton(Localizer.get("panel.main.file.question.random"), false);
 
 
-        lbGenerationMode = new JLabel("Способ генерации: ");
+        lbGenerationMode = new JLabel(Localizer.get("panel.main.generation.mode"));
 
-        btnGenerate = new JButton("Сгенерировать билеты", new ImageIcon(
+        btnGenerate = new JButton(Localizer.get("panel.main.ticket.generation"), new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.generateIcon))
         ));
-        btnViewFile = new JButton("Предварительный просмотр", new ImageIcon(
+        btnViewFile = new JButton(Localizer.get("panel.main.ticket.preview"), new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.previewIcon))
         ));
-        btnSave = new JButton("Сохранить билеты", new ImageIcon(
+        btnSave = new JButton(Localizer.get("panel.main.ticket.save"), new ImageIcon(
                 Objects.requireNonNull(FileNames.getResource(FileNames.saveItemIcon))
         ));
-        lblCountItems = new JLabel("Загружено файлов:");
+        lblCountItems = new JLabel(Localizer.get("panel.main.file.load.quantity"));
         lblListSize = new JLabel("" + "0");
-        lbQuantityTickets = new JLabel("Количество билетов");
+        lbQuantityTickets = new JLabel(Localizer.get("panel.main.ticket.quantity"));
         tfQuantityTickets = new JTextField("10", 2);
-        lbQuantityQuestionTickets = new JLabel("Количество вопросов в билете");
+        lbQuantityQuestionTickets = new JLabel(Localizer.get("panel.main.ticket.quantity.question"));
         tfQuantityQuestionTickets = new JTextField("3", 2);
 
         spinnerQuantityTickets = new JSpinner();
@@ -261,17 +262,17 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         });
 
         // initialization menu bar
-        JMenu fileMenu = new JMenu("Файл");
+        JMenu fileMenu = new JMenu(Localizer.get("panel.main.file"));
         fileMenu.add(loadItem);
         fileMenu.add(saveItem);
         fileMenu.addSeparator();
         fileMenu.add(exitItem);
 
-        JMenu infoMenu = new JMenu("Информация");
+        JMenu infoMenu = new JMenu(Localizer.get("panel.main.information"));
         infoMenu.add(aboutProgramItem);
         infoMenu.add(aboutAuthorItem);
 
-        JMenu settingMenu = new JMenu("Парамеры");
+        JMenu settingMenu = new JMenu(Localizer.get("panel.main.setting"));
         settingMenu.add(recordSettingItem);
         settingMenu.add(databaseSettingItem);
         settingMenu.addSeparator();
@@ -346,12 +347,10 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         cbHeadDepartment.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
         cbTeacher.setEnableElements(MyJCompoBox.Element.ARROW_BUTTON, false);
 
-        tfTeacher.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
-        tfHeadDepartment.setToolTipText("Фамилия Имя Отчество (Фамилия И. О.)");
+        tfTeacher.setToolTipText(Localizer.get("panel.main.firstlastname"));
+        tfHeadDepartment.setToolTipText(Localizer.get("panel.main.firstlastname"));
 
-        // TODO: Тут обязательно установить ru/en !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        DatePickerSettings datePickerSettings = new DatePickerSettings(new Locale("ru"));
+        DatePickerSettings datePickerSettings = new DatePickerSettings(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
         datePickerSettings.setFormatForDatesCommonEra("dd.MM.uuuu");
         datePicDecision.setSettings(datePickerSettings);
         datePicDecision.getComponentDateTextField().setFont(
@@ -895,7 +894,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
      */
     private JPanel createDataInputPanel() {
         JPanel panelLEFT = new JPanel(new GridBagLayout());
-        panelLEFT.setBorder(new TitledBorder("Заполните область ввода данных"));
+        panelLEFT.setBorder(new TitledBorder(Localizer.get("panel.main.space.datainput")));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
@@ -1136,7 +1135,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     private JPanel createPanelMainActionPanel() {
         JPanel pnlRes = new JPanel();
         pnlRes.setLayout(new BoxLayout(pnlRes, BoxLayout.Y_AXIS));
-        pnlRes.setBorder(new TitledBorder("Область ресурсов"));
+        pnlRes.setBorder(new TitledBorder(Localizer.get("panel.main.space.resources")));
 
         jList.setVisibleRowCount(10);
         jList.setSelectionBackground(Color.gray); // by default
@@ -1273,7 +1272,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             boolean repeat;
             do {
                 try {
-                    registerSenderMsg.sendMsg("start..."); // panel.main.message.registrator.start
+                    registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.start"));
                     loadingDialog.showDialog();
                     ticketGenerator.startGenerate(property);
                     repeat = false;
@@ -1283,8 +1282,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
                         int selected = JOptionPane.showInternalConfirmDialog(null,
                                 ex.getMessage() + "\n" +
-                                "Хотите продолжить генерацию ?", //panel.message.generation.continue
-                                "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                                Localizer.get("panel.message.generation.continue"),
+                                Localizer.get("panel.message.title.msg"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
                             if (ex.getClass() == FindsNonMatchingLevel.class) {
@@ -1300,8 +1299,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                     } else if (ex.getClass() == FindsChapterWithoutSection.class) {
                         int selected = JOptionPane.showInternalConfirmDialog(null,
                                 ex.getMessage() + "\n" +
-                                "Хотите продолжить генерацию ?",
-                                "Message !", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                                Localizer.get("panel.message.generation.continue"),
+                                Localizer.get("panel.message.title.msg"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
 //                            loadingDialog.showDialog();
@@ -1315,7 +1314,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         JOptionPane.showMessageDialog(null,
                                 (ex.getCause() != null) ? ex.getCause().getMessage() // handle InterruptedException
                                         : ex.getMessage(),// handle ConditionGenerationException
-                                "Warning !", JOptionPane.ERROR_MESSAGE);
+                                Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
                         this.setEnabledComponents(true, false);
                         repeat = false; // necessary, because need set value false, if earlier repeat = true
                         loadingDialog.closeDialog();
@@ -1324,7 +1323,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 } catch (InterruptedException e) {
                     loadingDialog.closeDialog();
                     log.error(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
-                                 "close program during ticket generation: interrupted is successful");
+                              "close program during ticket generation: interrupted is successful");
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
                 } catch (Exception allExceptions) {
@@ -1333,7 +1332,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                     JOptionPane.showMessageDialog(null,
                             (allExceptions.getCause() != null) ? allExceptions.getCause().getMessage() // handle InterruptedException
                                     : allExceptions.getMessage(),// handle ConditionGenerationException
-                            "Warning !", JOptionPane.ERROR_MESSAGE);
+                            Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
                 }
@@ -1347,13 +1346,15 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 IConverter converter;
                 try {
                     try {
-                        registerSenderMsg.sendMsg("create temp file .docx .pdf");//panel.main.message.registrator.tmpFile
+                        registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.file.tmp"));
+                        log.info("create temp file .docx .pdf");
                         tmpFileDocx = File.createTempFile("tmpDocx", ".docx");
                         tmpFileDocx.deleteOnExit();
                         File tmpFilePdf = File.createTempFile("tmpPdf", ".pdf");
                         tmpFilePdf.deleteOnExit();
 
-                        registerSenderMsg.sendMsg("write output data to tmp .docx file ");//panel.main.message.registrator.file.write
+                        registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.file.write"));
+                        log.info("write output data to tmp .docx file");
                         ticketGenerator.writeOutputFile(tmpFileDocx);
 
                         /*Since if the user wants 100,000 tickets,the memory will fill up by 3GB.
@@ -1365,11 +1366,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
-                        registerSenderMsg.sendMsg("start convert docx => pdf"); //panel.main.message.registrator.file.convert.start
+                        registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.file.convert.start"));
                         log.info("convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
                                 .as(DocumentType.PDF).execute();
-                        registerSenderMsg.sendMsg("convert docx => pdf is : success");//panel.main.message.registrator.file.convert
+                        registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.file.convert"));
                         log.info("convert docx => pdf is : success");
                         // if convert docx is success, then load file for open viewFilePanel
                         viewFileDialog.setFile(tmpFilePdf);
@@ -1377,7 +1378,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                             viewFileDialog.openDocument();
                         } catch (Exception ex) {
                             JOptionPane.showConfirmDialog(frameRoot,
-                                    "No such file"); //panel.message.file.not-founded
+                                    Localizer.get("panel.message.file.not-founded"));
                             this.setEnabledComponents(true, false);
                         }
                     } finally {
@@ -1398,20 +1399,15 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         return;
                     }
                     JOptionPane.showMessageDialog(null, //panel.message.generation.error
-                            """
-                                    Произошла ошибка ожидания .
-                                    Прошу повторите попытку снова
-                                    Причин является: Microsoft Office:
-                                    => Просто закройте окно Мастер активации Microsoft Office
-                                    """,
-                            "ERROR !", JOptionPane.ERROR_MESSAGE);
+                            Localizer.get("panel.message.generation.error"),
+                            Localizer.get("panel.message.title.error"), JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 // after generating and conversion enable all components
                 loadingDialog.closeDialog();
                 this.setEnabledComponents(true, true);
                 JOptionPane.showInternalMessageDialog(
-                        null, "Генерация прошла успешно !", "",
+                        null, Localizer.get("panel.message.generation.success"), "",
                         JOptionPane.INFORMATION_MESSAGE, new ImageIcon(
                                 Objects.requireNonNull(FileNames.getResource(FileNames.successIcon))
                         ));
@@ -1488,13 +1484,15 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         private JButton btnCancel;
         private JLabel lblMsg;
+        private JLabel labelGen;
 
         @Override
         public void initPanel() {
             // init fields
             this.setLayout(new BorderLayout());
-            btnCancel = new JButton("Отмена");//btn.cancel
-            lblMsg = new JLabel("Ожидание"); // panel.main.message.registrator.launch
+            btnCancel = new JButton(Localizer.get("btn.cancel"));
+            lblMsg = new JLabel(Localizer.get("panel.main.message.registrator.launch"));
+            labelGen = new JLabel(Localizer.get("panel.message.generation"));
             JScrollPane scrollPane = new JScrollPane(lblMsg);
 
 
@@ -1504,7 +1502,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
             JPanel pnlRow = new JPanel();
             pnlRow.setLayout(new BoxLayout(pnlRow, BoxLayout.X_AXIS));
             pnlRow.add(new JLabel(initImageIcon()));
-            pnlRow.add(new JLabel("Генерируется."));//panel.message.generation
+            pnlRow.add(labelGen);
             pnlMain.add(pnlRow);
             pnlMain.add(scrollPane);
 
@@ -1569,7 +1567,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         @Override
         public void send(String msg) {
-            SwingUtilities.invokeLater(()->{
+            SwingUtilities.invokeLater(() -> {
                 lblMsg.setText(msg);
             });
         }
@@ -1594,29 +1592,25 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 String msg = "";
                 if ((textField == tfTeacher || textField == tfHeadDepartment) &&
                     !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
-                    msg = "Пример:\n" + //panel.main.input.validator.example
-                          " Фамилия Имя Отчество (или Фамилия И. О.)";
+                    msg = Localizer.get("panel.main.input.validator.example");
                 } else if (textField == tfProtocol &&
                            !TextPatterns.PROTOCOL_PATTERN.matches(textField.getText())) {
-                    msg = "Пример:\n" + // panel.main.input.validator.protocol.access
-                          " 4.1 (или 1.23.1)";
+                    msg = Localizer.get("panel.main.input.validator.protocol.access");
                 } else if ((textField == tfQuantityTickets || textField == tfQuantityQuestionTickets) &&
                            !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимо число:\n" + //panel.main.input.validator.number.access
-                          "[1; 999]";
+                    msg = Localizer.get("panel.main.input.validator.number.access");
                 } else if (textField != tfTeacher && textField != tfHeadDepartment &&
                            textField != tfProtocol &&
                            textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
                            !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
-                    msg = "Допустимы символы:\n" + //panel.main.input.validator.symbols.access
-                          " A-Я,А-Z, а-я, a-z, 0-9, -, _, «, », \", }, {, ),(";
+                    msg = Localizer.get("panel.main.input.validator.symbols.access");
                 } else { // кидаем ошибку
                     textField.setForeground(Color.BLACK);
                 }
 
                 if (!msg.isEmpty()) {
-                    JOptionPane.showMessageDialog(null, "Неверный ввод !\n" +
-                                                        msg);
+                    JOptionPane.showMessageDialog(null, Localizer.getWithValues("panel.main.input.validator.input.incorrect",
+                            "\n" + msg));
                     textField.setForeground(Color.RED);
                     textField.grabFocus();
                 }
@@ -1641,7 +1635,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         public void actionPerformed(ActionEvent e) {
 
             if (e.getSource() == loadItem || e.getSource() == btnAdd) {
-                int res = chooserUpLoad.showDialog(frameRoot, "Загрузить");
+                int res = chooserUpLoad.showDialog(frameRoot, Localizer.get("panel.load"));
                 if (res == JFileChooser.APPROVE_OPTION) {
                     File[] files = chooserUpLoad.getSelectedFiles();
                     for (var file : files) {
@@ -1666,9 +1660,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                                 Files.deleteIfExists(saveFile.toPath());
                                 Files.copy(tmpFileDocx.toPath(), saveFile.toPath());
                                 int selected = JOptionPane.showInternalConfirmDialog(null,
-                                        "Файл успешно сохранен!\n " + //panel.message.file.saved
-                                        "Хотите ли вы открыть ?",
-                                        "Message", JOptionPane.YES_NO_OPTION,
+                                        Localizer.get("panel.message.file.saved"),
+                                        Localizer.get("panel.message.title.msg"), JOptionPane.YES_NO_OPTION,
                                         JOptionPane.QUESTION_MESSAGE);
 
                                 if (selected == JOptionPane.OK_OPTION) {
@@ -1677,9 +1670,9 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                                 }
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(null,
-                                        "Произошла ошибка.", //panel.message.error.unknown
-                                        "ERROR !", JOptionPane.ERROR_MESSAGE);
-                                log.warn("",ex);
+                                        Localizer.get("panel.message.error.unknown"), //panel.message.error.unknown
+                                        Localizer.get("panel.message.title.error"), JOptionPane.ERROR_MESSAGE);
+                                log.warn("", ex);
                             }
                         }
                     }).start();

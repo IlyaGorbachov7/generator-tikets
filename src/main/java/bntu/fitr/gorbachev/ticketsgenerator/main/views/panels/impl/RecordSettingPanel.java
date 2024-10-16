@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
@@ -38,13 +39,13 @@ public class RecordSettingPanel extends BasePanel implements SerializeListener {
         }
         SerializeManager.addListener(this);
 
-        lbQuantityTicketOnSinglePage = new JLabel("Количество билетов на странице");
+        lbQuantityTicketOnSinglePage = new JLabel(Localizer.get("panel.recordsetting.quantityTickets"));
         spinnerQuantityTicketOnSinglePage = new JSpinner(new SpinnerNumberModel(property.getQuantityOnSinglePage(), 1, 5, 1));
 
-        lbFontSize = new JLabel("Размер шрифта");
+        lbFontSize = new JLabel(Localizer.get("panel.recordsetting.fontSize"));
         spinnerFontSize = new JSpinner(new SpinnerNumberModel(property.getSizeFont(), 1, 20, 1));
 
-        btnOk = new JButton("Ok");
+        btnOk = new JButton(Localizer.get("btn.ok"));
 
         initPanel();
         setConfigComponents();

@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
@@ -12,7 +13,7 @@ public class RecordSetting extends BaseDialog {
     private RecordSettingPanel panel;
 
     public RecordSetting(Window owner, PanelType panelType) {
-        super(owner, panelType, "Параметры записи билетов"); //frame.title.setting.record
+        super(owner, panelType, Localizer.get("frame.title.setting.record"));
         this.setModal(true);
     }
 

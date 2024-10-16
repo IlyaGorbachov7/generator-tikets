@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
@@ -61,7 +62,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
         mapBtnForKeyViewUI = Arrays.stream(modelTableViewSuppliers)
                 .map(modelTableViewSupplier -> {
                     JPanel p = new JPanel();
-                    String name = ReflectionListDataBaseHelper.extractTableViewName(modelTableViewSupplier.getClazzModelView());
+                    String name = Localizer.get(ReflectionListDataBaseHelper.extractTableViewName(modelTableViewSupplier.getClazzModelView()));
                     JButton btn = new JButton(name);
                     btn.setName(name);
                     Class<?> clazzTblView = modelTableViewSupplier.getClazzModelView();

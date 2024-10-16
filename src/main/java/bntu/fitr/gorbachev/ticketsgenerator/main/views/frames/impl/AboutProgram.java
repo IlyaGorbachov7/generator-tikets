@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
@@ -20,7 +21,7 @@ public class AboutProgram extends BaseDialog {
      * @param frame class object {@link JFrame}
      */
     public AboutProgram(Window frame, PanelType type) {
-        super(frame, type, "О программе"); //frame.title.about.program
+        super(frame, type, Localizer.get("frame.title.about.program")); //frame.title.about.program
         this.setModal(false);
     }
 
