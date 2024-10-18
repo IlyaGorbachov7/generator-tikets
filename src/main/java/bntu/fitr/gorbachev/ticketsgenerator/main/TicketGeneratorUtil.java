@@ -177,7 +177,7 @@ public class TicketGeneratorUtil {
     }
 
     public static Long getDelayStepGeneration() {
-        return config.getDelayStepGeneration().orElse(100L);
+        return config.getDelayStepGeneration().orElse(1000L);
     }
 
     public static String getFileSeparator() {

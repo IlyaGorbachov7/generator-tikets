@@ -14,10 +14,7 @@ import lombok.extern.log4j.Log4j2;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
@@ -36,6 +33,7 @@ public class LocalsConfiguration implements SerializeListener {
     @Getter
     private ReadableProperties localeProperties;
 
+    private List<LocalizerListener> handlers = new ArrayList<>();
 
     private Serializer serializer;
 
@@ -63,6 +61,7 @@ public class LocalsConfiguration implements SerializeListener {
         }
         selectedLocale = locale;
         updateLocaleProperties();
+        runUpdate(selectedLocale);
     }
 
     public void setSelectedLocaleSerialize(Locale locale) throws IOException {
@@ -197,6 +196,18 @@ public class LocalsConfiguration implements SerializeListener {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected void runUpdate(Locale locale) {
+        handlers.parallelStream().forEach(l-> l.onUpdateLocale(locale));
+    }
+
+    public void addListener(LocalizerListener l){
+        handlers.add(l);
+    }
+
+    public void removeListener(LocalizerListener l) {
+        handlers.remove(l);
     }
 
     @Override

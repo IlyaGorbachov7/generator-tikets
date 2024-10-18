@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.deptm.DepartmentCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.displn.DisciplineCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.fclt.FacultyCreateDto;
@@ -10,6 +11,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherCreate
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityCreateDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.combobox.CombaBoxSupplierView;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.MyListButtons;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist.handers.ChoiceButtonListListener;
@@ -55,7 +57,7 @@ import java.util.stream.IntStream;
 // TODO: ВСЕ запросы в базу данных дложны осуществляться В ОТДЕЛЬНОМ потоке, чтобы графика отдельно НЕ ЗАВИСАЛА
 // ответа из бд, а продолжала функционировать
 @Log4j2
-public class DataBasePanel extends BasePanel {
+public class DataBasePanel extends BasePanel implements LocalizerListener {
     private JPanel rootPanel;
 
     private JButton btnAllDeselect;
@@ -99,6 +101,7 @@ public class DataBasePanel extends BasePanel {
 
     @Override
     public void initPanel() {
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         // Methods particular for this panel
         initUIFormComponents();
         updateLocaleComponents();
@@ -108,6 +111,11 @@ public class DataBasePanel extends BasePanel {
         // default methods
         setConfigComponents();
         setComponentsListeners();
+    }
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        updateLocaleComponents();
     }
 
     private void updateLocaleComponents() {
@@ -861,7 +869,7 @@ public class DataBasePanel extends BasePanel {
             } else if (source == btnCreate) {
                 log.debug("Click on the btnCreate");
                 JTableDataBase tbl = selectedKeyForViewUI.getTbl();
-                String value = JOptionPane.showInternalInputDialog(DataBasePanel.this, Localizer.get("panel.message.enter.name"),
+                String value = JOptionPane.showInputDialog(DataBasePanel.this, Localizer.get("panel.message.enter.name"),
                         Localizer.get("dialog.title.input"), JOptionPane.INFORMATION_MESSAGE);
                 if (value != null && !value.isBlank()) {
                     tbl.createItem(value);
@@ -870,7 +878,7 @@ public class DataBasePanel extends BasePanel {
                 }
             } else if (source == btnDelete) {
                 log.debug("Click on the btnDelete");
-                if (JOptionPane.showInternalConfirmDialog(DataBasePanel.this, Localizer.get("panel.message.make-sure"),
+                if (JOptionPane.showConfirmDialog(DataBasePanel.this, Localizer.get("panel.message.make-sure"),
                         Localizer.get("dialog.title.delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
                     CompletableFuture.runAsync(() -> {
                         JTableDataBase tbl = selectedKeyForViewUI.getTbl();

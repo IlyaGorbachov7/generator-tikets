@@ -4,6 +4,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameDialogFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.FrameType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
@@ -17,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.random.RandomGenerator;
@@ -29,7 +31,7 @@ import java.util.random.RandomGeneratorFactory;
  * @version 24.03.2022
  */
 @Slf4j
-public class SplashScreenPanel extends BasePanel {
+public class SplashScreenPanel extends BasePanel implements LocalizerListener {
 
     private final JLabel lbUniversity;
     private final JLabel lbFaculty;
@@ -72,7 +74,7 @@ public class SplashScreenPanel extends BasePanel {
         lbYear = new JLabel(Localizer.get("panel.splashscreen.locationData"));
 
         btnNext = new JButton(Localizer.get("btn.next"));
-        btnExit = new JButton("btn.exit");
+        btnExit = new JButton(Localizer.get("btn.exit"));
 
         progressBar = new JProgressBar();
 
@@ -189,6 +191,11 @@ public class SplashScreenPanel extends BasePanel {
 
     private final Thread threadProcess;
     private final Thread threadInit;
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+
+    }
 
     /**
      * The method sets necessary all components listeners

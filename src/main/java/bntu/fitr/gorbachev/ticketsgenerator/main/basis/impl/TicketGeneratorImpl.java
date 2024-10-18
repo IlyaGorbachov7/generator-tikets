@@ -11,6 +11,8 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractContentEx
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.impl.ContentExtractor;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.impl.OutputContentWriter;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
@@ -25,8 +27,8 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
      */
     protected GenerationPropertyImpl property;
 
-    private final static SenderMessage registrarSenderMsg = SenderMsgFactory.getInstance()
-            .getSenderMsg();
+    @Getter
+    private SenderMessage registrarSenderMsg = SenderMsgFactory.getInstance().getSingleSenderMsg();
 
     public TicketGeneratorImpl() {
     }
@@ -46,13 +48,28 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
         super(isLazyStartExtractor, filesRsc, templateTicket);
     }
 
+    public TicketGeneratorImpl(boolean isLazyStartExtractor, File[] filesRsc, Ticket<Question2> templateTicket, SenderMessage registrarSenderMsg) {
+        super();
+        this.registrarSenderMsg = registrarSenderMsg;
+        setConstParam(filesRsc, templateTicket);
+        if (!isLazyStartExtractor) this.runStartExtractorThreads();
+    }
+
+    /**
+     *
+     * @throws bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderStopSleepException
+     */
     @Override
     protected Supplier<AbstractContentExtractThread<Question2>> factoryExtractor(XWPFDocument p, String url) {
-        log.debug("Created factory extractor by: url= {}",url);
+        log.debug("Created factory extractor by: url= {}", url);
         registrarSenderMsg.sendMsg("extract data:" + url);
         return () -> new ContentExtractor(p, url);
     }
 
+    /**
+     *
+     * @throws bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderStopSleepException
+     */
     @Override
     protected Supplier<AbstractOutputContentThread<Ticket<Question2>>> factoryOutputContent(List<Ticket<Question2>> listTickets) {
         log.debug("Created factory output content");
@@ -60,6 +77,10 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
         return () -> new OutputContentWriter(listTickets, property.getWriterTicketProperty());
     }
 
+    /**
+     *
+     * @throws bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderStopSleepException
+     */
     @Override
     protected void conditionsStartGeneration(List<Question2> questions, GenerationProperty property)
             throws GenerationConditionException {
@@ -70,11 +91,40 @@ public class TicketGeneratorImpl extends AbstractTicketGenerator<Question2, Tick
         TicketGeneratorManager.getGenerator(prop.getGenerationWay()).conditionGeneration(questions, property);
     }
 
+    /**
+     *
+     * @throws bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderStopSleepException
+     */
     @Override
     protected List<Ticket<Question2>> createListTickets(Ticket<Question2> templateTicket, List<Question2> questions,
                                                         GenerationProperty property) {
         GenerationPropertyImpl prop = (GenerationPropertyImpl) property;
         registrarSenderMsg.sendMsg("creation list tickets");
         return TicketGeneratorManager.getGenerator(prop.getGenerationWay()).generate(templateTicket, questions, property);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    @NoArgsConstructor
+    public static class Builder {
+
+        protected SenderMessage senderMessage;
+
+        public Builder senderMsg(SenderMessage senderMessage) {
+            this.senderMessage = senderMessage;
+            return this;
+        }
+
+        public TicketGeneratorImpl build(boolean isLazyStartExtractor, File[] filesRsc, Ticket<Question2> templateTicket) {
+            return (senderMessage != null) ?
+                    new TicketGeneratorImpl(isLazyStartExtractor, filesRsc, templateTicket, senderMessage) :
+                    new TicketGeneratorImpl(isLazyStartExtractor, filesRsc, templateTicket);
+        }
+
+        public TicketGeneratorImpl build(File[] filesRsc, Ticket<Question2> templateTicket) {
+            return build(true, filesRsc, templateTicket);
+        }
     }
 }

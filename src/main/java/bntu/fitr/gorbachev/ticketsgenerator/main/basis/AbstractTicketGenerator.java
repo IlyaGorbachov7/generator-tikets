@@ -152,7 +152,7 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      * <p>
      * Method will be invoked or inside one the once constructors, otherwise {@link #startGenerate(GenerationProperty)}
      */
-    private void runStartExtractorThreads() {
+    protected void runStartExtractorThreads() {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         this.futureTaskExtractContent = executorService.submit(this);
         executorService.shutdown();
@@ -223,33 +223,46 @@ public abstract class AbstractTicketGenerator<Q extends QuestionExt, T extends T
      */
     public final void startGenerate(GenerationProperty generationProperty)
             throws GenerationConditionException, ExecutionException, InterruptedException {
+        if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
         log.info("Start generate Tickets");
         this.generationProperty = generationProperty;
         checkedNecessarilyConditions();
 
+        if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
+        log.debug("run extracting data from files");
         // run staring thread for extract content from docx file
         if (futureTaskExtractContent == null) this.runStartExtractorThreads();
 
         List<Q> listQuestions;
         try {
+            if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
             listQuestions = futureTaskExtractContent.get(); // await answer
         } catch (InterruptedException e) { // in case interrupted thread
+            log.info("Interrupted futureTask by extract content");
             futureTaskExtractContent.cancel(true); // then also interrupt extract-thread
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }
 
+        if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
+        log.debug("checking conditions start generation");
         conditionsStartGeneration(listQuestions, this.generationProperty);
 
+        if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
+        log.debug("start create list of the tickets");
         listTicket = createListTickets(templateTicket, listQuestions, this.generationProperty);
 
         // lunch output content formation thread
         AbstractOutputContentThread<T> threadWriteTickets = factoryOutputContent(listTicket).get();
         ExecutorService executorService = Executors.newSingleThreadExecutor();
+        if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
+        log.debug("run output tickets on the document format");
         Future<XWPFDocument> futureTaskOutputContent = executorService.submit(threadWriteTickets);
         executorService.shutdown();
         try {
+            if(Thread.currentThread().isInterrupted()) throw new InterruptedException();
             docxDec = futureTaskOutputContent.get(); // await answer
         } catch (InterruptedException e) {
+            log.debug("Interrupted futureTask by output data to document");
             futureTaskOutputContent.cancel(true);
             throw new InterruptedException(e.getMessage()); // throw this exception one level higher
         }

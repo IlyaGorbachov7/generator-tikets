@@ -12,7 +12,9 @@ public class SenderMsgFactory {
         return instance;
     }
 
-    public SenderMessage getSenderMsg() {
-        return rsm;
+    public SenderMessage getNewSenderMsg() {
+        return new SenderMessageImpl();
     }
+
+    public SenderMessage getSingleSenderMsg(){return rsm;}
 }

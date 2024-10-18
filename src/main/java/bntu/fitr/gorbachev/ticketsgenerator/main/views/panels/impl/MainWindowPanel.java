@@ -13,6 +13,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetriever;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderStopSleepException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
@@ -63,11 +64,12 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ValueRange;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 
@@ -210,9 +212,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         spinnerQuantityQuestionTickets = new JSpinner();
 
         loadingDialog = new LoadingDialog();
-
-        registerSenderMsg = SenderMsgFactory.getInstance().getSenderMsg();
-
 
         inputSearchFieldsData = InputSearchFieldsData.builder().build();
 
@@ -818,9 +817,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         form.setCommitsOnValidEdit(true);
         spinnerQuantityQuestionTickets.addChangeListener(e -> {
         });
-
-        // registrations sender msg
-        registerSenderMsg.add(loadingDialog);
     }
 
     /**
@@ -1215,7 +1211,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
     private File tmpFileDocx;
     private boolean isRandomRead;
     private boolean isRandomWrite;
-    private final SenderMessage registerSenderMsg;
 
     @Override
     public Component getComponent() {
@@ -1239,6 +1234,18 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
      * @version 19.04.2022
      */
     private final class TicketsGenerationExecutionThread extends Thread {
+        private volatile boolean singleOfInterrupted = false;
+
+        @Override
+        public void interrupt() {
+            super.interrupt();
+            singleOfInterrupted = true;
+        }
+
+        @Override
+        public boolean isInterrupted() {
+            return singleOfInterrupted;
+        }
 
         /**
          * Flow execution  method
@@ -1259,7 +1266,10 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                     tfHeadDepartment.getText(),
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
                     datePicDecision.getText(), tfProtocol.getText(), quantityQuestionInTicket);
-            ticketGenerator = new TicketGeneratorImpl(filesRes, tempTicket);
+            SenderMessage registerSenderMsg = SenderMsgFactory.getInstance().getNewSenderMsg();
+            // registrations sender msg
+            registerSenderMsg.add(loadingDialog);
+            ticketGenerator = TicketGeneratorImpl.builder().senderMsg(registerSenderMsg).build(false, filesRes, tempTicket);
 
             var generateWay = ((GenerationMode)
                     Objects.requireNonNull(jBoxModes.getSelectedItem())).getGenerateWay();
@@ -1274,6 +1284,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 try {
                     registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.start"));
                     loadingDialog.showDialog();
+                    log.debug("**try-start...: thread: {}, isInterrupted: {} **", getName(), isInterrupted());
+                    if (isInterrupted()) throw new InterruptedException();
                     ticketGenerator.startGenerate(property);
                     repeat = false;
                 } catch (ExecutionException | GenerationConditionException ex) {
@@ -1310,11 +1322,17 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                             this.setEnabledComponents(true, false);
                         }
                     } else {
-                        // general condition exception and execution exception
-                        JOptionPane.showMessageDialog(null,
-                                (ex.getCause() != null) ? ex.getCause().getMessage() // handle InterruptedException
-                                        : ex.getMessage(),// handle ConditionGenerationException
-                                Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
+                        if (ex.getCause() instanceof IOException && ex.getCause().getMessage().contains("Zip bomb detected! The file would exceed the max.")) {
+                            JOptionPane.showMessageDialog(null, Localizer.get("panel.message.file.big"),
+                                    Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            // general condition exception and execution exception
+                            JOptionPane.showMessageDialog(null,
+                                    (ex.getCause() != null) ? ex.getCause().getMessage() // handle InterruptedException
+                                            : ex.getMessage(),// handle ConditionGenerationException
+                                    Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
+                            log.warn("", ex);
+                        }
                         this.setEnabledComponents(true, false);
                         repeat = false; // necessary, because need set value false, if earlier repeat = true
                         loadingDialog.closeDialog();
@@ -1326,6 +1344,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                               "close program during ticket generation: interrupted is successful");
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
+                } catch(SenderStopSleepException senderException) {
+                    // Если поучилось так, что генерацию остановил SenderMessage когда он спал.
+                    log.warn("Generator ticket was stopped by reason stopping SenderMessage");
+                    this.setEnabledComponents(true, false);
+                    repeat = false; // necessary, because need set value false, if earlier repeat = true
                 } catch (Exception allExceptions) {
                     loadingDialog.closeDialog();
                     // general condition exception and execution exception
@@ -1333,6 +1356,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                             (allExceptions.getCause() != null) ? allExceptions.getCause().getMessage() // handle InterruptedException
                                     : allExceptions.getMessage(),// handle ConditionGenerationException
                             Localizer.get("panel.message.title.warn"), JOptionPane.ERROR_MESSAGE);
+                    log.warn("", allExceptions);
+                    this.setEnabledComponents(true, false);
+                    repeat = false; // necessary, because need set value false, if earlier repeat = true
+                }catch (StackOverflowError stackOverflowError) {
+                    log.warn("", stackOverflowError);
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
                 }
@@ -1366,6 +1394,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                         inputStream = new FileInputStream(tmpFileDocx);
                         outputStream = new FileOutputStream(tmpFilePdf);
                         converter = LocalConverter.builder().build();
+
                         registerSenderMsg.sendMsg(Localizer.get("panel.main.message.registrator.file.convert.start"));
                         log.info("convert docx => pdf");
                         converter.convert(inputStream).as(DocumentType.DOCX).to(outputStream)
@@ -1389,13 +1418,22 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                             outputStream.close();
                         }
                     }
-                } catch (Exception e) {
+                }catch(SenderStopSleepException ex){
+                    log.warn("Generator ticket was stopped by reason stopping SenderMessage");
+                } catch (Throwable e) {
                     loadingDialog.closeDialog();
                     this.setEnabledComponents(true, false);
                     log.error("CONVERTOR Xyeta 5min wait that close program");
                     log.error(e);
-
-                    if ((e.getCause() != null && e.getCause().getClass() == InterruptedException.class)) {
+                    if(e instanceof InterruptedException){
+                        return;
+                    }
+                    if (((e.getCause() != null) && (e.getCause() instanceof InterruptedException))) {
+                        return;
+                    }
+                    if(e instanceof IllegalStateException ){
+                        // Ошибка возникает потому что e.getCause == MicrosoftWordBridge
+                        //ERROR com.documents4j.conversion.msoffice.MicrosoftWordBridge - Thread responsible for running script was interrupted: C:\Users\SecuRiTy\AppData\Local\Temp\tmp11017103057597779222\word_start905584576.vbs
                         return;
                     }
                     JOptionPane.showMessageDialog(null, //panel.message.generation.error
@@ -1519,7 +1557,19 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         @Override
         public void setComponentsListeners() {
+            this.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    log.debug("Loading dialog is showed");
+                }
+
+                @Override
+                public void componentHidden(ComponentEvent e) {
+                    log.debug("Loading dialog is hidden");
+                }
+            });
             btnCancel.addActionListener(e -> {
+                log.debug("@@cancel generate ticket: " + executionThread.getName());
                 executionThread.interrupt();
                 closeDialog();
             });
@@ -1549,19 +1599,24 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         public void showDialog() {
             isRun = false;
-
+            TicketsGenerationExecutionThread ticketGenerationExeThread = (TicketsGenerationExecutionThread) Thread.currentThread();
             var thread = new Thread(() -> {
                 isRun = true;
                 this.setModal(true);
                 this.setVisible(true);
+//                currThread.interrupt();
             });
             thread.start();
 
             try {
                 while (!isRun) {
-                    Thread.sleep(600);
+                    log.debug("WAIT SHOW IDALOG: {}, isInterrupted: {}", ticketGenerationExeThread.getName(), ticketGenerationExeThread.isInterrupted());
+                    Thread.sleep(100);
                 }
             } catch (InterruptedException ignored) {
+                log.debug("EXXXEEEECCCUTTTOR thread wake up :): ticketGenerationExeThread.isInterrupt = {}", ticketGenerationExeThread.isInterrupted());
+                // когда происходит обработки InterruptedException то флаг isInterrupted == false.
+                // Это логично, так как мы обработали данное исключение и java восстанавливает его состояния в рабочее
             }
         }
 

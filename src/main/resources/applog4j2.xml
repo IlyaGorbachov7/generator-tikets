@@ -24,12 +24,12 @@
             </FilePattern> <!-- Здесь нужно обязательно добавить %i? чтобы сробатывал DefaultRolloverStrategy-->
             <Policies>
                 <SizeBasedTriggeringPolicy
-                        size="1MB"/> <!--Когда достигнет 1MB то срабатывает DefaultRolloverStrategy, который в совю очередь смотрит какоие файлы удалять -->
+                        size="100KB"/> <!--Когда достигнет 1MB то срабатывает DefaultRolloverStrategy, который в совю очередь смотрит какоие файлы удалять -->
             </Policies>
             <DefaultRolloverStrategy min="1"
                                      max="1"><!--Удаление срабатывает только когда созданны файл filePattern содержит %i-->
                 <Delete basePath="${PATH_LOGS}" maxDepth="1">
-                    <IfLastModified age="2d"/> <!--Спустя 2д будет полностью очищаться папка корнивая папка лога-->
+                    <IfLastModified age="3d"/> <!--Спустя 2д будет полностью очищаться папка корнивая папка лога-->
                 </Delete>
                 <Delete basePath="${PATH_LOGS}/${date:yyyy-MM-dd}" maxDepth="3">
                     <IfLastModified
@@ -70,7 +70,7 @@
             <AppenderRef ref="ConsoleAppender"/>
         </Logger>
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
-        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.views" level="info"
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.views" level="debug"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
             <AppenderRef ref="TriggerOnDeleteLogFiles"/>
