@@ -125,7 +125,7 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         btnUpdate.setText(Localizer.get("panel.db.update"));
         btnCreate.setText(Localizer.get("panel.db.create"));
         tablesLbl.setText(Localizer.get("panel.db.tables"));
-        tfFilter.setToolTipText(Localizer.get("panel.db.tf-filter.tool-tip-text"));
+        tfFilter.setHint(Localizer.get("panel.db.tf-filter.tool-tip-text"));
     }
 
     protected void initUIFormComponents() {
@@ -617,6 +617,7 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
                 });
         setEnableCRUDbtn(false, false, false);
         setEnableComponent(false);
+        tfFilter.setText(Localizer.get("panel.db.tf-filter.tool-tip-text"));
     }
 
     @Override

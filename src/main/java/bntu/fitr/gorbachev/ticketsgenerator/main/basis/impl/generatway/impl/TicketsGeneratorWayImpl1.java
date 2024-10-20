@@ -10,6 +10,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationCond
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -52,9 +53,8 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
 
             if (!Objects.isNull(mapWrapListQuestBySection.get(""))) {
                 if (!prop.isFlagContinGenWithChapterWithoutSection()) {
-                    generationConditionException = new FindsChapterWithoutSection("Вы указали " + prop.getQuantityQTickets() + " вопрос в билете.\n" +
-                                                                                  "В файле обнаружены вопросы, не имеющих определения темы.\n" +
-                                                                                  "В дальнейшем эти вопросы не будут включены в выборку.");
+                    generationConditionException = new FindsChapterWithoutSection(String.format(
+                            Objects.requireNonNull(Localizer.get("generator.message.error.1")), prop.getQuantityQTickets()));
                     throw new RuntimeException(generationConditionException);
                 } else {
                     mapWrapListQuestBySection.remove("");
@@ -68,12 +68,10 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
                         .toList().subList(prop.getQuantityQTickets(), mapWrapListQuestBySection.size());
 
                 if (!prop.isFlagContinGenWithDepriveLev()) {
-                    generationConditionException = new FindsNonMatchingLevel("Вы указали " + prop.getQuantityQTickets() + " вопрос в билете.\n" +
-                                                                             "Были найдены следующие темы: \n" +
-                                                                             mapWrapListQuestBySection.keySet() + ".\n" +
-                                                                             "Выборка вопросов будет производится по первым " + prop.getQuantityQTickets() +
-                                                                             " перечисленным темам.\n" +
-                                                                             "Остальные темы: \n" + findsNonMatch + "\nв выборку не войдут");
+                    String res = String.format(Objects.requireNonNull(Localizer.get("generator.message.warn.1")),
+                            prop.getQuantityQTickets(), mapWrapListQuestBySection.keySet(), prop.getQuantityQTickets(),
+                            findsNonMatch);
+                    generationConditionException = new FindsNonMatchingLevel(res);
                     throw new RuntimeException(generationConditionException);
                 } else {
                     for (var section :
@@ -84,16 +82,13 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
                 }
             } else if (notEnough < 0) {
                 if (sections.isEmpty()) {
-                    generationConditionException = new GenerationConditionException("Не обнаружено ни одна тема");
+                    generationConditionException = new GenerationConditionException(Localizer.get("generator.message.warn.1.not-found"));
                     throw new RuntimeException(generationConditionException);
                 }
-
-                generationConditionException = new GenerationConditionException("Вы указали " + prop.getQuantityQTickets() + " вопрос в билете.\n" +
-                                                                                "Были найдены следующие темы: " +
-                                                                                mapWrapListQuestBySection.keySet() + "\n" +
-                                                                                "Не достаточно количество тем, чтобы сгруппировать вопросы билета по темам.\n" +
-                                                                                "Минимально необходимое количество тем: " + prop.getQuantityQTickets() + "\n" +
-                                                                                "Не хватает тем в количестве: " + Math.abs(notEnough));
+                String res = String.format(Objects.requireNonNull(Localizer.get("generator.message.warn.1.if-find")),
+                        prop.getQuantityQTickets(), mapWrapListQuestBySection.keySet(), prop.getQuantityQTickets(),
+                        Math.abs(notEnough));
+                generationConditionException = new GenerationConditionException(res);
                 throw new RuntimeException(generationConditionException);
             }
 
@@ -113,18 +108,10 @@ public class TicketsGeneratorWayImpl1 extends TicketsGeneratorWayImpl2 {
                 // then check really user take into account the conditions for generation tickets
 
                 if (!entryQuantityNotEnough.isEmpty()) {
-                    generationConditionException = new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                                                       "Требуется, чтобы количество вопросов в каждой из тем суммарно\n" +
-                                                                                       " был равен как минимум : " + prop.getQuantityTickets() + " " +
-                                                                                       " (с учётом указанного Вами количество повторения)\n" +
-                                                                                       "Не достаточно вопросов у тем:\n" +
-                                                                                       entryQuantityNotEnough.stream()
-                                                                                               .map(e -> e.getKey() + " => в количестве: " + e.getValue())
-                                                                                               .collect(Collectors.joining("\n")) + "\n" +
-                                                                                       "Среди вопросов, у которых указано число повторений  строго больше " + QuestionExt.MIN_VALUE_REPEAT + ", будет\n" +
-                                                                                       "равномерно-последовательно увеличено недостающее число повторений, если таковые имеются,\n" +
-                                                                                       "однако если среди вопросов нет ни одного вопроса\n" +
-                                                                                       "повторяемость которого больше " + QuestionExt.MIN_VALUE_REPEAT +"," +"вопросы будут выбраны равномерно-рандомно.");
+                    String res = String.format(Localizer.get("generator.message.warn.1.if-find2"),prop.getQuantityQTickets(),prop.getQuantityTickets(),                                                                                       entryQuantityNotEnough.stream()
+                            .map(e -> e.getKey() + " => в количестве: " + e.getValue())
+                            .collect(Collectors.joining("\n")),QuestionExt.MIN_VALUE_REPEAT,QuestionExt.MIN_VALUE_REPEAT);
+                    generationConditionException = new NumberQuestionsRequireException(res);
                     throw new RuntimeException(generationConditionException);
                 }
             } else {

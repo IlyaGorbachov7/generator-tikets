@@ -1,6 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.jlist.tblslist;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ColorManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
@@ -103,6 +105,16 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
             keyView.getTbl().addTableSelectedRowsListener(handlerSelection);
         });
         AppThemeManager.addThemeChangerListener(this);
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                mapBtnForKeyViewUI.entrySet().forEach(entry -> {
+                    entry.getKey().setText(Localizer.get(
+                            ReflectionListDataBaseHelper.extractTableViewName(
+                                    entry.getValue().getTbl().getClassTableView())));
+                });
+            }
+        });
         defaultSelectedBtn();
     }
 

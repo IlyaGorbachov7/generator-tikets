@@ -192,9 +192,9 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
      * @version 10.03.2022
      */
     public enum SessionType {
-        AUTUMN(Localizer.get("sessionType.autumn")), WINTER(Localizer.get("sessionType.winter")),
-        SPRING(Localizer.get("sessionType.spring")), SUMMER(Localizer.get("sessionType.summer")),
-        NON(Localizer.get("sessionType.nondefine"));
+        AUTUMN("sessionType.autumn"), WINTER("sessionType.winter"),
+        SPRING("sessionType.spring"), SUMMER("sessionType.summer"),
+        NON("sessionType.nondefine");
         private final String name;
 
         /**
@@ -206,6 +206,10 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
             this.name = name;
         }
 
+        public String key() {
+            return name;
+        }
+
         /**
          * This method represent object
          *
@@ -213,7 +217,7 @@ public class Ticket<T extends QuestionExt> implements Cloneable {
          */
         @Override
         public String toString() {
-            return name;
+            return Localizer.get(name);
         }
 
     }

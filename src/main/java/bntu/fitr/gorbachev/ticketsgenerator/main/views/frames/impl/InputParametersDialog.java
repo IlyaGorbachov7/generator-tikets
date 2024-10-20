@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
@@ -21,6 +22,7 @@ public class InputParametersDialog extends BaseDialog implements LocalizerListen
         this.setBounds((int) getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 1080, 400);
         this.setContentPane(PanelFactory.getInstance().createPanel(this, PanelType.INPUT_PARAM_DB));
         this.setResizable(true);
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
     }
 
     @Override

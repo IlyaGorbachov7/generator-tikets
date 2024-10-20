@@ -53,6 +53,12 @@ public class HintTextField extends JTextField implements FocusListener, ThemeCha
         }
     }
 
+    public void setHint(String hintText) {
+        hint = hintText;
+        focusGained(null);
+        focusLost(null);
+    }
+
     @Override
     public void setText(String t) {
         if (hint != null) {

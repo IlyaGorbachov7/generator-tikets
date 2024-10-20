@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
@@ -22,6 +23,7 @@ public class RecordSetting extends BaseDialog implements LocalizerListener {
     @Override
     public void initDialog() {
         this.setResizable(false);
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         panel = (RecordSettingPanel) PanelFactory.getInstance().createPanel(this, getPanelType());
         this.add(panel);
         // setting dialog size == size all regarding components preferred sizes of all components

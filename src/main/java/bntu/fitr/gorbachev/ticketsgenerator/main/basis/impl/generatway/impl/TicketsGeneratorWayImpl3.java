@@ -8,10 +8,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationCond
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -55,10 +54,7 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
             GenerationConditionException generationConditionException;
             if (questions.size() < prop.getQuantityQTickets()) {
                 generationConditionException = new GenerationConditionException(
-                        String.format("""
-                                        Вы указали: %d вопросов в билете.
-                                        Недостаточно вопросов, чтобы сгенерировать билет без повторяющихся вопросов
-                                        """, prop.getQuantityQTickets()));
+                        String.format(Locale.ROOT, Objects.requireNonNull(Localizer.get("generator.message.error.3")), prop.getQuantityQTickets()));
                 throw new RuntimeException(generationConditionException);
             }
 
@@ -68,17 +64,7 @@ public class TicketsGeneratorWayImpl3 extends TicketsGeneratorWayImpl2 {
             if (totalQuantity > 0) {
                 if (prop.isUnique()) {
                     generationConditionException = new NumberQuestionsRequireException(
-                            String.format("""
-                                            Вы указали: %d вопросов в билете.
-                                            Требуется, чтобы количество вопросов суммарно с учётом указанного Вами
-                                            количество повторения был равен как минимум:
-                                            КоличествоБилетов * КоличествоВопросовБилета = %d * %d = %d
-                                            Недостаточно вопросов, в количестве: %d
-                                            Среди вопросов, у которых указано число повторений строго больше %d, будет
-                                            равномерно-последовательно увеличено недостающее число повторений, если таковые имеются,
-                                            однако если среди вопросов нет ни одного вопроса
-                                            повторяемость которого больше %d, вопросы будут выбраны равномерно-рандомно.
-                                            """,
+                            String.format(Locale.ROOT, Objects.requireNonNull(Localizer.get("generator.message.warn.3")),
                                     prop.getQuantityQTickets(), prop.getQuantityTickets(), prop.getQuantityQTickets(),
                                     prop.getQuantityTickets() * prop.getQuantityQTickets(), totalQuantity,
                                     QuestionExt.MIN_VALUE_REPEAT, QuestionExt.MIN_VALUE_REPEAT));

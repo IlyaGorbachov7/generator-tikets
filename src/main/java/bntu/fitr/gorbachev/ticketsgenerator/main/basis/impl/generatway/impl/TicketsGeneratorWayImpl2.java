@@ -10,6 +10,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestion
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.TicketsGeneratorWay;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -68,21 +69,16 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
                 System.out.println(mapRang.get(false));
                 // fatal exception
                 generationConditionException = new GenerationConditionException(
-                        "Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + ".\n" +
-                        "Отсутствуют вопросы со сложностью: " + mapRang.get(false) + ".\n" +
+                        String.format(Locale.ROOT, Objects.requireNonNull(Localizer.get("generator.message.error.2")), prop.getQuantityQTickets(), mapRang.get(false)) +
                         ((findsNonMatchLevel.isEmpty()) ? ""
-                                : "Однако найдены вопросы со сложностью: " + findsNonMatchLevel + ",\n") +
-                        "необходимо указать сложность вопросов в приделах: [1;" + prop.getQuantityQTickets() + "]"
-                );
+                                : String.format(Locale.ROOT, Objects.requireNonNull(Localizer.get("generator.message.error.2.if-find")), findsNonMatchLevel.toString(), prop.getQuantityQTickets())
+                        ));
                 throw new RuntimeException(generationConditionException);
             } else if (!findsNonMatchLevel.isEmpty()) {
                 if (!prop.isFlagContinGenWithDepriveLev()) {
                     // exception allowed to continue generation. That continue generation needed set flag == true
                     generationConditionException =
-                            new FindsNonMatchingLevel("Вы указали количество вопросов в билете: " + prop.getQuantityQTickets() + "\n" +
-                                                      "Кроме вопросов со сложностью: " + mapRang.get(true) + ", что позволяет сгенерировать билеты,\n" +
-                                                      "были найдены вопросы сложности: " + findsNonMatchLevel + ".\n" +
-                                                      "Выборка вопросов будет производится только в пределах: [1; " + prop.getQuantityQTickets() + "]\n");
+                            new FindsNonMatchingLevel(String.format(Objects.requireNonNull(Localizer.get("generator.message.warn.2")), prop.getQuantityQTickets(), mapRang.get(true), findsNonMatchLevel, prop.getQuantityQTickets()));
                     throw new RuntimeException(generationConditionException);
                 } else {
                     // just remove unnecessary levels from global mapListQuest
@@ -110,19 +106,11 @@ public class TicketsGeneratorWayImpl2 implements TicketsGeneratorWay<Question2, 
 
                 if (!entryQuantityNotEnough.isEmpty()) {
                     // exception allowed to continew generation
+                    String res = String.format(Objects.requireNonNull(Localizer.get("generator.message.warn.2.if-find")), prop.getQuantityQTickets(), prop.getQuantityTickets(), entryQuantityNotEnough.stream()
+                                    .map(e -> e.getKey() + " => в количестве: " + e.getValue()).collect(Collectors.joining("\n")),
+                            QuestionExt.MIN_VALUE_REPEAT, QuestionExt.MIN_VALUE_REPEAT);
                     generationConditionException =
-                            new NumberQuestionsRequireException("Вы указали: " + prop.getQuantityQTickets() + " вопросов в билете.\n" +
-                                                                "Требуется, чтобы количество вопросов в каждой из сложностей суммарно\n" +
-                                                                " был равен как минимум: " + prop.getQuantityTickets() + "" +
-                                                                " (с учётом указанного Вами количество повторения).\n" +
-                                                                "Не достаточно вопросов у сложности:\n" +
-                                                                entryQuantityNotEnough.stream()
-                                                                        .map(e -> e.getKey() + " => в количестве: " + e.getValue())
-                                                                        .collect(Collectors.joining("\n")) + ".\n" +
-                                                                "Среди вопросов, у которых указано число повторений строго больше " + QuestionExt.MIN_VALUE_REPEAT + ", будет\n" +
-                                                                "равномерно-последовательно увеличено недостающее число повторений, если таковые имеются,\n" +
-                                                                "однако если среди вопросов нет ни одного вопроса\n" +
-                                                                " повторяемость которого больше " + QuestionExt.MIN_VALUE_REPEAT +"," +"вопросы будут выбраны равномерно-рандомно.");
+                            new NumberQuestionsRequireException(res);
                     throw new RuntimeException(generationConditionException);
                 }
             } else {

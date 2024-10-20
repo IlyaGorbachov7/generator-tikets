@@ -302,6 +302,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         chooserUpLoad.setLocale(selectedLocale);
         datePicDecision.setLocale(selectedLocale);
         jBoxModes.updateUI();
+        boxTypeSession.updateUI();
     }
 
     /**

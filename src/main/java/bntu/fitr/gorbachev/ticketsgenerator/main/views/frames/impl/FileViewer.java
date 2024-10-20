@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
@@ -37,6 +38,7 @@ public class FileViewer extends BaseDialog implements LocalizerListener {
      */
     @Override
     public void initDialog() {
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         this.control = new SwingController();
         this.setBounds((int) getFrame().getBounds().getX(),
                 (int) getFrame().getBounds().getY(), 900, 700);

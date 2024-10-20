@@ -62,6 +62,7 @@ public class LocalsConfiguration implements SerializeListener {
         selectedLocale = locale;
         Locale.setDefault(selectedLocale);
         updateLocaleProperties();
+        log.info("Selected locale: {}", selectedLocale);
         runUpdate(selectedLocale);
     }
 

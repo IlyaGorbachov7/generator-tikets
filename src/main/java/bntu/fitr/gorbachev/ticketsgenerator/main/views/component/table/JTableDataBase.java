@@ -1,6 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsEvent;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.component.table.abservers.TableSelectedRowsListener;
@@ -14,15 +16,14 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Getter
 @Log4j2
-public class JTableDataBase extends JTable {
+public class JTableDataBase extends JTable implements LocalizerListener {
     private final Class<?> classTableView;
 
     private final JPanel pnlTbl;
@@ -50,6 +51,7 @@ public class JTableDataBase extends JTable {
                           RelatedTblDataBase relatedMdlTbl, Function<Object[], DefaultTableCellRenderer> supplierCellRender) {
         super(new RealizeTableModel(clazz, supplierDataList, supplierCreate, supplierUpdate, supplierDelete),
                 new RealizeTableColumnModel());
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         setAutoCreateColumnsFromModel(true);
         this.classTableView = clazz;
         this.pnlTbl = p;
@@ -167,7 +169,7 @@ public class JTableDataBase extends JTable {
         this.setGridColor(new Color(78, 157, 231));
         this.setShowGrid(true);
         this.getTableHeader().setReorderingAllowed(false);
-        this.setRowHeight(25);
+        this.setRowHeight(30);
         this.setPreferredScrollableViewportSize(this.getPreferredSize());
     }
 
@@ -201,6 +203,11 @@ public class JTableDataBase extends JTable {
     @Override
     protected JTableHeader createDefaultTableHeader() {
         return super.createDefaultTableHeader();
+    }
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        createDefaultColumnsFromModel();
     }
 
     @Override
@@ -245,14 +252,14 @@ public class JTableDataBase extends JTable {
             log.warn("selectedItem.getClass() != classTableView");
             throw new IllegalArgumentException("selectedItem.getClass() != classTableView");
         }
-        log.info("Request on the updateItem: {}",selectedItem);
+        log.info("Request on the updateItem: {}", selectedItem);
         ((RealizeTableModel) dataModel).updateItem(selectedItem);
     }
 
     public Object getSelectedItem() {
         Object[] items = getSelectedItems();
         Object res = items.length == 1 ? items[0] : null;
-        log.debug("Get selectedItem: {}",res);
+        log.debug("Get selectedItem: {}", res);
         return res;
     }
 
@@ -261,7 +268,6 @@ public class JTableDataBase extends JTable {
         log.debug("Get selectedItems: {}", res);
         return res;
     }
-
 
     private static class RealizeTableColumnModel extends DefaultTableColumnModel {
     }
@@ -278,15 +284,14 @@ public class JTableDataBase extends JTable {
 
         private final Function<Object, List<?>> supplierDelete;
 
-
         private String[] columnNames;
 
         @Getter
         private Object[][] data;
 
-        private RealizeTableModel(@NonNull Class<?> clazz, Function<Object, List<?>> supplier,
-                                  Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
-                                  Function<Object, List<?>> supplierDelete) {
+        protected RealizeTableModel(@NonNull Class<?> clazz, Function<Object, List<?>> supplier,
+                                    Function<Object, Object> supplierCreate, Function<Object, Object> supplierUpdate,
+                                    Function<Object, List<?>> supplierDelete) {
             classTableView = clazz;
             supplierDataList = supplier;
             this.supplierCreate = supplierCreate;
@@ -302,7 +307,6 @@ public class JTableDataBase extends JTable {
             data = ReflectionTableHelper.extractDataAndTransformToClass(supplierDataList.apply(classTableView), classTableView);
             if (columnNames == EMPTY) {
                 columnNames = ReflectionTableHelper.extractColumnName(classTableView);
-                columnNames = Arrays.stream(columnNames).map(Localizer::get).toArray(String[]::new);
             }
         }
 
@@ -350,7 +354,7 @@ public class JTableDataBase extends JTable {
 
         @Override
         public String getColumnName(int column) {
-            return columnNames[column];
+            return Localizer.get(columnNames[column]);
         }
 
         @Override
