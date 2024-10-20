@@ -1,13 +1,16 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.extern.log4j.Log4j2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Locale;
 import java.util.Objects;
 
 @Log4j2
@@ -51,6 +54,16 @@ public class AboutAuthorPanel extends BasePanel {
         var ok = new JButton(Localizer.get("btn.ok"));
         ok.addActionListener(event -> getRootFrame().setVisible(false));
         add(ok, BorderLayout.SOUTH);
+
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                lbPost.setText(" " + Localizer.get("panel.infoDev"));
+                lbName.setText(Localizer.get("panel.nameDev"));
+                lbRelate.setText(Localizer.get("panel.emailDev"));
+                ok.setText(Localizer.get("btn.ok"));
+            }
+        });
     }
 
     @Override

@@ -27,6 +27,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.tchr.TeacherDto;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.dto.univ.UniversityDTO;
 import bntu.fitr.gorbachev.ticketsgenerator.main.services.factory.impl.ServiceFactoryImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
@@ -64,6 +65,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ValueRange;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -80,7 +82,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.Launch
  * @version 18.04.2022
  */
 @Log4j2
-public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
+public class MainWindowPanel extends BasePanel implements ThemeChangerListener, LocalizerListener {
     private final JMenuBar menuBar;
     private final JMenuItem loadItem;
     private final JMenuItem saveItem;
@@ -245,6 +247,54 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
                 .build();
     }
 
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        loadItem.setText(Localizer.get("panel.load"));
+        saveItem.setText(Localizer.get("panel.save"));
+        exitItem.setText(Localizer.get("panel.leave"));
+        aboutAuthorItem.setText(Localizer.get("panel.main.aboutAuthor"));
+        aboutProgramItem.setText(Localizer.get("panel.main.aboutProgram"));
+        recordSettingItem.setText(Localizer.get("panel.main.recordTickets"));
+        databaseSettingItem.setText(Localizer.get("panel.main.inputSetting"));
+        tglAppTheme.setText(Localizer.get("panel.main.themeApp"));
+
+        lbInstitute.setText(Localizer.get("panel.main.university"));
+        lbFaculty.setText(Localizer.get("panel.main.faculty"));
+        lbDepartment.setText(Localizer.get("panel.main.department"));
+        lbSpecialization.setText(Localizer.get("panel.main.specialization"));
+        lbDiscipline.setText(Localizer.get("panel.main.discipline"));
+        lbTeacher.setText(Localizer.get("panel.main.examiner"));
+        lbHeadDepartment.setText(Localizer.get("panel.main.departmentLeader"));
+        lbTypeSession.setText(Localizer.get("panel.main.sessionType"));
+        lbDateDecision.setText(Localizer.get("panel.main.dataApproval"));
+        lbProtocol.setText(Localizer.get("panel.main.protocol"));
+
+        boxTypeSession.updateUI();
+        jBoxModes.updateUI();
+
+        btnAdd.setText(Localizer.get("panel.main.file.load"));
+        btnRemove.setText(Localizer.get("panel.main.file.exclude"));
+        lbReadQuestRandom.setText(Localizer.get("panel.main.file.question.read"));
+        rdiBtnSequence.setText(Localizer.get("panel.main.file.question.sequence"));
+        rdiBtnRandom.setText(Localizer.get("panel.main.file.question.random"));
+        lbWriteQuestRandom.setText(Localizer.get("panel.main.file.question.write"));
+        rdiBtnWriteSequence.setText(Localizer.get("panel.main.file.question.sequence"));
+        rdiBtnWriteRandom.setText(Localizer.get("panel.main.file.question.random"));
+
+        lbGenerationMode.setText(Localizer.get("panel.main.generation.mode"));
+        btnGenerate.setText(Localizer.get("panel.main.ticket.generation"));
+        btnViewFile.setText(Localizer.get("panel.main.ticket.preview"));
+        btnSave.setText(Localizer.get("panel.main.ticket.save"));
+        lblCountItems.setText(Localizer.get("panel.main.file.load.quantity"));
+        lbQuantityTickets.setText(Localizer.get("panel.main.ticket.quantity"));
+        lbQuantityQuestionTickets.setText(Localizer.get("panel.main.ticket.quantity.question"));
+        tfTeacher.setToolTipText(Localizer.get("panel.main.firstlastname"));
+        tfHeadDepartment.setToolTipText(Localizer.get("panel.main.firstlastname"));
+
+
+
+    }
+
     /**
      * The constructor creates a panel
      *
@@ -285,6 +335,14 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         } else if (frame instanceof JDialog window) {
             window.setJMenuBar(menuBar);
         }
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                fileMenu.setText(Localizer.get("panel.main.file"));
+                infoMenu.setText(Localizer.get("panel.main.information"));
+                settingMenu.setText(Localizer.get("panel.main.setting"));
+            }
+        });
 
         this.initPanel();
 
@@ -1132,7 +1190,12 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
         JPanel pnlRes = new JPanel();
         pnlRes.setLayout(new BoxLayout(pnlRes, BoxLayout.Y_AXIS));
         pnlRes.setBorder(new TitledBorder(Localizer.get("panel.main.space.resources")));
-
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                pnlRes.setBorder(new TitledBorder(Localizer.get("panel.main.space.resources")));
+            }
+        });
         jList.setVisibleRowCount(10);
         jList.setSelectionBackground(Color.gray); // by default
         jList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -1204,7 +1267,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener {
 
         return pnlRes;
     }
-
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private final LoadingDialog loadingDialog;
     private TicketsGenerationExecutionThread executionThread;

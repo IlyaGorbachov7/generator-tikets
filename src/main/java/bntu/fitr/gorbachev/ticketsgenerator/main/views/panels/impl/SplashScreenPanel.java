@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.ConnectionPoolException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon.PoolConnection;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
@@ -101,11 +102,29 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
         thread.start();
     }
 
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        lbUniversity.setText(Localizer.get("panel.splashscreen.university"));
+        lbFaculty.setText(Localizer.get("panel.splashscreen.faculty"));
+        lbDepartment.setText(Localizer.get("panel.splashscreen.department"));
+        lbCoursework.setText(Localizer.get("panel.splashscreen.typeWork"));
+        lbDiscipline.setText(Localizer.get("panel.splashscreen.discipline"));
+        lbNameCoursework.setText(Localizer.get("panel.splashscreen.appName"));
+        lbInfoDeveloper.setText(Localizer.get("panel.splashscreen.infoDev", "panel.infoDev"));
+        lbNameDeveloper.setText(Localizer.get("panel.nameDev"));
+        lbInfoTeacher.setText(Localizer.get("panel.splashscreen.infoTeacher"));
+        lbNameTeacher.setText(Localizer.get("panel.splashscreen.nameTeacher"));
+        lbYear.setText(Localizer.get("panel.splashscreen.locationData"));
+        btnNext.setText(Localizer.get("btn.next"));
+        btnExit.setText(Localizer.get("btn.exit"));
+    }
+
     /**
      * The method create view panel
      */
     @Override
     public void initPanel() {
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         JPanel miniPanels = new JPanel(new GridLayout(2, 1));
         JPanel panelTop = new JPanel(new GridLayout(6, 1));
@@ -188,14 +207,9 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
         progressBar.setMinimum(0);
         progressBar.setMaximum(200);
     }
-
     private final Thread threadProcess;
+
     private final Thread threadInit;
-
-    @Override
-    public void onUpdateLocale(Locale selectedLocale) {
-
-    }
 
     /**
      * The method sets necessary all components listeners

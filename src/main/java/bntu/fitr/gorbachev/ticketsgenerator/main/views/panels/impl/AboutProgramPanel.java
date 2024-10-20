@@ -1,6 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.SneakyThrows;
@@ -12,10 +14,15 @@ import java.util.Objects;
 
 public class AboutProgramPanel extends BasePanel {
 
-    private String pathAboutProgramSnippet0Html = String.format(Locale.ROOT, FileNames.aboutProgramHtml,
-            TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
-    private String pathAboutProgramSnippet1Html = String.format(Locale.ROOT, FileNames.aboutProgramSnippet1Html,
-            TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
+    protected String getPathAboutProgramSnippet0Html() {
+        return String.format(Locale.ROOT, FileNames.aboutProgramHtml,
+                TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
+    }
+
+    protected String getPathAboutProgramSnippet1Html() {
+        return String.format(Locale.ROOT, FileNames.aboutProgramSnippet1Html,
+                TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
+    }
 
     public AboutProgramPanel(Window frame) {
         super(frame);
@@ -27,7 +34,7 @@ public class AboutProgramPanel extends BasePanel {
     public void initPanel() {
         this.setLayout(new BorderLayout());
         // TODO: отображение html старнцы также зависит от локализации!!!!!!!!!!!!
-        JLabel lbHtml = new JLabel(FileNames.readResourceToString(pathAboutProgramSnippet0Html));
+        JLabel lbHtml = new JLabel(FileNames.readResourceToString(getPathAboutProgramSnippet0Html()));
 
         lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));
         JPanel panelInfo = new JPanel();
@@ -43,16 +50,25 @@ public class AboutProgramPanel extends BasePanel {
         panelImage.add(lbImage);
         panelInfo.add(panelImage);
 
-        lbHtml = new JLabel(FileNames.readResourceToString(pathAboutProgramSnippet1Html));
-        lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));
+        JLabel lbHtml1 = new JLabel(FileNames.readResourceToString(getPathAboutProgramSnippet1Html()));
+        lbHtml1.setFont(new Font("Serif", Font.PLAIN, 14));
         panelHtml = new JPanel(new GridLayout(1, 1, 5, 5));
-        panelHtml.add(lbHtml);
+        panelHtml.add(lbHtml1);
         panelInfo.add(panelHtml);
         this.add(new JScrollPane(panelInfo), BorderLayout.CENTER);
 
-        var btnOk = new JButton("OK");
+        var btnOk = new JButton(Localizer.get("btn.ok"));
         btnOk.addActionListener(event -> getRootFrame().setVisible(false));
         add(btnOk, BorderLayout.SOUTH);
+
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                lbHtml.setText(getPathAboutProgramSnippet0Html());
+                lbHtml1.setText(getPathAboutProgramSnippet1Html());
+                btnOk.setText(Localizer.get("btn.ok"));
+            }
+        });
     }
 
     @Override

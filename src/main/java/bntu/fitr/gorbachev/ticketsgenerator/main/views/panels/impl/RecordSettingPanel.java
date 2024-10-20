@@ -3,6 +3,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.SerializeManager;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
@@ -18,8 +19,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 
-public class RecordSettingPanel extends BasePanel implements SerializeListener {
+public class RecordSettingPanel extends BasePanel implements SerializeListener, LocalizerListener {
     /**
      * Data transfer object. This object is mapping GUI this panel.
      */
@@ -30,6 +32,7 @@ public class RecordSettingPanel extends BasePanel implements SerializeListener {
     @SneakyThrows
     public RecordSettingPanel(Window rootWindow) {
         super(rootWindow);
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         serializer = Serializer.getSerializer(TicketGeneratorUtil.getPathSerializeDirectory());
         List<WriterTicketProperty> list = serializer.deserialize(WriterTicketProperty.class);
         if (list.isEmpty()) {
@@ -148,5 +151,12 @@ public class RecordSettingPanel extends BasePanel implements SerializeListener {
     @Override
     public void serialize() throws IOException {
         serializer.serialize(property);
+    }
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        lbQuantityTicketOnSinglePage.setText(Localizer.get("panel.recordsetting.quantityTickets"));
+        lbFontSize.setText(Localizer.get("panel.recordsetting.fontSize"));
+        btnOk.setText(Localizer.get("btn.ok"));
     }
 }

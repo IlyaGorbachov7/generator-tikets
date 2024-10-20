@@ -6,121 +6,116 @@
 
 <body>
 <div style="text-align: center;">
-    <h1>Конструктор экзаменационных билетов</h1>
+    <h1>Exam Ticket Constructor</h1>
     <hr>
 </div>
 
 <div style="text-indent: 5px; margin-left: 10px; font-size: 12px;">
     <div>
-        <p>Программа позволяет сформировать список экзаменационных билетов <br>
-            представленного в виде файла <strong><em>.docx</em></strong>. <br>
-            Список вопросов необходимо предоставить расширением файлов<strong><em>.docx</em></strong><br>
+        <p>The program allows you to generate a list of exam tickets <br>
+            presented in the form of a <strong><em>.docx</em></strong> file. <br>
+            The list of questions must be provided with the file extension <strong><em>.docx</em></strong><br>
         </p>
     </div>
     <div>
-        <p>Чтобы из файла считать список вопросов, требуется применить тег: <strong>&lt;S&gt;</strong></p>
-        <p>Данный тег, определяет список вопросов, который оформляется по определенным требованиям</p>
-        <p>Он имеет начальный тег: <strong>&lt;S&gt</strong> и конечный тег: <strong>&lt;\S&gt;</strong></p>
-        <p><strong>К начальному тегу можно применить следующую атрибуты:</strong></p>
+        <p>To read the list of questions from the file, you need to use the tag: <strong>&lt;S&gt;</strong></p>
+        <p>This tag defines a list of questions formatted according to certain requirements</p>
+        <p>It has a starting tag: <strong>&lt;S&gt;</strong> and an ending tag: <strong>&lt;\S&gt;</strong></p>
+        <p><strong>The following attributes can be applied to the starting tag:</strong></p>
         <ul>
-            <li>“l” – атрибут указывает сложность. Тип данных – целочисленное число;</li>
-            <li>“n” – атрибут указывает название темы. Тип данных – строка;</li>
-            <li>“r” – атрибут указывает число повторений. Тип данных – целочисленное число;</li>
+            <li>“l” – indicates difficulty level. Data type – integer;</li>
+            <li>“n” – indicates the topic name. Data type – string;</li>
+            <li>“r” – indicates the number of repetitions. Data type – integer;</li>
         </ul>
-        <strong>Пример размещения атрибутов внутри начального тега</strong> выглядит <br>
-        следующим образом:
-        <p style="text-align: center; font-size: 16px"> &lt;S&gt;n=Программирование систем; l=23; r = 3;></p>
+        <strong>An example of placing attributes inside the starting tag</strong> looks <br>
+        like this:
+        <p style="text-align: center; font-size: 16px"> &lt;S&gt;n=Programming Systems; l=23; r=3;&gt;</p>
         <p style="font-size: 12px;  margin-top: 10px; margin-bottom: 0%;">
-            Указание этих атрибутов не является обязательной, в случаи если используется способ<br>
-            формирования билетов «Сплошным списком», поэтому можно указать просто начальный<br>
-            тег: &lt;S&gt;. Однако если способ формирования билетов является «Группировка по сложности»<br>
-            или «Группировка по темам», то указание этих атрибутов необходимо</p>
+            Specifying these attributes is not mandatory if the "Continuous List" method <br>
+            of generating tickets is used. In that case, you can just specify the starting <br>
+            tag: &lt;S&gt;. However, if the method is "Grouped by Difficulty" or "Grouped by Topics," <br>
+            these attributes are required.
+        </p>
     </div>
     <div>
-        <p style="font-size: 12px;  margin-top: 10px; margin-bottom: 0%;">
-            <strong>Требования к оформлению атрибутов</strong></p>
+        <p style="font-size: 12px; margin-top: 10px; margin-bottom: 0%;">
+            <strong>Requirements for attribute formatting</strong></p>
         <ul>
-            <li>Сначала указывается название атрибута;</li>
-            <li>После названия атрибута ожидается символ “=”. Между названием атрибута и <br>
-                символом “=” могут идти пробелы;
+            <li>The attribute name is specified first;</li>
+            <li>The “=” symbol follows the attribute name. There can be spaces between the attribute name <br>
+                and the “=” symbol;
             </li>
-            <li>После символа “=” ожидается значение атрибута, тип которого определяется самим<br>
-                атрибутом. Между символом “=” и значением могут идти пробелы;
+            <li>The attribute value follows the “=” symbol, and its type is determined by the attribute itself.<br>
+                There can be spaces between the “=” symbol and the value;
             </li>
-            <li>После значения атрибута ожидается символ “;”. Между значением и символом “;”<br>
-                могут идти пробелы;
-            </li>
-            <li>Внутри начального тега могут содержаться все или некоторые атрибуты, в любом<br>
-                порядке их определения. Атрибуты, указанные внутри начального тега &lt;S&gt;…> будут<br>
-                распространяться на атрибуты всех вопросов внутри этого списка.
+            <li>The “;” symbol is expected after the attribute value. There can be spaces between the value and the “;” symbol;</li>
+            <li>All or some attributes can be inside the starting tag in any order. The attributes specified inside <br>
+                the starting &lt;S&gt; tag will apply to all questions in the list.
             </li>
         </ul>
     </div>
     <div>
-        <p style="font-size: 12px;  margin-top: 10px; margin-bottom: 0%;">
-            <strong>Требования к оформлению абзаца на наличие тега</strong>
+        <p style="font-size: 12px; margin-top: 10px; margin-bottom: 0%;">
+            <strong>Requirements for paragraph formatting for tag presence</strong>
         <ul>
-            <li>Теги пишется заглавными буквами;</li>
-            <li>Абзац должен быть выравнен по центру;</li>
-            <li>Абзац не должен содержать чего-либо другого, кроме тега &lt;S&gt; или &lt;\S&gt;</li>
+            <li>Tags are written in uppercase letters;</li>
+            <li>The paragraph must be centered;</li>
+            <li>The paragraph should not contain anything other than the &lt;S&gt; or &lt;\S&gt; tag.</li>
         </ul>
         </p>
     </div>
 
     <div>
-        <p style="font-size: 12px;  margin-top: 10px; margin-bottom: 0%;">
-            <strong>Требования к оформлению списка вопросов</strong>
+        <p style="font-size: 12px; margin-top: 10px; margin-bottom: 0%;">
+            <strong>Requirements for formatting the question list</strong>
         <ul>
-            <li>Список вопросов должен находится между начальным тегам &lt;S&gt; и конечным тегом &lt;\S&gt;;
-            </li>
-            <li>Каждый вопрос должен быть нумерован;</li>
-            <li>После объявления открывающего тега &lt;S&gt; с нового абзаца должен идти нумерованный<br>
-                список вопросов, после которого с нового абзаца должен идти закрывающий тег &lt;\S&gt;;
+            <li>The list of questions should be placed between the starting &lt;S&gt; tag and the closing &lt;\S&gt; tag;</li>
+            <li>Each question must be numbered;</li>
+            <li>After the opening &lt;S&gt; tag, a numbered question list should follow in a new paragraph, <br>
+                and after the list, the closing &lt;\S&gt; tag should be placed in a new paragraph.
             </li>
         </ul>
         </p>
     </div>
 
     <div>
-        <p style="font-size: 12px;  margin-top: 10px; margin-bottom: 0%;">
-            <strong>Есть возможность указать эти же атрибуты для конкретного вопроса. </strong> <br>
-            Для этого в начале текстового содержимого нумерованного вопроса нужно указать элемент:
-            <strong>{...}</strong>, <br>
-            внутри которого можно указать все описанные ранее атрибуты.
+        <p style="font-size: 12px; margin-top: 10px; margin-bottom: 0%;">
+            <strong>You can specify these same attributes for an individual question.</strong><br>
+            To do this, you need to include an element at the beginning of the text of the numbered question: <strong>{...}</strong>, <br>
+            inside which all previously described attributes can be specified.
         </p>
-        <strong>Пример размещению атрибутов внутри определенного вопроса</strong> выглядит <br>
-        следующим образом:
-        <p style="text-align: center; font-size: 16px">1.{ l=23; r = 3; }Какое-то содержимоe вопроса….</p>
+        <strong>An example of placing attributes inside a specific question</strong> looks <br>
+        like this:
+        <p style="text-align: center; font-size: 16px">1.{ l=23; r=3; }Some question content….</p>
     </div>
     <div>
-        <p style="font-size: 12px; margin-top: 10px">
-            <strong>Требование к содержимому вопроса.</strong>
+        <p style="font-size: 12px; margin-top: 10px;">
+            <strong>Requirements for question content.</strong>
         </p>
         <ul>
-            <li>Вопрос может содержать графическую информацию: рисунки,<br>
-                математические уравнения, формулы.
+            <li>The question may contain graphic information: images, <br>
+                mathematical equations, formulas.
             </li>
-            <li>К вопросу будет относиться содержание от начало его нумерации до следующего вопроса<br>
-                либо до конечного тега.
+            <li>The question content extends from the start of its numbering to the next question <br>
+                or to the closing tag.
             </li>
-            <li>К текстовому содержимому вопроса, могут быть применимы все виды форматирования:<br>
-                <em>цвета, полужирный, курсив, зачеркивание, подчеркивание, надстрочный подстрочный текст,<br>
-                </em> а также текстовые эффекты, <em>такие как контур, тень, отражения </em>и другие.
+            <li>Any type of formatting can be applied to the text of the question: <br>
+                <em>colors, bold, italics, strikethrough, underline, superscript, subscript,</em> and text effects <em>such as outline, shadow, reflection,</em> and others.
             </li>
-            <li>К рисунку могут быть применимы все режимы параметры разметки: <em>в тексте, обтеканием текстом.</em><br>
-                В последнем случаи, рисунок будет относиться к тому вопросу, к какому привязан он абзацу,<br>
-                а также иметь такое же расположение, какое было указана, при оформлении его в вопросе.
+            <li>All layout modes can be applied to an image: <em>inline, text wrapping.</em><br>
+                In the latter case, the image will relate to the question it is tied to <br>
+                and will have the same placement as specified when formatting it in the question.
             </li>
         </ul>
         <p>
-            В данном случаи необходимо обратить внимание на атрибуты при оформлении документа и на желаемый<br>
-            Вами способ генерации билетов, так как каждый способ генерации требует наличие своего атрибута и в случае<br>
-            отсутствия такого атрибута в начальном теге: &lt;S&gt;...> либо над конкретным вопросом: {...} – этот<br>
-            список/вопрос будет игнорирован, что повлечёт к другим вариантом обработок такого исключений.
+            In this case, attention must be paid to the attributes when formatting the document <br>
+            and the desired method for generating tickets. Each method of generating tickets <br>
+            requires the presence of its attribute, and if this attribute is missing from the starting tag: &lt;S&gt;...> or above a specific question: {...}, <br>
+            this list/question will be ignored, leading to other handling of such exceptions.
         </p>
     </div>
     <div>
-        <p style="margin-bottom: 20px;">Пример списка вопросов</p>
+        <p style="margin-bottom: 20px;">Example of a question list</p>
         <p></p>
     </div>
 </div>
