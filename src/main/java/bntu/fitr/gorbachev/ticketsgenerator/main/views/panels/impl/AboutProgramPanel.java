@@ -33,7 +33,6 @@ public class AboutProgramPanel extends BasePanel {
     @Override
     public void initPanel() {
         this.setLayout(new BorderLayout());
-        // TODO: отображение html старнцы также зависит от локализации!!!!!!!!!!!!
         JLabel lbHtml = new JLabel(FileNames.readResourceToString(getPathAboutProgramSnippet0Html()));
 
         lbHtml.setFont(new Font("Serif", Font.PLAIN, 14));
@@ -62,10 +61,11 @@ public class AboutProgramPanel extends BasePanel {
         add(btnOk, BorderLayout.SOUTH);
 
         TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @SneakyThrows
             @Override
             public void onUpdateLocale(Locale selectedLocale) {
-                lbHtml.setText(getPathAboutProgramSnippet0Html());
-                lbHtml1.setText(getPathAboutProgramSnippet1Html());
+                lbHtml.setText(FileNames.readResourceToString(getPathAboutProgramSnippet0Html()));
+                lbHtml1.setText(FileNames.readResourceToString(getPathAboutProgramSnippet1Html()));
                 btnOk.setText(Localizer.get("btn.ok"));
             }
         });

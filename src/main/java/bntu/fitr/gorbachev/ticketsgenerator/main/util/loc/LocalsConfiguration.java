@@ -60,6 +60,7 @@ public class LocalsConfiguration implements SerializeListener {
             return;
         }
         selectedLocale = locale;
+        Locale.setDefault(selectedLocale);
         updateLocaleProperties();
         runUpdate(selectedLocale);
     }
@@ -86,6 +87,7 @@ public class LocalsConfiguration implements SerializeListener {
                 }
             }
             selectedLocale = defaultLocale;
+            Locale.setDefault(selectedLocale);
         } catch (NotAccessToFileException e) {
             throw new LocalizerException(e);
         }

@@ -14,9 +14,9 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
  */
 public enum GenerationMode {
     //panel.main.generation.mode...
-    MODE_3(Localizer.get("panel.main.generation.mode.level"), TicketsGeneratorWayImpl3.class),
-    MODE_1(Localizer.get("panel.main.generation.mode.section"), TicketsGeneratorWayImpl1.class),
-    MODE_2(Localizer.get("panel.main.generation.mode.sequence"), TicketsGeneratorWayImpl2.class);
+    MODE_3("panel.main.generation.mode.level", TicketsGeneratorWayImpl3.class),
+    MODE_1("panel.main.generation.mode.section", TicketsGeneratorWayImpl1.class),
+    MODE_2("panel.main.generation.mode.sequence", TicketsGeneratorWayImpl2.class);
     String name;
 
     Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> generateWay;
@@ -26,8 +26,12 @@ public enum GenerationMode {
         this.name = name;
     }
 
-    public String getName() {
+    public String getKeyName() {
         return name;
+    }
+
+    public String getName() {
+        return Localizer.get(name);
     }
 
     public Class<? extends TicketsGeneratorWay<Question2, Ticket<Question2>>> getGenerateWay() {
@@ -36,6 +40,6 @@ public enum GenerationMode {
 
     @Override
     public String toString() {
-        return name;
+        return Localizer.get(name);
     }
 }

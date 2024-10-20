@@ -10,6 +10,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationCond
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.NumberQuestionsRequireException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.GenerationPropertyImpl;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.TicketGeneratorImpl;
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.generatway.WrapperList;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.MessageRetriever;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMessage;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.impl.sender.SenderMsgFactory;
@@ -64,14 +65,9 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.temporal.ValueRange;
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl.LaunchFrame.toolkit;
 
@@ -92,6 +88,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
     private final JMenuItem recordSettingItem;
     private final JMenuItem databaseSettingItem;
     private final JMenuItem tglAppTheme;
+    private final JMenuItem langItem;
+    private final WrapperList<Locale> supportedLocale;
 
     private final JFileChooser chooserUpLoad;
     private final JFileChooser chooserSave;
@@ -117,6 +115,15 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
     // TODO: add toggle dark or lite mode window
     {
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
+        supportedLocale = WrapperList.of(Arrays.asList(TicketGeneratorUtil.getLocalsConfiguration().getSupportedLocales()
+                .toArray(Locale[]::new)));
+        Locale selectedLocale = TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale();
+        for (var loc: supportedLocale) { // it need for initialize current position in WrapperList
+            if(selectedLocale.equals(loc)) {
+                break;
+            }
+        }
         menuBar = new JMenuBar();
         loadItem = new JMenuItem(Localizer.get("panel.load"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.openItemIcon))
@@ -138,7 +145,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         databaseSettingItem = new JMenuItem(Localizer.get("panel.main.inputSetting"),
                 new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.databaseSettingIcon))));
         tglAppTheme = new JMenuItem(Localizer.get("panel.main.themeApp"));
-
+        langItem = new JMenuItem(Localizer.get("panel.main.language"),
+                new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.languageIcon))));
         chooserUpLoad = new JFileChooser();
         chooserUpLoad.setLocale(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
         chooserSave = new JFileChooser();
@@ -257,7 +265,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         recordSettingItem.setText(Localizer.get("panel.main.recordTickets"));
         databaseSettingItem.setText(Localizer.get("panel.main.inputSetting"));
         tglAppTheme.setText(Localizer.get("panel.main.themeApp"));
-
+        langItem.setText(Localizer.get("panel.main.language"));
         lbInstitute.setText(Localizer.get("panel.main.university"));
         lbFaculty.setText(Localizer.get("panel.main.faculty"));
         lbDepartment.setText(Localizer.get("panel.main.department"));
@@ -290,9 +298,10 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         lbQuantityQuestionTickets.setText(Localizer.get("panel.main.ticket.quantity.question"));
         tfTeacher.setToolTipText(Localizer.get("panel.main.firstlastname"));
         tfHeadDepartment.setToolTipText(Localizer.get("panel.main.firstlastname"));
-
-
-
+        chooserSave.setLocale(selectedLocale);
+        chooserUpLoad.setLocale(selectedLocale);
+        datePicDecision.setLocale(selectedLocale);
+        jBoxModes.updateUI();
     }
 
     /**
@@ -326,7 +335,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         settingMenu.add(databaseSettingItem);
         settingMenu.addSeparator();
         settingMenu.add(tglAppTheme);
-
+        settingMenu.add(langItem);
         menuBar.add(fileMenu);
         menuBar.add(infoMenu);
         menuBar.add(settingMenu);
@@ -544,6 +553,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         rdiBtnWriteRandom.addActionListener(handler);
         rdiBtnWriteSequence.addActionListener(handler);
         tglAppTheme.addActionListener(handler);
+        langItem.addActionListener(handler);
 
         FocusAdapter tfFocusListener = new FocusEventHandler();
         tfInstitute.addFocusListener(tfFocusListener);
@@ -949,7 +959,12 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
     private JPanel createDataInputPanel() {
         JPanel panelLEFT = new JPanel(new GridBagLayout());
         panelLEFT.setBorder(new TitledBorder(Localizer.get("panel.main.space.datainput")));
-
+        TicketGeneratorUtil.getLocalsConfiguration().addListener(new LocalizerListener() {
+            @Override
+            public void onUpdateLocale(Locale selectedLocale) {
+                panelLEFT.setBorder(new TitledBorder(Localizer.get("panel.main.space.datainput")));
+            }
+        });
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 0;
@@ -1267,6 +1282,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         return pnlRes;
     }
+
     private AbstractTicketGenerator<Question2, Ticket<Question2>> ticketGenerator;
     private final LoadingDialog loadingDialog;
     private TicketsGenerationExecutionThread executionThread;
@@ -1406,7 +1422,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                               "close program during ticket generation: interrupted is successful");
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
-                } catch(SenderStopSleepException senderException) {
+                } catch (SenderStopSleepException senderException) {
                     // Если поучилось так, что генерацию остановил SenderMessage когда он спал.
                     log.warn("Generator ticket was stopped by reason stopping SenderMessage");
                     this.setEnabledComponents(true, false);
@@ -1421,7 +1437,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                     log.warn("", allExceptions);
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
-                }catch (StackOverflowError stackOverflowError) {
+                } catch (StackOverflowError stackOverflowError) {
                     log.warn("", stackOverflowError);
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
@@ -1480,20 +1496,20 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                             outputStream.close();
                         }
                     }
-                }catch(SenderStopSleepException ex){
+                } catch (SenderStopSleepException ex) {
                     log.warn("Generator ticket was stopped by reason stopping SenderMessage");
                 } catch (Throwable e) {
                     loadingDialog.closeDialog();
                     this.setEnabledComponents(true, false);
                     log.error("CONVERTOR Xyeta 5min wait that close program");
                     log.error(e);
-                    if(e instanceof InterruptedException){
+                    if (e instanceof InterruptedException) {
                         return;
                     }
                     if (((e.getCause() != null) && (e.getCause() instanceof InterruptedException))) {
                         return;
                     }
-                    if(e instanceof IllegalStateException ){
+                    if (e instanceof IllegalStateException) {
                         // Ошибка возникает потому что e.getCause == MicrosoftWordBridge
                         //ERROR com.documents4j.conversion.msoffice.MicrosoftWordBridge - Thread responsible for running script was interrupted: C:\Users\SecuRiTy\AppData\Local\Temp\tmp11017103057597779222\word_start905584576.vbs
                         return;
@@ -1830,6 +1846,13 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                             ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                             : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
                     tglAppTheme.updateUI();
+                });
+            } else if (e.getSource() == langItem) {
+                SwingUtilities.invokeLater(() -> {
+                    if(!supportedLocale.hasNext()) {
+                        supportedLocale.resetCurIndex();
+                    }
+                    TicketGeneratorUtil.getLocalsConfiguration().setSelectedLocale(supportedLocale.next());
                 });
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);

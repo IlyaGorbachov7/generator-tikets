@@ -2,6 +2,7 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import org.icepdf.ri.common.ComponentKeyBinding;
 import org.icepdf.ri.common.MyAnnotationCallback;
@@ -11,6 +12,7 @@ import org.icepdf.ri.common.SwingViewBuilder;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.util.Locale;
 
 /**
  * The class represents a dialog box object "Viewer file"
@@ -18,7 +20,7 @@ import java.io.File;
  * @author Gorbachev I. D.
  * @version 03.05.2022
  */
-public class FileViewer extends BaseDialog {
+public class FileViewer extends BaseDialog implements LocalizerListener {
     private SwingController control;
     private File file;
 
@@ -72,5 +74,10 @@ public class FileViewer extends BaseDialog {
      */
     public void openDocument() throws Exception {
         control.openDocument(file.getPath());
+    }
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        this.setTitle(Localizer.get("frame.title.preview"));
     }
 }

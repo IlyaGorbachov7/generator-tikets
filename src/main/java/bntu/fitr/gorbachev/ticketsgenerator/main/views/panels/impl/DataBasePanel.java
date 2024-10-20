@@ -126,7 +126,6 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         btnCreate.setText(Localizer.get("panel.db.create"));
         tablesLbl.setText(Localizer.get("panel.db.tables"));
         tfFilter.setToolTipText(Localizer.get("panel.db.tf-filter.tool-tip-text"));
-        tfFilter.setText(Localizer.get("panel.db.tf-filter.text"));
     }
 
     protected void initUIFormComponents() {

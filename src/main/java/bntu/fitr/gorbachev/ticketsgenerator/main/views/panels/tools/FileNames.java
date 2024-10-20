@@ -17,7 +17,6 @@ public class FileNames {
 
     // record "resources/html/" - important in such look
     private static final String targetPathHtml = "html/";
-
     private FileNames() {
     }
 
@@ -47,6 +46,7 @@ public class FileNames {
         }
         return resultStringBuilder.toString();
     }
+
 
     /**
      * {@link bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl.SplashScreenPanel}
@@ -89,6 +89,8 @@ public class FileNames {
     public static final String recordSettingIcon = targetPath + "recordSettingIcon.png";
 
     public static final String databaseSettingIcon = targetPath + "databaseSettingIcon.png";
+
+    public static String languageIcon = targetPath + "lang.png";
 
     public static final String spinnerLoaderIcon = targetPath + "spinner-loader.gif";
 

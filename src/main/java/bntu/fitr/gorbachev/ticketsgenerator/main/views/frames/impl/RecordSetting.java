@@ -2,14 +2,16 @@ package bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.impl;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.frames.BaseDialog;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelFactory;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.PanelType;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl.RecordSettingPanel;
 
 import java.awt.*;
+import java.util.Locale;
 
-public class RecordSetting extends BaseDialog {
+public class RecordSetting extends BaseDialog implements LocalizerListener {
     private RecordSettingPanel panel;
 
     public RecordSetting(Window owner, PanelType panelType) {
@@ -35,5 +37,10 @@ public class RecordSetting extends BaseDialog {
 
     public void setWriterTicketProperty(WriterTicketProperty writerTicketProperty) {
         panel.setProperty(writerTicketProperty);
+    }
+
+    @Override
+    public void onUpdateLocale(Locale selectedLocale) {
+        this.setTitle(Localizer.get("frame.title.setting.record"));
     }
 }
