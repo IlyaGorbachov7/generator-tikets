@@ -28,7 +28,8 @@ public class RecordSetting extends BaseDialog implements LocalizerListener {
         this.add(panel);
         // setting dialog size == size all regarding components preferred sizes of all components
         //https://stackoverflow.com/questions/13046508/calculate-sizes-of-components-of-jdialog-with-total-size-set-before-making-visib
-        this.setBounds((int)  getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 250, 300);
+        this.setBounds((int)  getFrame().getBounds().getX(), (int) getFrame().getBounds().getY(), 100, 300);
+        this.setMinimumSize(new Dimension(380, 120));
         this.pack();
         this.validate();
     }

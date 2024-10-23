@@ -12,7 +12,7 @@ import java.util.Arrays;
 @Log4j2
 public class ReflectionUtil {
 
-    public static <T extends Serializable> T newInstance(Class<T> clazz) {
+    public static <T> T newInstance(Class<T> clazz) {
         try {
             return clazz.getConstructor().newInstance();
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |

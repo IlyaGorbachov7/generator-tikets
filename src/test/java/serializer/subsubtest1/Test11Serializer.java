@@ -3,6 +3,8 @@ package serializer.subsubtest1;
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.serializer.Serializer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.AppThemeManager;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeApp;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.thememanag.ThemeAppWrapper;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -136,12 +138,12 @@ public class Test11Serializer {
 
     @Test
     void test11() throws IOException {
-        System.out.println(serializer.deserialize(AppThemeManager.ThemeAppWrapper.class).size());
+        System.out.println(serializer.deserialize(ThemeAppWrapper.class).size());
     }
 
     @Test
     void testSer() throws IOException {
-        AppThemeManager.ThemeAppWrapper wrapper = new AppThemeManager.ThemeAppWrapper(AppThemeManager.ThemeApp.LIGHT);
+        ThemeAppWrapper wrapper = new ThemeAppWrapper(ThemeApp.LIGHT);
         serializer.serialize(wrapper);
     }
 

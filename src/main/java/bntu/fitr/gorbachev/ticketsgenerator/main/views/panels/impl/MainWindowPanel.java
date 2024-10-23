@@ -119,8 +119,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         supportedLocale = WrapperList.of(Arrays.asList(TicketGeneratorUtil.getLocalsConfiguration().getSupportedLocales()
                 .toArray(Locale[]::new)));
         Locale selectedLocale = TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale();
-        for (var loc: supportedLocale) { // it need for initialize current position in WrapperList
-            if(selectedLocale.equals(loc)) {
+        while (supportedLocale.hasNext()) { // it need for initialize current position in WrapperList
+            if (selectedLocale.equals(supportedLocale.next())) {
                 break;
             }
         }
@@ -301,6 +301,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         chooserSave.setLocale(selectedLocale);
         chooserUpLoad.setLocale(selectedLocale);
         datePicDecision.setLocale(selectedLocale);
+        DatePickerSettings datePickerSettings = new DatePickerSettings(selectedLocale);
+        datePickerSettings.setFormatForDatesCommonEra("dd.MM.uuuu");
+        datePicDecision.setSettings(datePickerSettings);
+        customizeUIDatePicker();
+        datePicDecision.getComponentDateTextField().setEnabled(false);
         jBoxModes.updateUI();
         boxTypeSession.updateUI();
     }
@@ -1338,11 +1343,11 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
             File[] filesRes = this.toArrayFiles(modelListFilesRsc.toArray());
             Ticket<Question2> tempTicket = Ticket.of(
-                    tfInstitute.getText(),
-                    tfFaculty.getText(),
-                    tfDepartment.getText(), tfSpecialization.getText(),
-                    tfDiscipline.getText(), tfTeacher.getText(),
-                    tfHeadDepartment.getText(),
+                    cbInstitute.getFieldText(),
+                    cbFaculty.getFieldText(),
+                    cbDepartment.getFieldText(), cbSpecialization.getFieldText(),
+                    cbDiscipline.getFieldText(), cbTeacher.getFieldText(),
+                    cbHeadDepartment.getFieldText(),
                     (Ticket.SessionType) boxTypeSession.getSelectedItem(),
                     datePicDecision.getText(), tfProtocol.getText(), quantityQuestionInTicket);
             SenderMessage registerSenderMsg = SenderMsgFactory.getInstance().getNewSenderMsg();
@@ -1850,7 +1855,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                 });
             } else if (e.getSource() == langItem) {
                 SwingUtilities.invokeLater(() -> {
-                    if(!supportedLocale.hasNext()) {
+                    if (!supportedLocale.hasNext()) {
                         supportedLocale.resetCurIndex();
                     }
                     TicketGeneratorUtil.getLocalsConfiguration().setSelectedLocale(supportedLocale.next());
