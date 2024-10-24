@@ -1583,7 +1583,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
      *
      * @see BaseDialog
      */
-    private final class LoadingDialog extends BaseDialog implements PanelFunc, MessageRetriever {
+    private final class LoadingDialog extends BaseDialog implements PanelFunc, MessageRetriever, LocalizerListener {
 
         public LoadingDialog() {
             super(MainWindowPanel.this.getRootFrame());
@@ -1632,6 +1632,13 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
             this.add(btnCancel, BorderLayout.SOUTH);
             setConfigComponents();
             setComponentsListeners();
+        }
+
+        @Override
+        public void onUpdateLocale(Locale selectedLocale) {
+            btnCancel.setText(Localizer.get("btn.cancel"));
+            lblMsg.setText(Localizer.get("panel.main.message.registrator.launch"));
+            labelGen.setText(Localizer.get("panel.message.generation"));
         }
 
         private ImageIcon initImageIcon() {

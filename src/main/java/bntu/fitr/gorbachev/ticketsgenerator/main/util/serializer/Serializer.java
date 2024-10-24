@@ -11,10 +11,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -90,8 +87,11 @@ public class Serializer {
         File[] findFiles = findByClazz(clazz).toArray(File[]::new);
         List<T> objs = new ArrayList<>(findFiles.length);
         for (var file : findFiles) {
-            objs.add(deserialize(clazz, file));
-            log.debug("Deserialized file: {} to object by class: {}", file, clazz);
+            T obj = null;
+            if(Objects.nonNull((obj = deserialize(clazz, file)))){
+                objs.add(obj);
+                log.debug("Deserialized file: {} to object by class: {}", file, clazz);
+            }
         }
         return objs;
     }
@@ -117,7 +117,12 @@ public class Serializer {
             T obj = ReflectionUtil.newInstance(clazz);
             log.warn("Created default object by class: {}", clazz);
             return obj;
+        }catch (InvalidClassException e) {
+            log.warn("Invalided serialVersionUID. Saved serializable class of object don't match current class. Current class: {} was updated.", clazz.getName());
+            log.warn("Old serializable class will be removed");
+            deleteAllFiles(clazz);
         }
+        return null;
     }
 
 
@@ -156,7 +161,6 @@ public class Serializer {
 
     public <T extends Serializable> long deleteAllFiles(Class<T> clazz) throws IOException {
         return findByClazz(clazz).map(file -> {
-            System.out.print(file);
             boolean del = file.delete();
             log.debug("Deleted file {} == {} ", file, del);
             return del;
