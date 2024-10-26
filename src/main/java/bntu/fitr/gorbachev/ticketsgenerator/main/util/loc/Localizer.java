@@ -49,6 +49,13 @@ public class Localizer {
         return resolver.assemble(localizeStringV, values);
     }
 
+    public static String getJoinValue(String... values) {
+        return String.join(splitSymbol, values);
+    }
+
+    public static String getJoinValue(char[] symbolJoin, String... values) {
+        return String.join(String.valueOf(symbolJoin), values);
+    }
 
     public static String getCombined(List<String> keys) {
         return getCombined(splitSymbol, keys);

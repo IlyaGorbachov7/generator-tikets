@@ -18,7 +18,6 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 @Getter
@@ -388,6 +387,11 @@ public class JTableDataBase extends JTable implements LocalizerListener {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, rowIndex, columnIndex);
             RealizedTableColumn column = (RealizedTableColumn) table.getColumnModel().getColumn(columnIndex);
             JLabel tmp = new JLabel(value.toString());
+            if(value instanceof UUID) {
+                tmp.setText(String.valueOf(rowIndex));
+                this.setText(String.valueOf(rowIndex + 1));
+                this.setHorizontalAlignment(SwingConstants.CENTER);
+            }
             columnsCurrentWidth[columnIndex] = tmp.getPreferredSize().width;
             if (columnsCurrentWidth[columnIndex] > columnsMaxWidth[columnIndex]) {
                 columnsMaxWidth[columnIndex] = columnsCurrentWidth[columnIndex];

@@ -63,7 +63,13 @@ public class AppThemeManager {
 
 
     private static void fire() {
-        handler.parallelStream().forEach(ThemeChangerListener::updateComponent);
+        handler.parallelStream().forEach((h) -> {
+            try {
+                h.updateComponent();
+            } catch (Exception e) {
+                log.warn("Updating component is failed: ", e);
+            }
+        });
     }
 
     public static void addThemeChangerListener(ThemeChangerListener listener) {

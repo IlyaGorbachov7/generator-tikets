@@ -91,7 +91,9 @@ public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
 
     @Override
     public Object getItem() {
-        log.debug("getItem: {}", oldValue);
+        if(!oldValue.toString().isEmpty()){
+            log.debug("getItem: {}", oldValue);
+        }
         return oldValue;
     }
 

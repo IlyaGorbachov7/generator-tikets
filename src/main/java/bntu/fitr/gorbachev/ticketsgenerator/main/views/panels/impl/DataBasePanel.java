@@ -42,6 +42,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -686,11 +687,11 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
         panel1.add(panel2, BorderLayout.NORTH);
-        final JLabel label1 = new JLabel();
-        label1.setHorizontalAlignment(0);
-        label1.setHorizontalTextPosition(0);
-        label1.setText("Таблицы");
-        panel2.add(label1);
+        tablesLbl = new JLabel();
+        tablesLbl.setHorizontalAlignment(0);
+        tablesLbl.setHorizontalTextPosition(0);
+        this.$$$loadLabelText$$$(tablesLbl, this.$$$getMessageFromBundle$$$("application", "таблицы"));
+        panel2.add(tablesLbl);
         pnlList = new JPanel();
         pnlList.setLayout(new BorderLayout(0, 0));
         pnlList.putClientProperty("html.disable", Boolean.FALSE);
@@ -797,10 +798,10 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         panel7.add(lbCurrentPage, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
         panel7.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        label2.setHorizontalAlignment(0);
-        label2.setText("/");
-        panel7.add(label2, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setHorizontalAlignment(0);
+        label1.setText("/");
+        panel7.add(label1, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
         panel7.add(spacer2, new GridConstraints(0, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         lbTotalNumberPage = new JLabel();
@@ -842,6 +843,50 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         rootPnlTbls.setLayout(new CardLayout(0, 0));
         rootPnlTbls.setForeground(new Color(-2696815));
         panel5.add(rootPnlTbls, BorderLayout.CENTER);
+    }
+
+    private static Method $$$cachedGetBundleMethod$$$ = null;
+
+    private String $$$getMessageFromBundle$$$(String path, String key) {
+        ResourceBundle bundle;
+        try {
+            Class<?> thisClass = this.getClass();
+            if ($$$cachedGetBundleMethod$$$ == null) {
+                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
+                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
+            }
+            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
+        } catch (Exception e) {
+            bundle = ResourceBundle.getBundle(path);
+        }
+        return bundle.getString(key);
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadLabelText$$$(JLabel component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
     }
 
     /**
