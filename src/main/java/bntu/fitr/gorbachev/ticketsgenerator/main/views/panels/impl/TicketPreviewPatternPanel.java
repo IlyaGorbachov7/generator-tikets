@@ -1,5 +1,6 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerListener;
@@ -93,26 +94,27 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
         if (lblUniversityFont != null) lblTicketPattern.setFont(lblUniversityFont);
         lblTicketPattern.setHorizontalAlignment(SwingConstants.CENTER);
         lblTicketPattern.setVerticalAlignment(SwingConstants.CENTER);
-
-//        onUpdateLocale(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
+        onUpdateLocale(TicketGeneratorUtil.getLocalsConfiguration().getSelectedLocale());
     }
 
     @Override
     public void onUpdateLocale(Locale selectedLocale) {
-        lblTicketPattern.setText(Localizer.get(""));
-        lblUniversity.setText(Localizer.get(""));
-        lblFaculty.setText(Localizer.get(""));
-        lblDepartment.setText(Localizer.get(""));
-        lblSpecialization.setText(Localizer.get(""));
-        lblHeadDep.setText(Localizer.get(""));
-        lblTeacher.setText(Localizer.get(""));
-        lblSessionType.setText(Localizer.get(""));
-        lblQuestion1.setText(Localizer.get(""));
-        lblQuestion2.setText(Localizer.get(""));
-        lblQuestion3.setText(Localizer.get(""));
-        lblApproval.setText(Localizer.get(""));
-        lblProtocol.setText(Localizer.get(""));
-        lblDiscipline.setText(Localizer.get(""));
+        lblTicketPattern.setText(Localizer.get("panel.recordsetting.title-ticket-pattern"));
+        lblUniversity.setText(Localizer.get("panel.recordsetting.university"));
+        lblFaculty.setText(Localizer.get("panel.recordsetting.faculty"));
+        lblDepartment.setText(Localizer.get("panel.recordsetting.department"));
+        lblSpecialization.setText(Localizer.get("panel.recordsetting.specialization"));
+        lblDiscipline.setText(Localizer.get("panel.recordsetting.discipline"));
+        lblHeadDep.setText(Localizer.get("panel.recordsetting.department.head"));
+        lblTeacher.setText(Localizer.get("panel.recordsetting.teacher"));
+        lblSessionType.setText(Localizer.get("panel.recordsetting.session-type"));
+        lblQuestion1.setText(Localizer.getWithValues("panel.recordsetting.question", String.valueOf(1)));
+        lblQuestion2.setText(Localizer.getWithValues("panel.recordsetting.question", String.valueOf(2)));
+        lblQuestion3.setText(Localizer.getWithValues("panel.recordsetting.question", String.valueOf(3)));
+        lblApproval.setText(Localizer.get("panel.recordsetting.approval"));
+        lblProtocol.setText(Localizer.get("panel.recordsetting.protocol"));
+        lblExam.setText(ticketProperty.isExam() ? Localizer.get("panel.recordsetting.ticket-exam") :
+                Localizer.get("panel.recordsetting.ticket"));
     }
 
     @Override
@@ -308,11 +310,8 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
         });
 
         handlersOnTicketProperty.setOnExam((oldV, newV) -> {
-            if (newV) {
-                lblExam.setText("Экзаменационный билет №1");
-            } else {
-                lblExam.setText("Билет №1");
-            }
+            lblExam.setText(newV ? Localizer.get("panel.recordsetting.ticket-exam") :
+                    Localizer.get("panel.recordsetting.ticket"));
         });
 
         rootPnl.addContainerListener(new ContainerListener() {

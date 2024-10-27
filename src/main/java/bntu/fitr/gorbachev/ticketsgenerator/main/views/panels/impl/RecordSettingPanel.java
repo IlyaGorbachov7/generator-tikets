@@ -214,7 +214,7 @@ public class RecordSettingPanel extends BasePanel implements SerializeListener, 
             pnlColl.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
             pnlRow.add(pnlColl);
         });
-        pnlRow.setMinimumSize(new Dimension(420, 300));
+        pnlRow.setPreferredSize(new Dimension(400, 300));
         mainPnl.add(pnlRow);
 //        pnlTicketPreview.setMinimumSize(new Dimension(400, 300));
 //        pnlTicketPreview.getRootPnl().setMinimumSize(new Dimension(400, 300));
