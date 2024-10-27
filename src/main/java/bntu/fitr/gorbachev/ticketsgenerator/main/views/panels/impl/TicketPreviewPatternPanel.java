@@ -18,6 +18,8 @@ import javax.swing.border.MatteBorder;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.text.StyleContext;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.Locale;
@@ -46,6 +48,7 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
     private JLabel lblDiscipline;
 
     private JLabel lblTicketPattern;
+    private boolean isInitialized;
     private final Dimension size = new Dimension(0, 0);
     private final GridConstraints constraintsEmpty = new GridConstraints(1, 0, 1, 1,
             GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED,
@@ -85,7 +88,7 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
     public void setConfigComponents() {
         rootPnl.setBorder(BorderFactory.createMatteBorder(80, 15, 80, 15,
                 ColorThemeConfig.COLOR_BORDER_TICKET_PATTERN.getColor()));
-
+        rootPnl.setPreferredSize(new Dimension(500, rootPnl.getPreferredSize().height));
         Font lblUniversityFont = this.$$$getFont$$$("Romantic", Font.BOLD, 18, lblTicketPattern.getFont());
         if (lblUniversityFont != null) lblTicketPattern.setFont(lblUniversityFont);
         lblTicketPattern.setHorizontalAlignment(SwingConstants.CENTER);
@@ -115,32 +118,26 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
     @Override
     public void setComponentsListeners() {
         AppThemeManager.addThemeChangerListener(this);
-        rootPnl.addContainerListener(new ContainerListener() {
+        this.getRootFrame().addComponentListener(new ComponentAdapter() {
             @Override
-            public void componentAdded(ContainerEvent e) {
-                int hGrow = e.getChild().getHeight();
-                if (orderComponents.containsKey(e.getChild())) {
-                    MatteBorder border = (MatteBorder) rootPnl.getBorder();
-                    Insets borderInsets = border.getBorderInsets();
-                    borderInsets.top -= hGrow / 2;
-                    borderInsets.bottom -= hGrow / 2;
-                    rootPnl.setBorder(BorderFactory.createMatteBorder(borderInsets.top, borderInsets.left, borderInsets.bottom, borderInsets.right, border.getMatteColor()));
-                }
-            }
-
-            @Override
-            public void componentRemoved(ContainerEvent e) {
-                int hGrow = e.getChild().getHeight();
-                if (orderComponents.containsKey(e.getChild())) {
-                    MatteBorder border = (MatteBorder) rootPnl.getBorder();
-                    Insets borderInsets = border.getBorderInsets();
-                    borderInsets.top += hGrow / 2;
-                    borderInsets.bottom += hGrow / 2;
-                    rootPnl.setBorder(BorderFactory.createMatteBorder(borderInsets.top, borderInsets.left, borderInsets.bottom, borderInsets.right, border.getMatteColor()));
-                }
+            public void componentShown(ComponentEvent e) {
+                if (!isInitialized) {
+                    isInitialized = true;
+                } else return; // Initialize only 1 time
+                // initialize ticketPatternPanel: What should be showing ? THis code
+                WriterTicketProperty.HandlersOnProperties handlersOnTicketProperty = ticketProperty.getHandlersOnProperties();
+                handlersOnTicketProperty.getOnIncludeUniversity().accept(ticketProperty.isIncludeUniversity(), ticketProperty.isIncludeUniversity());
+                handlersOnTicketProperty.getOnIncludeFaculty().accept(ticketProperty.isIncludeFaculty(), ticketProperty.isIncludeFaculty());
+                handlersOnTicketProperty.getOnIncludeDepartment().accept(ticketProperty.isIncludeDepartment(), ticketProperty.isIncludeDepartment());
+                handlersOnTicketProperty.getOnIncludeSpecialization().accept(ticketProperty.isIncludeSpecialization(), ticketProperty.isIncludeSpecialization());
+                handlersOnTicketProperty.getOnIncludeDiscipline().accept(ticketProperty.isIncludeDiscipline(), ticketProperty.isIncludeDiscipline());
+                handlersOnTicketProperty.getOnIncludeSessionType().accept(ticketProperty.isIncludeSessionType(), ticketProperty.isIncludeSessionType());
+                handlersOnTicketProperty.getOnExam().accept(ticketProperty.isExam(), ticketProperty.isExam());
+                handlersOnTicketProperty.getOnIncludeTeacher().accept(ticketProperty.isIncludeTeacher(), ticketProperty.isIncludeTeacher());
+                handlersOnTicketProperty.getOnIncludeHeadDepartment().accept(ticketProperty.isIncludeHeadDepartment(), ticketProperty.isIncludeHeadDepartment());
+                handlersOnTicketProperty.getOnIncludeProtocol().accept(ticketProperty.isIncludeProtocol(), ticketProperty.isIncludeProtocol());
             }
         });
-
         WriterTicketProperty.HandlersOnProperties handlersOnTicketProperty = ticketProperty.getHandlersOnProperties();
         handlersOnTicketProperty.setOnIncludeUniversity((oldV, newV) -> {
             if (newV) {
@@ -317,7 +314,43 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
                 lblExam.setText("Билет №1");
             }
         });
+
+        rootPnl.addContainerListener(new ContainerListener() {
+            @Override
+            public void componentAdded(ContainerEvent e) {
+                reduceBorder(e.getChild());
+            }
+
+            @Override
+            public void componentRemoved(ContainerEvent e) {
+                growBorder(e.getChild());
+            }
+        });
     }
+
+    private void reduceBorder(Component c) {
+        int hGrow = c.getHeight();
+        if (orderComponents.containsKey(c)) {
+            MatteBorder border = (MatteBorder) rootPnl.getBorder();
+            Insets borderInsets = border.getBorderInsets();
+            borderInsets.top -= hGrow / 2;
+            borderInsets.bottom -= hGrow / 2;
+            rootPnl.setBorder(BorderFactory.createMatteBorder(borderInsets.top, borderInsets.left, borderInsets.bottom,
+                    borderInsets.right, border.getMatteColor()));
+        }
+    }
+
+    private void growBorder(Component c) {
+        int hGrow = c.getHeight();
+        if (orderComponents.containsKey(c)) {
+            MatteBorder border = (MatteBorder) rootPnl.getBorder();
+            Insets borderInsets = border.getBorderInsets();
+            borderInsets.top += hGrow / 2;
+            borderInsets.bottom += hGrow / 2;
+            rootPnl.setBorder(BorderFactory.createMatteBorder(borderInsets.top, borderInsets.left, borderInsets.bottom, borderInsets.right, border.getMatteColor()));
+        }
+    }
+
 
     {
 // GUI initializer generated by IntelliJ IDEA GUI Designer
@@ -477,6 +510,7 @@ public class TicketPreviewPatternPanel extends BasePanel implements LocalizerLis
         Insets insets = border.getBorderInsets();
         rootPnl.setBorder(BorderFactory.createMatteBorder(insets.top, insets.left, insets.bottom, insets.right,
                 ColorThemeConfig.COLOR_BORDER_TICKET_PATTERN.getColor()));
+        orderComponents.forEach((c, l) -> AppThemeManager.updateComponentTreeUI(c));
     }
 
     public enum ColorThemeConfig implements ColorManager {
