@@ -12,10 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-// TODO: что будет если пользоавтль сам удалит обект !!! Обработать случай.
-// TODO: разюить  на разные service
-// TODO: тоже создать интерфейс для сирилизации обхекта слушатель и хэндлер который бы обработал когда приложение завершается
-// TODO: даже если приложение завершается с ошибкой тоже должно серилизировалться и обрабатываться !!!
 public class Test11Serializer {
 
     static Serializer serializer;

@@ -52,11 +52,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-// TODO: necessary added new column for each table of database for the purpose of short description naming any name
-// TODO: added sorting functional for "name" field
-
-// TODO: ВСЕ запросы в базу данных дложны осуществляться В ОТДЕЛЬНОМ потоке, чтобы графика отдельно НЕ ЗАВИСАЛА
-// ответа из бд, а продолжала функционировать
 @Log4j2
 public class DataBasePanel extends BasePanel implements LocalizerListener {
     private JPanel rootPanel;
@@ -658,7 +653,6 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
     }
 
     private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
     {

@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.util.function.Function;
 
-// TODO: needed fixing logging mechanism
 @Log4j2
 public class MyMetalComboBoxEditor extends MetalComboBoxEditor {
     Object oldValue;

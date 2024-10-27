@@ -26,7 +26,7 @@ import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplication
 
 /*If out want specify @Log41 or @Slf4j annotation, then logger will be don't worked because Logger now don't initialized */
 public class TicketGeneratorUtil {
-    private static final String SYS_PROP_DEFAULT_LOCALE = THEME_APP_DEF_KEY;
+    private static final String SYS_PROP_DEFAULT_LOCALE = DEFAULT_LOCALE_KEY;
 
     @Getter
     private static final ConfigurationApplicationProperties config;
@@ -104,7 +104,7 @@ public class TicketGeneratorUtil {
                 () -> Path.of(getPathAppDirectory().toString(), "def-serializer"));
     }
 
-    public static File getFileSerializeDirectory() throws IOException {
+    public static File getFileSerializeDirectory() throws NotAccessToFileException {
         Path path = getPathSerializeDirectory();
         return FilesUtil.createDirIfNotExist(path);
     }
@@ -123,7 +123,7 @@ public class TicketGeneratorUtil {
         );
     }
 
-    public static File getFileLogsDirectory() throws IOException {
+    public static File getFileLogsDirectory() throws NotAccessToFileException {
         Path path = getPathLogsDirectory();
         return FilesUtil.createDirIfNotExist(path);
     }

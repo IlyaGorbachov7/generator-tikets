@@ -113,7 +113,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
     private final UUID NO_FUND_ID = UUID.randomUUID();
 
-    // TODO: add toggle dark or lite mode window
     {
         TicketGeneratorUtil.getLocalsConfiguration().addListener(this);
         supportedLocale = WrapperList.of(Arrays.asList(TicketGeneratorUtil.getLocalsConfiguration().getSupportedLocales()
@@ -1591,6 +1590,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         @Override
         public void initDialog() {
+            TicketGeneratorUtil.getLocalsConfiguration().addListener(LoadingDialog.this);
             Dimension sizeScreen = toolkit.getScreenSize();
             Dimension sizeFrame = new Dimension(250, 100);
             this.setBounds((sizeScreen.width - sizeFrame.width) / 2,
@@ -1636,6 +1636,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         @Override
         public void onUpdateLocale(Locale selectedLocale) {
+            System.out.println("dfsdf");
             btnCancel.setText(Localizer.get("btn.cancel"));
             lblMsg.setText(Localizer.get("panel.main.message.registrator.launch"));
             labelGen.setText(Localizer.get("panel.message.generation"));
@@ -1648,7 +1649,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         @Override
         public void setComponentsListeners() {
-            TicketGeneratorUtil.getLocalsConfiguration().addListener(LoadingDialog.this);
             this.addComponentListener(new ComponentAdapter() {
                 @Override
                 public void componentShown(ComponentEvent e) {
