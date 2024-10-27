@@ -7,6 +7,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.WriterTicketProperty;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.OutputContentException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.AbstractOutputContentThread;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TextPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import org.apache.poi.xwpf.usermodel.*;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
@@ -90,50 +91,54 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
         for (var ticket : listTickets) {
             boolean isPresentText = false;
             var text = ticket.getInstitute();
-            if (!text.isEmpty()) {
+            if (property.isIncludeUniversity()) {
                 createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
                         ParagraphAlignment.CENTER, true, true);
                 isPresentText = true;
             }
 
             text = ticket.getFaculty();
-            if (!text.isEmpty()) {
+            if (property.isIncludeFaculty()) {
                 createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
                         ParagraphAlignment.CENTER, false, true);
                 isPresentText = true;
             }
 
             text = ticket.getDepartment();
-            if (!text.isEmpty()) {
+            if (property.isIncludeDepartment()) {
                 createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
-                        ParagraphAlignment.CENTER, false, false)
-                        .setBorderBottom((ticket.getSpecialization().isEmpty()) ? Borders.SINGLE : Borders.NONE);
+                        ParagraphAlignment.CENTER, false, false);
+                /*.setBorderBottom((!property.isIncludeSpecialization()) ? Borders.SINGLE : Borders.NONE);*/
                 isPresentText = true;
             }
 
             // not necessary or necessary
             text = ticket.getSpecialization();
-            if (!text.isEmpty()) {
+            if (property.isIncludeSpecialization()) {
                 createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
-                        ParagraphAlignment.CENTER, false, false)
-                        .setBorderBottom(Borders.SINGLE);
+                        ParagraphAlignment.CENTER, false, false);
+                /*.setBorderBottom(Borders.SINGLE);*/
                 isPresentText = true;
             }
-
-            if (isPresentText) { // if present at least one text, then added spacing after line
+            // this is line
+/*            if (isPresentText) { // if present at least one text, then added spacing after line
                 docxDes.createParagraph().setSpacingAfter(SPACING_AFTER_0p);
+            }*/
+
+            if (property.isExam()) {
+                text = Localizer.getWithValues("output.ticket-exam", String.valueOf((iter + 1)));
+            } else {
+                text = Localizer.getWithValues("output.ticket", String.valueOf(iter + 1));
             }
-
-
-            text = "Экзаменационный билет №" + (iter + 1);
             createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
                     ParagraphAlignment.CENTER, true, true);
-
-            text = "Дисциплина ";
-            var p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
-                    ParagraphAlignment.CENTER, false, false);
-            text = "«" + ticket.getDiscipline() + "»";
-            setConfig(p, ParagraphAlignment.CENTER, text, false, false);
+            XWPFParagraph p = null;
+            if (property.isIncludeDiscipline()) {
+                text = Localizer.getWithValues("output.discipline", ticket.getDiscipline());
+                p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p,
+                        ParagraphAlignment.CENTER, false, false);
+//                setConfig(p, ParagraphAlignment.CENTER, text, false, false);
+            }
 
 
             String strForm = "";
@@ -143,9 +148,11 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                 strForm += (ticket.getType() == Ticket.SessionType.WINTER) ?
                         ("/" + (Integer.parseInt(strForm) + 1)) : "";
             }
-            text = ticket.getType() + " экзаменационная сессия " + strForm + " учебного года";
-            createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p, ParagraphAlignment.CENTER,
-                    false, false);
+            if (property.isIncludeSessionType()) {
+                text = Localizer.getWithValues("output.session-type", ticket.getType().toString(), strForm);
+                createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_0p, ParagraphAlignment.CENTER,
+                        false, false);
+            }
 
 
             BigInteger newNumID = getNewDecimalNumberingId(docxDes, BigInteger.valueOf(iter++));
@@ -154,18 +161,24 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
             createTable(docxDes, ticket);
 
 
-            text = "Утверждено на заседании кафедры ";
-            p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_1p, ParagraphAlignment.BOTH,
-                    false, false);
-            text = ticket.getDate() + ", ";
-            setConfig(p, ParagraphAlignment.LEFT, text,
-                    false, true);
-            text = "Протокол №" + ticket.getProtocolNumber();
-            setConfig(p, ParagraphAlignment.LEFT, text,
-                    false, true);
+            if (property.isIncludeProtocol()) {
+                text = Localizer.get("output.approval");
+                p = createPara(text, docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_1p, ParagraphAlignment.BOTH,
+                        false, false);
+                text = ticket.getDate() + ", ";
+                setConfig(p, ParagraphAlignment.LEFT, text,
+                        false, true);
+                text = Localizer.getWithValues("output.protocol", ticket.getProtocolNumber());
+                setConfig(p, ParagraphAlignment.LEFT, text,
+                        false, true);
+            }
             if (iter < listTickets.size()) {
+                if(p == null) {
+                    p = createPara("", docxDes, INDENTATION_LEFT, SPACING_BEFORE_0p, SPACING_AFTER_1p, ParagraphAlignment.BOTH, false, false);
+                }
                 if (quantityTicketsOnSinglePage <= 1 || property.isTicketOnSinglePage()) {
                     quantityTicketsOnSinglePage = property.getQuantityOnSinglePage();
+
                     p.createRun().addBreak(BreakType.PAGE);
                 } else {
                     p = docxDes.createParagraph();
@@ -175,7 +188,6 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                     --quantityTicketsOnSinglePage;
                 }
             }
-
         }
         return docxDes;
     }
@@ -233,6 +245,9 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
                 }
                 if (resP.getNumID() != null) {
                     desP.setNumID(newNumID);
+                    if (!desP.getRuns().isEmpty()) {
+                        desP.getRuns().forEach(this::setStandardPropForRun);
+                    }
                     // отступ слева
                     desP.setIndentationLeft(Math.round(INDENTATION_LEFT_QUEST));
                     // отступ первой строки 0.1 - одно деление
@@ -314,6 +329,9 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
     }
 
     protected void createTable(XWPFDocument docxDes, Ticket<? extends QuestionExt> ticket) {
+        if (!property.isIncludeHeadDepartment() && !property.isIncludeTeacher()) {
+            return;
+        }
         XWPFTable table = docxDes.createTable(1, 2);
 
         CTTblWidth ctTblInd = table.getCTTbl().getTblPr().addNewTblInd();
@@ -328,12 +346,23 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
 //        var tcWCell = cell.getCTTc().getTcPr().addNewTcW(); // то же самое
 //        tcWCell.setType(STTblWidth.DXA);
 //        tcWCell.setW(BigInteger.valueOf(4 * twipsPerInch));
-        cell.setWidth(String.valueOf(WIDTH_CALL_1)); // width == 4 дюйма == 1 см
+        row.getCell(0).setWidth(String.valueOf(WIDTH_CALL_1)); // width == 4 дюйма == 1 см
+        row.getCell(1).setWidth(String.valueOf(WIDTH_CALL_2)); // 3 дюйма = 8 см
 
+        if (property.isIncludeHeadDepartment()) {
+            setHeadDepartment(cell, ticket);
+        }
+        if (property.isIncludeTeacher()) {
+            cell = row.getCell(property.isIncludeHeadDepartment() ? 1 : 0);
+            setTeacher(cell, ticket);
+        }
+    }
+
+    private void setHeadDepartment(XWPFTableCell cell, Ticket<? extends QuestionExt> ticket) {
         var p = cell.getParagraphs().get(0);
         p.setSpacingAfter(SPACING_AFTER_0p);
         p.setVerticalAlignment(TextAlignment.CENTER);
-        setConfig(p, ParagraphAlignment.BOTH, "Заведующий кафедры: ",
+        setConfig(p, ParagraphAlignment.BOTH, Localizer.get("output.head-dep"),
                 false, false);
         String strForm = "";
         Matcher matcher = TextPatterns.PERSON_NAME_PATTERN_V2.getMatcher(ticket.getHeadDepartment());
@@ -341,22 +370,28 @@ public class OutputContentWriter extends AbstractOutputContentThread<Ticket<Ques
             strForm += matcher.group(2) + " " + matcher.group(3).charAt(0)
                        + ". " + matcher.group(6).charAt(0) + ".";
         }
+        if (strForm.isEmpty()) {
+            strForm = ticket.getHeadDepartment();
+        }
         setConfig(p, ParagraphAlignment.LEFT, strForm,
                 false, false);
 
-        cell = row.getCell(1);
-        cell.setWidth(String.valueOf(WIDTH_CALL_2)); // 3 дюйма = 8 см
+    }
 
-        p = cell.getParagraphs().get(0);
+    protected void setTeacher(XWPFTableCell cell, Ticket<? extends QuestionExt> ticket) {
+        var p = cell.getParagraphs().get(0);
         p.setSpacingAfter(SPACING_AFTER_0p);
         p.setVerticalAlignment(TextAlignment.CENTER);
-        setConfig(p, ParagraphAlignment.BOTH, "Экзаменатор: ",
+        setConfig(p, ParagraphAlignment.BOTH, Localizer.get("output.teacher"),
                 false, false);
-        strForm = "";
-        matcher = TextPatterns.PERSON_NAME_PATTERN_V2.getMatcher(ticket.getTeacher());
+        String strForm = "";
+        Matcher matcher = TextPatterns.PERSON_NAME_PATTERN_V2.getMatcher(ticket.getTeacher());
         if (matcher.find()) {
             strForm += matcher.group(2) + " " + matcher.group(3).charAt(0) +
                        ". " + matcher.group(6).charAt(0) + ".";
+        }
+        if (strForm.isEmpty()) {
+            strForm = ticket.getHeadDepartment();
         }
         setConfig(p, ParagraphAlignment.LEFT, strForm,
                 false, false);

@@ -9,6 +9,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.impl.ListTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.impl.QuestTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TagPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -44,8 +45,7 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
                 nextP = (i < paragraphs.size() - 1) ? paragraphs.get(i + 1) : curP;
 
                 if (!isNumbering(nextP)) { // если за тегом <S> нет нумерованного списка
-                    throw new ContentExtractException(urlDocxFile +
-                                                      "\nNext paragraph is not numeration list");
+                    throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-number-list", urlDocxFile));
                 }
 
                 // if all required check is fulfilled
@@ -74,8 +74,7 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
                     int j = i + 1;
                     while (j < paragraphs.size() && (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) { // running by one questions
                         if (isListStartTag(curP)) { // required condition
-                            throw new ContentExtractException(urlDocxFile +
-                                                              "\nBy reading content of the question no found end tag : <\\S>");
+                            throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-end-tag", urlDocxFile));
                         }
                         ques.add(curP);
                         ++j;
@@ -95,9 +94,9 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
                             listStartTagService.setR(valueAtrR);
                             // filling question fields via object implementing QuestTagAttributeService
                             fillerQuestionFields(ques, questTagService);
-                            if(listStartTagService.getR() >= QuestionExt.MIN_VALUE_REPEAT){
+                            if (listStartTagService.getR() >= QuestionExt.MIN_VALUE_REPEAT) {
                                 listQuestions.add(ques);
-                            }else if(questTagService.getR() != Integer.MAX_VALUE){
+                            } else if (questTagService.getR() != Integer.MAX_VALUE) {
                                 listQuestions.add(ques);
                             }
                         }
@@ -160,7 +159,7 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
      * @throws InvalidLexicalException
      */
     protected QuestTagAttributeService extractAttributesFromQuestTag(XWPFParagraph p) throws InvalidLexicalException {
-        if (!isExistQuestTag(p)) throw new IllegalArgumentException("paragraph no exist question tag");
+        if (!isExistQuestTag(p)) throw new IllegalArgumentException(Localizer.get("generator.message.failed.tag-not-found"));
 
         String s = p.getText().trim();
 
@@ -180,7 +179,7 @@ public class ContentExtractor extends AbstractContentExtractThread<Question2> {
      * From WPFRParagraph removing XWPFRuns, which contains data about <i>questTag</i>
      */
     protected void removeRunsQuestTagFromParagraph(XWPFParagraph p) {
-        if (!isExistQuestTag(p)) throw new IllegalArgumentException("paragraph no exist question tag");
+        if (!isExistQuestTag(p)) throw new IllegalArgumentException(Localizer.get("generator.message.failed.tag-not-found"));
 
         int indexRun = 0;
         var runs = p.getRuns();

@@ -1,5 +1,6 @@
 package proxy;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.InvocationHandler;
@@ -21,5 +22,14 @@ public class TestProxy {
 
 			}
 		});
+	}
+
+	@Test
+	void test2Enum(){
+		Ticket.SessionType type = Ticket.SessionType.AUTUMN;
+		System.out.println(type.key());
+		System.out.println(type.name());
+		System.out.println(type.toString());
+		System.out.println(type.ordinal());
 	}
 }

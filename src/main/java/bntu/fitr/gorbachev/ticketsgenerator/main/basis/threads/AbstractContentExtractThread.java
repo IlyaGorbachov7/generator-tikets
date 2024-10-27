@@ -8,6 +8,7 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.attributes.impl.ListTagAttributeService;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.LexicalPatterns;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.threads.tools.constants.TagPatterns;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.Localizer;
 import org.apache.poi.xwpf.usermodel.ParagraphAlignment;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -102,8 +103,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                 nextP = (i < paragraphs.size() - 1) ? paragraphs.get(i + 1) : curP;
 
                 if (!isNumbering(nextP)) { // если за тегом <S> нет нумерованного списка
-                    throw new ContentExtractException(urlDocxFile +
-                                                      "\nNext paragraph is not numeration list");
+                    throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-number-list", urlDocxFile));
                 }
 
                 // if all required check is fulfilled
@@ -123,8 +123,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     int j = i + 1;
                     while (j < paragraphs.size() && (!isNumbering(curP = paragraphs.get(j)) && !isEndTag(curP))) { // running by one questions
                         if (isListStartTag(curP)) { // required condition
-                            throw new ContentExtractException(urlDocxFile +
-                                                              "\nBy reading content of the question no found end tag : <\\S>");
+                            throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-end-tag", urlDocxFile));
                         }
                         ques.add(curP);
                         ++j;
@@ -173,14 +172,11 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
 
                 // in other case throw exceptions
             } else if (iEndTag > 0 && i > iEndTag) {  // iEndTag > 0 && i > iEndTag
-                throw new ContentExtractException(urlDocxFile +
-                                                  "\n No specified start tag, although exist end tag");
+                throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-started-tag", urlDocxFile));
             } else if (i > 0) { // i > 0 && iEndTag < 0
-                throw new ContentExtractException(urlDocxFile +
-                                                  "\n No find  end tag : <\\S>");
+                throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-end-tag", urlDocxFile));
             } else { // i < 0 && iEndTag > 0
-                throw new ContentExtractException(urlDocxFile +
-                                                  "\n Not exist start tag, although exist end tag");
+                throw new ContentExtractException(Localizer.getWithValues("generator.message.failed.not-started-tag", urlDocxFile));
             }
         }
         return true;
@@ -228,7 +224,7 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
      *                                  paragraph contain start teg</b>
      */
     protected ListTagAttributeService extractAttributesFromListStartTag(XWPFParagraph p) throws InvalidLexicalException {
-        if (!isListStartTag(p)) throw new IllegalArgumentException("paragraph on exist start tag");
+        if (!isListStartTag(p)) throw new IllegalArgumentException(Localizer.getWithValues("generator.message.failed.not-started-tag-simple", urlDocxFile));
 
         String attributes = null;
         Matcher matcher = TagPatterns.LIST_START_TAG.getMatcher(p.getText());
@@ -481,14 +477,9 @@ public abstract class AbstractContentExtractThread<T extends QuestionExt>
                     break;
                 }
                 if (value == null) {
-                    throw new InvalidLexicalException("Lexical mistake attribute: " + strAttributes + "\n" +
-                                                      "Awaiting:\n" +
-                                                      "    or symbol ';'\n" +
-                                                      "    or data type: " + entry.getValue()
-                                                              .getParameterTypes()[0].getSimpleName() + "\n" +
-                                                      "    or if data type is number,\n" +
-                                                      "      then it value should be no more than 99.99\n" +
-                                                      "Make sure that the attribute was entered correctly");
+                    String res = String.format(Objects.requireNonNull(Localizer.get("generator.message.failed.lexical-mistake")),
+                            strAttributes, entry.getValue().getParameterTypes()[0].getSimpleName());
+                    throw new InvalidLexicalException(res);
                 }
                 Class<?> clazzParam = entry.getValue()
                         .getParameterTypes()[0];

@@ -1648,6 +1648,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         @Override
         public void setComponentsListeners() {
+            TicketGeneratorUtil.getLocalsConfiguration().addListener(LoadingDialog.this);
             this.addComponentListener(new ComponentAdapter() {
                 @Override
                 public void componentShown(ComponentEvent e) {
