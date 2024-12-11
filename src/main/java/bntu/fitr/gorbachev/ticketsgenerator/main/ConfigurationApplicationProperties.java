@@ -91,6 +91,6 @@ public class ConfigurationApplicationProperties {
     }
 
     public Optional<String> getAppIcon() {
-        return Optional.ofNullable(appProp.getValue(APP_ICON, "/pictures/iconCoursework.png"));
+        return Optional.ofNullable(appProp.getValue(APP_ICON, "pictures/iconCoursework.png"));
     }
 }
