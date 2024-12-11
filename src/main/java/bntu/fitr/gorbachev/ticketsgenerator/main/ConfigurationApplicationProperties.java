@@ -22,6 +22,9 @@ public class ConfigurationApplicationProperties {
     public static final String DIR_APP_KEY = "app.directory";
     public static final String DIR_SERIALIZE_KEY = "app.directory.serializer";
     public static final String DIR_LOGS_KEY = "app.directory.logs";
+
+    public static final String APP_ICON = "app.icon";
+
     public static final String DEFAULT_LOCALE_KEY = "app.locale.default";
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
     public static final String DELAY_STEP_GENERATION= "app.generator.tickets.delay.step";
@@ -85,5 +88,9 @@ public class ConfigurationApplicationProperties {
 
     public Optional<Long> getDelayStepGeneration() {
         return Optional.of(appProp.getLong(DELAY_STEP_GENERATION, 100));
+    }
+
+    public Optional<String> getAppIcon() {
+        return Optional.ofNullable(appProp.getValue(APP_ICON, "/pictures/iconCoursework.png"));
     }
 }
