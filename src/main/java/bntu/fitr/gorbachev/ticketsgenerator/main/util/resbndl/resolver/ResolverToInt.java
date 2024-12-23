@@ -8,11 +8,12 @@ import lombok.Builder;
 public class ResolverToInt implements  Resolver<Integer>{
     @Override
     public Integer assemble(String value) {
+        value = value.trim();
         return Integer.parseInt(value);
     }
 
     @Override
     public String assembleToString(Integer object) {
-        return String.valueOf(object);
+        return String.valueOf(object.intValue());
     }
 }

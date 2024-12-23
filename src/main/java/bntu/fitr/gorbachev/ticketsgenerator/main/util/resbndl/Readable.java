@@ -31,6 +31,23 @@ public interface Readable {
 
     long[] getLongs(String key, long[] defaultValue);
 
+    double getDouble(String key);
+
+    double getDouble(String key, double defaultValue);
+
+    double[] getDoubles(String key);
+
+    double[] getDoubles(String key, double[] defaultValue);
+
+    boolean getBoolean(String key);
+
+    boolean getBoolean(String key, boolean defaultValue);
+
+    boolean[] getBooleans(String key);
+
+    boolean[] getBooleans(String key, boolean[] defaultValue);
+
+
     Object getObject(String key);
 
     Object getObject(String key, Object defaultValue);

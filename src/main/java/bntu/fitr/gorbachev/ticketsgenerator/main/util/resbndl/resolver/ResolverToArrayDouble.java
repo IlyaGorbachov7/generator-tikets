@@ -9,25 +9,26 @@ import java.util.stream.Stream;
 
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ResolverToArrayInt implements Resolver<int[]> {
+public class ResolverToArrayDouble implements Resolver<double[]> {
 
     @Getter
     @Setter
-    protected ResolverToInt resolverInt;
+    protected ResolverToDouble resolverDouble;
 
     @Getter
     @Setter
     protected SplitResolverToArrayString resolverSplit;
 
+
     @Override
-    public int[] assemble(String value) {
+    public double[] assemble(String value) {
         value = value.trim();
-        return Stream.of(resolverSplit.assemble(value)).mapToInt(resolverInt::assemble).toArray();
+        return Stream.of(resolverSplit.assemble(value)).mapToDouble(resolverDouble::assemble).toArray();
     }
 
     @Override
-    public String assembleToString(int[] object) {
-        return Arrays.stream(object).mapToObj(resolverInt::assembleToString)
+    public String assembleToString(double[] object) {
+        return Arrays.stream(object).mapToObj(resolverDouble::assembleToString)
                 .collect(Collectors.collectingAndThen(Collectors.toList(),
                         list -> resolverSplit.assembleToString(list.toArray(String[]::new))));
     }
@@ -37,36 +38,38 @@ public class ResolverToArrayInt implements Resolver<int[]> {
     }
 
     public static class Builder {
+
         protected RegexResolverToString resolverRegex;
 
         protected SplitResolverToArrayString resolverSplit;
 
-        protected ResolverToInt resolverToInt;
+        protected ResolverToDouble resolverToDouble;
+
 
         /**
          * Not required properties but if if <b>resolverSplit == null</b> then is Required
          */
-        public Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
+        public ResolverToArrayDouble.Builder resolverRegex(@NonNull RegexResolverToString resolverRegex) {
             this.resolverRegex = resolverRegex;
             return this;
         }
 
-        public Builder resolverSplit(@NonNull SplitResolverToArrayString resolverSplit) {
+        public ResolverToArrayDouble.Builder resolverSplit(@NonNull SplitResolverToArrayString resolverSplit) {
             this.resolverSplit = resolverSplit;
             return this;
         }
 
-        public Builder resolverToInt(@NonNull ResolverToInt resolverToTnt) {
-            this.resolverToInt = resolverToTnt;
+        public ResolverToArrayDouble.Builder resolverToDouble(@NonNull ResolverToDouble resolverToDouble) {
+            this.resolverToDouble = resolverToDouble;
             return this;
         }
 
-        public ResolverToArrayInt build() {
-            ResolverToArrayInt resolverToArrayInt = new ResolverToArrayInt();
-            resolverToArrayInt.resolverInt = Objects.requireNonNullElse(resolverToInt, new ResolverToInt());
-            resolverToArrayInt.resolverSplit = Objects.requireNonNullElseGet(resolverSplit,
+        public ResolverToArrayDouble build() {
+            ResolverToArrayDouble resolverToArrayDouble = new ResolverToArrayDouble();
+            resolverToArrayDouble.resolverDouble = Objects.requireNonNullElse(resolverToDouble, new ResolverToDouble());
+            resolverToArrayDouble.resolverSplit = Objects.requireNonNullElseGet(resolverSplit,
                     () -> new SplitResolverToArrayString(Objects.requireNonNullElseGet(resolverRegex, RegexResolverToString::new)));
-            return resolverToArrayInt;
+            return resolverToArrayDouble;
         }
     }
 }

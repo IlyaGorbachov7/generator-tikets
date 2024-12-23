@@ -17,31 +17,46 @@ public abstract class WriteableProperties extends ReadableProperties implements 
     @Override
     public void setValue(String key, String[] values) {
         set(key, resolverSplit.assembleToString(values));
-
     }
 
     @Override
     public void setValue(String key, int value) {
         set(key, resolverToInt.assembleToString(value));
-
     }
 
     @Override
     public void setValue(String key, int[] values) {
         set(key, resolverToArrayInt.assembleToString(values));
-
     }
 
     @Override
     public void setValue(String key, long value) {
         set(key, resolverToLong.assembleToString(value));
-
     }
 
     @Override
     public void setValue(String key, long[] values) {
         set(key, resolverToArrayLong.assembleToString(values));
+    }
 
+    @Override
+    public void setValue(String key, double value) {
+        set(key, resolverToDouble.assembleToString(value));
+    }
+
+    @Override
+    public void setValue(String key, double[] values) {
+        set(key, resolverToArrayDouble.assembleToString(values));
+    }
+
+    @Override
+    public void setValue(String key, boolean value) {
+        set(key, resolverToBoolean.assembleToString(value));
+    }
+
+    @Override
+    public void setValue(String key, boolean[] values) {
+        set(key, resolverToArrayBoolean.assembleToString(values));
     }
 
     @Override

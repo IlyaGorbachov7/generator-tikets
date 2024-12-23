@@ -5,15 +5,15 @@ import lombok.Builder;
 
 @Builder(builderClassName = "Builder")
 @AllArgsConstructor
-public class ResolverToLong implements Resolver<Long> {
+public class ResolverToBoolean implements Resolver<Boolean>{
     @Override
-    public Long assemble(String value) {
+    public Boolean assemble(String value) {
         value = value.trim();
-        return Long.parseLong(value);
+        return Boolean.parseBoolean(value);
     }
 
     @Override
-    public String assembleToString(Long object) {
-        return String.valueOf(object.longValue());
+    public String assembleToString(Boolean object) {
+        return String.valueOf(object.booleanValue());
     }
 }

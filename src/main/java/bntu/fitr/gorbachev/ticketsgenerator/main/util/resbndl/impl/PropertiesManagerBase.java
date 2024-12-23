@@ -28,9 +28,12 @@ public class PropertiesManagerBase extends PropertiesWritableManager {
         // Removed base realization/logic of the initialization field of resolvers
         // Now when instance is created that everything resolver is NULL
         // However to initialize their resolvers will be use Builder class
+
         // Initialize is independent resolver
         resolverToInt = initIntResolver();
         resolverToLong = initLongResolver();
+        resolverToDouble = initDoubleResolver();
+        resolverToBoolean = initBooleanResolver();
         resolverDeserialize = initDeserializeResolver();
     }
 
@@ -43,6 +46,14 @@ public class PropertiesManagerBase extends PropertiesWritableManager {
         protected ResolverToArrayInt resolverToArrayInt;
         protected ResolverToLong resolverToLong;
         protected ResolverToArrayLong resolverToArrayLong;
+
+        protected ResolverToDouble resolverToDouble;
+
+        protected ResolverToArrayDouble resolverToArrayDouble;
+
+        protected ResolverToBoolean resolverToBoolean;
+
+        protected ResolverToArrayBoolean resolverToArrayBoolean;
         protected ResolverToMap resolverMap;
 
 
@@ -99,6 +110,26 @@ public class PropertiesManagerBase extends PropertiesWritableManager {
 
         public Builder setResolverToArrayLong(ResolverToArrayLong resolverToArrayLong) {
             this.resolverToArrayLong = resolverToArrayLong;
+            return this;
+        }
+
+        public Builder setResolverToDouble(ResolverToDouble resolverToDouble) {
+            this.resolverToDouble = resolverToDouble;
+            return this;
+        }
+
+        public Builder setResolverToArrayDouble(ResolverToArrayDouble resolverToArrayDouble) {
+            this.resolverToArrayDouble = resolverToArrayDouble;
+            return this;
+        }
+
+        public Builder setResolverToBoolean(ResolverToBoolean resolverToBoolean) {
+            this.resolverToBoolean = resolverToBoolean;
+            return this;
+        }
+
+        public Builder setResolverToArrayBoolean(ResolverToArrayBoolean resolverToArrayBoolean) {
+            this.resolverToArrayBoolean = resolverToArrayBoolean;
             return this;
         }
 
@@ -192,6 +223,22 @@ public class PropertiesManagerBase extends PropertiesWritableManager {
                 resolverToArrayLong.setResolverLong(res.getResolverToLong());
                 resolverToArrayLong.setResolverSplit(res.getResolverSplit());
                 res.setResolverToArrayLong(resolverToArrayLong);
+            }
+            if(resolverToDouble != null) {
+                res.setResolverToDouble(resolverToDouble);
+            }
+            if(resolverToArrayDouble != null) {
+                resolverToArrayDouble.setResolverDouble(res.getResolverToDouble());
+                resolverToArrayDouble.setResolverSplit(res.getResolverSplit());
+                res.setResolverToArrayDouble(resolverToArrayDouble);
+            }
+            if(resolverToBoolean != null) {
+                res.setResolverToBoolean(resolverToBoolean);
+            }
+            if(resolverToArrayBoolean != null) {
+                resolverToArrayBoolean.setResolverBoolean(res.getResolverToBoolean());
+                resolverToArrayBoolean.setResolverSplit(res.getResolverSplit());
+                res.setResolverToArrayBoolean(resolverToArrayBoolean);
             }
             if (resolverMap != null) {
                 resolverMap.setSplitResolver(res.getResolverSplit());

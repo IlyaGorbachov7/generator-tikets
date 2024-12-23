@@ -3,15 +3,13 @@ package propmanag;
 import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.resbndl.impl.PropertiesManagerBase;
 import model.Person;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Map;
 
 public class TestPropertiesWratableManager {
@@ -28,6 +26,7 @@ public class TestPropertiesWratableManager {
 
     @AfterAll
     static void destory() throws IOException {
+        System.out.println("--------------------------- Destroy ---------------");
         prop.setValue("timeSaving", LocalDate.now().toString());
         prop.save();
         prop.getContent().forEach((key, value) -> {
@@ -35,9 +34,36 @@ public class TestPropertiesWratableManager {
         });
     }
 
-    @AfterEach
+    @BeforeEach
     public void repeatEach() {
-        System.out.println("-----------------------------------");
+        System.out.println("----------------Test-------------------");
+    }
+
+    @Test
+    public void testR() {
+        System.out.println(Arrays.toString(prop.getValues("boolean.value")));
+    }
+
+    @Test
+    public void testR1() {
+        System.out.println(prop.getMap("map.value"));
+    }
+
+    @Test
+    public void testR2() {
+        System.out.println(Arrays.toString(prop.getDoubles("double.values")));
+    }
+
+    @Test
+    public void testR3() {
+        System.out.println(prop.getBoolean("boolean.value"));
+        ;
+    }
+
+    @Test
+    public void testR4() {
+        System.out.println(Arrays.toString(prop.getBooleans("boolean.values")));
+        ;
     }
 
     @Test
@@ -66,6 +92,26 @@ public class TestPropertiesWratableManager {
     @Test
     public void testW5() {
         prop.setValue("object.base64preview", new Person("Ilya Gorbachev", 22));
+    }
+
+    @Test
+    public void testW6() {
+        prop.setValue("double.value", 0.001);
+    }
+
+    @Test
+    public void testW7() {
+        prop.setValue("double.values", new double[]{342.23, 22.1, 9999.01, 9.23423333});
+    }
+
+    @Test
+    public void testW8() {
+        prop.setValue("boolean.value", false);
+    }
+
+    @Test
+    public void testW9() {
+        prop.setValue("boolean.values", new boolean[]{false, true, false, true, true});
     }
 
     @Test

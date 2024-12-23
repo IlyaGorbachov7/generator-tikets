@@ -8,7 +8,6 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 /**
  * Resolve situation:
@@ -83,6 +82,18 @@ public abstract class ReadableProperties implements Readable {
 
     protected ResolverToArrayLong resolverToArrayLong;
 
+
+    protected ResolverToDouble resolverToDouble;
+
+
+    protected ResolverToArrayDouble resolverToArrayDouble;
+
+
+    protected ResolverToBoolean resolverToBoolean;
+
+
+    protected ResolverToArrayBoolean resolverToArrayBoolean;
+
     protected ResolverToMap resolverMap;
 
     protected abstract void initProperties();
@@ -99,6 +110,10 @@ public abstract class ReadableProperties implements Readable {
         resolverToArrayInt = initArrayIntResolver();
         resolverToLong = initLongResolver();
         resolverToArrayLong = initArrayLongResolver();
+        resolverToDouble = initDoubleResolver();
+        resolverToArrayDouble = initArrayDoubleResolver();
+        resolverToBoolean = initBooleanResolver();
+        resolverToArrayBoolean = initArrayBooleanResolver();
         resolverMap = initMapResolver();
     }
 
@@ -123,6 +138,8 @@ public abstract class ReadableProperties implements Readable {
         resolverSplit = initSplitResolver();
         resolverToArrayInt = initArrayIntResolver();
         resolverToArrayLong = initArrayLongResolver();
+        resolverToArrayDouble = initArrayDoubleResolver();
+        resolverToArrayBoolean = initArrayBooleanResolver();
         resolverMap = initMapResolver();
     }
 
@@ -142,6 +159,8 @@ public abstract class ReadableProperties implements Readable {
         this.resolverSplit = splitResolver;
         resolverToArrayInt = initArrayIntResolver();
         resolverToArrayLong = initArrayLongResolver();
+        resolverToArrayDouble = initArrayDoubleResolver();
+        resolverToArrayBoolean = initArrayBooleanResolver();
         resolverMap = initMapResolver();
     }
 
@@ -222,6 +241,70 @@ public abstract class ReadableProperties implements Readable {
         this.resolverToArrayLong = resolverToArrayLong;
     }
 
+    protected ResolverToBoolean initBooleanResolver() {
+        return ResolverToBoolean.builder().build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToBoolean(ResolverToBoolean resolverToBoolean) {
+        this.resolverToBoolean = resolverToBoolean;
+    }
+
+    protected ResolverToArrayBoolean initArrayBooleanResolver() {
+        return ResolverToArrayBoolean.builder().resolverSplit(resolverSplit).resolverToBoolean(resolverToBoolean).build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToArrayBoolean(ResolverToArrayBoolean resolverToArrayBoolean) {
+        if (resolverToArrayBoolean.getResolverBoolean() != this.resolverToBoolean) {
+            throw new IllegalArgumentException("resolverToArrayBoolean.getResolverBoolean() != this.resolverToBoolean");
+        }
+        if (resolverToArrayBoolean.getResolverSplit() != this.resolverSplit) {
+            throw new IllegalArgumentException("resolverToArrayBoolean.getResolverSplit() != this.resolverSplit");
+        }
+        this.resolverToArrayBoolean = resolverToArrayBoolean;
+    }
+
+    protected ResolverToDouble initDoubleResolver() {
+        return ResolverToDouble.builder().build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToDouble(ResolverToDouble resolverToDouble) {
+        this.resolverToDouble = resolverToDouble;
+    }
+
+    protected ResolverToArrayDouble initArrayDoubleResolver() {
+        return ResolverToArrayDouble.builder().resolverToDouble(this.resolverToDouble).resolverSplit(resolverSplit).build();
+    }
+
+    /**
+     * This setter should be protected see PropertiesManagerBase
+     *
+     * @see PropertiesManagerBase
+     */
+    protected void setResolverToArrayDouble(ResolverToArrayDouble resolverToArrayDouble) {
+        if (resolverToArrayDouble.getResolverDouble() != this.resolverToDouble) {
+            throw new IllegalArgumentException("resolverToArrayDouble.getResolverDouble() != this.resolverToDouble");
+        }
+        if (resolverToArrayDouble.getResolverSplit() != this.resolverSplit) {
+            throw new IllegalArgumentException("resolverToArrayDouble.getResolverSplit() != this.resolverSplit");
+        }
+        this.resolverToArrayDouble = resolverToArrayDouble;
+    }
+
     protected ResolverToMap initMapResolver() {
         return ResolverToMap.builder().resolverSplit(resolverSplit).build();
     }
@@ -256,7 +339,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String getValue(String key, String defaultValue) {
-        return properties.containsKey(key) ? getValue(key) : defaultValue;
+        return contains(key) ? getValue(key) : defaultValue;
     }
 
     @Override
@@ -266,47 +349,87 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public String[] getValues(String key, String[] defaultValue) {
-        return properties.containsKey(key) ? getValues(key) : defaultValue;
+        return contains(key) ? getValues(key) : defaultValue;
     }
 
     @Override
     public int getInt(String key) {
-        return Integer.parseInt(resolverRegex.assemble(get(key)));
+        return resolverToInt.assemble(get(key));
     }
 
     @Override
     public int getInt(String key, int defaultValue) {
-        return properties.containsKey(key) ? getInt(key) : defaultValue;
+        return contains(key) ? getInt(key) : defaultValue;
     }
 
     @Override
     public int[] getInts(String key) {
-        return Stream.of(getValues(key)).mapToInt(Integer::parseInt).toArray();
+        return resolverToArrayInt.assemble(get(key));
     }
 
     @Override
     public int[] getInts(String key, int[] defaultValue) {
-        return properties.containsKey(key) ? getInts(key) : defaultValue;
+        return contains(key) ? getInts(key) : defaultValue;
     }
 
     @Override
     public long getLong(String key) {
-        return Long.parseLong(resolverRegex.assemble(get(key)));
+        return resolverToLong.assemble(get(key));
     }
 
     @Override
     public long getLong(String key, long defaultValue) {
-        return properties.containsKey(key) ? getLong(key) : defaultValue;
+        return contains(key) ? getLong(key) : defaultValue;
     }
 
     @Override
     public long[] getLongs(String key) {
-        return Stream.of(getValues(key)).mapToLong(Long::parseLong).toArray();
+        return resolverToArrayLong.assemble(get(key));
     }
 
     @Override
     public long[] getLongs(String key, long[] defaultValue) {
-        return properties.containsKey(key) ? getLongs(key) : defaultValue;
+        return contains(key) ? getLongs(key) : defaultValue;
+    }
+
+    @Override
+    public double getDouble(String key) {
+        return resolverToDouble.assemble(get(key));
+    }
+
+    @Override
+    public double getDouble(String key, double defaultValue) {
+        return contains(key) ? getDouble(key) : defaultValue;
+    }
+
+    @Override
+    public double[] getDoubles(String key) {
+        return resolverToArrayDouble.assemble(get(key));
+    }
+
+    @Override
+    public double[] getDoubles(String key, double[] defaultValue) {
+        return contains(key) ? getDoubles(key) : defaultValue;
+    }
+
+    @Override
+    public boolean getBoolean(String key) {
+        return resolverToBoolean.assemble(get(key));
+    }
+
+    @Override
+    public boolean getBoolean(String key, boolean defaultValue) {
+        return contains(key) ? getBoolean(key) : defaultValue;
+    }
+
+    @Override
+    public boolean[] getBooleans(String key) {
+        return resolverToArrayBoolean.assemble(get(key));
+    }
+
+    @Override
+    public boolean[] getBooleans(String key, boolean[] defaultValue) {
+        return contains(key) ? getBooleans(key) : defaultValue;
     }
 
     @Override
@@ -316,7 +439,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public Object getObject(String key, Object defaultValue) {
-        return properties.containsKey(key) ? getObject(key) : defaultValue;
+        return contains(key) ? getObject(key) : defaultValue;
     }
 
     @Override
@@ -326,7 +449,7 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public Map<String, String> getMap(String key, Map<String, String> defaultValue) {
-        return properties.contains(key) ? getMap(key) : defaultValue;
+        return contains(key) ? getMap(key) : defaultValue;
     }
 
     @Override
@@ -336,6 +459,6 @@ public abstract class ReadableProperties implements Readable {
 
     @Override
     public Map<String, String> getMap(String key, Map<String, String> defaultValue, Supplier<Map<String, String>> supplierMap) {
-        return properties.contains(key) ? getMap(key, supplierMap) : defaultValue;
+        return contains(key) ? getMap(key, supplierMap) : defaultValue;
     }
 }
