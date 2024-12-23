@@ -54,6 +54,15 @@ public class AboutProgramPanel extends BasePanel {
         panelHtml = new JPanel(new GridLayout(1, 1, 5, 5));
         panelHtml.add(lbHtml1);
         panelInfo.add(panelHtml);
+
+        lbImage = new JLabel(new ImageIcon(Objects.requireNonNull(
+                FileNames.getResource(FileNames.picturePrim1)
+        )));
+        panelImage = new JPanel(new GridLayout(1, 1, 5, 5));
+        panelImage.add(lbImage);
+        panelInfo.add(panelImage);
+
+
         this.add(new JScrollPane(panelInfo), BorderLayout.CENTER);
 
         var btnOk = new JButton(Localizer.get("btn.ok"));

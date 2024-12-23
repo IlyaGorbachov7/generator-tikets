@@ -27,9 +27,22 @@ public class ConfigurationApplicationProperties {
 
     public static final String DEFAULT_LOCALE_KEY = "app.locale.default";
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
-    public static final String DELAY_STEP_GENERATION= "app.generator.tickets.delay.step";
+    public static final String DELAY_STEP_GENERATION = "app.generator.tickets.delay.step";
+
+    public static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
+
+    public static final String MAIL_SMTP_TTLS = "mail.smtp.starttls.enable";
+
+    public static final String MAIL_SMTP_HOST = "mail.smtp.host";
+
+    public static final String MAIL_SMTP_PORT = "mail.smtp.port";
+
+    public static final String MAIL_USERNAME = "mail.username";
+
+    public static final String MAIL_PASSWORD = "mail.password";
 
     private final String sourceFile;
+
     private final ReadableProperties appProp;
 
     /**
@@ -92,5 +105,29 @@ public class ConfigurationApplicationProperties {
 
     public Optional<String> getAppIcon() {
         return Optional.ofNullable(appProp.getValue(APP_ICON, "pictures/iconCoursework.png"));
+    }
+
+    public Optional<Boolean> getMailAuth() {
+        return Optional.of(appProp.getBoolean(MAIL_SMTP_AUTH));
+    }
+
+    public Optional<Boolean> getMailTTLS() {
+        return Optional.of(appProp.getBoolean(MAIL_SMTP_TTLS));
+    }
+
+    public Optional<String> getMailHost() {
+        return Optional.of(appProp.getValue(MAIL_SMTP_HOST));
+    }
+
+    public Optional<Integer> getMailPort() {
+        return Optional.of(appProp.getInt(MAIL_SMTP_PORT, 589));
+    }
+
+    public Optional<String> getUsername() {
+        return Optional.of(appProp.getValue(MAIL_USERNAME));
+    }
+
+    public Optional<String> getPassword() {
+        return Optional.of(appProp.getValue(MAIL_PASSWORD));
     }
 }

@@ -1,6 +1,7 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main;
 
 import bntu.fitr.gorbachev.ticketsgenerator.main.exep.TicketGeneratorException;
+import bntu.fitr.gorbachev.ticketsgenerator.main.util.EmailSender;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.exep.NotAccessToFileException;
 import bntu.fitr.gorbachev.ticketsgenerator.main.util.loc.LocalizerException;
@@ -16,10 +17,16 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.util.Strings;
 
 import javax.swing.*;
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
@@ -40,7 +47,7 @@ public class TicketGeneratorUtil {
     @Getter
     private static final ThemeAppConfiguration themeAppConfiguration;
 
-    private static final Logger log;
+    private static Logger log;
 
     static {
         try {
@@ -59,6 +66,7 @@ public class TicketGeneratorUtil {
             AppThemeManager.updateTheme();
             log.info("Completed initialize context of application");
         } catch (Throwable ex) {
+            if (Objects.nonNull(log)) log.error("", ex);
             showAlertDialog(ex);
             throw new RuntimeException();
         }
@@ -195,14 +203,30 @@ public class TicketGeneratorUtil {
 
     public static void showAlertDialog(Throwable t) {
         t.printStackTrace();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        PrintStream errorPrint = new PrintStream(bos, true, StandardCharsets.UTF_8);
+        t.printStackTrace(errorPrint);
+        JPanel panel = new JPanel(new BorderLayout());
+        String tfEmail = TicketGeneratorUtil.getConfig().getUsername().get();
+        JLabel lblMessage = new JLabel();
+        JTextArea textArea = new JTextArea();
+        textArea.setText(bos.toString(StandardCharsets.UTF_8));
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        panel.add(lblMessage, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+
         boolean find = true;
         while (find) {
             if (t instanceof NotAccessToFileException ex) {
                 log.error(ex.getMessage());
-                JOptionPane.showMessageDialog(null, String.format("""
-                                No read or write access or not found:
-                                %s
-                                """, ex.getFilePath()),
+                lblMessage.setText(String.format("""
+                        No read or write access or not found:
+                        %s
+                        """, ex.getFilePath()));
+                JOptionPane.showMessageDialog(null, panel,
                         "Access undefined", JOptionPane.ERROR_MESSAGE);
                 find = false;
             } else if (t instanceof TicketGeneratorException | t instanceof LoggerException | t instanceof LocalizerException | t instanceof IOException) {
@@ -211,12 +235,23 @@ public class TicketGeneratorUtil {
                     t = cause;
                     continue;
                 }
-                JOptionPane.showMessageDialog(null, "Undefined Exception: " + t, "Error", JOptionPane.ERROR_MESSAGE);
+                lblMessage.setText("Undefined Exception: " + t);
+                JOptionPane.showMessageDialog(null, panel, "Error", JOptionPane.ERROR_MESSAGE);
                 find = false;
             } else if (t instanceof Throwable) {
-                JOptionPane.showMessageDialog(null, "Undefined Exception: " + t, "Error", JOptionPane.ERROR_MESSAGE);
+                lblMessage.setText("Undefined Exception: " + t);
+                JOptionPane.showMessageDialog(null, panel, "Error", JOptionPane.ERROR_MESSAGE);
                 find = false;
             }
+        }
+        try {
+            EmailSender.sendEmail(tfEmail, "TicketGenerator Exeption",String.format("""
+                    Date: %s
+                    Exception:
+                    %s
+                    """, LocalDateTime.now(), textArea.getText()));
+        }catch (Exception e){
+            if(Objects.nonNull(log)) log.error("Mail don't sent");
         }
     }
 

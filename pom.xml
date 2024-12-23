@@ -218,10 +218,18 @@
 
         <dependency>
             <groupId>org.junit.jupiter</groupId>
+
             <artifactId>junit-jupiter-params</artifactId>
             <version>5.9.2</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+
+
         <!--==============================================================================-->
     </dependencies>
 
@@ -281,13 +289,24 @@
         </plugins>
 
         <resources>
-       <!--     <resource>
-                &lt;!&ndash;ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)&ndash;&gt;
+            <!--     <resource>
+                     &lt;!&ndash;ЭТА путь-директория в которой лежат ресурсы: фото, файлы (в поем текущем проекте)&ndash;&gt;
+                     <directory>src/main/resources</directory>
+                     &lt;!&ndash;А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
+                      КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)&ndash;&gt;
+                     <targetPath>resources</targetPath>
+                 </resource>-->
+
+            <!-- Как оказалось в Maven если не переопределять resources, то по default-у Maven в jar файл соберет все
+            файлы и папки из src/resources,
+            но если я уже переопределил resources то мне уже необходимо указать ВСЕ ресурсы, которые будут включены
+            в jar-файл-->
+            <resource>
                 <directory>src/main/resources</directory>
-                &lt;!&ndash;А это указывает НАЗВАНИЕ ПАПКИ, которая поместит в себя РЕСУРСЫ: фото, файлы
-                 КОГДА проект будет СКАМПЕЛИРОВАН (чтобы понять смотри папу: target/classes)&ndash;&gt;
-                <targetPath>resources</targetPath>
-            </resource>-->
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
             <resource>
                 <directory>src/main/META-INF</directory>
                 <targetPath>META-INF</targetPath>
