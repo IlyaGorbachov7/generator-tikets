@@ -317,12 +317,12 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
     public MainWindowPanel(Window frame) {
         super(frame);
         frameRoot = getRootFrame();
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
             viewFileDialog = (FileViewer) FrameDialogFactory.getInstance()
                     .createJDialog(frame, FrameType.FILE_VIEWER, PanelType.FILE_VIEWER);
             recordSettingDialog = (Objects.isNull(recordSettingDialog)) ? (RecordSetting) FrameDialogFactory.getInstance()
                     .createJDialog(frame, FrameType.RECORD_SETTING, PanelType.RECORD_SETTING) : recordSettingDialog;
-        });
+        }));
 
         // initialization menu bar
         JMenu fileMenu = new JMenu(Localizer.get("panel.main.file"));
@@ -373,13 +373,13 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
     public void initPanel() {
         this.setLayout(new BorderLayout());
 
-        CompletableFuture.runAsync(() -> {
+        CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
             pnlData = this.createDataInputPanel();
-        });
-        CompletableFuture.runAsync(() -> {
+        }));
+        CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
             pnlGenerate = this.createPanelMainActionPanel();
             pnlGenerate.setPreferredSize(new Dimension(430, pnlGenerate.getHeight()));
-        });
+        }));
 
         this.setConfigComponents();
         this.add(pnlData, BorderLayout.CENTER);
@@ -851,30 +851,31 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
         frameRoot.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                log.trace("Frame application is closing");
-                CompletableFuture<Boolean> task = CompletableFuture.supplyAsync(() -> {
+                TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
+                    log.trace("Frame application is closing");
+                    CompletableFuture<Boolean> task = CompletableFuture.supplyAsync(() -> {
+                        try {
+                            SerializeManager.runSerialize();
+                            return true;
+                        } catch (IOException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    });
+                    getRootFrame().setVisible(false);
                     try {
-                        SerializeManager.runSerialize();
-                        return true;
-                    } catch (IOException ex) {
+                        if (executionThread != null) {
+                            executionThread.interrupt();
+                        }
+                        PoolConnection.Builder.build().destroy();
+                        task.get();
+
+                    } catch (ConnectionPoolException | ExecutionException | InterruptedException ex) {
                         throw new RuntimeException(ex);
+                    } finally {
+                        log.info("Application is closed");
                     }
-                });
-                getRootFrame().setVisible(false);
-                try {
-                    if (executionThread != null) {
-                        executionThread.interrupt();
-                    }
-                    PoolConnection.Builder.build().destroy();
-                    task.get();
-
-                } catch (ConnectionPoolException | ExecutionException | InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                } finally {
-                    log.info("Application is closed");
-                }
+                }).run();
             }
-
         });
 
         //https://stackoverflow.com/questions/3949382/jspinner-value-change-events
@@ -1377,7 +1378,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
                         int selected = JOptionPane.showInternalConfirmDialog(null,
                                 ex.getMessage() + "\n" +
-                                Localizer.get("panel.message.generation.continue"),
+                                        Localizer.get("panel.message.generation.continue"),
                                 Localizer.get("panel.message.title.msg"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
@@ -1394,7 +1395,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                     } else if (ex.getClass() == FindsChapterWithoutSection.class) {
                         int selected = JOptionPane.showInternalConfirmDialog(null,
                                 ex.getMessage() + "\n" +
-                                Localizer.get("panel.message.generation.continue"),
+                                        Localizer.get("panel.message.generation.continue"),
                                 Localizer.get("panel.message.title.msg"), JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
                         if (selected == JOptionPane.OK_OPTION) {
                             repeat = true;
@@ -1424,7 +1425,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                 } catch (InterruptedException e) {
                     loadingDialog.closeDialog();
                     log.error(Thread.currentThread() + " is interrupted: Reason : interrupted generate tickets by" +
-                              "close program during ticket generation: interrupted is successful");
+                            "close program during ticket generation: interrupted is successful");
                     this.setEnabledComponents(true, false);
                     repeat = false; // necessary, because need set value false, if earlier repeat = true
                 } catch (SenderStopSleepException senderException) {
@@ -1636,7 +1637,6 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
         @Override
         public void onUpdateLocale(Locale selectedLocale) {
-            System.out.println("dfsdf");
             btnCancel.setText(Localizer.get("btn.cancel"));
             lblMsg.setText(Localizer.get("panel.main.message.registrator.launch"));
             labelGen.setText(Localizer.get("panel.message.generation"));
@@ -1738,18 +1738,18 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
             if (e.getSource() instanceof JTextField textField) {
                 String msg = "";
                 if ((textField == tfTeacher || textField == tfHeadDepartment) &&
-                    !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
+                        !TextPatterns.PERSON_NAME_PATTERN_V1.matches(textField.getText())) {
                     msg = Localizer.get("panel.main.input.validator.example");
                 } else if (textField == tfProtocol &&
-                           !TextPatterns.PROTOCOL_PATTERN.matches(textField.getText())) {
+                        !TextPatterns.PROTOCOL_PATTERN.matches(textField.getText())) {
                     msg = Localizer.get("panel.main.input.validator.protocol.access");
                 } else if ((textField == tfQuantityTickets || textField == tfQuantityQuestionTickets) &&
-                           !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
+                        !TextPatterns.NUMBER_PATTERN.matches(textField.getText())) {
                     msg = Localizer.get("panel.main.input.validator.number.access");
                 } else if (textField != tfTeacher && textField != tfHeadDepartment &&
-                           textField != tfProtocol &&
-                           textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
-                           !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
+                        textField != tfProtocol &&
+                        textField != tfQuantityQuestionTickets && textField != tfQuantityTickets &&
+                        !TextPatterns.COMMON_PATTERN.matches(textField.getText())) {
                     msg = Localizer.get("panel.main.input.validator.symbols.access");
                 } else { // кидаем ошибку
                     textField.setForeground(Color.BLACK);
@@ -1795,7 +1795,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
             } else if (e.getSource() == saveItem || e.getSource() == btnSave) {
                 if (tmpFileDocx != null) {
-                    new Thread(() -> {
+                    new Thread(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                         int res = chooserSave.showSaveDialog(frameRoot);
                         if (res == JFileChooser.APPROVE_OPTION) {
                             File saveFile = chooserSave.getSelectedFile();
@@ -1813,7 +1813,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
 
                                 if (selected == JOptionPane.OK_OPTION) {
                                     Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler "
-                                                              + saveFile.getPath());
+                                            + saveFile.getPath());
                                 }
                             } catch (IOException ex) {
                                 JOptionPane.showMessageDialog(null,
@@ -1822,7 +1822,7 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                                 log.warn("", ex);
                             }
                         }
-                    }).start();
+                    })).start();
                 } else {
                     log.warn("To save file not can: tmpFileDocx == null");
                 }
@@ -1833,41 +1833,41 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                         WindowEvent.WINDOW_CLOSING));
 
             } else if (e.getSource() == aboutAuthorItem) {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     aboutAuthorDialog = (Objects.isNull(aboutAuthorDialog)) ? (AboutAuthor) FrameDialogFactory.getInstance()
                             .createJDialog(frame, FrameType.ABOUT_AUTHOR, PanelType.ABOUT_AUTHOR) : aboutAuthorDialog;
                     aboutAuthorDialog.setVisible(true);
-                });
+                }));
             } else if (e.getSource() == aboutProgramItem) {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     aboutProgramDialog = (Objects.isNull(aboutProgramDialog)) ? (AboutProgram) FrameDialogFactory.getInstance()
                             .createJDialog(frame, FrameType.ABOUT_PROGRAM, PanelType.ABOUT_PROGRAM) : aboutProgramDialog;
                     aboutProgramDialog.setVisible(true);
-                });
+                }));
 
             } else if (e.getSource() == recordSettingItem) {
                 recordSettingDialog.setVisible(true);
             } else if (e.getSource() == databaseSettingItem) {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     dataBaseDialog = (Objects.isNull(dataBaseDialog)) ? (InputParametersDialog) FrameDialogFactory.getInstance()
                             .createJDialog(frame, FrameType.INPUT_PARAM_DB, PanelType.INPUT_PARAM_DB) : dataBaseDialog;
                     dataBaseDialog.setVisible(true);
-                });
+                }));
             } else if (e.getSource() == tglAppTheme) {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     AppThemeManager.swapTheme();
                     tglAppTheme.setIcon((AppThemeManager.getCurrentTheme() == ThemeApp.LIGHT)
                             ? new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.nightModeApp)))
                             : new ImageIcon(Objects.requireNonNull(FileNames.getResource(FileNames.lightModeApp))));
                     tglAppTheme.updateUI();
-                });
+                }));
             } else if (e.getSource() == langItem) {
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     if (!supportedLocale.hasNext()) {
                         supportedLocale.resetCurIndex();
                     }
                     TicketGeneratorUtil.getLocalsConfiguration().setSelectedLocale(supportedLocale.next());
-                });
+                }));
             } else if (e.getSource() == btnRemove) {
                 File[] selectedElements = jList.getSelectedValuesList().toArray(new File[0]);
                 if (selectedElements.length > 0) {
@@ -1887,15 +1887,17 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                 isRandomWrite = false;
             } else if (e.getSource() == btnGenerate) {
                 if (checkValidData()) {
-                    executionThread = new TicketsGenerationExecutionThread();
-                    executionThread.start();
+                    TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
+                        executionThread = new TicketsGenerationExecutionThread();
+                        executionThread.start();
+                    }).run();
                 } else {
                     /*knowingly grab focus of inactive text filed,
                     with the goal generate throw exception*/
                     datePicDecision.getComponentDateTextField().grabFocus();
                 }
             } else if (e.getSource() == btnViewFile) {
-                new Thread(() -> viewFileDialog.setVisible(true)).start();
+                new Thread(TicketGeneratorUtil.handlerExceptionUIAlert(() -> viewFileDialog.setVisible(true))).start();
             }
         }
     }

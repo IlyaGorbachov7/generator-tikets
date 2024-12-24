@@ -32,11 +32,11 @@ public class SenderMessageImpl implements SenderMessage {
     public void sendMsg(String msg) throws SenderStopSleepException {
         try {
             TicketGeneratorUtil.sleepFor(TicketGeneratorUtil.getDelayStepGeneration());
-            CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                 for (MessageRetriever sender : subscribes) {
                     sender.send(msg);
                 }
-            }, singleExecutor);
+            }), singleExecutor);
         }catch (RuntimeException exception){
             throw new SenderStopSleepException(exception.getMessage());
         }

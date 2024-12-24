@@ -137,7 +137,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
     @Override
     public void updateComponent() {
         CompletableFuture.runAsync(() -> {
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                 mapBtnForKeyViewUI.forEach((btn, keyForView) -> {
                     AppThemeManager.updateComponentTreeUI(keyForView.getTbl());
                     if (btn == selectedBtn) {
@@ -151,7 +151,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
                         btn.setBackground(ColorsListBtn.REGULAR.getColor());
                     }
                 });
-            });
+            }));
         });
     }
 
@@ -163,7 +163,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                 JButton btnSource = (JButton) e.getSource();
                 if (btnSource == cur) return;
                 if (cur == null) cur = arrBtn[0]; // initialization 1 раз
@@ -191,7 +191,7 @@ public class MyListButtons extends JPanel implements ThemeChangerListener {
                 rootPnlForTable.repaint();
                 rootPnlForTable.validate();
                 fireChoiceAfterJTable(EventChoiceBtn.builder().current(v).previous(prevV).relatedFromCurrent(relatedV).build());
-            });
+            }));
         }
 
         KeyForViewUI getRelatedKeyForViewIU(KeyForViewUI base) {

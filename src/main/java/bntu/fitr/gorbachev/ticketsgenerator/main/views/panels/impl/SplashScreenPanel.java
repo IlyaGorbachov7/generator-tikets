@@ -207,6 +207,7 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
         progressBar.setMinimum(0);
         progressBar.setMaximum(200);
     }
+
     private final Thread threadProcess;
 
     private final Thread threadInit;
@@ -260,11 +261,13 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
         @Override
         public void run() {
             log.info("Started initialization application");
-            CompletableFuture.runAsync(PoolConnection.Builder::build);
-            CompletableFuture.runAsync(() -> {
+            CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
+                PoolConnection.Builder.build();
+            }));
+            CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                 mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
                 threadProcess.interrupt();
-            });
+            }));
         }
     }
 

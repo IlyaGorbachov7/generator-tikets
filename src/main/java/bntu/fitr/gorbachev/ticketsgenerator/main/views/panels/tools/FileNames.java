@@ -56,7 +56,7 @@ public class FileNames {
     /**
      * {@link bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.impl.AboutProgramPanel}
      */
-    public final static String picturePrim1 = targetPath + "picturePrim.jpg";
+    public final static String picturePrim1 = targetPath + "resultTicketGeneration.png";
 
     public final static String picturePrim2 = targetPath + "picturePrim.png";
 

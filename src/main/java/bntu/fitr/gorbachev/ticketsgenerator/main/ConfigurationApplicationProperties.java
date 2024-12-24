@@ -29,6 +29,7 @@ public class ConfigurationApplicationProperties {
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
     public static final String DELAY_STEP_GENERATION = "app.generator.tickets.delay.step";
 
+    public static final String MAIL_ENABLE = "mail.enable";
     public static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
 
     public static final String MAIL_SMTP_TTLS = "mail.smtp.starttls.enable";
@@ -105,6 +106,10 @@ public class ConfigurationApplicationProperties {
 
     public Optional<String> getAppIcon() {
         return Optional.ofNullable(appProp.getValue(APP_ICON, "pictures/iconCoursework.png"));
+    }
+
+    public Optional<Boolean> getMailEnable() {
+        return Optional.of(appProp.getBoolean(MAIL_ENABLE, false));
     }
 
     public Optional<Boolean> getMailAuth() {

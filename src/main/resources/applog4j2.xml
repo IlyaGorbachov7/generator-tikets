@@ -66,7 +66,7 @@
             <AppenderRef ref="ConsoleAppender"/>
         </Logger>
         <!--Таким вот обрзом я настаиваю все логеры которые находятся в данной папке и подпапках-->
-        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.services" level="info"
+        <Logger name="bntu.fitr.gorbachev.ticketsgenerator.main.services" level="debug"
                 additivity="false">
             <AppenderRef ref="FileAppender"/>
             <AppenderRef ref="TriggerOnDeleteLogFiles"/>

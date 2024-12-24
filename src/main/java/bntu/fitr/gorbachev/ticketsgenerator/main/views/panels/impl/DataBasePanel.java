@@ -684,7 +684,7 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         tablesLbl = new JLabel();
         tablesLbl.setHorizontalAlignment(0);
         tablesLbl.setHorizontalTextPosition(0);
-        this.$$$loadLabelText$$$(tablesLbl, this.$$$getMessageFromBundle$$$("application", "таблицы"));
+        tablesLbl.setText("Таблицы");
         panel2.add(tablesLbl);
         pnlList = new JPanel();
         pnlList.setLayout(new BorderLayout(0, 0));
@@ -839,50 +839,6 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
         panel5.add(rootPnlTbls, BorderLayout.CENTER);
     }
 
-    private static Method $$$cachedGetBundleMethod$$$ = null;
-
-    private String $$$getMessageFromBundle$$$(String path, String key) {
-        ResourceBundle bundle;
-        try {
-            Class<?> thisClass = this.getClass();
-            if ($$$cachedGetBundleMethod$$$ == null) {
-                Class<?> dynamicBundleClass = thisClass.getClassLoader().loadClass("com.intellij.DynamicBundle");
-                $$$cachedGetBundleMethod$$$ = dynamicBundleClass.getMethod("getBundle", String.class, Class.class);
-            }
-            bundle = (ResourceBundle) $$$cachedGetBundleMethod$$$.invoke(null, path, thisClass);
-        } catch (Exception e) {
-            bundle = ResourceBundle.getBundle(path);
-        }
-        return bundle.getString(key);
-    }
-
-    /**
-     * @noinspection ALL
-     */
-    private void $$$loadLabelText$$$(JLabel component, String text) {
-        StringBuffer result = new StringBuffer();
-        boolean haveMnemonic = false;
-        char mnemonic = '\0';
-        int mnemonicIndex = -1;
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '&') {
-                i++;
-                if (i == text.length()) break;
-                if (!haveMnemonic && text.charAt(i) != '&') {
-                    haveMnemonic = true;
-                    mnemonic = text.charAt(i);
-                    mnemonicIndex = result.length();
-                }
-            }
-            result.append(text.charAt(i));
-        }
-        component.setText(result.toString());
-        if (haveMnemonic) {
-            component.setDisplayedMnemonic(mnemonic);
-            component.setDisplayedMnemonicIndex(mnemonicIndex);
-        }
-    }
-
     /**
      * @noinspection ALL
      */
@@ -919,17 +875,17 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
                 log.debug("Click on the btnDelete");
                 if (JOptionPane.showConfirmDialog(DataBasePanel.this, Localizer.get("panel.message.make-sure"),
                         Localizer.get("dialog.title.delete"), JOptionPane.YES_NO_OPTION) == JOptionPane.OK_OPTION) {
-                    CompletableFuture.runAsync(() -> {
+                    CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                         JTableDataBase tbl = selectedKeyForViewUI.getTbl();
                         tbl.deleteItem();
                         initPagination(true, true, false, false);
                         tbl.performSetData();
                         myListButtons.deSelectInclude(DataBasePanel.this::deSetStateSelectedItemsOnPage);
-                    });
+                    }));
                 }
             } else if (source == btnUpdate) {
                 log.debug("Click on the btnUpdate");
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     UpdatePanel panel = new UpdatePanel();
                     if (JOptionPane.showConfirmDialog(DataBasePanel.this, panel,
                             Localizer.get("dialog.title.update"),
@@ -940,7 +896,7 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
                         initPagination(true, true, false, false);
                         tbl.performSetData();
                     }
-                });
+                }));
             } else if (source == btnNext) {
                 log.debug("Click on the btnNext");
                 if (paginationView.getCurrentPage() < paginationView.getTotalPage()) {
@@ -993,11 +949,11 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
     private final class HandlerChoiceButtonList implements ChoiceButtonListListener {
         @Override
         public void perform(EventChoiceBtn event) {
-            SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                 selectedKeyForViewUI = event.getCurrent();
                 subSelectedKeyForViewUI = event.getRelatedFromCurrent();
                 paginationView = selectedKeyForViewUI.getPv();
-                SwingUtilities.invokeLater(() -> {
+                SwingUtilities.invokeLater(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
                     setEnableComponent(true);
                     initPagination();
                     selectedKeyForViewUI.getTbl().performSetData();
@@ -1006,8 +962,8 @@ public class DataBasePanel extends BasePanel implements LocalizerListener {
                     if (isSelectedRows) {
                         setEnableCRUDbtn(true, true, true);
                     } else setEnableCRUDbtn(true, false, false);
-                });
-            });
+                }));
+            }));
         }
     }
 

@@ -27,7 +27,7 @@
                 <properties>
                   <horizontalAlignment value="0"/>
                   <horizontalTextPosition value="0"/>
-                  <text resource-bundle="application" key="таблицы"/>
+                  <text value="Таблицы"/>
                 </properties>
               </component>
             </children>

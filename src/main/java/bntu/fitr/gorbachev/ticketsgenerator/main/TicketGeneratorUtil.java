@@ -28,6 +28,9 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
@@ -185,7 +188,7 @@ public class TicketGeneratorUtil {
     }
 
     public static Long getDelayStepGeneration() {
-        return config.getDelayStepGeneration().orElse(1000L);
+        return config.getDelayStepGeneration().orElse(500L);
     }
 
     public static String getFileSeparator() {
@@ -207,17 +210,16 @@ public class TicketGeneratorUtil {
         PrintStream errorPrint = new PrintStream(bos, true, StandardCharsets.UTF_8);
         t.printStackTrace(errorPrint);
         JPanel panel = new JPanel(new BorderLayout());
-        String tfEmail = TicketGeneratorUtil.getConfig().getUsername().get();
         JLabel lblMessage = new JLabel();
         JTextArea textArea = new JTextArea();
         textArea.setText(bos.toString(StandardCharsets.UTF_8));
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
-
+        scrollPane.setPreferredSize(new Dimension(500,250));
+        scrollPane.getVerticalScrollBar().setVisible(true);
         panel.add(lblMessage, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-
-
+        sendExceptionOnMail(textArea.getText());
         boolean find = true;
         while (find) {
             if (t instanceof NotAccessToFileException ex) {
@@ -244,15 +246,48 @@ public class TicketGeneratorUtil {
                 find = false;
             }
         }
-        try {
-            EmailSender.sendEmail(tfEmail, "TicketGenerator Exeption",String.format("""
-                    Date: %s
-                    Exception:
-                    %s
-                    """, LocalDateTime.now(), textArea.getText()));
-        }catch (Exception e){
-            if(Objects.nonNull(log)) log.error("Mail don't sent");
-        }
     }
 
+    public static Runnable handlerExceptionUIAlert(Runnable runnable) {
+        return () -> {
+            try {
+                runnable.run();
+            } catch (Throwable e) {
+                if (log != null) log.error("", e);
+                showAlertDialog(e);
+            }
+        };
+    }
+
+    public static <R> Callable<R> handlerExceptionUIAlert(Callable<R> runnable) {
+        return () -> {
+            try {
+                return runnable.call();
+            } catch (Throwable e) {
+                if (log != null) log.error("", e);
+                showAlertDialog(e);
+            }
+            return null;
+        };
+    }
+
+    public static void sendExceptionOnMail(String textException) {
+        String tfEmail = TicketGeneratorUtil.getConfig().getUsername().get();
+        TicketGeneratorUtil.getConfig().getMailEnable().ifPresent(enableV -> {
+            if (enableV) {
+                try {
+                    EmailSender.sendEmail(tfEmail, "TicketGenerator Exeption", String.format("""
+                            Date: %s
+                            Exception:
+                            %s
+                            """, LocalDateTime.now(), textException));
+                    if (Objects.nonNull(log)) log.info("Exception Mail send. Successfully!");
+                } catch (Exception e) {
+                    if (Objects.nonNull(log)) log.error("Mail don't sent. ", e);
+                }
+            } else {
+                if (Objects.nonNull(log)) log.info("Send Exception Mail will be turn off");
+            }
+        });
+    }
 }

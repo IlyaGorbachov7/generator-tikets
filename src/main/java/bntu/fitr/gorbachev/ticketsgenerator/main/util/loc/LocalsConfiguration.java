@@ -106,8 +106,8 @@ public class LocalsConfiguration implements SerializeListener {
                     while (entries.hasMoreElements()) {
                         JarEntry entity = entries.nextElement();
                         String pathToFileOrDir = entity.getName();
-                        if (pathToFileOrDir.startsWith(DIR_LOCALES.replaceFirst(TicketGeneratorUtil.getFileSeparator(), "")) && pathToFileOrDir.endsWith(".properties")) {
-                            String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf(TicketGeneratorUtil.getFileSeparator()) + 1);
+                        if (pathToFileOrDir.startsWith(DIR_LOCALES) && pathToFileOrDir.endsWith(".properties")) {
+                            String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf(FilesUtil.ZIP_SEPARATOR) + 1);
                             Locale locale = isLocale(simpleName);
                             if (Objects.nonNull(locale)) {
                                 builderList.accept(locale);
@@ -202,10 +202,14 @@ public class LocalsConfiguration implements SerializeListener {
     }
 
     protected void runUpdate(Locale locale) {
-        handlers.parallelStream().forEach(l-> l.onUpdateLocale(locale));
+        TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
+            handlers.parallelStream().forEach(l -> {
+                l.onUpdateLocale(locale);
+            });
+        }).run();
     }
 
-    public void addListener(LocalizerListener l){
+    public void addListener(LocalizerListener l) {
         handlers.add(l);
     }
 

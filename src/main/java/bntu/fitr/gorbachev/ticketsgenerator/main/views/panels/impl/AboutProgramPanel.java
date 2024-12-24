@@ -7,8 +7,10 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.BasePanel;
 import bntu.fitr.gorbachev.ticketsgenerator.main.views.panels.tools.FileNames;
 import lombok.SneakyThrows;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.ImageObserver;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -42,9 +44,14 @@ public class AboutProgramPanel extends BasePanel {
         JPanel panelHtml = new JPanel(new GridLayout(1, 1, 5, 5));
         panelHtml.add(lbHtml);
         panelInfo.add(panelHtml);
+        ImageIcon imageIcon = new ImageIcon(Objects.requireNonNull(
+                FileNames.getResource(FileNames.picturePrim2)));
 
-        JLabel lbImage = new JLabel(new ImageIcon(Objects.requireNonNull(
-                FileNames.getResource(FileNames.picturePrim2))));
+        Image image = imageIcon.getImage();
+        image = image.getScaledInstance(getRootFrame().getWidth() - 150,
+                image.getHeight((img, infoflags, x, y, width, height) -> true), Image.SCALE_SMOOTH);
+        JLabel lbImage = new JLabel(new ImageIcon(image));
+
         JPanel panelImage = new JPanel(new GridLayout(1, 1, 5, 5));
         panelImage.add(lbImage);
         panelInfo.add(panelImage);
@@ -54,16 +61,24 @@ public class AboutProgramPanel extends BasePanel {
         panelHtml = new JPanel(new GridLayout(1, 1, 5, 5));
         panelHtml.add(lbHtml1);
         panelInfo.add(panelHtml);
-
-        lbImage = new JLabel(new ImageIcon(Objects.requireNonNull(
+        imageIcon = new ImageIcon(Objects.requireNonNull(
                 FileNames.getResource(FileNames.picturePrim1)
-        )));
+        ));
+        image = imageIcon.getImage();
+        image = image.getScaledInstance(getRootFrame().getWidth() - 150,
+                image.getHeight((img, infoflags, x, y, width, height) -> true), Image.SCALE_SMOOTH);
+        lbImage = new JLabel(new ImageIcon(image));
+        lbImage.setHorizontalAlignment(JLabel.CENTER);
+        lbImage.setVerticalAlignment(JLabel.CENTER);
+
+
         panelImage = new JPanel(new GridLayout(1, 1, 5, 5));
         panelImage.add(lbImage);
         panelInfo.add(panelImage);
 
-
-        this.add(new JScrollPane(panelInfo), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(panelInfo);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(25);
+        this.add(scrollPane, BorderLayout.CENTER);
 
         var btnOk = new JButton(Localizer.get("btn.ok"));
         btnOk.addActionListener(event -> getRootFrame().setVisible(false));

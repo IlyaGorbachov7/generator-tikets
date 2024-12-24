@@ -22,6 +22,8 @@ import java.util.zip.ZipOutputStream;
 public class FilesUtil {
 
 
+    public static final char ZIP_SEPARATOR = '/';
+
     /**
      * При использовании  <i>ClassName.class.<b>getResourceAsStream(path)</b></i>
      * <p>
