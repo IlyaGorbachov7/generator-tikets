@@ -63,10 +63,10 @@ public class TicketGeneratorUtil {
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
             loggerConfiguration = new LoggerConfiguration();
-            localsConfiguration = new LocalsConfiguration();
             themeAppConfiguration = new ThemeAppConfiguration();
-            log = LogManager.getLogger(TicketGeneratorUtil.class);
             AppThemeManager.updateTheme();
+            localsConfiguration = new LocalsConfiguration();
+            log = LogManager.getLogger(TicketGeneratorUtil.class);
             log.info("Completed initialize context of application");
         } catch (Throwable ex) {
             if (Objects.nonNull(log)) log.error("", ex);
