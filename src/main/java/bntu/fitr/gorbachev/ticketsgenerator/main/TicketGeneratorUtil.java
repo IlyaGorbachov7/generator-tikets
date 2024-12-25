@@ -55,17 +55,28 @@ public class TicketGeneratorUtil {
             // This sequence must be such!
             System.out.println("--------Initialize Context of Application--------");
             config = new ConfigurationApplicationProperties();
-            System.setProperty(DIR_APP_KEY, getPathAppDirectory().toString());
-            System.setProperty(DIR_SERIALIZE_KEY, getPathSerializeDirectory().toString());
+            System.setProperty(APP_STORAGE_KEY, getFileAppStorage().toString());
+            System.setProperty(DIR_APP_KEY, getFileAppDirectory().toString());
+            System.setProperty(DIR_SERIALIZE_KEY, getFileSerializeDirectory().toString());
             // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
-            System.setProperty(DIR_LOGS_KEY, getPathLogsDirectory().toString());
+            System.setProperty(DIR_LOGS_KEY, getFileLogsDirectory().toString());
             loggerConfiguration = new LoggerConfiguration();
             themeAppConfiguration = new ThemeAppConfiguration();
             AppThemeManager.updateTheme();
             localsConfiguration = new LocalsConfiguration();
             log = LogManager.getLogger(TicketGeneratorUtil.class);
-            log.info("Completed initialize context of application");
+            log.info("Application storage database: {}", System.getProperty(APP_STORAGE_KEY));
+            log.info("Application directory: {}", System.getProperty(DIR_APP_KEY));
+            log.info("Application serialize directory: {}", System.getProperty(DIR_LOGS_KEY));
+            log.info("Application logs directory: {}", System.getProperty(DIR_LOGS_KEY));
+            log.info("""
+                    
+                    ==============================================================
+                             Completed initialize context of application
+                    ==============================================================
+                    
+                    """);
         } catch (Throwable ex) {
             if (Objects.nonNull(log)) log.error("", ex);
             showAlertDialog(ex);
@@ -75,6 +86,16 @@ public class TicketGeneratorUtil {
 
     public static Path getPathUserDirectory() {
         return Path.of(System.getProperty("user.home"));
+    }
+
+    public static File getFileAppStorage() throws IOException {
+        Path path = getPathAppStorage();
+        return FilesUtil.createDirIfNotExist(path);
+    }
+
+    private static Path getPathAppStorage() {
+        return config.getAppStore().map(Path::of).orElseGet(
+                () -> Path.of(System.getProperty(Main.SYS_PROP_APP_STORAGE), config.getDirAppName()));
     }
 
     public static File getFileUserDirectory() throws IOException {
@@ -92,7 +113,7 @@ public class TicketGeneratorUtil {
      */
     public static Path getPathAppDirectory() {
         return config.getDirApp().map(Path::of).orElseGet(
-                () -> Path.of(getPathUserDirectory().toString(), ".tickets-generator"));
+                () -> Path.of(getPathUserDirectory().toString(), config.getDirAppName()));
     }
 
     public static File getFileAppDirectory() throws IOException {
@@ -187,6 +208,10 @@ public class TicketGeneratorUtil {
 
     public static Long getDelayStepGeneration() {
         return config.getDelayStepGeneration().orElse(500L);
+    }
+
+    public static Double getDatabaseConnWait() {
+        return config.getDatabaseConnWait().get();
     }
 
     public static String getFileSeparator() {

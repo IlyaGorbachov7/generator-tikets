@@ -44,7 +44,7 @@
 
     <Loggers>
         <!--Для иных библиотек я вывожу только WARN-->
-        <Root level="warn">
+        <Root level="debug">
             <AppenderRef ref="FileAppender"/>
             <AppenderRef ref="TriggerOnDeleteLogFiles"/>
             <AppenderRef ref="ConsoleAppender"/>

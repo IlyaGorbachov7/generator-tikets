@@ -29,7 +29,7 @@ public class TestPoolConnection {
     static PoolConnection poolConnection;
 
     @BeforeAll
-    static void init() {
+    static void init() throws ConnectionPoolException {
         poolConnection = PoolConnection.Builder.build();
     }
 

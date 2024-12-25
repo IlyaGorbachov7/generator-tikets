@@ -1,8 +1,8 @@
 package bntu.fitr.gorbachev.ticketsgenerator.main.repositorys.poolcon;
 
+import bntu.fitr.gorbachev.ticketsgenerator.main.TicketGeneratorUtil;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -23,9 +23,10 @@ public class PoolConnection {
     public static String DEF_CONFIG_FILE_PATH = "hibernate.cfg.xml";
     private static final PoolConnection instance = new PoolConnection();
     private static SessionFactory connectionFactory;
-    private static final Logger logger = LogManager.getLogger(PoolConnection.class);
+    @Getter
+    private static volatile boolean initializationFailed = false;
 
-    private static PoolConnection getInstance() {
+    public static PoolConnection getInstance() {
         return instance;
     }
 
@@ -56,11 +57,19 @@ public class PoolConnection {
         }
     }
 
-    public synchronized void destroy() throws ConnectionPoolException {
-        try {
-            connectionFactory.close();
-        } catch (HibernateException ex) {
-            throw new ConnectionPoolException(ex);
+    public void destroy() throws ConnectionPoolException {
+        if (connectionFactory != null) {
+            synchronized (this) {
+                try {
+                    connectionFactory.close();
+                } catch (HibernateException ex) {
+                    throw new ConnectionPoolException(ex);
+                }
+            }
+        }
+        if (connectionFactory == null) {
+            log.error("Connection to database don't initialized");
+            throw new ConnectionPoolException("Connection to database don't initialized");
         }
     }
 
@@ -70,14 +79,33 @@ public class PoolConnection {
 
     public static class Builder {
 
-        public static PoolConnection build() {
+        public static PoolConnection build() throws ConnectionPoolException {
             if (connectionFactory == null) {
                 synchronized (PoolConnection.Builder.class) {
                     if (connectionFactory == null) {
-                        connectionFactory = new Configuration()
-                                .configure(System.getProperty(SYS_PROP_JPA_CONFIG, DEF_CONFIG_FILE_PATH))
-                                .buildSessionFactory();
-                        log.info("connection factory is build");
+                        if (initializationFailed) {
+                            throw new ConnectionPoolException();
+                        }
+                        Thread thread = new Thread(() -> {
+                            try {
+                                connectionFactory = new Configuration()
+                                        .configure(System.getProperty(SYS_PROP_JPA_CONFIG, DEF_CONFIG_FILE_PATH))
+                                        .buildSessionFactory();
+                                log.info("connection factory is build");
+                            } catch (Exception e) {
+                                initializationFailed = true;
+                                log.error("connection to database is failed");
+                            }
+                        });
+                        thread.start();
+                        try {
+                            thread.join((long) (60000 * TicketGeneratorUtil.getDatabaseConnWait())); // in minutes
+                            if (connectionFactory == null) {
+                                initializationFailed = true;
+                                throw new ConnectionPoolException("connection to database is failed. The wait connection is over. ");
+                            }
+                        } catch (InterruptedException ignored) {
+                        }
                     } else {
                         log.warn("connection pool already is build");
                     }
@@ -85,5 +113,9 @@ public class PoolConnection {
             }
             return getInstance();
         }
+    }
+
+    public static boolean isInitializationFailed() {
+        return initializationFailed;
     }
 }

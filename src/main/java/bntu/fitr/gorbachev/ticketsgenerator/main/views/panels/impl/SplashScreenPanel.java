@@ -231,10 +231,10 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
                 log.trace("Frame application is closing");
                 getRootFrame().setVisible(false);
                 try {
-                    PoolConnection.Builder.build().destroy();
+                    PoolConnection.getInstance().destroy();
                     threadProcess.interrupt();
                 } catch (ConnectionPoolException ex) {
-                    throw new RuntimeException(ex);
+                    System.exit(-2);
                 } finally {
                     log.info("Application is closed");
                 }
@@ -261,11 +261,26 @@ public class SplashScreenPanel extends BasePanel implements LocalizerListener {
         @Override
         public void run() {
             log.info("Started initialization application");
+            CompletableFuture.runAsync(() -> {
+                TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
+                    try {
+                        PoolConnection.Builder.build();
+                    } catch (ConnectionPoolException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).run();
+                if (PoolConnection.isInitializationFailed()) {
+                    System.exit(-1);
+                }
+            });
             CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
-                PoolConnection.Builder.build();
-            }));
-            CompletableFuture.runAsync(TicketGeneratorUtil.handlerExceptionUIAlert(() -> {
-                mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
+                try {
+                    mainWindow = FrameDialogFactory.getInstance().createJFrame(FrameType.MAIN_WINDOW, PanelType.MAIN_WINDOW);
+                } catch (Exception e) {
+                    if (!PoolConnection.isInitializationFailed()) {
+                        throw e;
+                    }
+                }
                 threadProcess.interrupt();
             }));
         }

@@ -19,8 +19,14 @@ import java.util.Optional;
 public class ConfigurationApplicationProperties {
     public static final String SYS_PROP_APP_PROP = "configuration.application";
 
+    public static final String APP_STORAGE_KEY = "app.storage";
+
+    public static final String APP_NAME_KEY = "app.dir-name";
+
     public static final String DIR_APP_KEY = "app.directory";
+
     public static final String DIR_SERIALIZE_KEY = "app.directory.serializer";
+
     public static final String DIR_LOGS_KEY = "app.directory.logs";
 
     public static final String APP_ICON = "app.icon";
@@ -32,6 +38,9 @@ public class ConfigurationApplicationProperties {
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
 
     public static final String DELAY_STEP_GENERATION = "app.generator.tickets.delay.step";
+
+
+    public static final String DATABASE_CONN_WAIT = "database.connection.wait";
 
     public static final String MAIL_ENABLE = "mail.enable";
 
@@ -71,6 +80,16 @@ public class ConfigurationApplicationProperties {
         }
     }
 
+    /**
+     * {@link #APP_NAME_KEY} -- this key should be required.
+     */
+    public String getDirAppName() {
+        return appProp.getValue(APP_NAME_KEY);
+    }
+
+    public Optional<String> getAppStore() {
+        return Optional.ofNullable(appProp.getValue(APP_STORAGE_KEY,null));
+    }
 
     /**
      * return value by key or <b>null</b> if key  is don't specified
@@ -113,6 +132,9 @@ public class ConfigurationApplicationProperties {
         return Optional.of(appProp.getLong(DELAY_STEP_GENERATION, 100));
     }
 
+    public Optional<Double> getDatabaseConnWait() {
+        return Optional.of(appProp.getDouble(DATABASE_CONN_WAIT, 1)); // in minutes
+    }
     public Optional<String> getAppIcon() {
         return Optional.ofNullable(appProp.getValue(APP_ICON, "pictures/iconCoursework.png"));
     }

@@ -866,8 +866,8 @@ public class MainWindowPanel extends BasePanel implements ThemeChangerListener, 
                         if (executionThread != null) {
                             executionThread.interrupt();
                         }
-                        PoolConnection.Builder.build().destroy();
                         task.get();
+                        PoolConnection.getInstance().destroy();
 
                     } catch (ConnectionPoolException | ExecutionException | InterruptedException ex) {
                         throw new RuntimeException(ex);
