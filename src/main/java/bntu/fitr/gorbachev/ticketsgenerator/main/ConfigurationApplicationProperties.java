@@ -25,11 +25,16 @@ public class ConfigurationApplicationProperties {
 
     public static final String APP_ICON = "app.icon";
 
+    public static final String USE_LOCALE_KEY = "app.locale.use";
+
     public static final String DEFAULT_LOCALE_KEY = "app.locale.default";
+
     public static final String THEME_APP_DEF_KEY = "app.theme.default";
+
     public static final String DELAY_STEP_GENERATION = "app.generator.tickets.delay.step";
 
     public static final String MAIL_ENABLE = "mail.enable";
+
     public static final String MAIL_SMTP_AUTH = "mail.smtp.auth";
 
     public static final String MAIL_SMTP_TTLS = "mail.smtp.starttls.enable";
@@ -91,6 +96,10 @@ public class ConfigurationApplicationProperties {
 
     public Optional<String> getDefaultLocale() {
         return Optional.ofNullable(appProp.getValue(DEFAULT_LOCALE_KEY, null));
+    }
+
+    public Optional<String[]> getLocaleToUse() {
+        return Optional.ofNullable(appProp.getValues(USE_LOCALE_KEY, null));
     }
 
     /**

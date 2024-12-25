@@ -9,6 +9,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
+import java.util.Objects;
 
 public class InitializeProperties {
 
@@ -34,5 +35,11 @@ public class InitializeProperties {
                 .setResolverRegex(RegexResolverToString.builder().buildNullable())
                 .setResolverToArrayInt(ResolverToArrayInt.builder().build())
                 .build(Path.of("test.properties").toFile());
+    }
+
+    @Test
+    public void test5() {
+        System.out.println(Objects.nonNull(ClassLoader.getSystemResourceAsStream("lang\\en.properties")));
+        System.out.println(String.join("_", "", ""));
     }
 }

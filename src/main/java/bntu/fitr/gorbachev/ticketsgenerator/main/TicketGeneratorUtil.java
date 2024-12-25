@@ -29,8 +29,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static bntu.fitr.gorbachev.ticketsgenerator.main.ConfigurationApplicationProperties.*;
 
@@ -215,7 +213,7 @@ public class TicketGeneratorUtil {
         textArea.setText(bos.toString(StandardCharsets.UTF_8));
         textArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(textArea);
-        scrollPane.setPreferredSize(new Dimension(500,250));
+        scrollPane.setPreferredSize(new Dimension(500, 250));
         scrollPane.getVerticalScrollBar().setVisible(true);
         panel.add(lblMessage, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);

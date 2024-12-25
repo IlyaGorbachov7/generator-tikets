@@ -20,10 +20,13 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil.ARCHIVE_SEPARATOR;
+import static bntu.fitr.gorbachev.ticketsgenerator.main.util.FilesUtil.PROPERTIES_EXCEPTION;
+
 @Log4j2
 public class LocalsConfiguration implements SerializeListener {
     public static final String DIR_LOCALES = "lang";
-    public static final String PROPERTIES_EXCEPTION = ".properties";
+    private static final String LOCALE_SEPARATOR = "_";
 
     private final Locale defaultLocale = TicketGeneratorUtil.getDefaultLocale();
     @Getter
@@ -72,77 +75,69 @@ public class LocalsConfiguration implements SerializeListener {
     }
 
     private void defineLocale() throws LocalizerException {
-        try {
-            Set<Locale> supportedLocales = getSupportedLocale();
-            if (!supportedLocales.contains(defaultLocale)) { // this snippet is very important
-                log.error("Specified defaultLocale: {} don't supported. Supported locales: {}", defaultLocale, supportedLocales);
-                throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s.", defaultLocale, supportedLocales));
-            }
-
-            if (Objects.nonNull(selectedLocale)) {
-                if (!supportedLocales.contains(selectedLocale)) {
-                    log.warn("Selected locale: {} not founded from supported locales: {}", selectedLocale, supportedLocales);
-                    selectedLocale = null;
-                } else {
-                    return;
-                }
-            }
-            selectedLocale = defaultLocale;
-            Locale.setDefault(selectedLocale);
-        } catch (NotAccessToFileException e) {
-            throw new LocalizerException(e);
+        Set<Locale> supportedLocales = getSupportedLocale();
+        if (supportedLocales.isEmpty()) {
+            log.error("Supported languages are not defined in the application. Check the correspondence between the values of the configuration property in the configuration file and the file names in the directory: {}/", DIR_LOCALES);
+            throw new LocalizerException(String.format("Supported languages are not defined in the application. Check the correspondence between the values of the configuration property in the configuration file and the file names in the directory: %s/", DIR_LOCALES));
         }
+        log.info("Found supported locales: {}", supportedLocales);
+        if (!supportedLocales.contains(defaultLocale)) { // this snippet is very important
+            log.error("Specified defaultLocale: {} don't supported. Supported locales: {}", defaultLocale, supportedLocales);
+            throw new LocalizerException(String.format("Specified defaultLocale: %s don't supported. Supported locales: %s.", defaultLocale, supportedLocales));
+        }
+
+        if (Objects.nonNull(selectedLocale)) {
+            if (!supportedLocales.contains(selectedLocale)) {
+                log.warn("Selected locale: {} not founded from supported locales: {}", selectedLocale, supportedLocales);
+                selectedLocale = null;
+            } else {
+                return;
+            }
+        }
+        selectedLocale = defaultLocale;
+        Locale.setDefault(selectedLocale);
 
     }
 
-    private Set<Locale> getSupportedLocale() throws NotAccessToFileException, LocalizerException {
+    private Set<Locale> getSupportedLocale() throws LocalizerException {
         if (Objects.isNull(supportedLocales)) {
-            Stream.Builder<Locale> builderList = Stream.builder();
-            if (FilesUtil.isRunningFromJar()) {
-                String pathJarFile = LocalsConfiguration.class.getProtectionDomain()
-                        .getCodeSource().getLocation().getPath();
-                try (JarFile jarFile = new JarFile(pathJarFile)) {
-                    var entries = jarFile.entries();
-                    while (entries.hasMoreElements()) {
-                        JarEntry entity = entries.nextElement();
-                        String pathToFileOrDir = entity.getName();
-                        if (pathToFileOrDir.startsWith(DIR_LOCALES) && pathToFileOrDir.endsWith(".properties")) {
-                            String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf(FilesUtil.ZIP_SEPARATOR) + 1);
-                            Locale locale = isLocale(simpleName);
-                            if (Objects.nonNull(locale)) {
-                                builderList.accept(locale);
-                                log.debug("Find supported-locale file {}", simpleName);
-                            }
-                        }
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                try {
-                    Path rootDirLocales = Path.of(Objects.requireNonNull(LocalsConfiguration.class.getClassLoader().getResource(DIR_LOCALES)).toURI());
-                    log.info("Default dir locales file: {}", rootDirLocales);
-                    Files.find(rootDirLocales, 1, (pathFile, attr) -> {
-                        if (pathFile.toString().endsWith(".properties")) {
-                            return true;
-                        }
-                        return false;
-                    }).forEach(propertiesPath -> {
-                        String namePropertieFile = propertiesPath.toString().substring(propertiesPath.toString().lastIndexOf(TicketGeneratorUtil.getFileSeparator()) + 1);
-                        Locale locale = isLocale(namePropertieFile);
-                        if (Objects.nonNull(locale)) {
-                            builderList.accept(locale);
-                            log.debug("Find supported-locale file {}", namePropertieFile);
-                        }
-                    });
-                } catch (Exception e) {
-                    throw new NotAccessToFileException("Directory locale undefined", e, Path.of(DIR_LOCALES));
-                }
+            Set<Locale> definedInConfig = getLocalesToUsedFromConfig();
+            if (definedInConfig.isEmpty()) {
+                log.error("Don't specified configuration property for defining to used locales");
+                throw new LocalizerException("Don't specified configuration property for defining to used locales");
             }
-            supportedLocales = builderList.build().collect(Collectors.toSet());
-            if (supportedLocales.isEmpty()) throw new LocalizerException("Don't founded nothing locales file");
+            log.info("Specified locales to used in application: {}", definedInConfig);
+
+            supportedLocales = definedInConfig.stream().filter(locSpecifiedFromConfig -> {
+                String simpleFileName = toString(locSpecifiedFromConfig) + PROPERTIES_EXCEPTION; // for exam: ru.properties
+                String source = String.join(ARCHIVE_SEPARATOR, DIR_LOCALES, simpleFileName); // for exam: lang/ru.properties
+                boolean isExist = Objects.nonNull(ClassLoader.getSystemResourceAsStream(source)); // check if ru/en/any.properties exist in lang/
+                if (!isExist) {
+                    log.error("Specified values of locals in config file don't match with physically exists files of locale." +
+                              " Was specified {}, but file not fonded {}",
+                            locSpecifiedFromConfig, source);
+                    throw new RuntimeException(new LocalizerException(String.format(
+                            "Specified values of locals in config file don't match with physically exists files of locale." +
+                            " Was specified %s, but file not fonded %s",
+                            locSpecifiedFromConfig, source
+                    )));
+                }
+                return isExist; // is always will be true
+            }).collect(Collectors.toSet());
         }
         return supportedLocales;
+    }
+
+    /**
+     * This method return specified locales in file of configuration : {@code application.properties} which will be included
+     * in project to used
+     *
+     * @return locales specified in file configuration for using
+     */
+    public Set<Locale> getLocalesToUsedFromConfig() {
+        return TicketGeneratorUtil.getConfig().getLocaleToUse().map(supportedLocales -> Stream.of(supportedLocales)
+                        .filter(locale -> Objects.nonNull(isLocale(locale))).map(this::isLocale).collect(Collectors.toSet()))
+                .orElse(Collections.emptySet());
     }
 
     /**
@@ -155,18 +150,31 @@ public class LocalsConfiguration implements SerializeListener {
      * привычными именами:
      * en.properties, ru.properties и так далее. Потому что пользователь явно с какой-то из этих локацией
      */
-    private Locale isLocale(String simpleName) {
-        String name = simpleName.substring(0, simpleName.indexOf(PROPERTIES_EXCEPTION));
-        if (name.length() > 5) return null;
-        if (name.contains("_")) {
-            String[] args = name.split("_");
+    public Locale isLocaleFile(String simpleFileName) {
+        String lng_city = simpleFileName.substring(0, simpleFileName.indexOf(PROPERTIES_EXCEPTION));
+        return isLocale(lng_city);
+    }
+
+    public Locale isLocale(String lng_city) {
+        if (lng_city.length() > 5) return null;
+        if (lng_city.contains("_")) {
+            String[] args = lng_city.split(LOCALE_SEPARATOR);
             if (args.length > 2) {
                 return null;
             }
             return new Locale(args[0], args[1]);
         }
-        if (name.length() > 2) return null;
-        return new Locale(name);
+        if (lng_city.length() > 2) return null;
+        return new Locale(lng_city);
+    }
+
+    public String toString(Locale locale) {
+        String separator = LOCALE_SEPARATOR;
+
+        if (locale.getLanguage().isEmpty() || locale.getCountry().isEmpty()) {
+            separator = "";
+        }
+        return String.join(separator, locale.getLanguage(), locale.getCountry());
     }
 
     public LocaleResolver getLocaleResolver() {
@@ -222,5 +230,69 @@ public class LocalsConfiguration implements SerializeListener {
         LocData data = new LocData();
         data.setSelectedLocale(selectedLocale);
         serializer.serialize(data);
+    }
+
+    /**
+     * Цель создания этого метода была в том, чтобы не вмешиваясь в код проекта добавлять файл locale (новый язык) просто в
+     * директорию.
+     * <p>
+     * <b>Теперь этот метод не используется, а причина проста</b>
+     * <p>
+     * - Реализация {@link #XgetSupportedLocaleX()} подразумевает поиск файлов locale-properties в lang директории
+     * Если проект запускается из jar или из IDEA то все отрабатывает.
+     * <b>НОООО</b> {@code если проект собрать в exe файл то ничего не работает, потому что exe - это исполняемый файл,
+     * а не архивный файл и по нему нельзя пробежаться посмотреть какие файлы есть}
+     *
+     * @apiNote {@link #getSupportedLocales()}  Мне пришлось указать supported locales в application.properties, а причина проста.
+     */
+    @Deprecated
+    private Set<Locale> XgetSupportedLocaleX() throws NotAccessToFileException, LocalizerException {
+        if (Objects.isNull(supportedLocales)) {
+            Stream.Builder<Locale> builderList = Stream.builder();
+            if (FilesUtil.isRunningFromJar()) {
+                String pathJarFile = LocalsConfiguration.class.getProtectionDomain()
+                        .getCodeSource().getLocation().getPath();
+                try (JarFile jarFile = new JarFile(pathJarFile)) {
+                    var entries = jarFile.entries();
+                    while (entries.hasMoreElements()) {
+                        JarEntry entity = entries.nextElement();
+                        String pathToFileOrDir = entity.getName();
+                        if (pathToFileOrDir.startsWith(DIR_LOCALES) && pathToFileOrDir.endsWith(".properties")) {
+                            String simpleName = pathToFileOrDir.substring(pathToFileOrDir.lastIndexOf(ARCHIVE_SEPARATOR) + 1);
+                            Locale locale = isLocaleFile(simpleName);
+                            if (Objects.nonNull(locale)) {
+                                builderList.accept(locale);
+                                log.debug("Find supported-locale file {}", simpleName);
+                            }
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                try {
+                    Path rootDirLocales = Path.of(Objects.requireNonNull(LocalsConfiguration.class.getClassLoader().getResource(DIR_LOCALES)).toURI());
+                    log.info("Default dir locales file: {}", rootDirLocales);
+                    Files.find(rootDirLocales, 1, (pathFile, attr) -> {
+                        if (pathFile.toString().endsWith(".properties")) {
+                            return true;
+                        }
+                        return false;
+                    }).forEach(propertiesPath -> {
+                        String namePropertieFile = propertiesPath.toString().substring(propertiesPath.toString().lastIndexOf(TicketGeneratorUtil.getFileSeparator()) + 1);
+                        Locale locale = isLocaleFile(namePropertieFile);
+                        if (Objects.nonNull(locale)) {
+                            builderList.accept(locale);
+                            log.debug("Find supported-locale file {}", namePropertieFile);
+                        }
+                    });
+                } catch (Exception e) {
+                    throw new NotAccessToFileException("Directory locale undefined", e, Path.of(DIR_LOCALES));
+                }
+            }
+            supportedLocales = builderList.build().collect(Collectors.toSet());
+            if (supportedLocales.isEmpty()) throw new LocalizerException("Don't founded nothing locales file");
+        }
+        return supportedLocales;
     }
 }

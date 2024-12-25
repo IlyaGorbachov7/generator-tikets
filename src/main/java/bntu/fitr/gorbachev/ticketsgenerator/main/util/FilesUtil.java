@@ -25,7 +25,9 @@ public class FilesUtil {
     /**
      * This separator used always for ZIP or JAR path of files
      */
-    public static final char ZIP_SEPARATOR = '/';
+    public static final String ARCHIVE_SEPARATOR = "/";
+    
+    public static final String PROPERTIES_EXCEPTION = ".properties";
 
     /**
      * При использовании  <i>ClassName.class.<b>getResourceAsStream(path)</b></i>
