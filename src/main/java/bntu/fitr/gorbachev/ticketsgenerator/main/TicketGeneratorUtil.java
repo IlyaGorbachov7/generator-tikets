@@ -61,21 +61,22 @@ public class TicketGeneratorUtil {
             // this very importer because file applog4j2.xml exist text, which contains property key from application.properties
             // So I must add this key=value from application.properties earlier than will be performed logger configuration
             System.setProperty(DIR_LOGS_KEY, getFileLogsDirectory().toString());
+
             loggerConfiguration = new LoggerConfiguration();
             themeAppConfiguration = new ThemeAppConfiguration();
             AppThemeManager.updateTheme();
             localsConfiguration = new LocalsConfiguration();
             log = LogManager.getLogger(TicketGeneratorUtil.class);
-            log.info("Application storage database: {}", System.getProperty(APP_STORAGE_KEY));
-            log.info("Application directory: {}", System.getProperty(DIR_APP_KEY));
-            log.info("Application serialize directory: {}", System.getProperty(DIR_LOGS_KEY));
-            log.info("Application logs directory: {}", System.getProperty(DIR_LOGS_KEY));
+            log.info("Application storage database: {}", getPathAppStorage().toAbsolutePath());
+            log.info("Application directory: {}", getPathAppDirectory().toAbsolutePath());
+            log.info("Application serialize directory: {}", getPathSerializeDirectory().toAbsolutePath());
+            log.info("Application logs directory: {}", getPathLogsDirectory().toAbsolutePath());
             log.info("""
-                    
+                                        
                     ==============================================================
                              Completed initialize context of application
                     ==============================================================
-                    
+                                        
                     """);
         } catch (Throwable ex) {
             if (Objects.nonNull(log)) log.error("", ex);
@@ -93,7 +94,14 @@ public class TicketGeneratorUtil {
         return FilesUtil.createDirIfNotExist(path);
     }
 
+    /**
+     * You can override property <b>APP_STORAGE_KEY</b> from System property
+     */
     private static Path getPathAppStorage() {
+        String pathStr = System.getProperty(APP_STORAGE_KEY);
+        if (Objects.nonNull(pathStr)) {
+            return Path.of(pathStr);
+        }
         return config.getAppStore().map(Path::of).orElseGet(
                 () -> Path.of(System.getProperty(Main.SYS_PROP_APP_STORAGE), config.getDirAppName()));
     }
