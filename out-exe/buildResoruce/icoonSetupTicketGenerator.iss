@@ -22,9 +22,9 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-OutputDir=C:\Users\Perse\IdeaProjects\generator-tikets\out
+OutputDir=C:\Users\Perse\IdeaProjects\generator-tikets\out-exe
 OutputBaseFilename=generator-ticket-installer {#MyAppCurrentUpdateVersion}
-SetupIconFile=C:\Users\Perse\IdeaProjects\generator-tikets\out\buildResoruce\icon.ico
+SetupIconFile=C:\Users\Perse\IdeaProjects\generator-tikets\out-exe\buildResoruce\icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

@@ -2,8 +2,8 @@
 <launch4jConfig>
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>C:\Users\Perse\IdeaProjects\generator-tikets\out\buildResoruce\ConstructorTickets-3.0-jar-with-dependencies.jar</jar>
-  <outfile>C:\Users\Perse\IdeaProjects\generator-tikets\out\appResoruce\exam-generator.exe</outfile>
+  <jar>C:\Users\Perse\IdeaProjects\generator-tikets\out-exe\buildResoruce\ConstructorTickets-3.0-jar-with-dependencies.jar</jar>
+  <outfile>C:\Users\Perse\IdeaProjects\generator-tikets\out-exe\appResoruce\exam-generator.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>C:\Users\Perse\IdeaProjects\generator-tikets\out\buildResoruce\icon.ico</icon>
+  <icon>C:\Users\Perse\IdeaProjects\generator-tikets\out-exe\buildResoruce\icon.ico</icon>
   <singleInstance>
     <mutexName>ExamGenerator</mutexName>
     <windowTitle></windowTitle>
