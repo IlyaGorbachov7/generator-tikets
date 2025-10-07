@@ -6,13 +6,12 @@ import bntu.fitr.gorbachev.ticketsgenerator.main.basis.Ticket;
 import bntu.fitr.gorbachev.ticketsgenerator.main.basis.exceptions.GenerationConditionException;
 
 import java.util.List;
-
 /**
  * Привет всем. Сегодня 7.10.2025 год. Изучаю паттерн Стратегия.
  *
  * Как можете видеть - я уже реализовывал его!!
  */
-public interface StrategyTicketsGeneration<Q extends QuestionExt, E extends Ticket<? super Q>> {
+public interface TicketsGeneratorWay<Q extends QuestionExt, E extends Ticket<? super Q>> {
 
     void conditionGeneration(List<Q> questions, GenerationProperty property) throws GenerationConditionException;
 
